@@ -14,11 +14,13 @@ import {
   UserCog,
   TrendingUp,
   BookOpen,
+  ChefHat,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const ITEMS = [
   { href: "/app/guia-definitivo", label: "Guia Definitivo", icon: BookOpen },
+  { href: "/app/receitas", label: "Receitas", icon: ChefHat },
   { href: "/app/busca", label: "Buscar corte seguro", icon: Search },
   { href: "/app/alergia", label: "Guia de Alergia", icon: ShieldAlert },
   { href: "/app/sos", label: "Manual S.O.S.", icon: Siren },

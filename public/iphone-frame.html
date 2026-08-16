@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>NutriMäe — Moldura iPhone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: radial-gradient(circle at 50% 20%, #2a2a32, #0e0e12 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* --- iPhone frame --- */
+  .phone {
+    position: relative;
+    width: 393px;
+    height: 852px;
+    background: #0b0b0d;
+    border-radius: 62px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 2px #2c2c30,
+      0 0 0 6px #050505,
+      0 30px 80px rgba(0,0,0,0.65),
+      inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+
+  .phone-buttons span {
+    position: absolute;
+    background: #1b1b1e;
+  }
+  .btn-power {
+    right: -3px; top: 200px; width: 3px; height: 90px; border-radius: 2px;
+  }
+  .btn-vol-up {
+    left: -3px; top: 150px; width: 3px; height: 45px; border-radius: 2px;
+  }
+  .btn-vol-down {
+    left: -3px; top: 205px; width: 3px; height: 45px; border-radius: 2px;
+  }
+  .btn-action {
+    left: -3px; top: 110px; width: 3px; height: 30px; border-radius: 2px;
+  }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    border-radius: 48px;
+    overflow: hidden;
+  }
+
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 48px;
+    background: #FFF5F7;
+  }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.9);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* --- Controls (hidden while recording, shown on hover) --- */
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    opacity: 0.55;
+    transition: opacity 0.2s;
+    font-size: 12px;
+    color: #ccc;
+  }
+  .controls:hover { opacity: 1; }
+  .controls input {
+    width: 260px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #1a1a1e;
+    color: #eee;
+    font-size: 12px;
+  }
+  .controls button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #1a1a1e;
+    color: #eee;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .controls button:hover { background: #2a2a2e; }
+
+  @media print {
+    .controls { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="phone">
+      <div class="phone-buttons">
+        <span class="btn-power"></span>
+        <span class="btn-vol-up"></span>
+        <span class="btn-vol-down"></span>
+        <span class="btn-action"></span>
+      </div>
+      <div class="screen">
+        <div class="dynamic-island"></div>
+        <iframe id="appFrame" src="/app" allow="clipboard-write"></iframe>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input id="pathInput" type="text" placeholder="/app, /login, /app/receitas..." value="/app" />
+      <button id="goBtn">Ir</button>
+      <button id="reloadBtn">Recarregar</button>
+    </div>
+  </div>
+
+  <script>
+    const frame = document.getElementById('appFrame');
+    const input = document.getElementById('pathInput');
+    const goBtn = document.getElementById('goBtn');
+    const reloadBtn = document.getElementById('reloadBtn');
+
+    const params = new URLSearchParams(location.search);
+    const initial = params.get('path');
+    if (initial) {
+      input.value = initial;
+      frame.src = initial;
+    }
+
+    goBtn.addEventListener('click', () => {
+      let path = input.value.trim();
+      if (!path.startsWith('/')) path = '/' + path;
+      frame.src = path;
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') goBtn.click();
+    });
+    reloadBtn.addEventListener('click', () => {
+      frame.contentWindow.location.reload();
+    });
+  </script>
+</body>
+</html>

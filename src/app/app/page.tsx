@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, Search, CalendarDays, Camera, Heart, Droplet, Sparkles, Bell, Headphones } from "lucide-react";
+import { ChevronRight, Search, CalendarDays, Camera, Heart, Droplet, Sparkles, Bell, Headphones, Cookie, X } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -102,10 +102,23 @@ export default function AppHomePage() {
   const [avoidAllergen, setAvoidAllergen] = useState<ReturnType<typeof allergenForDietFilter>>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
+  const [teethingDismissed, setTeethingDismissed] = useState(true);
 
   useEffect(() => {
     setPhotoUrl(activeBaby?.photo_url ?? null);
   }, [activeBaby?.photo_url]);
+
+  useEffect(() => {
+    if (!activeBaby) return;
+    const key = `nutrimae:teething-banner-dismissed:${activeBaby.id}`;
+    setTeethingDismissed(window.localStorage.getItem(key) === "1");
+  }, [activeBaby]);
+
+  function dismissTeethingBanner() {
+    if (!activeBaby) return;
+    window.localStorage.setItem(`nutrimae:teething-banner-dismissed:${activeBaby.id}`, "1");
+    setTeethingDismissed(true);
+  }
 
   useEffect(() => {
     if (!activeBaby) return;
@@ -269,6 +282,27 @@ export default function AppHomePage() {
           </div>
         </Link>
       </div>
+
+      {months >= 5 && months <= 7 && !teethingDismissed && (
+        <div className="flex items-start gap-3 rounded-2xl bg-primary-100 p-4">
+          <Cookie className="h-5 w-5 shrink-0 text-primary-600" strokeWidth={2} />
+          <div className="flex-1">
+            <p className="font-semibold text-brown-800">Os dentinhos podem estar chegando</p>
+            <p className="mt-0.5 text-xs text-brown-700/70">
+              Veja 15 opções de mordedores naturais seguros para essa fase.
+            </p>
+            <Link
+              href="/app/mordedores-naturais"
+              className="mt-2 inline-block text-xs font-semibold text-primary-600 underline"
+            >
+              Ver Mordedores Naturais
+            </Link>
+          </div>
+          <button type="button" onClick={dismissTeethingBanner} className="shrink-0">
+            <X className="h-4 w-4 text-brown-700/40" strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
       {/* Widget audiobooks */}
       <Link

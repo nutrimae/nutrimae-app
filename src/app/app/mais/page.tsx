@@ -18,6 +18,7 @@ import {
   Hand,
   Headphones,
   Palette,
+  Cookie,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,6 +27,7 @@ const ITEMS = [
   { href: "/app/receitas", label: "Receitas", icon: ChefHat },
   { href: "/app/pratinhos-divertidos", label: "Pratinhos Divertidos", icon: Palette },
   { href: "/app/blw", label: "Guia BLW", icon: Hand },
+  { href: "/app/mordedores-naturais", label: "Mordedores Naturais", icon: Cookie },
   { href: "/app/audiobooks", label: "Audiobooks", icon: Headphones },
   { href: "/app/busca", label: "Buscar corte seguro", icon: Search },
   { href: "/app/alergia", label: "Guia de Alergia", icon: ShieldAlert },

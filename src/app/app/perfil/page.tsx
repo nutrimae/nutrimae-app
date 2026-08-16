@@ -8,6 +8,7 @@ import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BackButton } from "@/components/back-button";
 import type { BabyGender } from "@/lib/types";
 
 export default function PerfilPage() {
@@ -75,6 +76,8 @@ export default function PerfilPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
+      <BackButton />
+
       <h1 className="font-heading text-2xl font-bold text-brown-800">Perfil e configurações</h1>
 
       {activeBaby && (

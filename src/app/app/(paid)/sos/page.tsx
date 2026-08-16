@@ -15,6 +15,7 @@ import {
 import { useActiveBaby } from "@/components/active-baby-context";
 import { ageInMonths } from "@/lib/age";
 import { ageBandForMonths } from "@/lib/menu";
+import { BackButton as PageBackButton } from "@/components/back-button";
 
 type View = "identify" | "reflex" | "choking" | "gag_info" | "allergy" | "gut" | "fever";
 
@@ -125,6 +126,8 @@ export default function SosPage() {
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-5 px-4 py-6">
         {view === "identify" && (
           <>
+            <PageBackButton />
+
             <div>
               <h1 className="font-heading text-2xl font-bold text-brown-800">
                 Antes de agir, identifique

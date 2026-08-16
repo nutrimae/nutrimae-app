@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Moon, Clock, LifeBuoy } from "lucide-react";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
+import { BackButton } from "@/components/back-button";
 import {
   SLEEP_AGE_BAND_LABEL,
   computeSleepWindow,
@@ -78,6 +79,8 @@ export function RotinaSonoContent() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
+      <BackButton />
+
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Rotina do Sono & Calma</h1>
         <p className="mt-1 text-brown-700">

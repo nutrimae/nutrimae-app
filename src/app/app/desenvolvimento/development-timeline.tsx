@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Clock, Lock } from "lucide-react";
+import { CheckCircle2, Clock, Lock } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { TOTAL_DIARY_FOODS } from "@/lib/food-diary";
+import { BackButton } from "@/components/back-button";
 
 interface Stage {
   fromMonth: number;
@@ -96,13 +96,7 @@ export function DevelopmentTimeline() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
-      <Link
-        href="/app/perfil"
-        className="flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600"
-      >
-        <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-        Voltar ao perfil
-      </Link>
+      <BackButton />
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">

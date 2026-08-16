@@ -6,6 +6,7 @@ import { Plus, MessageSquare, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BackButton } from "@/components/back-button";
 
 interface Ticket {
   id: string;
@@ -79,6 +80,8 @@ export default function SuportePage() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
+      <BackButton />
+
       <h1 className="font-heading text-2xl font-bold text-brown-800">Suporte</h1>
       <p className="text-brown-700">
         Fale com a nossa equipe. Respondemos por aqui — você não precisa esperar online.

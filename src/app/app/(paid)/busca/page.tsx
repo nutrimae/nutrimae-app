@@ -7,6 +7,7 @@ import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { ageBandForMonths, AGE_BAND_LABEL } from "@/lib/menu";
 import { searchFoods, type FoodItem } from "@/lib/foods";
+import { BackButton } from "@/components/back-button";
 
 export default function BuscaPage() {
   const { activeBaby } = useActiveBaby();
@@ -20,6 +21,8 @@ export default function BuscaPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
+      <BackButton />
+
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">
           Buscar corte seguro

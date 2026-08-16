@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { estimateDiapers, type DiaperEstimate } from "@/lib/diapers";
+import { BackButton } from "@/components/back-button";
 
 type Status = "nascera" | "nasceu";
 
@@ -44,6 +45,8 @@ export function CalculadoraFraldasContent() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
+      <BackButton />
+
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Calculadora de Fraldas</h1>
         <p className="mt-1 text-brown-700">

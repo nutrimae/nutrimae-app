@@ -1,5 +1,6 @@
 import { CheckCircle2, AlertTriangle, Info } from "lucide-react";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
+import { BackButton } from "@/components/back-button";
 
 const MILD_SIGNS = [
   "Pequenas manchinhas vermelhas ao redor da boca",
@@ -30,6 +31,8 @@ export default function AlergiaPage() {
       </div>
 
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-6 px-4 py-6">
+        <BackButton />
+
         <div>
           <h1 className="font-heading text-2xl font-bold text-brown-800">
             Sinais de alergia alimentar

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatRelativeDate, type CommunityFaq, type CommunityPost } from "@/lib/community";
+import { BackButton } from "@/components/back-button";
 
 type SortMode = "recentes" | "respondidos";
 
@@ -85,6 +86,8 @@ export function ClubFeed() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
+      <BackButton />
+
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-2xl font-bold text-brown-800">Club das Mães</h1>
         {isAdmin && (

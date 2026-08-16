@@ -1,9 +1,19 @@
 import { HTMLAttributes } from "react";
 
-export function Card({ className = "", ...props }: HTMLAttributes<HTMLDivElement>) {
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  /** subtle = cards secundários, medium = cards principais (padrão) */
+  depth?: "subtle" | "medium";
+}
+
+const depthShadow: Record<NonNullable<CardProps["depth"]>, string> = {
+  subtle: "shadow-[var(--shadow-subtle)]",
+  medium: "shadow-[var(--shadow-medium)]",
+};
+
+export function Card({ className = "", depth = "medium", ...props }: CardProps) {
   return (
     <div
-      className={`rounded-3xl bg-white/80 p-6 shadow-sm shadow-brown-900/5 ${className}`}
+      className={`lift-on-hover rounded-2xl bg-white p-5 ${depthShadow[depth]} ${className}`}
       {...props}
     />
   );

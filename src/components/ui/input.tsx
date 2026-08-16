@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={id}
-          className={`min-h-14 w-full rounded-2xl border-2 border-sage-100 bg-white px-5 text-lg text-brown-800 placeholder:text-brown-700/40 outline-none transition-colors focus:border-sage-400 ${
+          className={`min-h-14 w-full rounded-xl border-2 border-sage-100 bg-white px-4 text-base text-brown-800 placeholder:text-brown-700/40 outline-none transition-[border-color,box-shadow] duration-200 focus:border-primary-500 focus:shadow-[0_0_0_4px_var(--color-primary-glow)] ${
             error ? "border-terracotta-500" : ""
           } ${className}`}
           {...props}

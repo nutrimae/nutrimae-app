@@ -13,7 +13,7 @@ import type { BabyGender } from "@/lib/types";
 
 export default function PerfilPage() {
   const router = useRouter();
-  const { activeBaby } = useActiveBaby();
+  const { activeBaby, updateBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
 
   const [email, setEmail] = useState("");
@@ -50,6 +50,7 @@ export default function PerfilPage() {
       .eq("id", activeBaby.id);
     setSavingBaby(false);
     if (!error) {
+      updateBaby(activeBaby.id, { name: babyName.trim(), birth_date: birthDate, gender });
       setBabySaved(true);
       setTimeout(() => setBabySaved(false), 2500);
     }

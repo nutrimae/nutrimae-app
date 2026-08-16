@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Clock, ChefHat, Heart } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Search, Clock, ChefHat, Heart, Hand } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { ageInMonths } from "@/lib/age";
 import { AGE_BAND_LABEL, ageBandForMonths, type AgeBand } from "@/lib/menu";
@@ -22,6 +23,7 @@ const AGE_BANDS: AgeBand[] = ["6-7", "8-9", "10-12", "13-24"];
 
 export default function ReceitasPage() {
   const { activeBaby } = useActiveBaby();
+  const searchParams = useSearchParams();
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const babyBand = useMemo(() => ageBandForMonths(months), [months]);
 
@@ -29,6 +31,7 @@ export default function ReceitasPage() {
   const [ageBand, setAgeBand] = useState<AgeBand | "todas">(activeBaby ? babyBand : "todas");
   const [mealType, setMealType] = useState<RecipeMealType | "todas">("todas");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [blwOnly, setBlwOnly] = useState(searchParams.get("blw") === "1");
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [excludedAllergens, setExcludedAllergens] = useState<ReturnType<typeof getAllergenChecklist>>([]);
 
@@ -43,9 +46,10 @@ export default function ReceitasPage() {
       ageBand: ageBand === "todas" ? undefined : ageBand,
       mealType: mealType === "todas" ? undefined : mealType,
       excludeAllergens: excludedAllergens,
+      blwOnly,
     });
     return onlyFavorites ? base.filter((r) => favoriteIds.includes(r.id)) : base;
-  }, [query, ageBand, mealType, onlyFavorites, favoriteIds, excludedAllergens]);
+  }, [query, ageBand, mealType, onlyFavorites, favoriteIds, excludedAllergens, blwOnly]);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
@@ -130,16 +134,28 @@ export default function ReceitasPage() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setOnlyFavorites((v) => !v)}
-        className={`flex min-h-11 w-fit items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors ${
-          onlyFavorites ? "bg-terracotta-500 text-white" : "bg-white/80 text-brown-700 shadow-sm shadow-brown-900/5"
-        }`}
-      >
-        <Heart className="h-4 w-4" strokeWidth={2} fill={onlyFavorites ? "currentColor" : "none"} />
-        Só salvas
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setOnlyFavorites((v) => !v)}
+          className={`flex min-h-11 w-fit items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors ${
+            onlyFavorites ? "bg-terracotta-500 text-white" : "bg-white/80 text-brown-700 shadow-sm shadow-brown-900/5"
+          }`}
+        >
+          <Heart className="h-4 w-4" strokeWidth={2} fill={onlyFavorites ? "currentColor" : "none"} />
+          Só salvas
+        </button>
+        <button
+          type="button"
+          onClick={() => setBlwOnly((v) => !v)}
+          className={`flex min-h-11 w-fit items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors ${
+            blwOnly ? "bg-sage-500 text-white" : "bg-white/80 text-brown-700 shadow-sm shadow-brown-900/5"
+          }`}
+        >
+          <Hand className="h-4 w-4" strokeWidth={2} />
+          Próprio para BLW
+        </button>
+      </div>
 
       {results.length === 0 ? (
         <p className="py-8 text-center text-brown-700/60">

@@ -788,18 +788,30 @@ export const RECIPES: Recipe[] = [
 
 export const TOTAL_RECIPES = RECIPES.length;
 
+const NOT_BLW_KEYWORDS = /purê|papinha|amassad|sopa|cremos|vitamina|mingau|iogurte/i;
+
+/** Uma receita é considerada própria para BLW quando o resultado é um pedaço que se
+ * segura com a mão, em vez de um preparo amassado/líquido servido de colher. */
+export function isBlwFriendly(recipe: Recipe): boolean {
+  if (recipe.ageBand === "6-7") return false;
+  const text = `${recipe.title} ${recipe.steps.join(" ")}`;
+  return !NOT_BLW_KEYWORDS.test(text);
+}
+
 export function searchRecipes(params: {
   query?: string;
   ageBand?: AgeBand;
   mealType?: RecipeMealType;
   excludeAllergens?: Allergen[];
+  blwOnly?: boolean;
 }): Recipe[] {
-  const { query, ageBand, mealType, excludeAllergens } = params;
+  const { query, ageBand, mealType, excludeAllergens, blwOnly } = params;
   const q = query?.trim().toLowerCase() ?? "";
 
   return RECIPES.filter((recipe) => {
     if (ageBand && recipe.ageBand !== ageBand) return false;
     if (mealType && recipe.mealType !== mealType) return false;
+    if (blwOnly && !isBlwFriendly(recipe)) return false;
     if (excludeAllergens?.length && recipe.allergens.some((a) => excludeAllergens.includes(a))) {
       return false;
     }

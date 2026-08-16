@@ -223,10 +223,11 @@ export default function AppHomePage() {
           Como está {firstName} hoje?
         </h2>
         <div className="grid grid-cols-3 gap-2">
-          {BENEFIT_CARDS.map((b) => (
+          {BENEFIT_CARDS.map((b, i) => (
             <div
               key={b.label}
-              className={`flex flex-col items-center gap-1 rounded-2xl ${b.tint} px-2 py-4 text-center shadow-sm shadow-brown-900/5`}
+              style={{ animationDelay: `${i * 0.1}s` }}
+              className={`lift-on-hover animate-fade-in-up flex cursor-default flex-col items-center gap-1 rounded-2xl ${b.tint} px-2 py-4 text-center shadow-[var(--shadow-subtle)]`}
             >
               <span className="text-2xl">{b.emoji}</span>
               <span className="text-xs font-semibold text-brown-800">{b.label}</span>

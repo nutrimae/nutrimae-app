@@ -165,7 +165,7 @@ export default function ListaComprasPage() {
                     {isChecked && <Check className="h-4 w-4 text-white" strokeWidth={3} />}
                   </span>
                   <span
-                    className={`text-lg ${
+                    className={`text-lg transition-[color,opacity] duration-200 ${
                       isChecked ? "text-brown-700/40 line-through" : "text-brown-800"
                     }`}
                   >

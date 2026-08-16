@@ -5,6 +5,7 @@ import { X, Check, Sparkles } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/toast-provider";
 import {
   DIARY_FOODS,
   FOOD_CATEGORY_LABEL,
@@ -28,11 +29,13 @@ const CATEGORY_ORDER: FoodCategory[] = ["frutas", "legumes", "proteinas", "cerea
 export function DiarioContent() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
+  const { showToast } = useToast();
 
   const [log, setLog] = useState<Record<string, LogEntry>>({});
   const [milestones, setMilestones] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState<DiaryFood | null>(null);
+  const [justUpdated, setJustUpdated] = useState(false);
 
   useEffect(() => {
     if (!activeBaby) return;
@@ -130,8 +133,16 @@ export function DiarioContent() {
     );
 
     if (!error) {
+      const isNew = !log[food.key];
       setLog((prev) => ({ ...prev, [food.key]: { reaction, tried_at: today, photo_url: photoUrl } }));
       setRegistering(null);
+      if (isNew) {
+        setJustUpdated(true);
+        setTimeout(() => setJustUpdated(false), 350);
+        showToast(
+          `✓ Registrado! ${activeBaby.name.split(" ")[0]} explorou mais um sabor`,
+        );
+      }
     }
   }
 
@@ -157,9 +168,18 @@ export function DiarioContent() {
           Diário de {activeBaby.name}
         </h1>
         <p className="mt-1 text-brown-700">
-          {triedCount === 0
-            ? `Nenhum alimento registrado ainda. Vamos descobrir quais sabores ${activeBaby.name.split(" ")[0]} adora?`
-            : `${triedCount} de ${TOTAL_DIARY_FOODS} sabores provados`}
+          {triedCount === 0 ? (
+            `Nenhum alimento registrado ainda. Vamos descobrir quais sabores ${activeBaby.name.split(" ")[0]} adora?`
+          ) : (
+            <>
+              <span
+                className={`inline-block font-bold text-primary-600 ${justUpdated ? "animate-pop" : ""}`}
+              >
+                {triedCount}
+              </span>{" "}
+              de {TOTAL_DIARY_FOODS} sabores provados
+            </>
+          )}
         </p>
         <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-sage-100">
           <div

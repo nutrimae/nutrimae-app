@@ -21,8 +21,12 @@ export function BalancedPlate({ triedFoodKeys }: { triedFoodKeys?: Set<string> }
             key={group.key}
             type="button"
             onClick={() => setExpanded(expanded === group.key ? null : group.key)}
-            style={{ width: `${group.percent}%`, backgroundColor: group.color }}
-            className="flex items-center justify-center text-[10px] font-bold transition-opacity hover:opacity-80"
+            style={{
+              width: `${group.percent}%`,
+              backgroundColor: group.color,
+              ["--glow" as string]: group.color,
+            }}
+            className="flex items-center justify-center text-[10px] font-bold transition-[opacity,box-shadow] duration-200 hover:opacity-90 hover:shadow-[0_0_12px_var(--glow)]"
             title={group.label}
           >
             <span style={{ color: group.textColor }}>{group.percent}%</span>
@@ -53,10 +57,10 @@ export function BalancedPlate({ triedFoodKeys }: { triedFoodKeys?: Set<string> }
                 />
               </button>
               {isOpen && (
-                <div className="px-3 pb-3">
+                <div className="animate-fade-in-up px-3 pb-3">
                   <p className="text-sm text-brown-700">{group.description}</p>
                   <ul className="mt-2 flex flex-wrap gap-2">
-                    {group.examples.map((example) => {
+                    {group.examples.map((example, i) => {
                       const tried = triedFoodKeys?.has(
                         example
                           .normalize("NFD")
@@ -66,7 +70,8 @@ export function BalancedPlate({ triedFoodKeys }: { triedFoodKeys?: Set<string> }
                       return (
                         <li
                           key={example}
-                          className={`rounded-full px-3 py-1 text-sm ${
+                          style={{ animationDelay: `${i * 0.05}s` }}
+                          className={`animate-fade-in-up rounded-full px-3 py-1 text-sm ${
                             tried ? "bg-sage-100 text-sage-700" : "bg-white text-brown-800"
                           }`}
                         >

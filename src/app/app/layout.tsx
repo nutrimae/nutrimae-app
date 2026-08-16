@@ -4,6 +4,7 @@ import { ActiveBabyProvider } from "@/components/active-baby-context";
 import { BabySwitcher } from "@/components/baby-switcher";
 import { BottomNav } from "@/components/bottom-nav";
 import { SosButton } from "@/components/sos-button";
+import { ToastProvider } from "@/components/toast-provider";
 import { withSignedPhotoUrls } from "@/lib/baby-photos";
 import type { Baby } from "@/lib/types";
 
@@ -32,12 +33,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <ActiveBabyProvider babies={babiesWithPhotos}>
-      <div className="flex min-h-dvh flex-col bg-cream">
-        <BabySwitcher />
-        <div className="flex-1 pb-4">{children}</div>
-        <BottomNav />
-        <SosButton />
-      </div>
+      <ToastProvider>
+        <div className="flex min-h-dvh flex-col bg-cream">
+          <BabySwitcher />
+          <div className="flex-1 pb-4">{children}</div>
+          <BottomNav />
+          <SosButton />
+        </div>
+      </ToastProvider>
     </ActiveBabyProvider>
   );
 }

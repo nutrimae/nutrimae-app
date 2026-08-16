@@ -5,7 +5,15 @@ import Link from "next/link";
 import { ArrowLeft, Flag, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { formatRelativeDate, type CommunityPost, type CommunityReply } from "@/lib/community";
+import {
+  categoryFromTitle,
+  formatRelativeDate,
+  POST_CATEGORY_INFO,
+  titleWithoutCategoryPrefix,
+  type CommunityPost,
+  type CommunityReply,
+} from "@/lib/community";
+import { markPostSeen } from "@/lib/community-notifications";
 
 export function PostDetail({ postId }: { postId: string }) {
   const supabase = useMemo(() => createClient(), []);
@@ -46,6 +54,9 @@ export function PostDetail({ postId }: { postId: string }) {
       setReplies(repliesRes.data ?? []);
       setIsAdmin(Boolean(profileRes.data?.is_admin));
       setLoading(false);
+      if (postRes.data && user && postRes.data.user_id === user.id) {
+        markPostSeen(postRes.data.id, postRes.data.reply_count);
+      }
     }
 
     load();
@@ -113,7 +124,7 @@ export function PostDetail({ postId }: { postId: string }) {
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
         <p>Post não encontrado.</p>
         <Link href="/app/club" className="text-sage-600 font-semibold">
-          Voltar ao Club
+          Voltar à Comunidade
         </Link>
       </main>
     );
@@ -126,11 +137,19 @@ export function PostDetail({ postId }: { postId: string }) {
         className="flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-        Voltar ao Club
+        Voltar à Comunidade
       </Link>
 
       <div className="rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
-        <p className="font-heading text-xl font-bold text-brown-800">{post.title}</p>
+        {categoryFromTitle(post.title) !== "geral" && (
+          <span className="mb-1 inline-block rounded-full bg-sage-50 px-2 py-0.5 text-xs font-semibold text-sage-700">
+            {POST_CATEGORY_INFO[categoryFromTitle(post.title)].emoji}{" "}
+            {POST_CATEGORY_INFO[categoryFromTitle(post.title)].label}
+          </span>
+        )}
+        <p className="font-heading text-xl font-bold text-brown-800">
+          {titleWithoutCategoryPrefix(post.title)}
+        </p>
         <p className="mt-2 whitespace-pre-wrap text-brown-800">{post.body}</p>
         <div className="mt-3 flex items-center justify-between">
           <span className="text-xs text-brown-700/60">{formatRelativeDate(post.created_at)}</span>

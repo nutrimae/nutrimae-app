@@ -30,7 +30,7 @@ const ITEMS = [
   { href: "/app/sos", label: "Manual S.O.S.", icon: Siren },
   { href: "/app/diario", label: "Diário do Bebê", icon: BookHeart },
   { href: "/app/desenvolvimento", label: "Marcos do Desenvolvimento", icon: TrendingUp },
-  { href: "/app/club", label: "Club das Mães", icon: Users },
+  { href: "/app/club", label: "Comunidade das Mães", icon: Users },
   { href: "/app/suporte", label: "Suporte", icon: LifeBuoy, badgeKey: "suporte" },
   { href: "/app/rotina-sono", label: "Rotina do Sono", icon: Moon },
   { href: "/app/calculadora-fraldas", label: "Calculadora de Fraldas", icon: Baby },

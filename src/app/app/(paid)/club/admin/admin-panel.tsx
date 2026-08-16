@@ -78,7 +78,7 @@ export function AdminPanel() {
         className="flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-        Voltar ao Club
+        Voltar à Comunidade
       </Link>
 
       <h1 className="font-heading text-2xl font-bold text-brown-800">Painel admin</h1>

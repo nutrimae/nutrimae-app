@@ -121,7 +121,7 @@ export interface SleepHelpTopic {
 export const SLEEP_HELP_TOPICS: SleepHelpTopic[] = [
   {
     title: "O bebê não dorme à noite",
-    text: "Revise a janela de sono e o horário do ritual — muitas vezes o bebê está passando do ponto de cansaço. Troque experiências no Club das Mães.",
+    text: "Revise a janela de sono e o horário do ritual — muitas vezes o bebê está passando do ponto de cansaço. Troque experiências na Comunidade das Mães.",
   },
   {
     title: "A soneca desapareceu",

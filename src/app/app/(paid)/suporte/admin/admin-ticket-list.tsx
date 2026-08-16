@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, MessageSquare } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface Ticket {
   id: string;
@@ -56,13 +57,14 @@ export function AdminTicketList() {
                 <p className="font-semibold text-brown-800">{t.subject}</p>
                 <p className="text-xs text-brown-700/60">{t.user_email}</p>
               </div>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
+              <Badge
+                variant="soft"
+                className={`shrink-0 ${
                   t.status === "open" ? "bg-sage-100 text-sage-700" : "bg-brown-700/10 text-brown-700"
                 }`}
               >
                 {t.status === "open" ? "Aberto" : "Encerrado"}
-              </span>
+              </Badge>
             </Link>
           ))}
         </div>

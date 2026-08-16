@@ -7,6 +7,7 @@ import { ChevronRight, Search, CalendarDays, Camera, Heart, Droplet, Sparkles, B
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { BabyPhotoUploadModal } from "@/components/baby-photo-upload-modal";
 import { ageInMonths } from "@/lib/age";
 import {
@@ -245,10 +246,10 @@ export default function AppHomePage() {
           <div className="rounded-3xl bg-gradient-to-b from-primary-100 to-white p-5 shadow-sm shadow-primary-500/10 transition-transform active:scale-[0.99]">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
-                <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-xs font-bold text-primary-600">
+                <Badge variant="solid" className="mb-1 bg-white/70 text-primary-600">
                   <Sparkles className="h-3 w-3" strokeWidth={2.5} />
                   Mais escolhido
-                </span>
+                </Badge>
                 <p className="font-heading text-lg font-bold text-brown-800">
                   {today.suggestion.title}
                 </p>

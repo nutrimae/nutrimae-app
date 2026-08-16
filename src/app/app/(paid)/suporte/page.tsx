@@ -132,7 +132,7 @@ function NewTicketSheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-brown-900/30" onClick={onClose}>
-      <div className="w-full rounded-t-3xl bg-cream p-6 pb-8" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full animate-fade-in-up rounded-t-3xl bg-cream p-6 pb-8" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-heading text-xl font-bold text-brown-800">Novo ticket</h2>
           <button

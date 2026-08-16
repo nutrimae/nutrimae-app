@@ -66,7 +66,7 @@ export function BabySwitcher() {
       {open && (
         <div className="fixed inset-0 z-50 flex items-end bg-brown-900/30" onClick={() => setOpen(false)}>
           <div
-            className="w-full rounded-t-3xl bg-cream p-6 pb-8"
+            className="w-full animate-fade-in-up rounded-t-3xl bg-cream p-6 pb-8"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">

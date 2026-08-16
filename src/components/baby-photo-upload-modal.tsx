@@ -76,7 +76,7 @@ export function BabyPhotoUploadModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-brown-900/40" onClick={onClose}>
       <div
-        className="flex w-full flex-col rounded-t-3xl bg-cream p-6 pb-8"
+        className="flex w-full animate-fade-in-up flex-col rounded-t-3xl bg-cream p-6 pb-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">

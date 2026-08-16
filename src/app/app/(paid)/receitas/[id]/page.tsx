@@ -12,6 +12,7 @@ import {
   setRecipeRating,
   toggleFavoriteRecipe,
 } from "@/lib/recipe-favorites";
+import { getAllergenChecklist } from "@/lib/allergen-checklist";
 
 export default function RecipeDetailPage() {
   const params = useParams<{ id: string }>();
@@ -19,11 +20,13 @@ export default function RecipeDetailPage() {
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [rating, setRating] = useState(0);
+  const [checklistAllergens, setChecklistAllergens] = useState<ReturnType<typeof getAllergenChecklist>>([]);
 
   useEffect(() => {
     if (!recipe) return;
     setIsFavorite(getFavoriteRecipeIds().includes(recipe.id));
     setRating(getRecipeRatings()[recipe.id] ?? 0);
+    setChecklistAllergens(getAllergenChecklist());
   }, [recipe]);
 
   if (!recipe) {
@@ -86,9 +89,23 @@ export default function RecipeDetailPage() {
       </div>
 
       {recipe.allergens.length > 0 && (
-        <div className="flex items-start gap-2 rounded-2xl bg-yellow-100 p-3">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-yellow-700" strokeWidth={2} />
+        <div
+          className={`flex items-start gap-2 rounded-2xl p-3 ${
+            recipe.allergens.some((a) => checklistAllergens.includes(a)) ? "bg-red-100" : "bg-yellow-100"
+          }`}
+        >
+          <AlertTriangle
+            className={`h-5 w-5 shrink-0 ${
+              recipe.allergens.some((a) => checklistAllergens.includes(a)) ? "text-red-600" : "text-yellow-700"
+            }`}
+            strokeWidth={2}
+          />
           <p className="text-sm text-brown-800">
+            {recipe.allergens.some((a) => checklistAllergens.includes(a)) ? (
+              <span className="font-semibold text-red-700">
+                Contém item do seu checklist de alergênicos.{" "}
+              </span>
+            ) : null}
             Contém: {recipe.allergens.map((a) => ALLERGEN_LABEL[a]).join(", ")}. Só ofereça se já
             tiver testado cada um desses alimentos individualmente antes.
           </p>

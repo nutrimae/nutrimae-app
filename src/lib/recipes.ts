@@ -16,7 +16,14 @@ export type Allergen =
   | "amendoim"
   | "castanhas"
   | "peixe"
+  | "crustaceos"
+  | "moluscos"
   | "soja"
+  | "gergelim"
+  | "mostarda"
+  | "aipo"
+  | "sulfitos"
+  | "tremoco"
   | "mel";
 
 export const ALLERGEN_LABEL: Record<Allergen, string> = {
@@ -26,7 +33,14 @@ export const ALLERGEN_LABEL: Record<Allergen, string> = {
   amendoim: "Amendoim",
   castanhas: "Castanhas",
   peixe: "Peixe",
+  crustaceos: "Crustáceos",
+  moluscos: "Moluscos",
   soja: "Soja",
+  gergelim: "Gergelim",
+  mostarda: "Mostarda",
+  aipo: "Aipo",
+  sulfitos: "Sulfitos",
+  tremoco: "Tremoço",
   mel: "Mel",
 };
 

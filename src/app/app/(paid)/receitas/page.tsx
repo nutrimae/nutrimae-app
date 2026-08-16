@@ -8,12 +8,14 @@ import { ageInMonths } from "@/lib/age";
 import { AGE_BAND_LABEL, ageBandForMonths, type AgeBand } from "@/lib/menu";
 import { BackButton } from "@/components/back-button";
 import {
+  ALLERGEN_LABEL,
   RECIPE_MEAL_TYPE_LABEL,
   searchRecipes,
   TOTAL_RECIPES,
   type RecipeMealType,
 } from "@/lib/recipes";
 import { getFavoriteRecipeIds } from "@/lib/recipe-favorites";
+import { getAllergenChecklist } from "@/lib/allergen-checklist";
 
 const MEAL_TYPES: RecipeMealType[] = ["cafe", "almoco", "lanche", "ceia"];
 const AGE_BANDS: AgeBand[] = ["6-7", "8-9", "10-12", "13-24"];
@@ -28,9 +30,11 @@ export default function ReceitasPage() {
   const [mealType, setMealType] = useState<RecipeMealType | "todas">("todas");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [excludedAllergens, setExcludedAllergens] = useState<ReturnType<typeof getAllergenChecklist>>([]);
 
   useEffect(() => {
     setFavoriteIds(getFavoriteRecipeIds());
+    setExcludedAllergens(getAllergenChecklist());
   }, []);
 
   const results = useMemo(() => {
@@ -38,9 +42,10 @@ export default function ReceitasPage() {
       query,
       ageBand: ageBand === "todas" ? undefined : ageBand,
       mealType: mealType === "todas" ? undefined : mealType,
+      excludeAllergens: excludedAllergens,
     });
     return onlyFavorites ? base.filter((r) => favoriteIds.includes(r.id)) : base;
-  }, [query, ageBand, mealType, onlyFavorites, favoriteIds]);
+  }, [query, ageBand, mealType, onlyFavorites, favoriteIds, excludedAllergens]);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
@@ -52,6 +57,17 @@ export default function ReceitasPage() {
           {TOTAL_RECIPES} receitas para os 6 aos 24 meses, com modo de preparo completo.
         </p>
       </div>
+
+      {excludedAllergens.length > 0 && (
+        <p className="rounded-2xl bg-sage-50 px-4 py-3 text-sm text-sage-700">
+          Escondendo receitas com {excludedAllergens.map((a) => ALLERGEN_LABEL[a]).join(", ")},
+          conforme seu{" "}
+          <Link href="/app/alergia/checklist" className="font-semibold underline">
+            checklist de alergênicos
+          </Link>
+          .
+        </p>
+      )}
 
       <div className="relative">
         <Search

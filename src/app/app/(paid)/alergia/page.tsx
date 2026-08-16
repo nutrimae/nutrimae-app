@@ -1,4 +1,5 @@
-import { CheckCircle2, AlertTriangle, Info } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, AlertTriangle, Info, ListChecks } from "lucide-react";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { BackButton } from "@/components/back-button";
 
@@ -42,6 +43,16 @@ export default function AlergiaPage() {
             de oferecer outro alimento novo.
           </p>
         </div>
+
+        <Link
+          href="/app/alergia/checklist"
+          className="flex items-center gap-3 rounded-2xl bg-primary-100 p-4 text-primary-600"
+        >
+          <ListChecks className="h-5 w-5 shrink-0" strokeWidth={2} />
+          <span className="font-semibold">
+            Marcar alergênicos conhecidos e filtrar receitas automaticamente
+          </span>
+        </Link>
 
         <div>
           <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-sage-700">

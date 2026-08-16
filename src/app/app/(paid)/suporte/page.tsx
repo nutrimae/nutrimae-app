@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/back-button";
 
+const whatsappSupportUrl = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_URL;
+
 interface Ticket {
   id: string;
   subject: string;
@@ -86,6 +88,21 @@ export default function SuportePage() {
       <p className="text-brown-700">
         Fale com a nossa equipe. Respondemos por aqui — você não precisa esperar online.
       </p>
+
+      {whatsappSupportUrl && (
+        <a
+          href={whatsappSupportUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-3 rounded-2xl bg-sage-500 p-4 text-white"
+        >
+          <MessageSquare className="h-6 w-6 shrink-0" strokeWidth={2} />
+          <div>
+            <p className="font-semibold">Falar no WhatsApp</p>
+            <p className="text-xs text-white/80">Resposta rápida, direto com a nossa equipe.</p>
+          </div>
+        </a>
+      )}
 
       <Button onClick={() => setShowForm(true)} className="flex items-center justify-center gap-2">
         <Plus className="h-5 w-5" strokeWidth={2} />

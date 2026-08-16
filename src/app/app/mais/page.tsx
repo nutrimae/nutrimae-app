@@ -20,11 +20,13 @@ import {
   Palette,
   Cookie,
   Download,
+  ShoppingBag,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const ITEMS = [
   { href: "/app/downloads", label: "Downloads", icon: Download },
+  { href: "/app/utensilios-recomendados", label: "Utensílios Recomendados", icon: ShoppingBag },
   { href: "/app/guia-definitivo", label: "Guia Definitivo", icon: BookOpen },
   { href: "/app/receitas", label: "Receitas", icon: ChefHat },
   { href: "/app/pratinhos-divertidos", label: "Pratinhos Divertidos", icon: Palette },

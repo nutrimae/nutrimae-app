@@ -10,6 +10,7 @@ import { ChecklistAlergenicosPdf } from "@/lib/pdf/ChecklistAlergenicosPdf";
 import { PratinhosPdf } from "@/lib/pdf/PratinhosPdf";
 import { MordedoresPdf } from "@/lib/pdf/MordedoresPdf";
 import { PreparoAlimentosPdf } from "@/lib/pdf/PreparoAlimentosPdf";
+import { UtensiliosPdf } from "@/lib/pdf/UtensiliosPdf";
 
 export const runtime = "nodejs";
 
@@ -21,6 +22,7 @@ const DOCUMENTS: Record<string, () => ReactElement> = {
   "pratinhos-divertidos": () => PratinhosPdf(),
   "mordedores-naturais": () => MordedoresPdf(),
   "preparo-alimentos": () => PreparoAlimentosPdf(),
+  "utensilios-recomendados": () => UtensiliosPdf(),
 };
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {

@@ -48,6 +48,12 @@ export const PDF_GUIDES: PdfGuideInfo[] = [
     description: "Passo a passo de preparo, congelamento e descongelamento.",
     emoji: "🔪",
   },
+  {
+    slug: "utensilios-recomendados",
+    title: "Utensílios Recomendados",
+    description: "O que ajuda na rotina e o que procurar na hora de comprar.",
+    emoji: "🧺",
+  },
 ];
 
 export function getPdfGuide(slug: string): PdfGuideInfo | undefined {

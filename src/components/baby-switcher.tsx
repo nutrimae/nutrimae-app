@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { ChevronDown, Plus, X } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { formatAge } from "@/lib/age";
@@ -23,7 +24,7 @@ function BabyAvatar({ name, photoUrl, size = 40 }: { name: string; photoUrl: str
   }
   return (
     <div
-      className="flex items-center justify-center rounded-full bg-sage-200 font-heading font-bold text-sage-700"
+      className="flex items-center justify-center rounded-full bg-primary-100 font-heading font-bold text-primary-600"
       style={{ width: size, height: size, fontSize: size / 2.2 }}
     >
       {name.charAt(0).toUpperCase()}
@@ -34,8 +35,10 @@ function BabyAvatar({ name, photoUrl, size = 40 }: { name: string; photoUrl: str
 export function BabySwitcher() {
   const { babies, activeBaby, setActiveBabyId } = useActiveBaby();
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   if (!activeBaby) return null;
+  if (pathname.startsWith("/app/sos") || pathname.startsWith("/app/alergia")) return null;
 
   return (
     <>

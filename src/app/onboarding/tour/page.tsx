@@ -29,7 +29,9 @@ export default function TourPage() {
   const [step, setStep] = useState(0);
 
   function finish() {
-    router.push("/app");
+    // No primeiro acesso pós-onboarding, o cardápio da faixa etária do bebê
+    // deve abrir direto — nunca a home genérica.
+    router.push("/app/cardapio");
   }
 
   function next() {
@@ -65,7 +67,7 @@ export default function TourPage() {
 
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-6">
-          <ProgressDots step={3} total={4} />
+          <ProgressDots step={4} total={5} />
         </div>
         <div className="mb-4 flex items-center justify-center gap-2">
           {slides.map((_, i) => (

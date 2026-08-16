@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ActiveBabyProvider } from "@/components/active-baby-context";
 import { BabySwitcher } from "@/components/baby-switcher";
+import { BottomNav } from "@/components/bottom-nav";
+import { SosButton } from "@/components/sos-button";
+import { withSignedPhotoUrls } from "@/lib/baby-photos";
 import type { Baby } from "@/lib/types";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -25,11 +28,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/onboarding/welcome");
   }
 
+  const babiesWithPhotos = await withSignedPhotoUrls(supabase, babies as Baby[]);
+
   return (
-    <ActiveBabyProvider babies={babies as Baby[]}>
+    <ActiveBabyProvider babies={babiesWithPhotos}>
       <div className="flex min-h-dvh flex-col bg-cream">
         <BabySwitcher />
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 pb-4">{children}</div>
+        <BottomNav />
+        <SosButton />
       </div>
     </ActiveBabyProvider>
   );

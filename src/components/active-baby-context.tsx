@@ -38,6 +38,10 @@ export function ActiveBabyProvider({
     [babies, activeBabyId],
   );
 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-baby-theme", activeBaby?.gender ?? "female");
+  }, [activeBaby]);
+
   return (
     <ActiveBabyContext.Provider value={{ babies, activeBaby, setActiveBabyId }}>
       {children}

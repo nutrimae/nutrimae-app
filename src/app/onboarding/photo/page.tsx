@@ -67,11 +67,9 @@ export default function PhotoStepPage() {
       return;
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("baby-photos").getPublicUrl(path);
-
-    await supabase.from("babies").update({ photo_url: publicUrl }).eq("id", babyId);
+    // Guardamos o caminho no storage, não uma URL: o bucket é privado e a
+    // exibição da foto gera uma URL assinada (com expiração) sob demanda.
+    await supabase.from("babies").update({ photo_url: path }).eq("id", babyId);
 
     setLoading(false);
     goNext();
@@ -126,7 +124,7 @@ export default function PhotoStepPage() {
 
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-6">
-          <ProgressDots step={2} total={4} />
+          <ProgressDots step={3} total={5} />
         </div>
         <div className="flex flex-col gap-3">
           <Button onClick={handleSave} disabled={loading}>

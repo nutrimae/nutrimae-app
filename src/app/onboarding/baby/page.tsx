@@ -69,7 +69,7 @@ export default function BabyStepPage() {
     }
 
     sessionStorage.setItem("nutrimae_onboarding_baby_id", data.id);
-    router.push("/onboarding/photo");
+    router.push("/onboarding/gender");
   }
 
   return (
@@ -147,7 +147,7 @@ export default function BabyStepPage() {
       </div>
 
       <div className="mx-auto mt-8 w-full max-w-sm">
-        <ProgressDots step={1} total={4} />
+        <ProgressDots step={1} total={5} />
       </div>
     </main>
   );

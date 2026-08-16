@@ -25,7 +25,7 @@ export default function WelcomePage() {
 
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-6">
-          <ProgressDots step={0} total={4} />
+          <ProgressDots step={0} total={5} />
         </div>
         <Button onClick={() => router.push("/onboarding/baby")}>Vamos começar</Button>
       </div>

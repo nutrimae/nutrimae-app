@@ -13,6 +13,12 @@ function isPublicPath(pathname: string) {
 }
 
 export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -37,8 +43,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   if (!user && !isPublicPath(pathname) && pathname !== "/") {
     const url = request.nextUrl.clone();

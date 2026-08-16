@@ -17,12 +17,14 @@ import {
   ChefHat,
   Hand,
   Headphones,
+  Palette,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const ITEMS = [
   { href: "/app/guia-definitivo", label: "Guia Definitivo", icon: BookOpen },
   { href: "/app/receitas", label: "Receitas", icon: ChefHat },
+  { href: "/app/pratinhos-divertidos", label: "Pratinhos Divertidos", icon: Palette },
   { href: "/app/blw", label: "Guia BLW", icon: Hand },
   { href: "/app/audiobooks", label: "Audiobooks", icon: Headphones },
   { href: "/app/busca", label: "Buscar corte seguro", icon: Search },

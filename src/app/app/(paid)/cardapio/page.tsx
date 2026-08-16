@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, RefreshCw, Salad } from "lucide-react";
+import { ChevronDown, RefreshCw, Salad, Sparkles, X } from "lucide-react";
+import { PRATINHOS } from "@/lib/pratinhos";
+import { getChosenPratinhoIds, removePratinhoFromCardapio } from "@/lib/pratinhos-saved";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
@@ -35,9 +37,19 @@ export default function CardapioPage() {
   const [hasRestricao, setHasRestricao] = useState(false);
   const [triedFoodKeys, setTriedFoodKeys] = useState<Set<string>>(new Set());
   const [dietFilter, setDietFilter] = useState<DietFilter>("padrao");
+  const [chosenPratinhoIds, setChosenPratinhoIds] = useState<string[]>([]);
 
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
+
+  useEffect(() => {
+    setChosenPratinhoIds(getChosenPratinhoIds());
+  }, []);
+
+  const chosenPratinhos = useMemo(
+    () => PRATINHOS.filter((p) => chosenPratinhoIds.includes(p.id)),
+    [chosenPratinhoIds],
+  );
 
   useEffect(() => {
     if (!activeBaby) return;
@@ -147,6 +159,32 @@ export default function CardapioPage() {
           <Salad className="h-5 w-5 shrink-0" strokeWidth={2} />
           <span className="text-sm font-semibold">Ver guia de substituições</span>
         </Link>
+      )}
+
+      {chosenPratinhos.length > 0 && (
+        <div className="rounded-2xl bg-primary-100 p-4">
+          <p className="mb-2 flex items-center gap-2 font-heading font-bold text-brown-800">
+            <Sparkles className="h-4 w-4 text-primary-600" strokeWidth={2} />
+            Pratinhos que você escolheu
+          </p>
+          <div className="flex flex-col gap-1">
+            {chosenPratinhos.map((p) => (
+              <div key={p.id} className="flex items-center justify-between gap-2 rounded-xl bg-white/70 px-3 py-2">
+                <span className="text-sm font-semibold text-brown-800">{p.title}</span>
+                <button
+                  type="button"
+                  onClick={() => setChosenPratinhoIds(removePratinhoFromCardapio(p.id))}
+                  className="shrink-0"
+                >
+                  <X className="h-4 w-4 text-brown-700/50" strokeWidth={2} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <Link href="/app/pratinhos-divertidos" className="mt-2 block text-xs font-semibold text-primary-600">
+            Ver mais pratinhos divertidos →
+          </Link>
+        </div>
       )}
 
       <div className="flex gap-2 overflow-x-auto pb-1">

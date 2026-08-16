@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, AlertTriangle, X } from "lucide-react";
+import { Search, AlertTriangle, X, Snowflake, Sun } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { ageBandForMonths, AGE_BAND_LABEL } from "@/lib/menu";
 import { searchFoods, type FoodItem } from "@/lib/foods";
+import { getFoodPrepGuide } from "@/lib/food-prep";
 import { BackButton } from "@/components/back-button";
 
 export default function BuscaPage() {
@@ -141,6 +142,53 @@ function FoodDetail({
           <p className="text-brown-800">{food.warning}</p>
         </div>
       )}
+
+      <FoodPrepSection foodId={food.id} />
+    </div>
+  );
+}
+
+function FoodPrepSection({ foodId }: { foodId: string }) {
+  const guide = getFoodPrepGuide(foodId);
+  if (!guide) return null;
+
+  return (
+    <div className="mt-6 border-t border-sage-100 pt-5">
+      <p className="mb-3 font-heading text-lg font-bold text-brown-800">Modo de preparo completo</p>
+
+      <ol className="flex flex-col gap-3">
+        {guide.steps.map((step, i) => (
+          <li key={step.action} className="rounded-2xl bg-sage-50 p-4">
+            <div className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sage-500 text-sm font-bold text-white">
+                {i + 1}
+              </span>
+              <p className="font-semibold text-brown-800">{step.action}</p>
+            </div>
+            <p className="mt-2 pl-10 text-sm text-brown-700">
+              <span className="font-semibold text-sage-700">Por quê: </span>
+              {step.why}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-4 flex flex-col gap-2">
+        <div className="flex gap-3 rounded-2xl bg-primary-100 p-4">
+          <Snowflake className="h-5 w-5 shrink-0 text-primary-600" strokeWidth={2} />
+          <div>
+            <p className="font-semibold text-brown-800">Congelamento</p>
+            <p className="mt-0.5 text-sm text-brown-700">{guide.freezing}</p>
+          </div>
+        </div>
+        <div className="flex gap-3 rounded-2xl bg-peach-100 p-4">
+          <Sun className="h-5 w-5 shrink-0 text-terracotta-600" strokeWidth={2} />
+          <div>
+            <p className="font-semibold text-brown-800">Descongelamento</p>
+            <p className="mt-0.5 text-sm text-brown-700">{guide.thawing}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

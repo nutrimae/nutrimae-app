@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Phone,
   Volume2,
@@ -11,6 +12,7 @@ import {
   Thermometer,
   Activity,
   ShieldAlert,
+  Headphones,
 } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { ageInMonths } from "@/lib/age";
@@ -315,6 +317,14 @@ export default function SosPage() {
             >
               É engasgo real? Ver manobra
             </button>
+
+            <Link
+              href="/app/audiobooks/engasgo-gag"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary-100 text-sm font-semibold text-primary-600"
+            >
+              <Headphones className="h-4 w-4" strokeWidth={2} />
+              Ouvir audiobook: Engasgo ou GAG?
+            </Link>
           </>
         )}
 

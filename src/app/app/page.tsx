@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, Search, CalendarDays, Camera, Heart, Droplet, Sparkles, Bell } from "lucide-react";
+import { ChevronRight, Search, CalendarDays, Camera, Heart, Droplet, Sparkles, Bell, Headphones } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -269,6 +269,21 @@ export default function AppHomePage() {
           </div>
         </Link>
       </div>
+
+      {/* Widget audiobooks */}
+      <Link
+        href="/app/audiobooks"
+        className="flex items-center gap-3 rounded-2xl bg-primary-100 p-4 shadow-sm shadow-primary-500/10 active:scale-[0.99]"
+      >
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/70">
+          <Headphones className="h-5 w-5 text-primary-600" strokeWidth={1.75} />
+        </div>
+        <div className="flex-1">
+          <p className="font-semibold text-brown-800">Audiobooks para o dia a dia</p>
+          <p className="text-xs text-brown-700/70">Janela imunológica, engasgo vs. gag e mais.</p>
+        </div>
+        <ChevronRight className="h-5 w-5 shrink-0 text-primary-500" strokeWidth={2} />
+      </Link>
 
       {/* Dicas */}
       <div className="grid grid-cols-3 gap-2">

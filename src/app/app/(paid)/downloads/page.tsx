@@ -43,11 +43,13 @@ export default function DownloadsPage() {
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [shareCount, setShareCount] = useState(0);
+  const [origin, setOrigin] = useState("");
 
   useEffect(() => {
     setHistory(getDownloadHistory());
     setRatings(getDownloadRatings());
     setShareCount(Number(window.localStorage.getItem("nutrimae:downloads:compartilhamentos") ?? 0));
+    setOrigin(window.location.origin);
   }, []);
 
   const stats = useMemo(() => {
@@ -404,7 +406,7 @@ export default function DownloadsPage() {
             </button>
             <a
               href={`mailto:?subject=${encodeURIComponent("Recursos do NutriMäe")}&body=${encodeURIComponent(
-                `Olha esses guias que eu encontrei: ${typeof window !== "undefined" ? window.location.origin : ""}/app/downloads`,
+                `Olha esses guias que eu encontrei: ${origin}/app/downloads`,
               )}`}
               className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-2xl bg-sage-50 text-sm font-semibold text-sage-700"
             >

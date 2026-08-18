@@ -23,7 +23,7 @@ export default function PoliticaPrivacidadePage() {
 
       <div className="flex flex-col gap-4 text-brown-800">
         <p>
-          O NutriMäe leva a sério a privacidade da sua família e trata seus dados em
+          O NutriMãe leva a sério a privacidade da sua família e trata seus dados em
           conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).
         </p>
 

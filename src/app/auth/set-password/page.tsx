@@ -50,7 +50,7 @@ export default function SetPasswordPage() {
             <Heart className="h-8 w-8 text-sage-600" strokeWidth={1.75} />
           </div>
           <h1 className="font-heading text-2xl font-bold text-brown-800">
-            Bem-vinda ao NutriMäe
+            Bem-vinda ao NutriMãe
           </h1>
           <p className="mt-2 text-brown-700">
             Sua conta já está pronta. Crie uma senha para continuar.

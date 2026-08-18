@@ -49,7 +49,7 @@ export default function RecipeDetailPage() {
       "Modo de preparo:",
       ...recipe.steps.map((s, i) => `${i + 1}. ${s}`),
       "",
-      "Receita do NutriMäe 💚",
+      "Receita do NutriMãe 💚",
     ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");

@@ -24,9 +24,9 @@ export function BackButton({
           router.push(fallbackHref);
         }
       }}
-      className={`flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600 ${className}`}
+      className={`flex min-h-10 w-fit items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-hover ${className}`}
     >
-      <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+      <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
       {label}
     </button>
   );

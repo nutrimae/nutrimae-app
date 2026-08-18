@@ -195,6 +195,17 @@ on conflict (user_id) do nothing;
 -- Para virar admin: rode manualmente
 --   update public.profiles set is_admin = true where user_id = '<seu-user-id>';
 
+-- 5.1 Telefone da usuária (NutriBot / WhatsApp)
+-- Formato esperado: internacional, só dígitos, sem "+" (ex.: "5511999999999").
+-- Preenchido pelo webhook de compra (service role) quando a plataforma de
+-- pagamento envia o telefone. Usado pelo webhook do WhatsApp para achar o
+-- user_id a partir do número que escreveu, e então checar "user_products".
+alter table public.profiles add column if not exists phone_number text;
+
+create unique index if not exists profiles_phone_number_idx
+  on public.profiles (phone_number)
+  where phone_number is not null;
+
 -- 6. Diário do Bebê (Sessão 5) — módulo pago "diario_bebe"
 create table if not exists public.food_log (
   id uuid primary key default gen_random_uuid(),

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NutriMãe — Descubra o guia ideal para o seu bebê</title>
+<meta name="description" content="3 perguntas rápidas para descobrir o guia de alimentação e rotina ideal para a fase do seu bebê.">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="robots" content="noindex">
+
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="quiz-page">
+
+<!--
+  FACEBOOK PIXEL: insira o código base do Meta Pixel aqui antes do fechamento
+  do </head>, igual ao index.html. Esta página é o destino direto do anúncio
+  (ponte leve de 3 cliques), então também precisa do PageView.
+-->
+
+<header class="quiz-header">
+  <img src="assets/logo.png" alt="NutriMãe" class="quiz-header__logo">
+</header>
+
+<!-- Barra de progresso do quiz (3 passos). Some sozinha na tela de
+     transição, já que ali a jornada de perguntas terminou. -->
+<div class="quiz-progress" id="quiz-progress">
+  <div class="quiz-progress__track">
+    <div class="quiz-progress__fill" id="quiz-progress-track-fill"></div>
+  </div>
+  <p class="quiz-progress__label" id="quiz-progress-label">Passo 1 de 3</p>
+</div>
+
+<main class="quiz-main">
+
+  <!-- ===== Pergunta 1: idade do bebê ===== -->
+  <div class="quiz-step" id="quiz-step-1" data-step="1">
+    <h1 class="quiz-headline">Descubra o guia de alimentação e rotina ideal para a fase do seu bebê.</h1>
+    <p class="quiz-question">Qual a idade do seu bebê hoje?</p>
+    <div class="quiz-options">
+      <button class="quiz-option-btn" data-age="vai-comecar">Vai começar aos 6 meses</button>
+      <button class="quiz-option-btn" data-age="6-8-meses">6 a 8 meses</button>
+      <button class="quiz-option-btn" data-age="9-11-meses">9 a 11 meses</button>
+      <button class="quiz-option-btn" data-age="12-mais">12 meses ou mais</button>
+    </div>
+  </div>
+
+  <!-- ===== Pergunta 2: maior desafio/prioridade ===== -->
+  <div class="quiz-step quiz-step--hidden" id="quiz-step-2" data-step="2">
+    <p class="quiz-question quiz-question--lead">Qual é o seu maior desafio ou prioridade na alimentação dele agora?</p>
+    <div class="quiz-options">
+      <button class="quiz-option-btn" data-challenge="cortes">Saber exatamente como cortar os alimentos em segurança</button>
+      <button class="quiz-option-btn" data-challenge="receitas">Ter ideias de receitas fáceis e rápidas</button>
+      <button class="quiz-option-btn" data-challenge="rejeicao">Lidar com a rejeição de novos alimentos</button>
+      <button class="quiz-option-btn" data-challenge="organizacao">Organizar a rotina e a lista de compras</button>
+    </div>
+  </div>
+
+  <!-- ===== Pergunta 3: gatilho de customização ===== -->
+  <div class="quiz-step quiz-step--hidden" id="quiz-step-3" data-step="3">
+    <p class="quiz-question quiz-question--lead">Como prefere organizar as refeições da semana?</p>
+    <div class="quiz-options">
+      <button class="quiz-option-btn" data-plan="prontos">Quero cardápios prontos para seguir</button>
+      <button class="quiz-option-btn" data-plan="montar">Quero opções para substituir e montar o meu</button>
+    </div>
+  </div>
+
+  <!-- ===== Transição ("a mágica") ===== -->
+  <div class="quiz-loading quiz-loading--hidden" id="quiz-loading">
+    <div class="quiz-loading__spinner" aria-hidden="true"></div>
+    <p class="quiz-loading__text" id="quiz-loading-text">Processando suas respostas...</p>
+    <div class="progress-bar">
+      <div class="progress-bar__fill" id="quiz-progress-fill"></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="quiz.js"></script>
+</body>
+</html>

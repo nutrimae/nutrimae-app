@@ -102,7 +102,7 @@ export default function DownloadsPage() {
   }
 
   function handleShare(title: string, url: string) {
-    const text = encodeURIComponent(`📥 ${title} — baixe no NutriMäe: ${url}`);
+    const text = encodeURIComponent(`📥 ${title} — baixe no NutriMãe: ${url}`);
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
     const next = shareCount + 1;
     setShareCount(next);
@@ -153,7 +153,7 @@ export default function DownloadsPage() {
         <div className="rounded-2xl bg-primary-100 p-4">
           <p className="font-semibold text-brown-800">Tudo em 1 arquivo (.zip)</p>
           <p className="mt-1 text-sm text-brown-700">
-            {PDF_GUIDES.length} PDFs + {AUDIOBOOKS.length} transcrições de audiobook (.txt) em um único ZIP.
+            {PDF_GUIDES.length} PDFs + {AUDIOBOOKS.length} audiobooks (.mp3, quando disponível, + transcrição .txt) em um único ZIP.
           </p>
           <button
             type="button"
@@ -266,14 +266,11 @@ export default function DownloadsPage() {
             <Headphones className="h-5 w-5 text-primary-600" strokeWidth={2} />
             Audiobooks
           </h2>
-          <div className="rounded-2xl bg-yellow-100 p-3 text-sm text-brown-800">
-            A narração em áudio (MP3) ainda está em produção — por enquanto, baixe a transcrição
-            completa em .txt para ler offline.
-          </div>
           <div className="mt-2 flex flex-col gap-2">
             {filteredAudiobooks.map((book) => {
               const count = downloadCountFor(book.id);
               const isLoading = loadingId === book.id;
+              const isLoadingAudio = loadingId === `${book.id}-mp3`;
               return (
                 <div key={book.id} className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
                   <p className="font-semibold text-brown-800">{book.title}</p>
@@ -281,7 +278,32 @@ export default function DownloadsPage() {
                   <p className="mt-1 text-xs text-brown-700/50">
                     {count > 0 ? `Você baixou ${count}x` : "Ainda não baixado"}
                   </p>
+                  {!book.hasAudio && (
+                    <p className="mt-1 rounded-xl bg-yellow-100 p-2 text-xs text-brown-800">
+                      A narração em áudio deste conteúdo ainda está em produção — baixe a
+                      transcrição para ler offline.
+                    </p>
+                  )}
                   <div className="mt-3 flex gap-2">
+                    {book.hasAudio && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDownload(
+                            `/api/audio/${book.id}?download=1`,
+                            `nutrimae-${book.id}.mp3`,
+                            `${book.id}-mp3`,
+                            book.title,
+                            "mp3",
+                          )
+                        }
+                        disabled={isLoadingAudio}
+                        className="flex min-h-10 flex-1 items-center justify-center gap-1 rounded-xl bg-primary-500 text-xs font-bold text-white disabled:opacity-60"
+                      >
+                        <Download className="h-3.5 w-3.5" strokeWidth={2} />
+                        {isLoadingAudio ? "Baixando..." : "Baixar áudio (.mp3)"}
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() =>
@@ -294,10 +316,14 @@ export default function DownloadsPage() {
                         )
                       }
                       disabled={isLoading}
-                      className="flex min-h-10 flex-1 items-center justify-center gap-1 rounded-xl bg-primary-500 text-xs font-bold text-white disabled:opacity-60"
+                      className={`flex min-h-10 items-center justify-center gap-1 rounded-xl text-xs font-bold disabled:opacity-60 ${
+                        book.hasAudio
+                          ? "bg-sage-50 px-3 text-sage-700"
+                          : "flex-1 bg-primary-500 text-white"
+                      }`}
                     >
                       <Download className="h-3.5 w-3.5" strokeWidth={2} />
-                      {isLoading ? "Gerando..." : "Baixar transcrição (.txt)"}
+                      {isLoading ? "Gerando..." : "Transcrição (.txt)"}
                     </button>
                     <Link
                       href={`/app/audiobooks/${book.id}`}
@@ -392,20 +418,20 @@ export default function DownloadsPage() {
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Compartilhar</h2>
         <div className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <p className="text-sm text-brown-700">
-            Compartilhe esses recursos com outras mães. Os links exigem login no NutriMäe — o
+            Compartilhe esses recursos com outras mães. Os links exigem login no NutriMãe — o
             conteúdo é para uso pessoal e familiar, não redistribua os arquivos publicamente.
           </p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
-              onClick={() => handleShare("Recursos do NutriMäe", `${window.location.origin}/app/downloads`)}
+              onClick={() => handleShare("Recursos do NutriMãe", `${window.location.origin}/app/downloads`)}
               className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-2xl bg-sage-500 text-sm font-semibold text-white"
             >
               <Share2 className="h-4 w-4" strokeWidth={2} />
               WhatsApp
             </button>
             <a
-              href={`mailto:?subject=${encodeURIComponent("Recursos do NutriMäe")}&body=${encodeURIComponent(
+              href={`mailto:?subject=${encodeURIComponent("Recursos do NutriMãe")}&body=${encodeURIComponent(
                 `Olha esses guias que eu encontrei: ${origin}/app/downloads`,
               )}`}
               className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-2xl bg-sage-50 text-sm font-semibold text-sage-700"

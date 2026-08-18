@@ -4,8 +4,8 @@ export function ProgressDots({ step, total }: { step: number; total: number }) {
       {Array.from({ length: total }).map((_, i) => (
         <span
           key={i}
-          className={`h-2 rounded-full transition-all ${
-            i === step ? "w-6 bg-sage-500" : "w-2 bg-sage-200"
+          className={`h-1.5 rounded-full transition-all duration-300 ${
+            i === step ? "w-7 bg-primary-500" : i < step ? "w-2 bg-primary-300" : "w-2 bg-primary-100"
           }`}
         />
       ))}

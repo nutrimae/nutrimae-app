@@ -10,9 +10,9 @@ import {
 
 export function MordedoresPdf() {
   return (
-    <Document title="Mordedores Naturais — NutriMäe">
+    <Document title="Mordedores Naturais — NutriMãe">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMäe</Text>
+        <Text style={pdfStyles.brand}>NutriMãe</Text>
         <Text style={pdfStyles.h1}>Mordedores Naturais</Text>
         <Text style={pdfStyles.subtitle}>
           15 opções naturais e seguras para aliviar o desconforto da erupção dos dentinhos.

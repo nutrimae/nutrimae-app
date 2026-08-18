@@ -16,7 +16,7 @@ function BabyAvatar({ name, photoUrl, size = 40 }: { name: string; photoUrl: str
         alt={name}
         width={size}
         height={size}
-        className="rounded-full object-cover"
+        className="rounded-full object-cover ring-2 ring-primary-200"
         style={{ width: size, height: size }}
         unoptimized
       />
@@ -24,7 +24,7 @@ function BabyAvatar({ name, photoUrl, size = 40 }: { name: string; photoUrl: str
   }
   return (
     <div
-      className="flex items-center justify-center rounded-full bg-primary-100 font-heading font-bold text-primary-600"
+      className="flex items-center justify-center rounded-full bg-primary-50 font-heading font-bold text-primary-500 ring-2 ring-primary-200"
       style={{ width: size, height: size, fontSize: size / 2.2 }}
     >
       {name.charAt(0).toUpperCase()}
@@ -38,45 +38,57 @@ export function BabySwitcher() {
   const pathname = usePathname();
 
   if (!activeBaby) return null;
-  if (pathname.startsWith("/app/sos") || pathname.startsWith("/app/alergia")) return null;
+  if (pathname.startsWith("/app/alergia")) return null;
+  if (pathname.startsWith("/app/sos-desmame")) return null;
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-sage-100 bg-cream/95 px-4 py-3 backdrop-blur">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-2">
         <button
           type="button"
           onClick={() => babies.length > 1 && setOpen(true)}
-          className="flex min-h-12 items-center gap-3 rounded-2xl px-2 py-1 active:bg-sage-50"
+          className="flex min-h-11 items-center gap-2.5 rounded-2xl px-1 py-1 transition-colors active:bg-gray-50"
         >
-          <BabyAvatar name={activeBaby.name} photoUrl={activeBaby.photo_url} />
+          <BabyAvatar name={activeBaby.name} photoUrl={activeBaby.photo_url} size={36} />
           <div className="text-left">
-            <p className="font-heading text-lg font-bold leading-tight text-brown-800">
+            <p className="font-heading text-sm font-bold leading-tight text-brown-800">
               {activeBaby.name}
             </p>
-            <p className="text-sm leading-tight text-brown-700/70">
+            <p className="text-[11px] leading-tight text-brown-700/50">
               {formatAge(activeBaby.birth_date)}
             </p>
           </div>
           {babies.length > 1 && (
-            <ChevronDown className="ml-1 h-5 w-5 text-brown-700/60" strokeWidth={2} />
+            <ChevronDown className="ml-0.5 h-3.5 w-3.5 text-brown-700/30" strokeWidth={2} />
           )}
         </button>
+
+        <Link href="/app" className="shrink-0">
+          <Image
+            src="/nutrimae-logo.png"
+            alt="NutriMãe"
+            width={40}
+            height={40}
+            className="h-9 w-9 object-contain"
+          />
+        </Link>
       </header>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end bg-brown-900/30" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-end bg-black/30" onClick={() => setOpen(false)}>
           <div
-            className="w-full animate-fade-in-up rounded-t-3xl bg-cream p-6 pb-8"
+            className="w-full animate-fade-in-up rounded-t-3xl bg-white p-6 pb-8 shadow-strong"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-gray-200" />
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-heading text-xl font-bold text-brown-800">Seus bebês</h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-sage-50"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 transition-colors hover:bg-gray-100"
               >
-                <X className="h-5 w-5 text-brown-700" strokeWidth={2} />
+                <X className="h-4 w-4 text-brown-700" strokeWidth={2} />
               </button>
             </div>
 
@@ -89,8 +101,10 @@ export function BabySwitcher() {
                     setActiveBabyId(baby.id);
                     setOpen(false);
                   }}
-                  className={`flex min-h-16 items-center gap-3 rounded-2xl px-3 transition-colors ${
-                    baby.id === activeBaby.id ? "bg-sage-100" : "hover:bg-sage-50"
+                  className={`flex min-h-16 items-center gap-3 rounded-2xl px-3 transition-all duration-200 ${
+                    baby.id === activeBaby.id
+                      ? "bg-primary-50 ring-2 ring-primary-200"
+                      : "hover:bg-gray-50"
                   }`}
                 >
                   <BabyAvatar name={baby.name} photoUrl={baby.photo_url} size={48} />
@@ -98,7 +112,7 @@ export function BabySwitcher() {
                     <p className="font-heading text-lg font-bold text-brown-800">
                       {baby.name}
                     </p>
-                    <p className="text-sm text-brown-700/70">{formatAge(baby.birth_date)}</p>
+                    <p className="text-sm text-brown-700/60">{formatAge(baby.birth_date)}</p>
                   </div>
                 </button>
               ))}
@@ -106,7 +120,7 @@ export function BabySwitcher() {
 
             <Link
               href="/onboarding/baby"
-              className="mt-4 flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-sage-200 text-base font-semibold text-sage-600"
+              className="mt-4 flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary-200 text-base font-semibold text-primary-500 transition-colors hover:border-primary-300 hover:bg-primary-50/30"
             >
               <Plus className="h-5 w-5" strokeWidth={2} />
               Adicionar bebê

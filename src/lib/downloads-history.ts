@@ -1,7 +1,7 @@
 export interface DownloadEntry {
   id: string;
   title: string;
-  type: "pdf" | "zip" | "txt";
+  type: "pdf" | "zip" | "txt" | "mp3";
   sizeBytes: number;
   downloadedAt: string;
 }

@@ -8,9 +8,9 @@ const BANDS: AgeBand[] = ["6-7", "8-9", "10-12", "13-24"];
 
 export function ReceitasPdf() {
   return (
-    <Document title="Receitas Completas — NutriMäe">
+    <Document title="Receitas Completas — NutriMãe">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMäe</Text>
+        <Text style={pdfStyles.brand}>NutriMãe</Text>
         <Text style={pdfStyles.h1}>Receitas Completas</Text>
         <Text style={pdfStyles.subtitle}>
           {RECIPES.length} receitas para os 6 aos 24 meses, com ingredientes e modo de preparo.

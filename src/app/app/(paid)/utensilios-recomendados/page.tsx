@@ -20,7 +20,7 @@ export default function UtensiliosRecomendadosPage() {
       "",
       ...essentials.map((u) => `• ${u.emoji} ${u.name}`),
       "",
-      "Lista completa no NutriMäe 💚",
+      "Lista completa no NutriMãe 💚",
     ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");

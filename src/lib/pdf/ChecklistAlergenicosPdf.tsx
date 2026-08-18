@@ -5,9 +5,9 @@ import { ALLERGEN_CHECKLIST, ALLERGEN_LABEL } from "@/lib/allergen-checklist";
 
 export function ChecklistAlergenicosPdf() {
   return (
-    <Document title="Checklist de Alergênicos — NutriMäe">
+    <Document title="Checklist de Alergênicos — NutriMãe">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMäe</Text>
+        <Text style={pdfStyles.brand}>NutriMãe</Text>
         <Text style={pdfStyles.h1}>Checklist de Alergênicos</Text>
         <Text style={pdfStyles.subtitle}>
           Os 14 alérgenos de declaração obrigatória pela ANVISA (RDC 26/2015), para você marcar

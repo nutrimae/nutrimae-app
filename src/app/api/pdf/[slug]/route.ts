@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { createClient } from "@/lib/supabase/server";
 import { getPdfGuide } from "@/lib/pdf-guides";
+import { readStaticPdf } from "@/lib/pdf/static-pdfs";
 import { GuiaDefinitivoPdf } from "@/lib/pdf/GuiaDefinitivoPdf";
 import { ReceitasPdf } from "@/lib/pdf/ReceitasPdf";
 import { GuiaBlwPdf } from "@/lib/pdf/GuiaBlwPdf";
@@ -37,12 +38,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
   }
 
   const guide = getPdfGuide(slug);
-  const buildDocument = DOCUMENTS[slug];
-  if (!guide || !buildDocument) {
+  if (!guide) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const buffer = await renderToBuffer(buildDocument() as Parameters<typeof renderToBuffer>[0]);
+  const staticBuffer = await readStaticPdf(slug);
+  const buffer = staticBuffer ?? (DOCUMENTS[slug]
+    ? await renderToBuffer(DOCUMENTS[slug]() as Parameters<typeof renderToBuffer>[0])
+    : null);
+
+  if (!buffer) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
 
   return new NextResponse(buffer as unknown as BodyInit, {
     headers: {

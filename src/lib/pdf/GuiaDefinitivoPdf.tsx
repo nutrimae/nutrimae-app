@@ -5,9 +5,9 @@ import { FIRST_WEEK_DAYS, PROGRESSION_STAGES, SAFETY_RULES } from "@/lib/introdu
 
 export function GuiaDefinitivoPdf() {
   return (
-    <Document title="Guia Definitivo da Introdução Alimentar — NutriMäe">
+    <Document title="Guia Definitivo da Introdução Alimentar — NutriMãe">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMäe</Text>
+        <Text style={pdfStyles.brand}>NutriMãe</Text>
         <Text style={pdfStyles.h1}>Guia Definitivo da Introdução Alimentar</Text>
         <Text style={pdfStyles.subtitle}>
           Tudo o que você precisa saber para começar com segurança e confiança.

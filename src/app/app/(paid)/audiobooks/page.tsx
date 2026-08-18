@@ -17,11 +17,6 @@ export default function AudiobooksPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl bg-yellow-100 p-4 text-sm text-brown-800">
-        A narração em áudio ainda está em produção. Por enquanto, o conteúdo completo está
-        disponível para leitura em cada audiobook.
-      </div>
-
       <div className="flex flex-col gap-2">
         {AUDIOBOOKS.map((book) => (
           <Link
@@ -38,6 +33,7 @@ export default function AudiobooksPage() {
               <p className="mt-1 flex items-center gap-1 text-xs text-brown-700/60">
                 <Clock className="h-3.5 w-3.5" strokeWidth={2} />
                 {book.estimatedMinutes} min
+                {!book.hasAudio && " · só leitura por enquanto"}
               </p>
             </div>
           </Link>

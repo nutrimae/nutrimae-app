@@ -9,6 +9,8 @@ export interface Audiobook {
   title: string;
   subtitle: string;
   estimatedMinutes: string;
+  /** true quando existe narração real em assets/audio/<id>.mp3 (ver src/lib/audio/static-audio.ts). */
+  hasAudio: boolean;
   transcript: TranscriptSegment[];
 }
 
@@ -18,6 +20,7 @@ export const AUDIOBOOKS: Audiobook[] = [
     title: "Janela Imunológica",
     subtitle: "Por que o momento da introdução alimentar importa tanto",
     estimatedMinutes: "12-15",
+    hasAudio: true,
     transcript: [
       { startSeconds: 0, text: "Você provavelmente já ouviu o termo \"janela imunológica\" em algum grupo de mães ou na consulta do pediatra. Vamos entender exatamente o que ela é, por que os especialistas falam tanto sobre ela, e o que isso muda na prática para a introdução alimentar do seu bebê." },
       { startSeconds: 50, text: "A janela imunológica é o período, geralmente entre 4 e 11 meses de idade, em que o sistema imunológico do bebê está mais receptivo a \"aprender\" a tolerar novos alimentos — inclusive os que são alérgenos comuns, como ovo e amendoim. Fora desse período, seja antes ou depois demais, o corpo tende a reagir de forma diferente ao primeiro contato." },
@@ -40,6 +43,7 @@ export const AUDIOBOOKS: Audiobook[] = [
     title: "Engasgo ou GAG?",
     subtitle: "Como diferenciar rápido e o que fazer em cada caso",
     estimatedMinutes: "10-12",
+    hasAudio: true,
     transcript: [
       { startSeconds: 0, text: "Esse é provavelmente o medo número um de quem está começando a introdução alimentar: o bebê engole errado, começa a tossir ou fazer uma cara estranha, e o coração da mãe dispara. Vamos separar duas coisas que parecem iguais mas são bem diferentes: o reflexo de gag e o engasgo real." },
       { startSeconds: 60, text: "Primeiro, o que é o gag reflex, ou reflexo de tosse. É um mecanismo de proteção natural que fica localizado mais para a frente da boca do bebê do que no adulto — isso é proposital. A natureza colocou esse reflexo bem sensível justamente para impedir que pedaços grandes demais cheguem perto da garganta antes do bebê saber mastigar direito." },

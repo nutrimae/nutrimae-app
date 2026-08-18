@@ -1,20 +1,26 @@
+// "sos" não é um ModuleKey: o Manual S.O.S. é gratuito, público e nunca
+// gateado por assinatura (rota /sos, fora deste sistema de permissões).
 export type ModuleKey =
   | "cardapio"
   | "cortes_seguros"
   | "lista_compras"
-  | "sos"
   | "alergia"
   | "diario_bebe"
   | "restricao_alimentar"
   | "rotina_sono"
-  | "calculadora_fraldas";
+  | "calculadora_fraldas"
+  | "sos_desmame_noturno"
+  | "protocolo_intestino_livre";
 
 export type ProductKey =
   | "nutrimae_assinatura"
   | "diario_bebe"
   | "restricao_alimentar"
   | "rotina_sono"
-  | "calculadora_fraldas";
+  | "calculadora_fraldas"
+  | "sos_desmame_noturno"
+  | "protocolo_intestino_livre"
+  | "nutribot_vip";
 
 export interface BundledItem {
   label: string;
@@ -28,31 +34,48 @@ export interface Product {
   price: number;
   /** Preço cheio recorrente (ex.: mensalidade normal), usado no cálculo de "valor total". */
   regularPrice: number;
+  /** true = produto de pagamento único (order bump), não mostra "/mês" ao lado do preço cheio. */
+  oneTimePayment?: boolean;
   /** Texto ao lado do preço promocional, ex.: "no primeiro mês". */
   priceNote: string;
   /** Itens bônus mostrados riscados (de R$X por GRÁTIS) na tela de upgrade. */
   bundled: BundledItem[];
   /** Módulos liberados por este produto. */
   modules: ModuleKey[];
-  /** Link externo de checkout (Cartpanda). Ainda não configurado para os módulos futuros. */
+  /** Link externo de checkout (Cartpanda) do plano mensal. Ainda não configurado para os módulos futuros. */
   checkoutUrl?: string;
   /** Se as telas dos módulos já existem no app. */
   built: boolean;
+  /**
+   * Plano anual opcional (preço à vista). Quando presente, telas de oferta podem
+   * exibir os dois planos lado a lado. Ausente = produto só tem opção mensal.
+   */
+  annual?: {
+    price: number;
+    /** Texto de apoio ao preço à vista, ex.: "à vista". */
+    note: string;
+    /** Opção de parcelamento real (não é price/12 — o cartão cobra um pouco mais). */
+    installmentNote: string;
+    /** Link externo de checkout (Cartpanda) do plano anual. */
+    checkoutUrl?: string;
+  };
 }
 
 export const PRODUCTS: Record<ProductKey, Product> = {
   nutrimae_assinatura: {
     key: "nutrimae_assinatura",
-    name: "NutriMäe (assinatura)",
-    price: 9.9,
-    regularPrice: 24.9,
+    name: "NutriMãe (assinatura)",
+    price: 19.9,
+    regularPrice: 29.9,
     priceNote: "no primeiro mês",
-    bundled: [
-      { label: "Manual S.O.S.", originalPrice: 29.9 },
-      { label: "Guia de Sinais de Alergia", originalPrice: 19.9 },
-    ],
-    modules: ["cardapio", "cortes_seguros", "lista_compras", "sos", "alergia"],
+    bundled: [{ label: "Guia de Sinais de Alergia", originalPrice: 19.9 }],
+    modules: ["cardapio", "cortes_seguros", "lista_compras", "alergia"],
     built: true,
+    annual: {
+      price: 97,
+      note: "à vista",
+      installmentNote: "ou 12x de R$9,70 no cartão",
+    },
   },
   // Produtos futuros: módulo ainda não construído, só o "gate" (config) está pronto
   // para quando a tela existir. Preços abaixo são placeholders — ajustar com o valor real.
@@ -95,6 +118,44 @@ export const PRODUCTS: Record<ProductKey, Product> = {
     bundled: [],
     modules: ["calculadora_fraldas"],
     built: false,
+  },
+  // Order bump: acesso vitalício, pagamento único (não é assinatura recorrente).
+  sos_desmame_noturno: {
+    key: "sos_desmame_noturno",
+    name: "SOS Desmame Noturno",
+    price: 27,
+    regularPrice: 47,
+    priceNote: "pagamento único, acesso vitalício",
+    bundled: [],
+    modules: ["sos_desmame_noturno"],
+    built: true,
+    oneTimePayment: true,
+  },
+  // Segundo módulo da Área VIP — mesmo padrão de order bump (pagamento único).
+  protocolo_intestino_livre: {
+    key: "protocolo_intestino_livre",
+    name: "Protocolo Intestino Livre",
+    price: 27,
+    regularPrice: 47,
+    priceNote: "pagamento único, acesso vitalício",
+    bundled: [],
+    modules: ["protocolo_intestino_livre"],
+    built: true,
+    oneTimePayment: true,
+  },
+  // Acesso à NutriBot (assistente via WhatsApp) — não é um módulo do app
+  // (por isso "modules: []"), só é concedido pelo webhook de compra e
+  // consultado pelo webhook do WhatsApp (ver src/app/api/whatsapp/webhook).
+  // Preço/priceNote são placeholders: ajustar para o valor real de venda.
+  nutribot_vip: {
+    key: "nutribot_vip",
+    name: "NutriBot (WhatsApp)",
+    price: 19.9,
+    regularPrice: 19.9,
+    priceNote: "por mês",
+    bundled: [],
+    modules: [],
+    built: true,
   },
 };
 

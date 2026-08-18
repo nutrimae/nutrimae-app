@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isKnownProductKey, PRODUCTS, type ProductKey } from "@/lib/products";
 import type { EntitlementStatus } from "@/lib/entitlements";
+import { sanitizePhoneNumber } from "@/lib/utils";
 
 /**
  * Webhook de eventos de compra (formato Cartpanda).
@@ -10,10 +11,17 @@ import type { EntitlementStatus } from "@/lib/entitlements";
  * for diferente — este formato foi definido por nós na ausência da doc exata):
  * {
  *   "email": "mae@exemplo.com",
+ *   "phone": "11999999999",
  *   "product_id": "nutrimae_assinatura",
  *   "status": "ativo" | "cancelado" | "atrasado",
  *   "event_id": "opcional, usado só para log"
  * }
+ *
+ * "phone" é opcional — quando vier (em qualquer formato: com/sem DDI, com
+ * máscara), é higienizado por sanitizePhoneNumber e salvo em
+ * "profiles.phone_number" (ver supabase/schema.sql, seção 5.1). É esse campo
+ * que o webhook da NutriBot (src/app/api/whatsapp/webhook) usa para achar a
+ * conta a partir do número que escreveu no WhatsApp.
  *
  * Autenticação: header "x-webhook-secret" precisa bater com CARTPANDA_WEBHOOK_SECRET.
  * Configure esse mesmo valor no painel de webhooks da Cartpanda.
@@ -43,6 +51,7 @@ const STATUS_MAP: Record<string, EntitlementStatus> = {
 
 interface WebhookPayload {
   email?: unknown;
+  phone?: unknown;
   product_id?: unknown;
   status?: unknown;
   event_id?: unknown;
@@ -116,6 +125,23 @@ async function findOrCreateUser(
   return { userId: data.user.id, created: true };
 }
 
+async function savePhoneNumber(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  phoneNumber: string,
+) {
+  const { error } = await admin
+    .from("profiles")
+    .update({ phone_number: phoneNumber })
+    .eq("user_id", userId);
+
+  if (error) {
+    // Best-effort: telefone é usado pela NutriBot, mas não deve travar a
+    // liberação do produto principal se a gravação falhar.
+    console.error("[cartpanda-webhook] falha ao salvar phone_number em profiles", error);
+  }
+}
+
 export async function POST(request: Request) {
   const expectedSecret = process.env.CARTPANDA_WEBHOOK_SECRET;
   const providedSecret = request.headers.get("x-webhook-secret");
@@ -136,6 +162,9 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
 
   const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : null;
+  const phoneNumber = sanitizePhoneNumber(
+    typeof payload.phone === "string" ? payload.phone : undefined,
+  );
   const productId = typeof payload.product_id === "string" ? payload.product_id : null;
   const rawStatus = typeof payload.status === "string" ? payload.status.toLowerCase() : null;
 
@@ -192,6 +221,10 @@ export async function POST(request: Request) {
       errorMessage: "user_lookup_failed",
     });
     return NextResponse.json({ error: "user_lookup_failed" }, { status: 500 });
+  }
+
+  if (phoneNumber) {
+    await savePhoneNumber(admin, userId, phoneNumber);
   }
 
   const { error: upsertError } = await admin.from("user_products").upsert(

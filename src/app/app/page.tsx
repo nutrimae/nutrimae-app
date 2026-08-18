@@ -3,11 +3,26 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, Search, CalendarDays, Camera, Heart, Droplet, Sparkles, Bell, Headphones, Cookie, X } from "lucide-react";
+import {
+  ChevronRight,
+  Search,
+  CalendarDays,
+  Camera,
+  Heart,
+  Droplet,
+  Sparkles,
+  Bell,
+  Headphones,
+  Cookie,
+  X,
+  Star,
+  Shield,
+  Leaf,
+  Smile,
+  CheckCircle2,
+} from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { BabyPhotoUploadModal } from "@/components/baby-photo-upload-modal";
 import { ageInMonths } from "@/lib/age";
 import {
@@ -17,10 +32,10 @@ import {
   type DietFilter,
 } from "@/lib/menu";
 
-const BENEFIT_CARDS = [
-  { emoji: "❤️", label: "Mais saúde", tint: "bg-red-50" },
-  { emoji: "🌿", label: "Menos preocupação", tint: "bg-sage-50" },
-  { emoji: "😊", label: "Crescimento feliz", tint: "bg-peach-100" },
+const SUGGESTION_BENEFITS = [
+  { icon: Droplet, text: "Hidrata e refresca", color: "text-sky-500" },
+  { icon: Leaf, text: "Fonte natural de nutrientes", color: "text-sage-500" },
+  { icon: Sparkles, text: "Ideal para a fase atual", color: "text-peach-500" },
 ];
 
 const TIP_CARDS = [
@@ -28,71 +43,60 @@ const TIP_CARDS = [
     icon: Droplet,
     title: "Hidratação é tudo!",
     text: "Ofereça água ao longo do dia, mesmo fora das refeições.",
-    tint: "bg-sky-50 text-sky-600",
+    bg: "bg-red-50",
+    iconBg: "bg-red-100",
+    iconColor: "text-red-500",
+    emoji: "🍼",
   },
   {
-    icon: Sparkles,
+    icon: Leaf,
     title: "Pequenas quantidades",
     text: "O começo da alimentação é leve, seguro e gradual.",
-    tint: "bg-sage-50 text-sage-600",
+    bg: "bg-green-50",
+    iconBg: "bg-green-100",
+    iconColor: "text-green-600",
+    emoji: "🥣",
   },
   {
-    icon: Heart,
+    icon: Smile,
     title: "Você está no caminho certo!",
     text: "Cada escolha faz diferença no futuro do seu bebê.",
-    tint: "bg-peach-100 text-terracotta-600",
+    bg: "bg-orange-50",
+    iconBg: "bg-orange-100",
+    iconColor: "text-orange-500",
+    emoji: "💕",
   },
 ];
-
-const SUGGESTION_BENEFITS = [
-  "Rico em nutrientes importantes para a fase",
-  "Textura pensada para a idade do bebê",
-  "Um sabor novo para descobrir juntos",
-];
-
-function greetingForHour(hour: number): string {
-  if (hour < 12) return "Bom dia, mãe! ☀️";
-  if (hour < 18) return "Boa tarde, mãe! 🌤️";
-  return "Boa noite, mãe! 🌙";
-}
-
-const MOTIVATIONAL_HEADLINES = [
-  { title: "Cada escolha nutre um futuro incrível! 💕", subtitle: "Pequenas decisões hoje, grandes conquistas amanhã." },
-  { title: "Você está no caminho certo, mãe. 🌱", subtitle: "Cada refeição é uma nova oportunidade de descoberta." },
-  { title: "Mãe segura gera bebê confiante. ❤️", subtitle: "Sua atenção nos detalhes já faz toda a diferença." },
-  { title: "Isso não é só comida — é exploração.", subtitle: "Cada sabor novo é um passo na confiança do seu bebê." },
-  { title: "Você está criando memórias de segurança. ✨", subtitle: "E isso vale muito mais do que parece hoje." },
-  { title: "Um dia de cada vez, com carinho. 🌤️", subtitle: "Você não precisa acertar tudo — só estar presente." },
-  { title: "Que sorte a desse bebê, ter você. 💛", subtitle: "Continue confiando no seu instinto de mãe." },
-];
-
-function headlineForToday() {
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000,
-  );
-  return MOTIVATIONAL_HEADLINES[dayOfYear % MOTIVATIONAL_HEADLINES.length];
-}
 
 const WHY_SUBSCRIBE = [
   {
     icon: CalendarDays,
     title: "Cardápio inteligente semanal",
     text: "Novas sugestões toda semana, baseadas na fase do seu bebê.",
-    tint: "bg-sage-50 text-sage-600",
+    iconBg: "bg-sage-100",
+    iconColor: "text-sage-600",
   },
   {
-    icon: Heart,
+    icon: Star,
     title: "Comunidade de mães",
     text: "Milhares de mães trocando experiências e tirando dúvidas.",
-    tint: "bg-primary-100 text-primary-600",
+    iconBg: "bg-primary-100",
+    iconColor: "text-primary-600",
   },
   {
-    icon: Sparkles,
+    icon: Shield,
     title: "Acompanhamento completo",
     text: "Veja o progresso alimentar do seu bebê mês a mês no Diário.",
-    tint: "bg-peach-100 text-terracotta-600",
+    iconBg: "bg-peach-100",
+    iconColor: "text-terracotta-600",
   },
 ];
+
+function greetingForHour(hour: number): string {
+  if (hour < 12) return "Olá";
+  if (hour < 18) return "Olá";
+  return "Olá";
+}
 
 export default function AppHomePage() {
   const { activeBaby } = useActiveBaby();
@@ -165,8 +169,9 @@ export default function AppHomePage() {
 
   if (!activeBaby) {
     return (
-      <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Carregando os dados do bebê...</p>
+      <main className="mx-auto flex w-full max-w-md flex-col items-center gap-4 px-4 py-16 text-center text-brown-700">
+        <Image src="/nutrimae-logo.png" alt="" width={80} height={80} className="h-16 w-16 animate-pulse-soft object-contain" />
+        <p className="text-sm">Carregando os dados do bebê...</p>
       </main>
     );
   }
@@ -175,197 +180,245 @@ export default function AppHomePage() {
   const ageBand = ageBandForMonths(months);
   const today = getTodaySuggestion(ageBand, new Date(), { triedFoodKeys, avoidAllergen });
   const firstName = activeBaby.name.split(" ")[0];
-  const headline = headlineForToday();
+  const genderLabel = activeBaby.gender === "male" ? "Meu bebê" : "Minha bebê";
 
   return (
-    <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-8">
-      {/* Hero */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-4">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 pb-6 pt-4">
+      {/* ──── Hero greeting ──── */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setShowUpload(true)}
-            className="group relative h-16 w-16 shrink-0 rounded-full"
+            className="group relative h-14 w-14 shrink-0"
             aria-label="Alterar foto do bebê"
           >
             {photoUrl ? (
               <Image
                 src={photoUrl}
                 alt={activeBaby.name}
-                width={64}
-                height={64}
-                className="h-16 w-16 rounded-full border-4 border-primary-300 object-cover"
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-full border-[3px] border-primary-200 object-cover"
                 unoptimized
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-primary-300 bg-primary-100 font-heading text-xl font-bold text-primary-600">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-primary-200 bg-primary-50 font-heading text-xl font-bold text-primary-500">
                 {activeBaby.name.charAt(0).toUpperCase()}
               </div>
             )}
-            <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary-500 text-white shadow-sm">
-              <Camera className="h-3 w-3" strokeWidth={2} />
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-cream">
+              <Camera className="h-2.5 w-2.5" strokeWidth={2.5} />
             </span>
           </button>
 
           <div>
-            <p className="text-sm font-semibold text-brown-700">{greetingForHour(new Date().getHours())}</p>
-            <h1 className="font-heading text-2xl font-bold text-brown-800">{activeBaby.name}</h1>
-            <p className="text-sm text-brown-700/70">
-              {months} {months === 1 ? "mês" : "meses"}
-            </p>
+            <h1 className="font-heading text-xl font-bold text-brown-800">
+              {greetingForHour(new Date().getHours())}, {firstName}! <span className="text-primary-500">❤️</span>
+            </h1>
+            <p className="text-sm text-brown-700/60">Que bom te ver por aqui!</p>
           </div>
         </div>
 
         <Link
           href="/app/suporte"
           aria-label="Notificações"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/80 shadow-sm shadow-primary-500/10"
+          className="relative mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-subtle"
         >
-          <Bell className="h-5 w-5 text-brown-700" strokeWidth={1.75} />
+          <Bell className="h-5 w-5 text-brown-700/50" strokeWidth={1.75} />
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-500 text-[10px] font-bold text-white ring-2 ring-cream">
+            2
+          </span>
         </Link>
       </div>
 
-      {/* Card motivacional */}
-      <div className="animate-fade-in-up rounded-3xl bg-gradient-to-b from-primary-100 to-white p-5 shadow-sm shadow-primary-500/10">
-        <p className="type-h2 font-heading text-brown-800">{headline.title}</p>
-        <p className="mt-1 type-small text-brown-700">{headline.subtitle}</p>
-      </div>
-
-      {/* Benefícios */}
-      <div>
-        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
-          Como está {firstName} hoje?
-        </h2>
-        <div className="grid grid-cols-3 gap-2">
-          {BENEFIT_CARDS.map((b, i) => (
-            <div
-              key={b.label}
-              style={{ animationDelay: `${i * 0.1}s` }}
-              className={`lift-on-hover animate-fade-in-up flex cursor-default flex-col items-center gap-1 rounded-2xl ${b.tint} px-2 py-4 text-center shadow-[var(--shadow-subtle)]`}
-            >
-              <span className="text-2xl">{b.emoji}</span>
-              <span className="text-xs font-semibold text-brown-800">{b.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Sugestão do momento */}
-      <div>
-        <h2 className="font-heading text-lg font-bold text-brown-800">
-          Sugestão para agora: {today.mealLabel}
-        </h2>
-        <Link href="/app/cardapio" className="mt-3 block">
-          <div className="rounded-3xl bg-gradient-to-b from-primary-100 to-white p-5 shadow-sm shadow-primary-500/10 transition-transform active:scale-[0.99]">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <Badge variant="solid" className="mb-1 bg-white/70 text-primary-600">
-                  <Sparkles className="h-3 w-3" strokeWidth={2.5} />
-                  Mais escolhido
-                </Badge>
-                <p className="font-heading text-lg font-bold text-brown-800">
-                  {today.suggestion.title}
-                </p>
-                <p className="mt-1 text-sm text-brown-700">{today.suggestion.description}</p>
-              </div>
-              <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-primary-500" strokeWidth={2} />
-            </div>
-
-            <ul className="mt-3 flex flex-col gap-1.5">
-              {SUGGESTION_BENEFITS.map((benefit) => (
-                <li key={benefit} className="flex items-center gap-2 text-sm text-brown-700">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary-500" />
-                  {benefit}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Link>
-      </div>
-
-      {months >= 5 && months <= 7 && !teethingDismissed && (
-        <div className="flex items-start gap-3 rounded-2xl bg-primary-100 p-4">
-          <Cookie className="h-5 w-5 shrink-0 text-primary-600" strokeWidth={2} />
-          <div className="flex-1">
-            <p className="font-semibold text-brown-800">Os dentinhos podem estar chegando</p>
-            <p className="mt-0.5 text-xs text-brown-700/70">
-              Veja 15 opções de mordedores naturais seguros para essa fase.
-            </p>
-            <Link
-              href="/app/mordedores-naturais"
-              className="mt-2 inline-block text-xs font-semibold text-primary-600 underline"
-            >
-              Ver Mordedores Naturais
-            </Link>
-          </div>
-          <button type="button" onClick={dismissTeethingBanner} className="shrink-0">
-            <X className="h-4 w-4 text-brown-700/40" strokeWidth={2} />
-          </button>
-        </div>
-      )}
-
-      {/* Widget audiobooks */}
+      {/* ──── Baby info card ──── */}
       <Link
-        href="/app/audiobooks"
-        className="flex items-center gap-3 rounded-2xl bg-primary-100 p-4 shadow-sm shadow-primary-500/10 active:scale-[0.99]"
+        href="/app/perfil"
+        className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-subtle active:scale-[0.99] transition-transform"
       >
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/70">
-          <Headphones className="h-5 w-5 text-primary-600" strokeWidth={1.75} />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-50 font-heading text-lg font-bold text-primary-500">
+          {activeBaby.name.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1">
-          <p className="font-semibold text-brown-800">Audiobooks para o dia a dia</p>
-          <p className="text-xs text-brown-700/70">Janela imunológica, engasgo vs. gag e mais.</p>
+          <p className="font-heading text-base font-bold text-brown-800">{firstName}</p>
+          <p className="flex items-center gap-1 text-xs text-brown-700/50">
+            <CalendarDays className="h-3 w-3" strokeWidth={2} />
+            {months} {months === 1 ? "mês" : "meses"} de vida
+          </p>
         </div>
-        <ChevronRight className="h-5 w-5 shrink-0 text-primary-500" strokeWidth={2} />
+        <div className="flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1.5">
+          <Heart className="h-3.5 w-3.5 text-primary-500" strokeWidth={2} fill="currentColor" />
+          <span className="text-xs font-semibold text-primary-600">{genderLabel}</span>
+          <ChevronRight className="h-3.5 w-3.5 text-primary-400" strokeWidth={2} />
+        </div>
       </Link>
 
-      {/* Dicas */}
-      <div className="grid grid-cols-3 gap-2">
-        {TIP_CARDS.map((tip) => (
+      {/* ──── Benefit pills ──── */}
+      <div className="flex gap-2">
+        {[
+          { icon: Heart, label: "Mais saúde", iconColor: "text-primary-500", bg: "bg-white" },
+          { icon: Leaf, label: "Menos preocupação", iconColor: "text-sage-500", bg: "bg-white" },
+          { icon: Smile, label: "Crescimento feliz", iconColor: "text-orange-500", bg: "bg-white" },
+        ].map((b) => (
           <div
-            key={tip.title}
-            className={`flex flex-col items-center gap-2 rounded-2xl ${tip.tint} p-3 text-center`}
+            key={b.label}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-2xl ${b.bg} px-2 py-3 shadow-subtle`}
           >
-            <tip.icon className="h-6 w-6" strokeWidth={1.75} />
-            <div>
-              <p className="text-xs font-bold leading-tight">{tip.title}</p>
-              <p className="mt-1 text-[11px] leading-tight opacity-80">{tip.text}</p>
-            </div>
+            <b.icon className={`h-4 w-4 shrink-0 ${b.iconColor}`} strokeWidth={2} fill="currentColor" />
+            <span className="text-[11px] font-semibold text-brown-800">{b.label}</span>
           </div>
         ))}
       </div>
 
-      {/* Por que continuar assinando */}
+      {/* ──── Suggestion header ──── */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Heart className="h-4 w-4 text-primary-500" strokeWidth={2} fill="currentColor" />
+          <h2 className="font-heading text-sm font-bold text-brown-800">
+            Sugestão para agora: {today.mealLabel}
+          </h2>
+        </div>
+        <div className="flex items-center gap-1 rounded-full bg-sage-50 px-2.5 py-1">
+          <Leaf className="h-3 w-3 text-sage-500" strokeWidth={2} />
+          <span className="text-[10px] font-semibold text-sage-700">
+            Fase: {months} {months === 1 ? "mês" : "meses"}
+          </span>
+        </div>
+      </div>
+
+      {/* ──── Food suggestion card ──── */}
+      <Link
+        href="/app/cardapio"
+        className="block rounded-2xl bg-white p-4 shadow-subtle transition-transform active:scale-[0.99]"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1">
+              <Star className="h-3 w-3 text-amber-500" strokeWidth={2} fill="currentColor" />
+              <span className="text-[10px] font-bold text-amber-700">Mais escolhido</span>
+            </div>
+            <p className="font-heading text-lg font-bold text-brown-800">
+              {today.suggestion.title}
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-brown-700/60">
+              {today.suggestion.description}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col gap-2">
+          {SUGGESTION_BENEFITS.map((benefit) => (
+            <div key={benefit.text} className="flex items-center gap-2">
+              <benefit.icon className={`h-4 w-4 shrink-0 ${benefit.color}`} strokeWidth={2} />
+              <span className="text-sm text-brown-700">{benefit.text}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-3 flex justify-end">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-500 shadow-sm">
+            <ChevronRight className="h-5 w-5 text-white" strokeWidth={2.5} />
+          </div>
+        </div>
+      </Link>
+
+      {/* ──── Teething banner ──── */}
+      {months >= 5 && months <= 7 && !teethingDismissed && (
+        <div className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-subtle">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50">
+            <Cookie className="h-5 w-5 text-primary-500" strokeWidth={1.75} />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-brown-800">Os dentinhos podem estar chegando</p>
+            <p className="mt-0.5 text-xs text-brown-700/50">
+              Veja 15 opções de mordedores naturais seguros para essa fase.
+            </p>
+            <Link
+              href="/app/mordedores-naturais"
+              className="mt-2 inline-block text-xs font-semibold text-primary-500"
+            >
+              Ver Mordedores Naturais
+            </Link>
+          </div>
+          <button type="button" onClick={dismissTeethingBanner} className="shrink-0 rounded-full p-1">
+            <X className="h-3.5 w-3.5 text-brown-700/30" strokeWidth={2} />
+          </button>
+        </div>
+      )}
+
+      {/* ──── Tips cards ──── */}
+      <div className="grid grid-cols-3 gap-2">
+        {TIP_CARDS.map((tip) => (
+          <div
+            key={tip.title}
+            className={`flex flex-col justify-between rounded-2xl ${tip.bg} p-3`}
+          >
+            <div>
+              <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-xl ${tip.iconBg}`}>
+                <tip.icon className={`h-4 w-4 ${tip.iconColor}`} strokeWidth={2} />
+              </div>
+              <p className="text-[11px] font-bold leading-tight text-brown-800">{tip.title}</p>
+              <p className="mt-1 text-[10px] leading-tight text-brown-700/60">{tip.text}</p>
+            </div>
+            <div className="mt-3 text-right text-xl">{tip.emoji}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ──── Audiobooks widget ──── */}
+      <Link
+        href="/app/audiobooks"
+        className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-subtle transition-transform active:scale-[0.99]"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary-50">
+          <Headphones className="h-5 w-5 text-primary-500" strokeWidth={1.75} />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-brown-800">Audiobooks para o dia a dia</p>
+          <p className="text-[11px] text-brown-700/50">Janela imunológica, engasgo vs. gag e mais.</p>
+        </div>
+        <ChevronRight className="h-4 w-4 shrink-0 text-brown-700/30" strokeWidth={2} />
+      </Link>
+
+      {/* ──── Por que continuar ──── */}
       <div>
-        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
-          Por que continuar com o NutriMäe?
+        <h2 className="mb-2 font-heading text-sm font-bold text-brown-800">
+          Por que continuar com o NutriMãe?
         </h2>
         <div className="flex flex-col gap-2">
           {WHY_SUBSCRIBE.map((reason) => (
-            <div key={reason.title} className={`flex items-center gap-3 rounded-2xl ${reason.tint} p-3`}>
-              <reason.icon className="h-6 w-6 shrink-0" strokeWidth={1.75} />
+            <div key={reason.title} className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-subtle">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${reason.iconBg}`}>
+                <reason.icon className={`h-4.5 w-4.5 ${reason.iconColor}`} strokeWidth={1.75} />
+              </div>
               <div>
-                <p className="text-sm font-bold leading-tight">{reason.title}</p>
-                <p className="mt-0.5 text-xs leading-tight opacity-80">{reason.text}</p>
+                <p className="text-sm font-bold leading-tight text-brown-800">{reason.title}</p>
+                <p className="mt-0.5 text-[11px] leading-tight text-brown-700/50">{reason.text}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <Link href="/app/busca">
-        <Button variant="brand" className="flex items-center justify-center gap-2">
-          <Search className="h-5 w-5" strokeWidth={2} />
-          Buscar corte seguro
-        </Button>
+      {/* ──── Search CTA ──── */}
+      <Link
+        href="/app/busca"
+        className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-base font-bold text-white shadow-[0_4px_16px_var(--color-primary-shadow)] transition-all active:scale-[0.98]"
+      >
+        <Search className="h-5 w-5" strokeWidth={2} />
+        Buscar corte seguro
+        <ChevronRight className="h-5 w-5" strokeWidth={2} />
       </Link>
 
+      {/* ──── Cardápio link ──── */}
       <Link
         href="/app/cardapio"
-        className="flex min-h-12 items-center justify-center gap-2 text-center text-base font-semibold text-primary-600"
+        className="flex min-h-11 items-center justify-center gap-2 text-sm font-semibold text-brown-700/60"
       >
-        <CalendarDays className="h-4 w-4" strokeWidth={2} />
+        <CheckCircle2 className="h-4 w-4 text-brown-700/40" strokeWidth={2} />
         Ver cardápio completo da semana
+        <ChevronRight className="h-4 w-4 text-brown-700/40" strokeWidth={2} />
       </Link>
 
       {showUpload && (

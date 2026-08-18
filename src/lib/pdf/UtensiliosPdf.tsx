@@ -7,9 +7,9 @@ const CATEGORIES: UtensilCategory[] = ["hora-de-comer", "preparo", "armazenament
 
 export function UtensiliosPdf() {
   return (
-    <Document title="Utensílios Recomendados — NutriMäe">
+    <Document title="Utensílios Recomendados — NutriMãe">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMäe</Text>
+        <Text style={pdfStyles.brand}>NutriMãe</Text>
         <Text style={pdfStyles.h1}>Utensílios Recomendados</Text>
         <Text style={pdfStyles.subtitle}>
           O que ajuda na rotina da introdução alimentar e o que procurar na hora de comprar.

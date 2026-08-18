@@ -123,4 +123,4 @@ export const pdfStyles = StyleSheet.create({
 });
 
 export const DISCLAIMER =
-  "Este material é um apoio ao dia a dia e não substitui orientação médica ou nutricional profissional. Gerado pelo NutriMäe para uso pessoal e familiar — não redistribua.";
+  "Este material é um apoio ao dia a dia e não substitui orientação médica ou nutricional profissional. Gerado pelo NutriMãe para uso pessoal e familiar — não redistribua.";

@@ -1,11 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  /* Fundo do app — tom neutro por padrão (sem bebê ativo ainda) */
   --color-cream: #fdf9f3;
   --color-cream-deep: #f6ecdf;
 
-  /* Tema de gênero — "menina" (rosa) é o padrão/fallback */
+  --color-primary-50: #fff0f3;
   --color-primary-100: #ffe4e9;
   --color-primary-300: #f5a6c1;
   --color-primary-500: #ff6b9d;
@@ -37,12 +36,16 @@
 
   --background: var(--color-cream);
   --foreground: var(--color-brown-800);
+
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 4px 24px rgba(69, 53, 41, 0.06);
 }
 
-/* Bebê menina: fundo rosa suave em todo o app */
 :root[data-baby-theme="female"] {
   --color-cream: #fff5f7;
   --color-cream-deep: #ffe4e9;
+  --color-primary-50: #fff0f3;
   --color-primary-100: #ffe4e9;
   --color-primary-300: #f5a6c1;
   --color-primary-500: #ff6b9d;
@@ -55,10 +58,10 @@
   --color-theme-border: #f0d7dc;
 }
 
-/* Bebê menino: fundo azul suave em todo o app */
 :root[data-baby-theme="male"] {
   --color-cream: #f0f9ff;
   --color-cream-deep: #dbeafe;
+  --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-300: #60a5fa;
   --color-primary-500: #3b82f6;
@@ -77,6 +80,7 @@
 
   --color-cream: var(--color-cream);
   --color-cream-deep: var(--color-cream-deep);
+  --color-primary-50: var(--color-primary-50);
   --color-primary-100: var(--color-primary-100);
   --color-primary-300: var(--color-primary-300);
   --color-primary-500: var(--color-primary-500);
@@ -106,9 +110,10 @@
   --font-heading: var(--font-poppins);
   --font-sans: var(--font-poppins);
 
-  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --shadow-subtle: 0 1px 4px rgba(69, 53, 41, 0.05);
+  --shadow-medium: 0 4px 16px rgba(69, 53, 41, 0.08);
+  --shadow-strong: 0 8px 32px rgba(69, 53, 41, 0.12);
+  --shadow-glow: 0 4px 20px var(--color-primary-shadow);
 }
 
 body {
@@ -122,7 +127,6 @@ h1, h2, h3, h4, .font-heading {
   font-weight: 600;
 }
 
-/* Escala tipográfica — Poppins, nada mais */
 .type-h1 {
   font-size: 32px;
   font-weight: 700;
@@ -155,48 +159,98 @@ h1, h2, h3, h4, .font-heading {
   line-height: 1.4;
 }
 
-/* Big, forgiving tap targets everywhere by default */
 button, a, input, select, textarea {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Micro-interações globais */
+/* Glass morphism card */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Premium gradient backgrounds */
+.gradient-hero {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-50) 0%,
+    var(--color-cream) 50%,
+    var(--color-sage-50) 100%
+  );
+}
+
+.gradient-warm {
+  background: linear-gradient(
+    180deg,
+    var(--color-primary-100) 0%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+}
+
+/* Micro-interactions */
 @media (prefers-reduced-motion: no-preference) {
   .lift-on-hover {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
   }
   .lift-on-hover:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+  }
+  .lift-on-hover:active {
+    transform: translateY(-1px);
   }
 }
 
 @keyframes pop {
-  0% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 .animate-pop {
-  animation: pop 0.3s ease-out;
+  animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in-up {
-  animation: fade-in-up 0.3s ease-out both;
+  animation: fade-in-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in {
+  animation: scale-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -207,45 +261,28 @@ button, a, input, select, textarea {
   }
 }
 
-/* Splash de abertura */
+/* Splash */
 @keyframes splash-logo-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.75);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% { opacity: 0; transform: scale(0.6) rotate(-5deg); }
+  60% { opacity: 1; transform: scale(1.08) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 @keyframes splash-heartbeat {
-  0%, 100% {
-    transform: scale(1);
-  }
-  25% {
-    transform: scale(1.12);
-  }
-  40% {
-    transform: scale(1);
-  }
-  55% {
-    transform: scale(1.08);
-  }
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.12); }
+  40% { transform: scale(1); }
+  55% { transform: scale(1.08); }
 }
 @keyframes splash-shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes splash-text-in {
+  0% { opacity: 0; transform: translateY(10px); letter-spacing: 4px; }
+  100% { opacity: 1; transform: translateY(0); letter-spacing: 0px; }
 }
 .animate-splash-logo {
-  animation: splash-logo-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: splash-logo-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 .animate-splash-heartbeat {
   animation: splash-heartbeat 1.6s ease-in-out infinite;
@@ -259,4 +296,98 @@ button, a, input, select, textarea {
   );
   background-size: 200% 100%;
   animation: splash-shimmer 1.8s ease-in-out infinite;
+}
+.animate-splash-text {
+  animation: splash-text-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+}
+
+/* Decorative dot pattern */
+.dot-pattern {
+  background-image: radial-gradient(circle, var(--color-primary-100) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ============================================================
+   SOS Desmame Noturno — "Modo Madrugada"
+   Tela isolada, sempre escura (independe do tema claro/rosa/azul do
+   resto do app), pensada para não ofuscar os olhos às 3h da manhã.
+   ============================================================ */
+.midnight-theme {
+  --midnight-bg: #121a2f;
+  --midnight-bg-elevated: #1a2440;
+  --midnight-border: rgba(226, 232, 240, 0.08);
+  --midnight-text: #e2e8f0;
+  --midnight-text-dim: rgba(226, 232, 240, 0.55);
+  --midnight-accent: #c084fc;
+  --midnight-accent-2: #f472b6;
+  background: var(--midnight-bg);
+  color: var(--midnight-text);
+  min-height: 100dvh;
+}
+
+/* Botão de pânico: pulsação sutil para chamar o polegar sem parecer alarme */
+@keyframes panic-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(244, 114, 182, 0);
+  }
+}
+.animate-panic-pulse {
+  animation: panic-pulse 2.4s ease-in-out infinite;
+}
+
+/* Barra de progresso fina magenta/roxo das Pílulas de Áudio */
+.audio-progress-track {
+  background: rgba(226, 232, 240, 0.12);
+}
+.audio-progress-fill {
+  background: linear-gradient(90deg, var(--midnight-accent-2), var(--midnight-accent));
+  transition: width 0.15s linear;
+}
+
+/* Confete sutil ao marcar um dia no rastreador de vitórias */
+@keyframes confetti-pop {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  40% { transform: scale(1.2) rotate(20deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.animate-confetti-pop {
+  animation: confetti-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes confetti-fly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--fly-x, 0), var(--fly-y, -40px)) scale(0); opacity: 0; }
+}
+.animate-confetti-fly {
+  animation: confetti-fly 0.6s ease-out both;
+}
+
+/* Botão VIP na navegação principal: brilho dourado sutil para chamar
+   atenção sem parecer notificação/erro. */
+@keyframes vip-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px rgba(217, 164, 6, 0.6));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 5px rgba(217, 164, 6, 0.85));
+    transform: scale(1.06);
+  }
+}
+.animate-vip-glow {
+  animation: vip-glow 2.2s ease-in-out infinite;
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-sage-200);
+  border-radius: 4px;
 }

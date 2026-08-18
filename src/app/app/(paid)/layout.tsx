@@ -4,9 +4,10 @@ import { getEntitlementStatus } from "@/lib/entitlements";
 import { PRODUCTS } from "@/lib/products";
 import { UpgradeScreen } from "@/components/upgrade-screen";
 
-// Cardápio, Cortes Seguros, Lista de Compras, S.O.S., Guia de Alergia, Club
-// das Mães e Suporte são todos liberados pela mesma assinatura — um único
-// gate cobre o grupo inteiro. Admins passam sempre, mesmo sem assinatura.
+// Cardápio, Cortes Seguros, Lista de Compras, Guia de Alergia, Club das
+// Mães e Suporte são todos liberados pela mesma assinatura — um único gate
+// cobre o grupo inteiro. Admins passam sempre, mesmo sem assinatura.
+// O Manual S.O.S. NÃO fica neste grupo — é gratuito e público em /sos.
 export default async function PaidLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
 

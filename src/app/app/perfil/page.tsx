@@ -3,18 +3,20 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, ExternalLink, ShieldCheck, TrendingUp } from "lucide-react";
+import { LogOut, ExternalLink, ShieldCheck, TrendingUp, Crown } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/back-button";
+import { useVipAccess } from "@/lib/use-vip-access";
 import type { BabyGender } from "@/lib/types";
 
 export default function PerfilPage() {
   const router = useRouter();
   const { activeBaby, updateBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
+  const vipAccess = useVipAccess();
 
   const [email, setEmail] = useState("");
   const [babyName, setBabyName] = useState("");
@@ -175,6 +177,21 @@ export default function PerfilPage() {
           </p>
         )}
       </div>
+
+      {!vipAccess.loading && !vipAccess.hasAny && (
+        <Link
+          href="/app/vip"
+          className="flex items-center gap-3 rounded-2xl bg-gradient-to-r from-[#1a1025] to-[#241633] p-4 transition-transform active:scale-[0.98]"
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-400/20">
+            <Crown className="h-4 w-4 text-amber-300" strokeWidth={1.75} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-white">Área VIP</p>
+            <p className="text-xs text-white/50">SOS Desmame Noturno e Protocolo Intestino Livre</p>
+          </div>
+        </Link>
+      )}
 
       <Link
         href="/politica-privacidade"

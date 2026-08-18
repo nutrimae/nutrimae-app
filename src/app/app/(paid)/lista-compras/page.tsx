@@ -106,7 +106,7 @@ export default function ListaComprasPage() {
       }
       lines.push("");
     }
-    lines.push("Gerada em NutriMäe 💚");
+    lines.push("Gerada em NutriMãe 💚");
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }

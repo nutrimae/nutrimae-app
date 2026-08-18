@@ -18,7 +18,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setMessage(msg);
     setVisible(true);
-    timeoutRef.current = setTimeout(() => setVisible(false), 2000);
+    timeoutRef.current = setTimeout(() => setVisible(false), 2200);
   }, []);
 
   return (
@@ -26,13 +26,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div
         aria-live="polite"
-        className={`pointer-events-none fixed inset-x-0 top-4 z-[60] flex justify-center px-4 transition-[opacity,transform] duration-200 ease-in-out ${
-          visible ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
+        className={`pointer-events-none fixed inset-x-0 top-4 z-[60] flex justify-center px-4 transition-all duration-300 ease-out ${
+          visible ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
         }`}
       >
         {message && (
-          <div className="flex items-center gap-2 rounded-full bg-brown-800 px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-strong)]">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-sage-400" strokeWidth={2.5} />
+          <div className="glass-card flex items-center gap-2.5 rounded-2xl bg-brown-800/95 px-5 py-3.5 text-sm font-semibold text-white shadow-strong backdrop-blur-xl">
+            <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-sage-400" strokeWidth={2.5} />
             {message}
           </div>
         )}

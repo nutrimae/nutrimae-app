@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useState } from "react";
 import {
   Phone,
   Volume2,
@@ -12,14 +11,19 @@ import {
   Thermometer,
   Activity,
   ShieldAlert,
-  Headphones,
+  Baby,
+  PersonStanding,
 } from "lucide-react";
-import { useActiveBaby } from "@/components/active-baby-context";
-import { ageInMonths } from "@/lib/age";
-import { ageBandForMonths } from "@/lib/menu";
 import { BackButton as PageBackButton } from "@/components/back-button";
 
+// Rota pública do Manual S.O.S. — sem login, sem assinatura, sem oferta.
+// Fica fora de /app de propósito: não pode depender de ActiveBabyProvider
+// (contexto só disponível para usuárias autenticadas). A escolha de faixa
+// etária para a manobra de desengasgo é feita manualmente aqui, pela mesma
+// razão — nunca adivinhar.
+
 type View = "identify" | "reflex" | "choking" | "gag_info" | "allergy" | "gut" | "fever";
+type AgeGroup = "infant" | "child";
 
 const INFANT_STEPS = [
   {
@@ -112,13 +116,37 @@ function InfoList({ items }: { items: string[] }) {
   );
 }
 
-export default function SosPage() {
-  const { activeBaby } = useActiveBaby();
-  const [view, setView] = useState<View>("identify");
+function AgeGroupPicker({ onPick }: { onPick: (group: AgeGroup) => void }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-brown-800">
+        Para a manobra certa, primeiro diga a faixa de idade de quem está engasgando:
+      </p>
+      <button
+        type="button"
+        onClick={() => onPick("infant")}
+        className="flex min-h-16 items-center gap-3 rounded-2xl bg-white/80 p-4 text-left shadow-sm shadow-brown-900/5 active:bg-sage-50"
+      >
+        <Baby className="h-7 w-7 shrink-0 text-sage-600" strokeWidth={1.75} />
+        <span className="font-heading text-lg font-bold text-brown-800">Bebê até 1 ano</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => onPick("child")}
+        className="flex min-h-16 items-center gap-3 rounded-2xl bg-white/80 p-4 text-left shadow-sm shadow-brown-900/5 active:bg-sage-50"
+      >
+        <PersonStanding className="h-7 w-7 shrink-0 text-sage-600" strokeWidth={1.75} />
+        <span className="font-heading text-lg font-bold text-brown-800">Criança acima de 1 ano</span>
+      </button>
+    </div>
+  );
+}
 
-  const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
-  const ageBand = useMemo(() => ageBandForMonths(months), [months]);
-  const isInfant = ageBand !== "13-24";
+export default function SosPage() {
+  const [view, setView] = useState<View>("identify");
+  const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
+
+  const isInfant = ageGroup === "infant";
   const steps = isInfant ? INFANT_STEPS : CHILD_STEPS;
 
   return (
@@ -128,11 +156,11 @@ export default function SosPage() {
       <main className="mx-auto flex w-full max-w-sm flex-1 flex-col gap-5 px-4 py-6">
         {view === "identify" && (
           <>
-            <PageBackButton />
+            <PageBackButton fallbackHref="/" />
 
             <div>
               <h1 className="font-heading text-2xl font-bold text-brown-800">
-                Antes de agir, identifique
+                Manual S.O.S. — Antes de agir, identifique
               </h1>
               <p className="mt-1 text-brown-700">
                 Toque na situação que mais parece com o que está acontecendo agora.
@@ -206,9 +234,9 @@ export default function SosPage() {
                 Isso é bom sinal — não faça manobras
               </p>
               <p className="mt-3 text-lg text-brown-800">
-                Se o bebê está tossindo, chorando ou fazendo barulho, as vias aéreas
-                ainda estão parcialmente livres e o próprio corpo está tentando
-                expulsar o alimento. Intervir agora pode empurrar o objeto mais fundo.
+                Se está tossindo, chorando ou fazendo barulho, as vias aéreas ainda estão
+                parcialmente livres e o próprio corpo está tentando expulsar o alimento.
+                Intervir agora pode empurrar o objeto mais fundo.
               </p>
             </div>
 
@@ -216,10 +244,10 @@ export default function SosPage() {
               <p className="font-heading text-lg font-bold text-brown-800">O que fazer</p>
               <InfoList
                 items={[
-                  "Fique calma e por perto, sem tirar os olhos do bebê.",
-                  "Incentive a tosse — não bata nas costas nem coloque os dedos na boca dele.",
+                  "Fique calma e por perto, sem tirar os olhos da criança.",
+                  "Incentive a tosse — não bata nas costas nem coloque os dedos na boca dela.",
                   "Observe: a tosse deve ceder em poucos minutos.",
-                  "Se a tosse parar de fazer ruído, o rosto mudar de cor ou ele parar de respirar, mude imediatamente para a manobra de engasgo abaixo.",
+                  "Se a tosse parar de fazer ruído, o rosto mudar de cor ou ela parar de respirar, mude imediatamente para a manobra de engasgo abaixo.",
                 ]}
               />
             </div>
@@ -236,42 +264,60 @@ export default function SosPage() {
 
         {view === "choking" && (
           <>
-            <BackButton onClick={() => setView("identify")} />
+            <BackButton
+              onClick={() => {
+                setView("identify");
+                setAgeGroup(null);
+              }}
+            />
 
-            <div className="flex items-start gap-3 rounded-3xl bg-red-100 p-5">
-              <AlertTriangle className="h-7 w-7 shrink-0 text-red-600" strokeWidth={2} />
-              <div>
-                <p className="font-heading text-lg font-bold text-red-700">
-                  Manobra de desengasgo — {isInfant ? "bebê até 1 ano" : "criança acima de 1 ano"}
-                </p>
-                <p className="mt-1 text-sm text-red-700/80">
-                  Peça para alguém ligar 192 enquanto você age. Se estiver sozinha, faça a
-                  manobra por 1 minuto antes de parar para ligar.
-                </p>
-              </div>
-            </div>
-
-            <ol className="flex flex-col gap-4">
-              {steps.map((step, i) => (
-                <li key={step.title} className="flex gap-4 rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 font-heading text-lg font-bold text-white">
-                    {i + 1}
-                  </span>
+            {ageGroup === null ? (
+              <AgeGroupPicker onPick={setAgeGroup} />
+            ) : (
+              <>
+                <div className="flex items-start gap-3 rounded-3xl bg-red-100 p-5">
+                  <AlertTriangle className="h-7 w-7 shrink-0 text-red-600" strokeWidth={2} />
                   <div>
-                    <p className="font-heading text-lg font-bold text-brown-800">
-                      {step.title}
+                    <p className="font-heading text-lg font-bold text-red-700">
+                      Manobra de desengasgo — {isInfant ? "bebê até 1 ano" : "criança acima de 1 ano"}
                     </p>
-                    <p className="mt-1 text-brown-700">{step.text}</p>
+                    <p className="mt-1 text-sm text-red-700/80">
+                      Peça para alguém ligar 192 enquanto você age. Se estiver sozinha, faça a
+                      manobra por 1 minuto antes de parar para ligar.
+                    </p>
                   </div>
-                </li>
-              ))}
-            </ol>
+                </div>
 
-            <p className="mt-2 rounded-2xl bg-peach-100 p-4 text-sm text-brown-700">
-              Resumo educativo, não substitui treinamento certificado. Ligue 192
-              imediatamente e continue as manobras até o socorro chegar ou o bebê
-              desengasgar.
-            </p>
+                <button
+                  type="button"
+                  onClick={() => setAgeGroup(null)}
+                  className="w-fit text-xs font-semibold text-sage-600 underline"
+                >
+                  Trocar faixa de idade
+                </button>
+
+                <ol className="flex flex-col gap-4">
+                  {steps.map((step, i) => (
+                    <li key={step.title} className="flex gap-4 rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 font-heading text-lg font-bold text-white">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <p className="font-heading text-lg font-bold text-brown-800">
+                          {step.title}
+                        </p>
+                        <p className="mt-1 text-brown-700">{step.text}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+
+                <p className="mt-2 rounded-2xl bg-peach-100 p-4 text-sm text-brown-700">
+                  Resumo educativo, não substitui treinamento certificado. Ligue 192
+                  imediatamente e continue as manobras até o socorro chegar ou desengasgar.
+                </p>
+              </>
+            )}
           </>
         )}
 
@@ -317,14 +363,6 @@ export default function SosPage() {
             >
               É engasgo real? Ver manobra
             </button>
-
-            <Link
-              href="/app/audiobooks/engasgo-gag"
-              className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary-100 text-sm font-semibold text-primary-600"
-            >
-              <Headphones className="h-4 w-4" strokeWidth={2} />
-              Ouvir audiobook: Engasgo ou GAG?
-            </Link>
           </>
         )}
 
@@ -356,7 +394,7 @@ export default function SosPage() {
               <p className="font-heading text-lg font-bold text-brown-800">O que fazer</p>
               <InfoList
                 items={[
-                  "Remova o alimento e observe o bebê de perto.",
+                  "Remova o alimento e observe de perto.",
                   "Sinais leves/moderados: fale com o pediatra o quanto antes.",
                   "Sinais graves: ligue 192 imediatamente.",
                 ]}
@@ -427,7 +465,7 @@ export default function SosPage() {
                 items={[
                   "Mantenha o bebê bem hidratado.",
                   "Ofereça alimentos leves, sem forçar.",
-                  "Febre acima de 38°C, ou bebê muito abatido: procure o pediatra.",
+                  "Febre acima de 38°C, ou muito abatido: procure o pediatra.",
                 ]}
               />
             </div>

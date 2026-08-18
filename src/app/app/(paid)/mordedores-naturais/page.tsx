@@ -29,7 +29,7 @@ export default function MordedoresNaturaisPage() {
         `Preparo: ${teether.prep}\n` +
         `Duração máxima: ${teether.maxDurationMinutes} min\n` +
         `Segurança: ${teether.safety}\n\n` +
-        `Guia completo de mordedores no NutriMäe 💚`,
+        `Guia completo de mordedores no NutriMãe 💚`,
     );
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }

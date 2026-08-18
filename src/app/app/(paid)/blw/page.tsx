@@ -219,7 +219,7 @@ function SafetyTab() {
             </p>
           </div>
           <Link
-            href="/app/sos"
+            href="/sos"
             className="flex min-h-12 items-center justify-center rounded-2xl border-2 border-red-200 text-sm font-semibold text-red-600"
           >
             Ver manual completo de manobras por idade

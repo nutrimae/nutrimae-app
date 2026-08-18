@@ -127,7 +127,7 @@ export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAd
               }`}
             >
               <p className="text-xs font-semibold opacity-70">
-                {fromAdmin ? "Equipe NutriMäe" : "Você"}
+                {fromAdmin ? "Equipe NutriMãe" : "Você"}
               </p>
               <p className="mt-0.5 whitespace-pre-wrap">{m.body}</p>
             </div>

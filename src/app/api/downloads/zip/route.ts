@@ -2,9 +2,12 @@ import type { ReactElement } from "react";
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import JSZip from "jszip";
+import { readFile } from "node:fs/promises";
 import { createClient } from "@/lib/supabase/server";
 import { PDF_GUIDES } from "@/lib/pdf-guides";
+import { readStaticPdf } from "@/lib/pdf/static-pdfs";
 import { AUDIOBOOKS } from "@/lib/audiobooks";
+import { staticAudioPath } from "@/lib/audio/static-audio";
 import { GuiaDefinitivoPdf } from "@/lib/pdf/GuiaDefinitivoPdf";
 import { ReceitasPdf } from "@/lib/pdf/ReceitasPdf";
 import { GuiaBlwPdf } from "@/lib/pdf/GuiaBlwPdf";
@@ -54,9 +57,12 @@ export async function GET(request: Request) {
 
   if (only !== "audiobooks") {
     for (const guide of PDF_GUIDES) {
+      const staticBuffer = await readStaticPdf(guide.slug);
       const buildDocument = DOCUMENTS[guide.slug];
-      if (!buildDocument) continue;
-      const buffer = await renderToBuffer(buildDocument() as Parameters<typeof renderToBuffer>[0]);
+      const buffer = staticBuffer ?? (buildDocument
+        ? await renderToBuffer(buildDocument() as Parameters<typeof renderToBuffer>[0])
+        : null);
+      if (!buffer) continue;
       zip.file(`pdfs/nutrimae-${guide.slug}.pdf`, buffer);
     }
   }
@@ -64,6 +70,14 @@ export async function GET(request: Request) {
   if (only !== "pdfs") {
     for (const book of AUDIOBOOKS) {
       zip.file(`audiobooks/${book.id}-transcricao.txt`, transcriptText(book.id));
+      if (book.hasAudio) {
+        try {
+          const audioBuffer = await readFile(staticAudioPath(book.id)!);
+          zip.file(`audiobooks/nutrimae-${book.id}.mp3`, audioBuffer);
+        } catch {
+          // sem arquivo de áudio no disco — segue só com a transcrição
+        }
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { Play, Pause, Download, Share2, Star, Gauge, Volume2 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
@@ -10,13 +10,24 @@ import { getAudiobookRatings, setAudiobookRating } from "@/lib/audiobook-ratings
 
 const SPEEDS = [0.8, 1, 1.25, 1.5, 2];
 
+function formatTime(seconds: number): string {
+  if (!Number.isFinite(seconds)) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export default function AudiobookDetailPage() {
   const params = useParams<{ id: string }>();
   const book = getAudiobook(params.id);
   const { showToast } = useToast();
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const [speed, setSpeed] = useState(1);
   const [volume, setVolume] = useState(1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState("");
   const [saved, setSaved] = useState(false);
@@ -39,14 +50,48 @@ export default function AudiobookDetailPage() {
     );
   }
 
-  function handleAudioAction() {
-    showToast("A narração em áudio ainda está em produção — leia o conteúdo abaixo por enquanto.");
+  function togglePlay() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }
+
+  function handleSeek(e: React.ChangeEvent<HTMLInputElement>) {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = Number(e.target.value);
+    setCurrentTime(audio.currentTime);
+  }
+
+  function handleSpeed(s: number) {
+    setSpeed(s);
+    if (audioRef.current) audioRef.current.playbackRate = s;
+  }
+
+  function handleVolume(v: number) {
+    setVolume(v);
+    if (audioRef.current) audioRef.current.volume = v;
+  }
+
+  function handleDownload() {
+    if (!book) return;
+    const a = document.createElement("a");
+    a.href = `/api/audio/${book.id}?download=1`;
+    a.download = `nutrimae-${book.id}.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast("Baixando áudio...");
   }
 
   function handleShare() {
     if (!book) return;
     const text = encodeURIComponent(
-      `🎧 ${book.title} — ${book.subtitle}\n\nOuça (em breve) ou leia agora no NutriMäe.`,
+      `🎧 ${book.title} — ${book.subtitle}\n\nOuça agora no NutriMãe.`,
     );
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
@@ -58,6 +103,8 @@ export default function AudiobookDetailPage() {
     setTimeout(() => setSaved(false), 2000);
   }
 
+  const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
+
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
       <BackButton fallbackHref="/app/audiobooks" />
@@ -67,66 +114,91 @@ export default function AudiobookDetailPage() {
         <p className="mt-1 text-brown-700">{book.subtitle}</p>
       </div>
 
-      {/* Player — infraestrutura pronta, sem áudio real ainda */}
-      <div className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleAudioAction}
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-200 text-primary-700 opacity-60"
-          >
-            <Play className="h-6 w-6" strokeWidth={2} fill="currentColor" />
-          </button>
-          <div className="flex-1">
-            <div className="h-2 w-full rounded-full bg-sage-100">
-              <div className="h-2 w-0 rounded-full bg-primary-400" />
-            </div>
-            <p className="mt-1 text-xs text-brown-700/60">Narração em produção</p>
-          </div>
-        </div>
+      {book.hasAudio ? (
+        <div className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
+          <audio
+            ref={audioRef}
+            src={`/api/audio/${book.id}`}
+            preload="metadata"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+            onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            onEnded={() => setIsPlaying(false)}
+          />
 
-        <div className="mt-4 flex items-center justify-between gap-3 opacity-60">
-          <button type="button" onClick={handleAudioAction} className="flex items-center gap-1 text-sm font-semibold text-brown-700">
-            <Gauge className="h-4 w-4" strokeWidth={2} />
-            {speed}x
-          </button>
-          <div className="flex flex-1 items-center gap-2">
-            <Volume2 className="h-4 w-4 shrink-0 text-brown-700" strokeWidth={2} />
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.1}
-              value={volume}
-              onChange={(e) => setVolume(Number(e.target.value))}
-              onClick={handleAudioAction}
-              disabled
-              className="w-full accent-primary-400"
-            />
-          </div>
-          <button type="button" onClick={handleAudioAction} className="text-brown-700">
-            <Download className="h-5 w-5" strokeWidth={2} />
-          </button>
-        </div>
-
-        <div className="mt-3 flex gap-2 opacity-60">
-          {SPEEDS.map((s) => (
+          <div className="flex items-center gap-3">
             <button
-              key={s}
               type="button"
-              onClick={() => {
-                setSpeed(s);
-                handleAudioAction();
-              }}
-              className={`min-h-8 rounded-full px-3 text-xs font-semibold ${
-                s === speed ? "bg-primary-500 text-white" : "bg-primary-100 text-brown-700"
-              }`}
+              onClick={togglePlay}
+              aria-label={isPlaying ? "Pausar" : "Tocar"}
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white active:bg-primary-600"
             >
-              {s}x
+              {isPlaying ? (
+                <Pause className="h-6 w-6" strokeWidth={2} fill="currentColor" />
+              ) : (
+                <Play className="h-6 w-6" strokeWidth={2} fill="currentColor" />
+              )}
             </button>
-          ))}
+            <div className="flex-1">
+              <input
+                type="range"
+                min={0}
+                max={duration || 0}
+                step={0.1}
+                value={currentTime}
+                onChange={handleSeek}
+                className="w-full accent-primary-500"
+              />
+              <p className="mt-1 text-xs text-brown-700/60">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1 text-sm font-semibold text-brown-700">
+              <Gauge className="h-4 w-4" strokeWidth={2} />
+              {speed}x
+            </div>
+            <div className="flex flex-1 items-center gap-2">
+              <Volume2 className="h-4 w-4 shrink-0 text-brown-700" strokeWidth={2} />
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.1}
+                value={volume}
+                onChange={(e) => handleVolume(Number(e.target.value))}
+                className="w-full accent-primary-400"
+              />
+            </div>
+            <button type="button" onClick={handleDownload} aria-label="Baixar áudio" className="text-brown-700">
+              <Download className="h-5 w-5" strokeWidth={2} />
+            </button>
+          </div>
+
+          <div className="mt-3 flex gap-2">
+            {SPEEDS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => handleSpeed(s)}
+                className={`min-h-8 rounded-full px-3 text-xs font-semibold ${
+                  s === speed ? "bg-primary-500 text-white" : "bg-primary-100 text-brown-700"
+                }`}
+              >
+                {s}x
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-2xl bg-yellow-100 p-4 text-sm text-brown-800">
+          A narração em áudio deste conteúdo ainda está em produção — leia a transcrição
+          completa abaixo por enquanto.
+        </div>
+      )}
 
       <button
         type="button"

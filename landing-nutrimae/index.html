@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NutriMãe — Cardápio e Cortes por Idade do Bebê</title>
+<meta name="description" content="Cardápio semanal, lista de compras e o corte indicado de cada alimento, organizados por idade do bebê. Introdução alimentar com praticidade, no seu celular.">
+<meta name="theme-color" content="#FF4D8D">
+
+<meta property="og:title" content="NutriMãe — Cardápio e Cortes por Idade do Bebê">
+<meta property="og:description" content="O corte indicado e o cardápio da semana, organizados por idade do bebê.">
+<meta property="og:image" content="assets/logo.png">
+<meta property="og:type" content="website">
+
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!--
+  FACEBOOK PIXEL: insira o código base do Meta Pixel aqui antes do fechamento do </head>
+  (mova este bloco de comentário para o <head> quando for instalar o pixel real)
+  <script>
+    !function(f,b,e,v,n,t,s){...}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'SEU_PIXEL_ID');
+    fbq('track', 'PageView');
+  </script>
+-->
+
+<!-- ===================== NAV ===================== -->
+<nav class="site-nav" id="site-nav">
+  <div class="site-nav__inner">
+    <img src="assets/logo.png" alt="NutriMãe" class="site-nav__logo">
+    <div class="site-nav__links">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#bloco-6">Planos</a>
+      <a href="#depoimentos">Depoimentos</a>
+      <a href="#bloco-faq">Dúvidas</a>
+    </div>
+    <button class="btn btn--primary site-nav__cta" id="nav-cta">Quero começar</button>
+  </div>
+</nav>
+
+<!-- ===================== BLOCO 1: HERO ===================== -->
+<!--
+  Ordem deliberada (grid areas, ver styles.css): no mobile, o VSL aparece
+  logo depois do título — ainda na primeira dobra, sem precisar rolar —
+  com uma chamada forte introduzindo o vídeo. No desktop (≥860px), as
+  grid-areas se reorganizam em 2 colunas sem mudar o HTML.
+-->
+<section id="bloco-1" class="hero">
+  <div class="container hero__grid">
+    <p class="hero__eyebrow" style="grid-area: eyebrow;">O app completo para a</p>
+    <h1 class="hero__title" style="grid-area: title;">Alimentação da <span class="text-primary">sua bebê</span>, em um <span class="text-primary">só lugar</span>.</h1>
+
+    <div class="hero__media" style="grid-area: media;">
+      <p class="hero__video-title">Veja o NutriMãe em ação</p>
+
+      <!-- VÍDEO VSL: https://youtu.be/n_zXKnnfUuM
+           Facade de clique-para-carregar (thumbnail + botão play), não um
+           <iframe> direto: carregar o player do YouTube de cara pesa a página
+           e prejudica o LCP em 4G. O iframe real só entra no DOM quando a
+           pessoa clica (ver script.js, seção "BLOCO 1: Hero"). -->
+      <div class="video-wrapper" id="video-wrapper" data-youtube-id="n_zXKnnfUuM">
+        <div class="video-placeholder" id="video-placeholder" role="button" tabindex="0" aria-label="Reproduzir vídeo de apresentação" style="background-image:url('https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg')">
+          <div class="play-button" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chips com fatos reais do produto (não estatísticas inventadas). -->
+      <div class="hero__chips">
+        <span class="hero__chip hero__chip--1">🔄 Atualizado toda semana</span>
+        <span class="hero__chip hero__chip--2">📱 100% prático pro dia a dia</span>
+        <span class="hero__chip hero__chip--3">💛 Feito com carinho e organização</span>
+      </div>
+    </div>
+
+    <p class="hero__subtitle" style="grid-area: subtitle;">Cardápios personalizados, receitas práticas, listas de compras, acompanhamento do progresso e atualizações semanais — tudo pensado por nutricionistas para facilitar sua rotina.</p>
+
+    <ul class="hero__bullets" style="grid-area: bullets;">
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Atualizações semanais de cardápios e conteúdos</li>
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Plano adaptado à fase do seu bebê</li>
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Tudo organizado e pronto para o dia a dia</li>
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Desenvolvido por nutricionistas especialistas</li>
+    </ul>
+
+    <div class="hero__cta-group" style="grid-area: cta;">
+      <button class="btn btn--primary btn--large" id="cta-hero">Quero transformar a alimentação do meu bebê</button>
+      <p class="hero__micro-proof">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+        Teste por 7 dias. Se não amar, devolvemos seu dinheiro.
+      </p>
+      <p class="hero__micro-proof">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        Ambiente seguro e seus dados protegidos
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRÉVIA REAL DO APP ===================== -->
+<section class="app-preview">
+  <div class="container">
+    <img src="assets/app-preview.png" alt="Tela do app NutriMãe: cardápio, cortes seguros e organização por fase do bebê" class="app-preview__img">
+    <button class="btn btn--primary btn--large app-preview__cta" data-anchor-cta="app-preview">Quero isso no meu celular</button>
+  </div>
+</section>
+
+<!-- ===================== PARA QUEM É ===================== -->
+<section id="para-quem" class="audience">
+  <div class="container">
+    <h2 class="section-title">Para quem é o NutriMãe</h2>
+
+    <div class="audience__grid">
+      <div class="audience-card">
+        <div class="audience-card__icon" aria-hidden="true">👩</div>
+        <p class="audience-card__title">Mães com a rotina corrida</p>
+        <p class="audience-card__text">Que querem praticidade sem abrir mão da organização.</p>
+      </div>
+      <div class="audience-card">
+        <div class="audience-card__icon" aria-hidden="true">👶</div>
+        <p class="audience-card__title">Bebês de 6 meses a 2 anos</p>
+        <p class="audience-card__text">Cardápios e cortes por fase, desde a introdução alimentar.</p>
+      </div>
+      <div class="audience-card">
+        <div class="audience-card__icon" aria-hidden="true">🗂️</div>
+        <p class="audience-card__title">Famílias que buscam organização</p>
+        <p class="audience-card__text">Tudo planejado com antecedência, sem achismo.</p>
+      </div>
+      <div class="audience-card">
+        <div class="audience-card__icon" aria-hidden="true">🤍</div>
+        <p class="audience-card__title">Mães que querem tranquilidade</p>
+        <p class="audience-card__text">Tudo pensado para facilitar o dia a dia com o bebê.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RECURSOS (Tudo o que você precisa) ===================== -->
+<section id="recursos" class="features">
+  <div class="container">
+    <h2 class="section-title">Tudo o que você precisa, em um só lugar</h2>
+
+    <div class="features__grid">
+      <div class="feature-card">
+        <div class="feature-card__icon" aria-hidden="true">📅</div>
+        <p class="feature-card__title">Cardápio personalizado</p>
+        <p class="feature-card__text">Planos alimentares por fase, adaptados às necessidades do seu bebê.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" aria-hidden="true">✂️</div>
+        <p class="feature-card__title">Guia de cortes seguros</p>
+        <p class="feature-card__text">Saiba exatamente como oferecer cada alimento, em cada fase.</p>
+      </div>
+      <div class="feature-card feature-card--whatsapp">
+        <span class="feature-card__ribbon">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.7.8-.8 1-.1.2-.3.2-.6.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.2-.4.1-.1 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.2 1.5.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.2-.1-.4-.2z"/></svg>
+          Exporta para WhatsApp
+        </span>
+        <div class="feature-card__icon" aria-hidden="true">🛒</div>
+        <p class="feature-card__title">Lista de compras pronta</p>
+        <p class="feature-card__text">Gere sua lista da semana e compartilhe no WhatsApp em 1 toque.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" aria-hidden="true">🍽️</div>
+        <p class="feature-card__title">Receitas práticas</p>
+        <p class="feature-card__text">Fáceis, rápidas e testadas para os dias corridos.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" aria-hidden="true">⚠️</div>
+        <p class="feature-card__title">Checklist de alergênicos</p>
+        <p class="feature-card__text">Saiba o que observar ao introduzir cada novo alimento.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" aria-hidden="true">🎧</div>
+        <p class="feature-card__title">Audiobooks e conteúdos</p>
+        <p class="feature-card__text">Aprenda no seu tempo, ouvindo enquanto cuida da rotina.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" aria-hidden="true">💬</div>
+        <p class="feature-card__title">Comunidade de mães</p>
+        <p class="feature-card__text">Troque experiências com outras mães e com a equipe NutriMãe.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" aria-hidden="true">🔄</div>
+        <p class="feature-card__title">Novidades toda semana</p>
+        <p class="feature-card__text">Novos cardápios, receitas e materiais, sem custo adicional.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BLOCO 2: SELETOR DE FASE (funcional) ===================== -->
+<section id="fase" class="phase-selector">
+  <div class="container">
+    <h2 class="section-title">Em que fase vocês estão?</h2>
+    <p class="phase-selector__subtitle">O card mais abaixo muda de acordo com a fase escolhida.</p>
+
+    <div class="quiz__options" id="age-options">
+      <button class="option-btn" data-age="vai-comecar">Ainda vou começar</button>
+      <button class="option-btn selected" data-age="6-meses">6 meses</button>
+      <button class="option-btn" data-age="7-9-meses">7 a 9 meses</button>
+      <button class="option-btn" data-age="10-12-meses">10 a 12+ meses</button>
+    </div>
+
+    <button class="phase-selector__cta" id="age-cta">Ver plano de 6 meses</button>
+  </div>
+</section>
+
+<!-- ===================== BLOCO 6: DEMONSTRAÇÃO BUSCÁVEL ===================== -->
+<section id="bloco-demo" class="sample">
+  <div class="container">
+    <h2 class="section-title">Veja como funciona o guia de cortes</h2>
+
+    <div class="food-search-wrapper">
+      <svg class="food-search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="food-search" class="food-search-input" placeholder="Pesquise: banana, abacate ou morango" autocomplete="off">
+    </div>
+    <p class="food-search-hint food-search-hint--hidden" id="food-search-hint">Essa demonstração tem só 3 alimentos de exemplo. No acesso completo, a busca cobre o guia inteiro.</p>
+
+    <!-- CONTEÚDO TÉCNICO: confirme com a sua equipe de conteúdo os dados de
+         idade, corte e modo de oferta de cada alimento antes de publicar. -->
+    <div class="food-card food-card--unlocked">
+      <div class="food-card__badge">Exemplo liberado</div>
+      <div class="food-card__image" id="food-result-emoji" aria-hidden="true">🍓</div>
+      <h3 class="food-card__name" id="food-result-name">Morango</h3>
+      <ul class="food-card__details">
+        <li><strong>Faixa etária:</strong> <span id="food-result-age">a partir dos 6 meses</span></li>
+        <li><strong>Corte indicado:</strong> <span id="food-result-cut">Inteiro, com a rama removida</span></li>
+        <li><strong>Como oferecer:</strong> <span id="food-result-how">Na mão do bebê, sentado e supervisionado</span></li>
+      </ul>
+    </div>
+
+    <div class="food-grid">
+      <div class="food-card food-card--locked">
+        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍊</div>
+        <div class="lock-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
+        </div>
+        <span class="food-card__name">Laranja</span>
+      </div>
+      <div class="food-card food-card--locked">
+        <div class="food-card__image food-card__image--blur" aria-hidden="true">🥕</div>
+        <div class="lock-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
+        </div>
+        <span class="food-card__name">Cenoura</span>
+      </div>
+      <div class="food-card food-card--locked">
+        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍠</div>
+        <div class="lock-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
+        </div>
+        <span class="food-card__name">Batata-doce</span>
+      </div>
+      <div class="food-card food-card--locked">
+        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍚</div>
+        <div class="lock-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
+        </div>
+        <span class="food-card__name">Arroz e feijão</span>
+      </div>
+      <div class="food-card food-card--locked">
+        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍐</div>
+        <div class="lock-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
+        </div>
+        <span class="food-card__name">Pera</span>
+      </div>
+    </div>
+
+    <p class="sample__note">Este é apenas um exemplo. No acesso completo, cada alimento vem com a faixa etária, o corte indicado e o modo de oferecer.</p>
+  </div>
+</section>
+
+<!-- ===================== BLOCO 7: ASSISTENTE HONESTO ===================== -->
+<section class="chat-section">
+  <div class="container">
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="chat-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="8.5" cy="14" r="1.5" fill="currentColor" stroke="none"/><circle cx="15.5" cy="14" r="1.5" fill="currentColor" stroke="none"/><path d="M12 8V4M9 4h6"/></svg>
+        </div>
+        <div class="chat-header__info">
+          <span class="chat-header__name">Assistente NutriMãe</span>
+          <span class="chat-header__status">respostas automáticas · não é uma pessoa real</span>
+        </div>
+      </div>
+
+      <div class="chat-body">
+        <div>
+          <p class="assistant-question">Qual método vocês pretendem seguir?</p>
+          <div class="assistant-options" id="assistant-method-options">
+            <button class="option-btn option-btn--small" data-method="papinha">Papinha</button>
+            <button class="option-btn option-btn--small" data-method="blw">BLW</button>
+            <button class="option-btn option-btn--small" data-method="misto">Misto</button>
+            <button class="option-btn option-btn--small" data-method="nao-decidi">Ainda não decidi</button>
+          </div>
+          <p class="assistant-note assistant-note--hidden" id="assistant-method-note"></p>
+        </div>
+
+        <div class="assistant-step assistant-step--hidden" id="assistant-allergen-step">
+          <p class="assistant-question">Algum alergênico já é conhecido?</p>
+          <div class="assistant-options" id="assistant-allergen-options">
+            <button class="option-btn option-btn--small" data-allergen="nao">Nenhum conhecido</button>
+            <button class="option-btn option-btn--small" data-allergen="ovo">Ovo</button>
+            <button class="option-btn option-btn--small" data-allergen="leite">Leite</button>
+            <button class="option-btn option-btn--small" data-allergen="outro">Outro</button>
+          </div>
+          <p class="assistant-note assistant-note--hidden" id="assistant-allergen-note"></p>
+        </div>
+
+        <button class="btn btn--primary assistant-finish assistant-finish--hidden" id="assistant-finish">Ver o que isso muda no meu plano</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BLOCO 3: MANUAL S.O.S. ===================== -->
+<section class="sos-highlight">
+  <div class="container">
+    <div class="sos-card">
+      <div class="sos-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <h2 class="sos-card__title">O Manual S.O.S. é gratuito e sempre será</h2>
+      <p class="sos-card__text">É um guia de orientação rápida — para você não precisar se preocupar sozinha. Fica disponível para qualquer pessoa, sem precisar de assinatura.</p>
+      <!-- APP_URL: ajuste em script.js para o domínio real do app antes de publicar. -->
+      <a href="#" id="sos-link" class="sos-card__link">Conhecer o Manual S.O.S.</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BLOCO 10: COMO FUNCIONA ===================== -->
+<section id="como-funciona" class="journey">
+  <div class="container">
+    <h2 class="section-title">Como funciona</h2>
+
+    <ol class="journey__steps">
+      <li class="journey__step">
+        <span class="journey__number">1</span>
+        <div>
+          <p class="journey__title">Crie sua conta</p>
+          <p class="journey__text">Cadastro rápido, em menos de 1 minuto.</p>
+        </div>
+      </li>
+      <li class="journey__step">
+        <span class="journey__number">2</span>
+        <div>
+          <p class="journey__title">Escolha a fase do bebê</p>
+          <p class="journey__text">A mesma fase que você já viu funcionando aqui em cima.</p>
+        </div>
+      </li>
+      <li class="journey__step">
+        <span class="journey__number">3</span>
+        <div>
+          <p class="journey__title">Receba seu plano</p>
+          <p class="journey__text">Cardápio e cortes prontos, direto no celular.</p>
+        </div>
+      </li>
+      <li class="journey__step">
+        <span class="journey__number">4</span>
+        <div>
+          <p class="journey__title">Acompanhe as novidades</p>
+          <p class="journey__text">Conteúdo atualizado toda semana, incluso no mesmo acesso.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===================== DEPOIMENTOS REAIS ===================== -->
+<section id="depoimentos" class="testimonials">
+  <div class="container">
+    <p class="section-title section-title--small">Quem usa, recomenda</p>
+  </div>
+
+  <div class="testimonials__track" id="testimonials-track">
+    <div class="testimonial-card">
+      <p class="testimonial-card__quote">"Eu estava sempre procurando no celular o que preparar e acabava ficando perdida. Gostei muito de ter tudo organizado em um só lugar. Ficou muito mais fácil planejar a alimentação da semana."</p>
+      <p class="testimonial-card__author">Marina Costa <span>— mãe do Leo, 7 meses</span></p>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-card__quote">"O que mais gostei foi poder acessar pelo celular quando estou preparando a comida. Não preciso ficar procurando informações em vários lugares."</p>
+      <p class="testimonial-card__author">Camila Ribeiro <span>— mãe da Sofia, 9 meses</span></p>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-card__quote">"Antes eu decidia tudo na última hora. Agora consigo olhar com antecedência e me organizar melhor para a semana. Facilitou bastante minha rotina."</p>
+      <p class="testimonial-card__author">Juliana Mendes <span>— mãe do Theo, 11 meses</span></p>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-card__quote">"Eu tinha muitas dúvidas sobre como organizar essa nova fase da alimentação. Ter um material estruturado para consultar deixou tudo muito mais simples para mim."</p>
+      <p class="testimonial-card__author">Amanda Castro <span>— mãe da Alice, 6 meses</span></p>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-card__quote">"Achei muito fácil de usar. Entrei pelo celular e já consegui encontrar o que precisava sem ficar perdida em um monte de informação."</p>
+      <p class="testimonial-card__author">Beatriz Nogueira <span>— mãe do Miguel, 8 meses</span></p>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-card__quote">"Com bebê pequeno, qualquer coisa que ajude a economizar tempo já faz diferença. Gostei principalmente de conseguir consultar tudo rapidamente durante a rotina."</p>
+      <p class="testimonial-card__author">Letícia Almeida <span>— mãe do Noah, 10 meses</span></p>
+    </div>
+    <div class="testimonial-card">
+      <p class="testimonial-card__quote">"Eu queria ter uma referência para consultar quando surgisse alguma dúvida durante essa fase. O NutriMãe acabou virando um apoio na minha organização do dia a dia."</p>
+      <p class="testimonial-card__author">Fernanda Lima <span>— mãe da Clara, 14 meses</span></p>
+    </div>
+    <div class="testimonial-card testimonial-card--short">
+      <p class="testimonial-card__quote">"Finalmente consegui deixar a alimentação do meu bebê muito mais organizada."</p>
+      <p class="testimonial-card__author">Bruna Fernandes <span>— mãe do Arthur, 12 meses</span></p>
+    </div>
+    <div class="testimonial-card testimonial-card--short">
+      <p class="testimonial-card__quote">"Prático, organizado e muito fácil de consultar pelo celular."</p>
+      <p class="testimonial-card__author">Renata Souza <span>— mãe da Maitê, 18 meses</span></p>
+    </div>
+    <div class="testimonial-card testimonial-card--short">
+      <p class="testimonial-card__quote">"O que eu mais precisava era de organização. E foi exatamente isso que encontrei."</p>
+      <p class="testimonial-card__author">Carolina Rocha <span>— mãe do Gael, 8 meses</span></p>
+    </div>
+  </div>
+
+  <div class="container">
+    <p class="testimonials__hint">← arraste para o lado para ver mais →</p>
+    <button class="mid-cta" data-anchor-cta="depoimentos">Quero ter essa organização também</button>
+  </div>
+</section>
+
+<!-- ===================== ATUALIZAÇÕES TODA SEMANA ===================== -->
+<section class="updates-banner">
+  <div class="container updates-banner__grid">
+    <div class="updates-banner__copy">
+      <h2>Atualizações toda semana, para você nunca ficar na dúvida</h2>
+      <p>Novos cardápios, receitas e conteúdos, pensados para cada fase e cada desafio.</p>
+      <ul class="updates-banner__list">
+        <li><span class="check-icon">✓</span> Novos cardápios toda semana</li>
+        <li><span class="check-icon">✓</span> Receitas práticas sempre atualizadas</li>
+        <li><span class="check-icon">✓</span> Conteúdos exclusivos novos</li>
+      </ul>
+    </div>
+    <div class="updates-banner__mocks">
+      <div class="mini-mock"><span>📅</span>Novos cardápios</div>
+      <div class="mini-mock"><span>🍽️</span>Receitas práticas</div>
+      <div class="mini-mock"><span>🎧</span>Conteúdos novos</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMUNIDADE DE MÃES (depoimento em destaque) ===================== -->
+<section class="community-spotlight">
+  <div class="container community-spotlight__grid">
+    <div class="community-spotlight__copy">
+      <h2>Comunidade de mães que <span class="text-primary">entende você</span></h2>
+      <p>Troque experiências, faça perguntas e receba apoio de outras mães e da equipe NutriMãe.</p>
+    </div>
+    <!-- Depoimento real, um dos 10 enviados — não é conteúdo inventado. -->
+    <div class="testimonial-card community-spotlight__testimonial">
+      <p class="testimonial-card__quote">"Eu queria ter uma referência para consultar quando surgisse alguma dúvida durante essa fase. O NutriMãe acabou virando um apoio na minha organização do dia a dia."</p>
+      <p class="testimonial-card__author">Fernanda Lima <span>— mãe da Clara, 14 meses</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== POR QUE ESCOLHER (comparação) ===================== -->
+<section class="comparison">
+  <div class="container">
+    <h2 class="section-title">Por que escolher o <span class="text-primary">NutriMãe</span>?</h2>
+
+    <div class="comparison__table">
+      <div class="comparison__col comparison__col--yes">
+        <h3>Com o NutriMãe</h3>
+        <ul>
+          <li>Tudo em um só lugar</li>
+          <li>Organizado pela fase do bebê</li>
+          <li>Busca em 2 toques</li>
+          <li>Atualizações toda semana</li>
+          <li>Comunidade de apoio</li>
+        </ul>
+      </div>
+      <div class="comparison__col comparison__col--no">
+        <h3>Soluções avulsas</h3>
+        <ul>
+          <li>Informação desencontrada</li>
+          <li>Conteúdo parado no tempo</li>
+          <li>Falta de organização</li>
+          <li>Sem direção clara</li>
+          <li>Cada dúvida em um lugar diferente</li>
+        </ul>
+      </div>
+    </div>
+
+    <button class="mid-cta" data-anchor-cta="comparacao">Quero essa organização no meu dia a dia</button>
+  </div>
+</section>
+
+<!-- ===================== OBJEÇÕES (complementa os depoimentos) ===================== -->
+<!--
+  Este bloco é tratamento de objeção direto, não depoimento: cada card é uma
+  pergunta comum respondida com um fato verificável sobre o produto
+  (garantia, segurança de pagamento, como funciona) — complementa, não
+  substitui, os depoimentos reais do bloco anterior.
+-->
+<section class="objections">
+  <div class="container">
+    <h2 class="section-title">Tire suas dúvidas antes de assinar</h2>
+
+    <div class="objections__grid">
+      <div class="objection-card">
+        <p class="objection-card__q">Vou ter tempo pra usar isso no dia a dia?</p>
+        <p class="objection-card__a">O cardápio e os cortes já vêm prontos — é abrir e seguir, sem planejar do zero.</p>
+      </div>
+      <div class="objection-card">
+        <p class="objection-card__q">Já testei outros apps parecidos e não continuei usando.</p>
+        <p class="objection-card__a">Aqui o conteúdo já é filtrado pela fase exata do seu bebê — não precisa garimpar nada.</p>
+      </div>
+      <div class="objection-card">
+        <p class="objection-card__q">Não sou boa com tecnologia, vou saber usar?</p>
+        <p class="objection-card__a">A navegação é simples: 2 toques até qualquer alimento, sem menus complicados.</p>
+      </div>
+      <div class="objection-card">
+        <p class="objection-card__q">Meu bebê tem alguma restrição — funciona pra ele?</p>
+        <p class="objection-card__a">O guia sinaliza alergênicos comuns por alimento, e o assistente já filtra pelo que evitar.</p>
+      </div>
+      <div class="objection-card">
+        <p class="objection-card__q">E se eu assinar e não gostar?</p>
+        <p class="objection-card__a">7 dias de garantia incondicional. Sem formulário longo, sem precisar justificar.</p>
+      </div>
+      <div class="objection-card">
+        <p class="objection-card__q">É seguro colocar meus dados de pagamento?</p>
+        <p class="objection-card__a">Pagamento processado com criptografia padrão do mercado. Seus dados nunca são compartilhados.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BLOCO 9: SOBRE ===================== -->
+<section id="bloco-autoridade" class="authority">
+  <div class="container authority__content">
+    <img src="assets/logo.png" alt="NutriMãe" class="authority-avatar">
+    <h2 class="section-title">Sobre o NutriMãe</h2>
+    <p class="authority__text">
+      O NutriMãe nasceu de uma ideia simples: a introdução alimentar fica mais leve quando a mãe tem tudo
+      organizado em um lugar só. Em vez de juntar informação solta de vários cantos, reunimos cardápio,
+      lista de compras e o corte indicado de cada alimento — tudo separado por faixa etária e pronto para
+      consultar com uma mão só, no meio da correria.
+      <!-- AUTORIDADE: personalize com a história real da marca/fundador(a).
+           Inclua nome, formação e credenciais SOMENTE se forem verdadeiras e comprováveis. -->
+    </p>
+    <p class="authority__text">
+      Nossa proposta é organização e praticidade no dia a dia, sempre como apoio ao acompanhamento do
+      pediatra ou nutricionista que cuida do seu bebê — nunca como substituto dele.
+      <!-- [PLACEHOLDER — substituir se houver profissional de saúde realmente vinculado à marca,
+           descrevendo formação, registro profissional e o papel dele na revisão do conteúdo.] -->
+    </p>
+  </div>
+</section>
+
+<!-- ===================== OFERTA (toggle Mensal / Anual) ===================== -->
+<section id="bloco-6" class="offer">
+  <div class="container">
+    <h2 class="offer__title">Escolha o plano ideal para sua família</h2>
+
+    <div class="pricing-toggle" role="tablist">
+      <button type="button" class="pricing-toggle__btn" id="toggle-mensal" data-plan-toggle="mensal" role="tab" aria-selected="false">Mensal</button>
+      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$261,80</span></button>
+    </div>
+
+    <div class="plan-card-single" id="plan-card-mensal" hidden>
+      <p class="plan-card__label">Plano Mensal</p>
+      <p class="plan-card__old">De R$47</p>
+      <p class="plan-card__price">R$ 19,90<span>/mês</span></p>
+      <p class="plan-card__note">no primeiro mês — depois R$29,90/mês</p>
+      <ul class="offer-checklist">
+        <li><span class="check-icon">✓</span> Tudo do NutriMãe</li>
+        <li><span class="check-icon">✓</span> Atualizações semanais</li>
+        <li><span class="check-icon">✓</span> Cancelamento quando quiser</li>
+      </ul>
+    </div>
+
+    <div class="plan-card-single plan-card-single--featured" id="plan-card-anual">
+      <span class="plan-card__badge">MAIS ESCOLHIDO</span>
+      <p class="plan-card__label">Plano Anual</p>
+      <p class="plan-card__price">R$ 97<span>à vista</span></p>
+      <p class="plan-card__note">ou 12x de R$9,70 no cartão</p>
+      <ul class="offer-checklist">
+        <li><span class="check-icon">✓</span> Tudo do NutriMãe</li>
+        <li><span class="check-icon">✓</span> Atualizações semanais</li>
+        <li><span class="check-icon">✓</span> Cancelamento quando quiser</li>
+      </ul>
+    </div>
+
+    <ul class="trust-strip">
+      <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Pagamento seguro</li>
+      <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg> Dados protegidos</li>
+      <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg> 7 dias de garantia</li>
+    </ul>
+
+    <button class="btn btn--checkout" id="cta-checkout-dynamic">Começar agora</button>
+
+    <p class="offer__guarantee">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+      Teste o NutriMãe por 7 dias. Se não amar, devolvemos seu dinheiro, sem perguntas.
+    </p>
+
+    <p class="offer__recurrence">Cancele quando quiser, com 2 toques dentro do seu perfil no app.</p>
+  </div>
+</section>
+
+<!-- ===================== PERGUNTAS FREQUENTES ===================== -->
+<section id="bloco-faq" class="faq">
+  <div class="container">
+    <h2 class="section-title">Perguntas frequentes</h2>
+
+    <!-- Esta pergunta fica sempre visível, sem precisar clicar no "+" —
+         é uma resposta de confiança, não deve ficar escondida. -->
+    <div class="faq-note">
+      <p class="faq-note__question">O conteúdo é validado por profissionais de saúde?</p>
+      <!-- [PLACEHOLDER — se houver profissional de saúde realmente vinculado à marca,
+           descreva aqui formação e registro. Não afirme validação que não existe.] -->
+      <p class="faq-note__answer">O NutriMãe é um material de organização e planejamento da rotina alimentar. Ele serve como apoio prático no dia a dia, mas não substitui a orientação do pediatra ou do nutricionista que acompanha o seu bebê. Em caso de alergia, restrição alimentar ou qualquer dúvida específica sobre o desenvolvimento dele, consulte sempre o profissional responsável.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Para qual idade o NutriMãe é indicado?
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>O conteúdo cobre a introdução alimentar dos 6 aos 24 meses, separado por faixa etária. Se o seu bebê já passou dos 6 meses, dá para começar a usar normalmente a partir da fase em que ele está agora.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Como funcionam as atualizações semanais?
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Toda semana entram novos cardápios, receitas e conteúdos, sem custo adicional — o mesmo acesso já inclui as novidades.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Posso cancelar quando quiser?
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Sim. O cancelamento é feito a qualquer momento, direto no seu perfil dentro do app (menu Perfil → Gerenciar assinatura), sem multa e sem tempo mínimo de permanência.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Quanto eu pago depois do primeiro mês?
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>No plano mensal, R$19,90 vale só para o primeiro mês. A partir do segundo, o valor passa a ser R$29,90/mês. No plano anual, o valor é R$97 à vista (ou 12x de R$9,70 no cartão), sem reajuste durante o ano.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Tenho suporte se precisar?
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Sim, você pode falar com a equipe NutriMãe direto pelo app ou pelo e-mail de contato no rodapé desta página.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Como funciona a garantia de 7 dias?
+          <span class="faq-toggle" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Você tem 7 dias para acessar tudo e testar na prática. Se concluir que não faz sentido para a sua rotina, basta solicitar dentro desse prazo que o valor é devolvido integralmente, sem necessidade de justificativa.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA FINAL ===================== -->
+<section class="final-cta">
+  <div class="container final-cta__grid">
+    <div class="final-cta__copy">
+      <h2>Organize a alimentação do seu bebê, do jeito mais simples possível.</h2>
+      <p>Comece agora seu teste com 7 dias de garantia.</p>
+    </div>
+    <div class="final-cta__action">
+      <button class="btn btn--white" id="cta-final">Quero experimentar</button>
+      <ul class="final-cta__trust">
+        <li>✓ Seguro</li>
+        <li>✓ Rápido</li>
+        <li>✓ Confiável</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BARRA DE CTA FIXA (mobile) ===================== -->
+<div class="sticky-cta" id="sticky-cta" aria-hidden="true">
+  <span class="sticky-cta__price">Anual por R$97</span>
+  <button class="btn btn--primary sticky-cta__btn" id="sticky-cta-btn">Garantir meu acesso ao NutriMãe</button>
+</div>
+
+<!-- ===================== RODAPÉ ===================== -->
+<footer class="site-footer">
+  <div class="container">
+    <!-- [PLACEHOLDER OBRIGATÓRIO — razão social e CNPJ reais. Não publicar
+         sem preencher: rodapé sem identificação da empresa é reprovado em
+         revisão de anúncio e é exigência legal (CDC) para venda online.] -->
+    <p>[PLACEHOLDER — Razão social] · CNPJ [PLACEHOLDER]</p>
+    <p>© 2026 NutriMãe. Todos os direitos reservados.</p>
+    <p class="site-footer__contact">
+      <!-- APP_URL: ajuste em script.js para o domínio real do app antes de publicar. -->
+      <a href="#" id="privacy-link">Política de Privacidade</a>
+      · <a href="mailto:contato@nutrimae.com">Contato</a>
+    </p>
+    <p class="site-footer__disclaimer">O NutriMãe é uma ferramenta de organização e planejamento da rotina alimentar. Não substitui orientação médica ou nutricional profissional.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ const PUBLIC_PATHS = [
   "/auth/auth-code-error",
   "/politica-privacidade",
   "/sos",
+  "/manual-sos",
 ];
 
 function isPublicPath(pathname: string) {

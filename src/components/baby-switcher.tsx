@@ -38,6 +38,9 @@ export function BabySwitcher() {
   const pathname = usePathname();
 
   if (!activeBaby) return null;
+  // A Home possui o cabeçalho completo da referência (avatar, saudação e logo).
+  // Evita duplicar informações e preserva mais área útil no primeiro viewport.
+  if (pathname === "/app") return null;
   if (pathname.startsWith("/app/alergia")) return null;
   if (pathname.startsWith("/app/sos-desmame")) return null;
 

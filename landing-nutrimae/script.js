@@ -22,6 +22,329 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('[track]', eventName, params || {});
   }
 
+  function trackStandardEvent(eventName, params) {
+    if (typeof fbq === 'function') {
+      fbq('track', eventName, params || {});
+    }
+    console.log('[track-standard]', eventName, params || {});
+  }
+
+  /* ---------------------------------------------------
+     Abertura interativa: quiz integrado à landing atual
+     --------------------------------------------------- */
+  var entryQuiz = document.getElementById('entry-quiz');
+
+  if (entryQuiz) {
+    var entryQuizAnswers = { age: null, priority: null, support: null };
+    var entryQuizChanging = false;
+    var entryQuizFinished = false;
+    var entryQuizAlreadyCompleted = false;
+    var entryQuizSteps = {
+      1: document.getElementById('entry-quiz-step-1'),
+      2: document.getElementById('entry-quiz-step-2'),
+      3: document.getElementById('entry-quiz-step-3')
+    };
+    var entryQuizProgress = document.getElementById('entry-quiz-progress');
+    var entryQuizProgressFill = document.getElementById('entry-quiz-progress-fill');
+    var entryQuizProgressLabel = document.getElementById('entry-quiz-progress-label');
+    var entryQuizProgressPercent = document.getElementById('entry-quiz-progress-percent');
+    var entryQuizLoading = document.getElementById('entry-quiz-loading');
+    var entryQuizLoadingText = document.getElementById('entry-quiz-loading-text');
+    var entryQuizLoadingFill = document.getElementById('entry-quiz-loading-fill');
+    var entryQuizLockedNodes = [];
+    var ENTRY_AGE_LABELS = {
+      'vai-comecar': 'o início da introdução alimentar',
+      '6-meses': 'bebês de 6 meses',
+      '7-9-meses': 'bebês de 7 a 9 meses',
+      '10-12-meses': 'bebês de 10 a 12+ meses'
+    };
+
+    try {
+      var savedEntryQuizAnswers = JSON.parse(window.sessionStorage.getItem('nutrimae_entry_quiz_answers') || 'null');
+      entryQuizAlreadyCompleted = window.sessionStorage.getItem('nutrimae_entry_quiz_completed') === 'true';
+      if (entryQuizAlreadyCompleted && savedEntryQuizAnswers && savedEntryQuizAnswers.age) {
+        entryQuizAnswers = savedEntryQuizAnswers;
+      } else {
+        entryQuizAlreadyCompleted = false;
+      }
+    } catch (e) {
+      entryQuizAlreadyCompleted = false;
+    }
+
+    if (entryQuizAlreadyCompleted) {
+      entryQuiz.classList.add('entry-quiz--hidden');
+      entryQuiz.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('entry-quiz-active');
+    } else {
+      Array.prototype.forEach.call(document.body.children, function (node) {
+        if (node !== entryQuiz && node.tagName !== 'SCRIPT' && !node.hasAttribute('inert')) {
+          node.setAttribute('inert', '');
+          node.setAttribute('data-entry-quiz-inert', 'true');
+          entryQuizLockedNodes.push(node);
+        }
+      });
+    }
+
+    function focusFirstEntryOption(stepNumber) {
+      var headline = entryQuizSteps[stepNumber] && entryQuizSteps[stepNumber].querySelector('.quiz-headline');
+      if (headline) {
+        window.setTimeout(function () { headline.focus({ preventScroll: true }); }, 40);
+      }
+    }
+
+    function updateEntryQuizProgress(stepNumber) {
+      var percent = Math.round((stepNumber / 3) * 100);
+      entryQuizProgressFill.style.width = percent + '%';
+      entryQuizProgressLabel.textContent = 'Etapa ' + stepNumber + ' de 3';
+      entryQuizProgressPercent.textContent = percent + '%';
+      entryQuizProgress.setAttribute('aria-valuenow', String(percent));
+    }
+
+    function goToEntryQuizStep(fromStep, toStep) {
+      if (entryQuizChanging) return;
+      entryQuizChanging = true;
+      entryQuizSteps[fromStep].classList.add('quiz-step--fade-out');
+
+      window.setTimeout(function () {
+        entryQuizSteps[fromStep].classList.add('quiz-step--hidden');
+        entryQuizSteps[fromStep].classList.remove('quiz-step--fade-out');
+        entryQuizSteps[toStep].classList.add('entry-quiz-step--entering');
+        entryQuizSteps[toStep].classList.remove('quiz-step--hidden');
+        updateEntryQuizProgress(toStep);
+        entryQuizChanging = false;
+        focusFirstEntryOption(toStep);
+
+        window.requestAnimationFrame(function () {
+          window.requestAnimationFrame(function () {
+            entryQuizSteps[toStep].classList.remove('entry-quiz-step--entering');
+          });
+        });
+      }, 300);
+    }
+
+    function markEntryOption(button) {
+      var options = button.closest('.quiz-options').querySelectorAll('.entry-quiz__option');
+      options.forEach(function (option) {
+        var selected = option === button;
+        option.classList.toggle('is-selected', selected);
+        option.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+    }
+
+    function applyEntryQuizAge(ageKey) {
+      if (!ageKey || !AGE_CONTENT[ageKey]) return;
+
+      currentAgeKey = ageKey;
+      ageOptions.forEach(function (button) {
+        button.classList.toggle('selected', button.getAttribute('data-age') === currentAgeKey);
+      });
+      updateAgeCta();
+      renderFoodResult();
+    }
+
+    function personalizeLandingFromQuiz() {
+      var ageLabel = ENTRY_AGE_LABELS[entryQuizAnswers.age] || 'a fase escolhida';
+      var heroEyebrow = document.querySelector('.hero__eyebrow');
+      var heroVideoTitle = document.querySelector('.hero__video-title');
+      var eyebrowBySupport = {
+        'guia-visual': 'Consulta rápida organizada para ',
+        cardapio: 'Plano diário organizado para ',
+        receitas: 'Opções flexíveis organizadas para '
+      };
+      var videoTitleByPriority = {
+        cortes: 'Veja o guia visual de cortes em ação para ',
+        variedade: 'Veja receitas e combinações no NutriMãe para ',
+        rotina: 'Veja o cardápio e a lista de compras para '
+      };
+
+      if (heroEyebrow) {
+        heroEyebrow.textContent = (eyebrowBySupport[entryQuizAnswers.support] || 'Conteúdo organizado para ') + ageLabel;
+      }
+      if (heroVideoTitle) {
+        heroVideoTitle.textContent = (videoTitleByPriority[entryQuizAnswers.priority] || 'Veja o NutriMãe em ação para ') + ageLabel;
+      }
+    }
+
+    function revealLandingFromQuiz() {
+      var deferredVideoThumbnail = document.getElementById('video-placeholder');
+      if (deferredVideoThumbnail && !deferredVideoThumbnail.style.backgroundImage) {
+        var thumbnailUrl = deferredVideoThumbnail.getAttribute('data-thumbnail');
+        if (thumbnailUrl) {
+          deferredVideoThumbnail.style.backgroundImage = 'url("' + thumbnailUrl + '")';
+        }
+      }
+
+      entryQuiz.classList.add('entry-quiz--leaving');
+      document.body.classList.remove('entry-quiz-active');
+
+      entryQuizLockedNodes.forEach(function (node) {
+        if (node.getAttribute('data-entry-quiz-inert') === 'true') {
+          node.removeAttribute('inert');
+          node.removeAttribute('data-entry-quiz-inert');
+        }
+      });
+
+      window.setTimeout(function () {
+        entryQuiz.classList.add('entry-quiz--hidden');
+        entryQuiz.setAttribute('aria-hidden', 'true');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        var heroTitle = document.querySelector('.hero__title');
+        if (heroTitle) {
+          heroTitle.setAttribute('tabindex', '-1');
+          heroTitle.focus({ preventScroll: true });
+        }
+      }, 720);
+    }
+
+    function finishEntryQuiz() {
+      if (entryQuizFinished) return;
+      entryQuizFinished = true;
+
+      try {
+        window.sessionStorage.setItem('nutrimae_entry_quiz_answers', JSON.stringify(entryQuizAnswers));
+        window.sessionStorage.setItem('nutrimae_entry_quiz_completed', 'true');
+      } catch (e) {
+        // A experiência continua normalmente quando o navegador bloqueia storage.
+      }
+
+      trackEvent('QuizCompleted', entryQuizAnswers);
+      trackStandardEvent('Lead', {
+        content_name: 'Quiz de abertura NutriMãe',
+        phase: entryQuizAnswers.age,
+        priority: entryQuizAnswers.priority,
+        support: entryQuizAnswers.support
+      });
+
+      applyEntryQuizAge(entryQuizAnswers.age || '6-meses');
+      personalizeLandingFromQuiz();
+      revealLandingFromQuiz();
+    }
+
+    function runEntryQuizLoading() {
+      entryQuizSteps[3].classList.add('quiz-step--fade-out');
+      entryQuizProgressFill.style.width = '100%';
+      entryQuizProgressLabel.textContent = 'Personalizando';
+      entryQuizProgressPercent.textContent = '100%';
+      entryQuizProgress.setAttribute('aria-valuenow', '100');
+
+      window.setTimeout(function () {
+        entryQuizSteps[3].classList.add('quiz-step--hidden');
+        entryQuizLoading.classList.remove('quiz-loading--hidden');
+        var ageLabel = ENTRY_AGE_LABELS[entryQuizAnswers.age] || 'a fase escolhida';
+        var priorityMessages = {
+          cortes: 'Destacando o guia visual de cortes e texturas...',
+          variedade: 'Selecionando receitas e formas práticas de variar...',
+          rotina: 'Montando uma prévia de cardápio e lista de compras...'
+        };
+        var messages = [
+          'Organizando uma experiência para ' + ageLabel + '...',
+          priorityMessages[entryQuizAnswers.priority] || 'Organizando os recursos mais úteis...',
+          'Preparando sua prévia do NutriMãe...'
+        ];
+
+        entryQuizLoadingText.textContent = messages[0];
+        entryQuizLoadingFill.style.transition = 'none';
+        entryQuizLoadingFill.style.width = '0%';
+        void entryQuizLoadingFill.offsetWidth;
+        entryQuizLoadingFill.style.transition = 'width 2.9s linear';
+        window.requestAnimationFrame(function () {
+          entryQuizLoadingFill.style.width = '100%';
+        });
+
+        function changeLoadingMessage(message) {
+          entryQuizLoadingText.classList.add('is-changing');
+          window.setTimeout(function () {
+            entryQuizLoadingText.textContent = message;
+            entryQuizLoadingText.classList.remove('is-changing');
+          }, 180);
+        }
+
+        window.setTimeout(function () { changeLoadingMessage(messages[1]); }, 950);
+        window.setTimeout(function () { changeLoadingMessage(messages[2]); }, 1900);
+        window.setTimeout(function () {
+          entryQuizLoading.setAttribute('aria-busy', 'false');
+          finishEntryQuiz();
+        }, 2900);
+
+        // Fallback para navegadores in-app que pausam timers em segundo plano.
+        window.setTimeout(finishEntryQuiz, 3600);
+      }, 300);
+    }
+
+    entryQuizSteps[1].querySelectorAll('[data-entry-age]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (entryQuizChanging) return;
+        markEntryOption(button);
+        entryQuizAnswers.age = button.getAttribute('data-entry-age');
+        trackEvent('QuizAnswer', { step: 1, question: 'age', answer: entryQuizAnswers.age });
+        goToEntryQuizStep(1, 2);
+      });
+    });
+
+    entryQuizSteps[2].querySelectorAll('[data-entry-priority]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (entryQuizChanging) return;
+        markEntryOption(button);
+        entryQuizAnswers.priority = button.getAttribute('data-entry-priority');
+        trackEvent('QuizAnswer', { step: 2, question: 'priority', answer: entryQuizAnswers.priority });
+        goToEntryQuizStep(2, 3);
+      });
+    });
+
+    entryQuizSteps[3].querySelectorAll('[data-entry-support]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (entryQuizChanging) return;
+        markEntryOption(button);
+        entryQuizChanging = true;
+        entryQuizAnswers.support = button.getAttribute('data-entry-support');
+        trackEvent('QuizAnswer', { step: 3, question: 'support', answer: entryQuizAnswers.support });
+        runEntryQuizLoading();
+      });
+    });
+
+    entryQuiz.querySelectorAll('[data-entry-back]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (entryQuizChanging) return;
+        var targetStep = Number(button.getAttribute('data-entry-back'));
+        var currentStep = targetStep + 1;
+        trackEvent('QuizBack', { from_step: currentStep, to_step: targetStep });
+        goToEntryQuizStep(currentStep, targetStep);
+      });
+    });
+
+    entryQuiz.addEventListener('keydown', function (event) {
+      if (event.key !== 'Tab') return;
+
+      var focusable = Array.prototype.filter.call(
+        entryQuiz.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+        function (element) { return element.offsetParent !== null; }
+      );
+      if (!focusable.length) return;
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    if (entryQuizAlreadyCompleted) {
+      window.setTimeout(function () {
+        applyEntryQuizAge(entryQuizAnswers.age || '6-meses');
+        personalizeLandingFromQuiz();
+      }, 0);
+    } else {
+      updateEntryQuizProgress(1);
+      focusFirstEntryOption(1);
+      trackEvent('QuizStart', { source: 'landing-entry' });
+    }
+  }
+
   /* ---------------------------------------------------
      Scroll suave entre blocos
      --------------------------------------------------- */
@@ -325,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function () {
      --------------------------------------------------- */
   var sosLink = document.getElementById('sos-link');
   if (sosLink) {
-    sosLink.href = APP_URL + '/sos';
+    sosLink.href = APP_URL + '/manual-sos';
   }
 
   var privacyLink = document.getElementById('privacy-link');

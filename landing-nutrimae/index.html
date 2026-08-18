@@ -12,16 +12,13 @@
 <meta property="og:image" content="assets/logo.png">
 <meta property="og:type" content="website">
 
-<link rel="icon" type="image/png" href="assets/logo.png">
-<link rel="apple-touch-icon" href="assets/logo.png">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/logo-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="assets/logo-192.png">
+<link rel="preload" as="image" href="assets/logo-192.webp" type="image/webp">
 
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="entry-quiz-active">
 
 <!--
   FACEBOOK PIXEL: insira o código base do Meta Pixel aqui antes do fechamento do </head>
@@ -33,10 +30,96 @@
   </script>
 -->
 
+<!-- ===================== ABERTURA INTERATIVA ===================== -->
+<div class="entry-quiz" id="entry-quiz" role="dialog" aria-modal="true" aria-labelledby="entry-quiz-title">
+  <div class="entry-quiz__shell">
+    <header class="entry-quiz__header">
+      <picture>
+        <source type="image/webp" srcset="assets/logo-192.webp 192w, assets/logo-384.webp 384w" sizes="64px">
+        <img src="assets/logo.png" alt="NutriMãe" class="entry-quiz__logo" width="1239" height="1270" decoding="async" fetchpriority="high">
+      </picture>
+      <div class="entry-quiz__trustline" aria-label="Informações do quiz">
+        <span>3 escolhas rápidas</span>
+        <span aria-hidden="true">•</span>
+        <span>sem cadastro</span>
+      </div>
+      <div class="entry-quiz__progress-copy">
+        <span id="entry-quiz-progress-label">Etapa 1 de 3</span>
+        <span id="entry-quiz-progress-percent">33%</span>
+      </div>
+      <div class="entry-quiz__progress-track" role="progressbar" aria-label="Progresso do quiz" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33" id="entry-quiz-progress">
+        <div class="entry-quiz__progress-fill" id="entry-quiz-progress-fill"></div>
+      </div>
+    </header>
+
+    <main class="entry-quiz__main">
+      <div class="entry-quiz__card">
+        <section class="quiz-step" id="entry-quiz-step-1" data-entry-step="1">
+          <p class="entry-quiz__eyebrow">Comece pela fase</p>
+          <h1 class="quiz-headline" id="entry-quiz-title" tabindex="-1">Qual é a fase atual do bebê?</h1>
+          <p class="entry-quiz__support">A próxima tela mostrará exemplos e recursos mais próximos desse momento.</p>
+          <div class="quiz-options">
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="vai-comecar" aria-pressed="false"><span class="entry-quiz__option-label">Ainda vai começar<small>por volta dos 6 meses</small></span><span aria-hidden="true">›</span></button>
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="6-meses" aria-pressed="false">6 meses<span aria-hidden="true">›</span></button>
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="7-9-meses" aria-pressed="false">7 a 9 meses<span aria-hidden="true">›</span></button>
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="10-12-meses" aria-pressed="false">10 a 12+ meses<span aria-hidden="true">›</span></button>
+          </div>
+          <p class="entry-quiz__tap-hint">Toque em uma opção para continuar</p>
+        </section>
+
+        <section class="quiz-step quiz-step--hidden" id="entry-quiz-step-2" data-entry-step="2">
+          <p class="entry-quiz__eyebrow">Agora, a prioridade</p>
+          <h2 class="quiz-headline" tabindex="-1">O que seria mais útil encontrar primeiro?</h2>
+          <p class="entry-quiz__support">Escolha o recurso que mais combina com a rotina alimentar da casa.</p>
+          <div class="quiz-options">
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-priority="cortes" aria-pressed="false">Guia visual de cortes e texturas<span aria-hidden="true">›</span></button>
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-priority="variedade" aria-pressed="false">Receitas práticas para variar as refeições<span aria-hidden="true">›</span></button>
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-priority="rotina" aria-pressed="false">Cardápio semanal com lista de compras<span aria-hidden="true">›</span></button>
+          </div>
+          <button type="button" class="entry-quiz__back" data-entry-back="1" aria-label="Voltar para a primeira pergunta">← Voltar</button>
+        </section>
+
+        <section class="quiz-step quiz-step--hidden" id="entry-quiz-step-3" data-entry-step="3">
+          <p class="entry-quiz__eyebrow">Última escolha</p>
+          <h2 class="quiz-headline" tabindex="-1">Como prefere organizar as orientações?</h2>
+          <p class="entry-quiz__support">Essa escolha ajuda a destacar a forma mais prática de usar o NutriMãe.</p>
+          <div class="quiz-options">
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-support="guia-visual" aria-pressed="false">Consultar alimento por alimento<span aria-hidden="true">›</span></button>
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-support="cardapio" aria-pressed="false">Seguir um plano pronto para cada dia<span aria-hidden="true">›</span></button>
+            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-support="receitas" aria-pressed="false">Trocar opções e montar combinações<span aria-hidden="true">›</span></button>
+          </div>
+          <button type="button" class="entry-quiz__back" data-entry-back="2" aria-label="Voltar para a segunda pergunta">← Voltar</button>
+        </section>
+
+      </div>
+    </main>
+
+    <section class="entry-quiz__loading quiz-loading--hidden" id="entry-quiz-loading" aria-live="polite" aria-busy="true">
+      <div class="entry-quiz__loading-brand">
+        <picture>
+          <source type="image/webp" srcset="assets/logo-384.webp 384w, assets/logo-768.webp 768w" sizes="(max-width: 540px) 64vw, 340px">
+          <img src="assets/logo.png" alt="NutriMãe" class="entry-quiz__loading-logo" width="1239" height="1270" loading="lazy" decoding="async">
+        </picture>
+      </div>
+      <p class="entry-quiz__loading-tagline">Alimentação segura, com carinho</p>
+      <div class="entry-quiz__loading-track" aria-hidden="true">
+        <div class="entry-quiz__loading-fill" id="entry-quiz-loading-fill"></div>
+      </div>
+      <p class="entry-quiz__loading-text" id="entry-quiz-loading-text">Organizando suas escolhas...</p>
+    </section>
+
+    <p class="entry-quiz__privacy">As respostas servem apenas para personalizar esta experiência. Nenhum cadastro é necessário.</p>
+  </div>
+</div>
+<noscript><style>.entry-quiz{display:none!important}body{overflow:auto!important}</style></noscript>
+
 <!-- ===================== NAV ===================== -->
 <nav class="site-nav" id="site-nav">
   <div class="site-nav__inner">
-    <img src="assets/logo.png" alt="NutriMãe" class="site-nav__logo">
+    <picture>
+      <source type="image/webp" srcset="assets/logo-192.webp 192w" sizes="44px">
+      <img src="assets/logo.png" alt="NutriMãe" class="site-nav__logo" width="1239" height="1270" loading="lazy" decoding="async">
+    </picture>
     <div class="site-nav__links">
       <a href="#como-funciona">Como funciona</a>
       <a href="#recursos">Recursos</a>
@@ -69,7 +152,7 @@
            e prejudica o LCP em 4G. O iframe real só entra no DOM quando a
            pessoa clica (ver script.js, seção "BLOCO 1: Hero"). -->
       <div class="video-wrapper" id="video-wrapper" data-youtube-id="n_zXKnnfUuM">
-        <div class="video-placeholder" id="video-placeholder" role="button" tabindex="0" aria-label="Reproduzir vídeo de apresentação" style="background-image:url('https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg')">
+        <div class="video-placeholder" id="video-placeholder" role="button" tabindex="0" aria-label="Reproduzir vídeo de apresentação" data-thumbnail="https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg">
           <div class="play-button" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           </div>
@@ -113,7 +196,10 @@
 <!-- ===================== PRÉVIA REAL DO APP ===================== -->
 <section class="app-preview">
   <div class="container">
-    <img src="assets/entregavel.png" alt="Tela do app NutriMãe: cardápio, cortes seguros e organização por fase do bebê" class="app-preview__img">
+    <picture>
+      <source type="image/webp" srcset="assets/entregavel-384.webp 384w, assets/entregavel-768.webp 768w" sizes="(max-width: 480px) calc(100vw - 40px), 340px">
+      <img src="assets/entregavel.png" alt="Tela do app NutriMãe: cardápio, cortes seguros e organização por fase do bebê" class="app-preview__img" width="872" height="1804" loading="lazy" decoding="async">
+    </picture>
     <button class="btn btn--primary btn--large app-preview__cta" data-anchor-cta="app-preview">Quero isso no meu celular</button>
   </div>
 </section>
@@ -338,7 +424,7 @@
       <h2 class="sos-card__title">O Manual S.O.S. é gratuito e sempre será</h2>
       <p class="sos-card__text">É um guia de orientação rápida — para você não precisar se preocupar sozinha. Fica disponível para qualquer pessoa, sem precisar de assinatura.</p>
       <!-- APP_URL: ajuste em script.js para o domínio real do app antes de publicar. -->
-      <a href="#" id="sos-link" class="sos-card__link">Conhecer o Manual S.O.S.</a>
+      <a href="https://app.nutrimae.com/manual-sos" id="sos-link" class="sos-card__link">Conhecer o Manual S.O.S.</a>
     </div>
   </div>
 </section>
@@ -546,7 +632,10 @@
 <!-- ===================== BLOCO 9: SOBRE ===================== -->
 <section id="bloco-autoridade" class="authority">
   <div class="container authority__content">
-    <img src="assets/logo.png" alt="NutriMãe" class="authority-avatar">
+    <picture>
+      <source type="image/webp" srcset="assets/logo-192.webp 192w, assets/logo-384.webp 384w" sizes="88px">
+      <img src="assets/logo.png" alt="NutriMãe" class="authority-avatar" width="1239" height="1270" loading="lazy" decoding="async">
+    </picture>
     <h2 class="section-title">Sobre o NutriMãe</h2>
     <p class="authority__text">
       O NutriMãe nasceu de uma ideia simples: a introdução alimentar fica mais leve quando a mãe tem tudo

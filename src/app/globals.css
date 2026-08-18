@@ -163,6 +163,22 @@ button, a, input, select, textarea {
   -webkit-tap-highlight-color: transparent;
 }
 
+button, a {
+  touch-action: manipulation;
+}
+
+button:not(:disabled), a[href] {
+  cursor: pointer;
+}
+
+/* Feedback instantâneo ao toque, antes mesmo da próxima rota terminar de renderizar. */
+@media (hover: none) {
+  button:not(:disabled):active,
+  a[href]:active {
+    filter: brightness(0.97);
+  }
+}
+
 /* Glass morphism card */
 .glass-card {
   background: var(--glass-bg);

@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 
 const SESSION_KEY = "nutrimae:splash-shown";
-const HOLD_MS = 1800;
-const FADE_MS = 500;
+// A marca aparece sem bloquear a mãe: a abertura inteira dura menos de 1s.
+const HOLD_MS = 520;
+const FADE_MS = 180;
 
 const SKIP_SPLASH_PREFIXES = ["/oferta"];
 
@@ -19,9 +20,11 @@ export function SplashScreen() {
     if (skip) return;
     if (phase === "hidden") {
       if (window.sessionStorage.getItem(SESSION_KEY)) return;
-      window.sessionStorage.setItem(SESSION_KEY, "1");
-      setPhase("visible");
-      return;
+      const revealFrame = window.requestAnimationFrame(() => {
+        window.sessionStorage.setItem(SESSION_KEY, "1");
+        setPhase("visible");
+      });
+      return () => window.cancelAnimationFrame(revealFrame);
     }
     if (phase === "visible") {
       const fadeTimer = setTimeout(() => setPhase("fading"), HOLD_MS);

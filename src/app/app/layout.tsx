@@ -34,7 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <ActiveBabyProvider babies={babiesWithPhotos}>
       <ToastProvider>
-        <div className="flex min-h-dvh flex-col bg-[#faf7f2]">
+        <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-cream shadow-[0_0_48px_rgba(69,53,41,0.08)]">
           <BabySwitcher />
           <div className="flex-1 pb-4">{children}</div>
           <BottomNav />

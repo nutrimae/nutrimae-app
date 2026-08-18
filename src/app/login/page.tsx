@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Mail, Sparkles, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { HeartHandshake, Mail, Sparkles, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ type PasswordMode = "entrar" | "criar";
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [tab, setTab] = useState<Tab>("senha");
   const [passwordMode, setPasswordMode] = useState<PasswordMode>("entrar");
@@ -38,7 +39,7 @@ export default function LoginPage() {
         setError("E-mail ou senha incorretos. Tente novamente.");
         return;
       }
-      router.push("/");
+      router.replace("/app");
       router.refresh();
     } else {
       const { data, error } = await supabase.auth.signUp({
@@ -58,7 +59,7 @@ export default function LoginPage() {
         return;
       }
       if (data.session) {
-        router.push("/");
+        router.replace("/app");
         router.refresh();
       } else {
         setMessage("Quase lá! Enviamos um e-mail de confirmação para você.");
@@ -240,6 +241,15 @@ export default function LoginPage() {
             </form>
           )}
         </div>
+
+        <Link
+          href="/manual-sos"
+          className="animate-fade-in-up mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-sage-300 bg-white/70 px-4 py-3 text-center text-sm font-semibold text-sage-700 transition-colors hover:bg-sage-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400 focus-visible:ring-offset-2"
+          style={{ animationDelay: "0.16s" }}
+        >
+          <HeartHandshake className="h-5 w-5 shrink-0" aria-hidden="true" strokeWidth={1.8} />
+          Precisa de orientação rápida? Acessar o Manual S.O.S. gratuito
+        </Link>
 
         <div className="animate-fade-in-up mt-6 flex items-center justify-center gap-2 text-xs text-brown-700/50" style={{ animationDelay: "0.2s" }}>
           <ShieldCheck className="h-4 w-4 shrink-0" strokeWidth={1.75} />

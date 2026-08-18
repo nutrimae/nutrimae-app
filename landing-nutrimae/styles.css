@@ -295,25 +295,26 @@ section { padding: 40px 0; }
   margin-bottom: 10px;
 }
 
+/* Fila estática abaixo do vídeo — normal flow, nunca sobrepõe nada, em
+   nenhuma largura de tela. */
 .hero__chips {
-  display: none;
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
 }
 
 .hero__chip {
-  position: absolute;
   background: var(--color-white);
   border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 0.75rem;
+  padding: 7px 12px;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--color-text-dark);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-card);
   white-space: nowrap;
 }
-
-.hero__chip--1 { top: -14px; left: -12px; }
-.hero__chip--2 { top: 40%; right: -18px; }
-.hero__chip--3 { bottom: -14px; left: 10%; }
 
 .video-wrapper { width: 100%; }
 
@@ -415,12 +416,13 @@ section { padding: 40px 0; }
   text-align: center;
 }
 
+/* A imagem já é um mockup de celular com moldura e sombra próprias
+   (fundo transparente ao redor) — sem borda/sombra extra por cima, que
+   criaria uma caixa retangular visível atrás do celular. */
 .app-preview__img {
   width: 100%;
-  max-width: 420px;
+  max-width: 340px;
   margin: 0 auto;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
 }
 
 .app-preview__cta {
@@ -1849,7 +1851,7 @@ section { padding: 40px 0; }
   .hero__cta-group { align-items: flex-start; }
   .hero__title { font-size: 2.4rem; }
   .hero__media { max-width: 460px; margin: 0; align-self: center; }
-  .hero__chips { display: block; }
+  .hero__chips { justify-content: flex-start; }
   .btn--large { width: auto; padding: 16px 32px; }
 }
 

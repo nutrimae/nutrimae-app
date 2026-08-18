@@ -9,8 +9,10 @@ import { getEntitlementStatus } from "@/lib/entitlements";
  *
  * Variáveis de ambiente necessárias (ver também nutribot-service.ts e
  * whatsapp-client.ts):
- * - WA_VERIFY_TOKEN: valor arbitrário definido por nós e configurado também
- *   no painel do Meta ao registrar este webhook (usado na verificação GET).
+ * - WA_VERIFY_TOKEN (ou VERIFY_TOKEN): valor arbitrário definido por nós e
+ *   configurado também no painel do Meta ao registrar este webhook (usado
+ *   na verificação GET). Aceitamos os dois nomes porque diferentes guias
+ *   da Meta/Cloud API usam nomenclaturas diferentes para a mesma variável.
  * - WA_TOKEN / WA_PHONE_ID: ver whatsapp-client.ts.
  * - OPENAI_API_KEY: ver nutribot-service.ts.
  *
@@ -37,7 +39,16 @@ export async function GET(request: Request) {
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
 
-  if (mode === "subscribe" && token === process.env.WA_VERIFY_TOKEN) {
+  const expectedToken = process.env.WA_VERIFY_TOKEN ?? process.env.VERIFY_TOKEN;
+
+  if (!expectedToken) {
+    console.error(
+      "[whatsapp-webhook] nenhuma env var de verify token configurada (WA_VERIFY_TOKEN / VERIFY_TOKEN)",
+    );
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  if (mode === "subscribe" && token === expectedToken) {
     return new Response(challenge ?? "", { status: 200 });
   }
 

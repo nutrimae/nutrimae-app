@@ -941,12 +941,47 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------------------------------------------
      Nav e CTA final
      --------------------------------------------------- */
-  var navCta = document.getElementById('nav-cta');
-  if (navCta) {
-    navCta.addEventListener('click', function () {
-      trackEvent('NavCtaClick');
-      scrollToSection('bloco-6');
+  var siteNav = document.getElementById('site-nav');
+  var siteMenu = document.getElementById('site-menu');
+  var siteMenuToggle = document.getElementById('site-menu-toggle');
+
+  function closeSiteMenu(returnFocus) {
+    if (!siteNav || !siteMenuToggle) return;
+    siteNav.classList.remove('site-nav--open');
+    siteMenuToggle.setAttribute('aria-expanded', 'false');
+    siteMenuToggle.setAttribute('aria-label', 'Abrir menu de navegação');
+    if (returnFocus) siteMenuToggle.focus();
+  }
+
+  if (siteNav && siteMenu && siteMenuToggle) {
+    siteMenuToggle.addEventListener('click', function () {
+      var isOpen = siteNav.classList.toggle('site-nav--open');
+      siteMenuToggle.setAttribute('aria-expanded', String(isOpen));
+      siteMenuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação');
+      if (isOpen) trackEvent('NavigationMenuOpen');
     });
+
+    siteMenu.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        closeSiteMenu(false);
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      if (siteNav.classList.contains('site-nav--open') && !siteNav.contains(event.target)) {
+        closeSiteMenu(false);
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && siteNav.classList.contains('site-nav--open')) {
+        closeSiteMenu(true);
+      }
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 860) closeSiteMenu(false);
+    }, { passive: true });
   }
 
   var ctaFinal = document.getElementById('cta-final');

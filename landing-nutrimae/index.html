@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NutriMãe — Cardápio e Cortes por Idade do Bebê</title>
-<meta name="description" content="Cardápio semanal, lista de compras e o corte indicado de cada alimento, organizados por idade do bebê. Introdução alimentar com praticidade, no seu celular.">
+<title>NutriMãe — Cardápio, Cortes e Receitas em um Só Lugar</title>
+<meta name="description" content="Cardápio semanal, guia visual de cortes, receitas e lista de compras organizados por fase — direto no celular.">
 <meta name="theme-color" content="#FF4D8D">
 
-<meta property="og:title" content="NutriMãe — Cardápio e Cortes por Idade do Bebê">
-<meta property="og:description" content="O corte indicado e o cardápio da semana, organizados por idade do bebê.">
+<meta property="og:title" content="NutriMãe — Cardápio, Cortes e Receitas em um Só Lugar">
+<meta property="og:description" content="Planeje a semana e consulte cortes, receitas e lista de compras direto no celular.">
 <meta property="og:image" content="assets/logo.png">
 <meta property="og:type" content="website">
 
@@ -17,6 +17,7 @@
 <link rel="preload" as="image" href="assets/logo-192.webp" type="image/webp">
 
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="support-widget.css">
 </head>
 <body class="entry-quiz-active">
 
@@ -54,6 +55,10 @@
 
     <main class="entry-quiz__main">
       <div class="entry-quiz__card">
+        <div class="entry-quiz__preview entry-quiz__preview--empty" id="entry-quiz-preview" aria-live="polite">
+          <span class="entry-quiz__preview-icon" aria-hidden="true">🍼</span>
+          <span class="entry-quiz__preview-text" id="entry-quiz-preview-text"></span>
+        </div>
         <section class="quiz-step" id="entry-quiz-step-1" data-entry-step="1">
           <p class="entry-quiz__eyebrow">Comece pela fase</p>
           <h1 class="quiz-headline" id="entry-quiz-title" tabindex="-1">Qual é a fase atual do bebê?</h1>
@@ -116,35 +121,33 @@
 <!-- ===================== NAV ===================== -->
 <nav class="site-nav" id="site-nav">
   <div class="site-nav__inner">
-    <picture>
-      <source type="image/webp" srcset="assets/logo-192.webp 192w" sizes="44px">
-      <img src="assets/logo.png" alt="NutriMãe" class="site-nav__logo" width="1239" height="1270" loading="lazy" decoding="async">
-    </picture>
+    <a href="index.html" aria-label="Página inicial do NutriMãe">
+      <picture>
+        <source type="image/webp" srcset="assets/logo-192.webp 192w" sizes="44px">
+        <img src="assets/logo.png" alt="NutriMãe" class="site-nav__logo" width="1239" height="1270" loading="lazy" decoding="async">
+      </picture>
+    </a>
     <div class="site-nav__links">
       <a href="#como-funciona">Como funciona</a>
       <a href="#recursos">Recursos</a>
       <a href="#bloco-6">Planos</a>
       <a href="#depoimentos">Depoimentos</a>
-      <a href="#bloco-faq">Dúvidas</a>
+      <a href="faq.html">FAQ</a>
+      <a href="sobre.html">Sobre</a>
     </div>
     <button class="btn btn--primary site-nav__cta" id="nav-cta">Quero começar</button>
   </div>
 </nav>
 
 <!-- ===================== BLOCO 1: HERO ===================== -->
-<!--
-  Ordem deliberada (grid areas, ver styles.css): no mobile, o VSL aparece
-  logo depois do título — ainda na primeira dobra, sem precisar rolar —
-  com uma chamada forte introduzindo o vídeo. No desktop (≥860px), as
-  grid-areas se reorganizam em 2 colunas sem mudar o HTML.
--->
 <section id="bloco-1" class="hero">
   <div class="container hero__grid">
-    <p class="hero__eyebrow" style="grid-area: eyebrow;">O app completo para a</p>
-    <h1 class="hero__title" style="grid-area: title;">Alimentação da <span class="text-primary">sua bebê</span>, em um <span class="text-primary">só lugar</span>.</h1>
+    <h1 class="hero__title" style="grid-area: title;" aria-label="Cardápio, cortes e receitas organizados em um só lugar.">
+      Cardápio, cortes e receitas
+      <span class="hero__typewriter" aria-hidden="true"><span id="hero-typewriter-word">em um só lugar</span><span class="hero__typewriter-cursor"></span></span>
+    </h1>
 
     <div class="hero__media" style="grid-area: media;">
-      <p class="hero__video-title">Veja o NutriMãe em ação</p>
 
       <!-- VÍDEO VSL: https://youtu.be/n_zXKnnfUuM
            Facade de clique-para-carregar (thumbnail + botão play), não um
@@ -158,36 +161,26 @@
           </div>
         </div>
       </div>
-
-      <!-- Fatos reais do produto (não estatísticas inventadas). Fila
-           discreta abaixo do vídeo — sem sobreposição em nenhuma largura
-           de tela (antes eram chips flutuantes com offset negativo, que
-           furavam pra fora do vídeo e colidiam com o título ao lado). -->
-      <div class="hero__chips">
-        <span class="hero__chip">🔄 Atualizado toda semana</span>
-        <span class="hero__chip">📱 100% prático pro dia a dia</span>
-        <span class="hero__chip">💛 Feito com carinho e organização</span>
-      </div>
     </div>
 
-    <p class="hero__subtitle" style="grid-area: subtitle;">Cardápios personalizados, receitas práticas, listas de compras, acompanhamento do progresso e atualizações semanais — tudo pensado por nutricionistas para facilitar sua rotina.</p>
+    <p class="hero__subtitle" style="grid-area: subtitle;">Planeje a semana, consulte o corte indicado e leve a lista de compras para o WhatsApp — direto no celular.</p>
 
     <ul class="hero__bullets" style="grid-area: bullets;">
-      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Atualizações semanais de cardápios e conteúdos</li>
-      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Plano adaptado à fase do seu bebê</li>
-      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Tudo organizado e pronto para o dia a dia</li>
-      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Desenvolvido por nutricionistas especialistas</li>
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Cardápios semanais organizados por fase</li>
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Guia visual de cortes por alimento</li>
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Lista de compras compartilhada no WhatsApp</li>
+      <li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Receitas e substituições em poucos toques</li>
     </ul>
 
     <div class="hero__cta-group" style="grid-area: cta;">
-      <button class="btn btn--primary btn--large" id="cta-hero">Quero transformar a alimentação do meu bebê</button>
+      <button class="btn btn--primary btn--large" id="cta-hero">Quero conhecer os planos</button>
       <p class="hero__micro-proof">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
-        Teste por 7 dias. Se não amar, devolvemos seu dinheiro.
+        7 dias de garantia incondicional
       </p>
       <p class="hero__micro-proof">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        Ambiente seguro e seus dados protegidos
+        Pagamento seguro e cancelamento direto no app
       </p>
     </div>
   </div>
@@ -198,9 +191,27 @@
   <div class="container">
     <picture>
       <source type="image/webp" srcset="assets/entregavel-384.webp 384w, assets/entregavel-768.webp 768w" sizes="(max-width: 480px) calc(100vw - 40px), 340px">
-      <img src="assets/entregavel.png" alt="Tela do app NutriMãe: cardápio, cortes seguros e organização por fase do bebê" class="app-preview__img" width="872" height="1804" loading="lazy" decoding="async">
+      <img src="assets/entregavel.png" alt="Tela do app NutriMãe com cardápio, guia visual de cortes e organização por fase" class="app-preview__img" width="872" height="1804" loading="lazy" decoding="async">
     </picture>
     <button class="btn btn--primary btn--large app-preview__cta" data-anchor-cta="app-preview">Quero isso no meu celular</button>
+  </div>
+</section>
+
+<!-- ===================== DEMONSTRAÇÃO REAL DO PRODUTO ===================== -->
+<section class="product-proof product-proof--discovery" aria-labelledby="product-proof-title-1">
+  <div class="container product-proof__content">
+    <p class="product-proof__eyebrow">Demonstração real</p>
+    <h2 class="section-title" id="product-proof-title-1">Veja como o NutriMãe funciona por dentro</h2>
+    <p class="product-proof__text">Uma prévia do produto no celular, com guias, cardápios e consultas organizadas em poucos toques.</p>
+    <div class="product-demo-stage">
+      <img class="product-demo-stage__backdrop" src="assets/product-side-phones.webp" alt="Telas do NutriMãe com início do aplicativo e identidade visual da marca" width="1280" height="720" loading="lazy" decoding="async">
+      <div class="product-demo__frame">
+        <video class="product-demo__video" muted autoplay loop playsinline preload="none" poster="assets/product-demo-poster.webp?v=20260819-2" data-product-demo data-demo-placement="descoberta" aria-label="Demonstração em vídeo do aplicativo NutriMãe no celular central">
+          <source data-src="assets/product-demo.mp4?v=20260819-2" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="product-proof__caption">Vídeo real do NutriMãe • sem simulação</p>
   </div>
 </section>
 
@@ -242,13 +253,13 @@
     <div class="features__grid">
       <div class="feature-card">
         <div class="feature-card__icon" aria-hidden="true">📅</div>
-        <p class="feature-card__title">Cardápio personalizado</p>
-        <p class="feature-card__text">Planos alimentares por fase, adaptados às necessidades do seu bebê.</p>
+        <p class="feature-card__title">Cardápio por fase</p>
+        <p class="feature-card__text">Sugestões semanais organizadas pela faixa etária selecionada.</p>
       </div>
       <div class="feature-card">
         <div class="feature-card__icon" aria-hidden="true">✂️</div>
-        <p class="feature-card__title">Guia de cortes seguros</p>
-        <p class="feature-card__text">Saiba exatamente como oferecer cada alimento, em cada fase.</p>
+        <p class="feature-card__title">Guia visual de cortes</p>
+        <p class="feature-card__text">Consulte formatos e maneiras de oferecer cada alimento em cada fase.</p>
       </div>
       <div class="feature-card feature-card--whatsapp">
         <span class="feature-card__ribbon">
@@ -262,7 +273,7 @@
       <div class="feature-card">
         <div class="feature-card__icon" aria-hidden="true">🍽️</div>
         <p class="feature-card__title">Receitas práticas</p>
-        <p class="feature-card__text">Fáceis, rápidas e testadas para os dias corridos.</p>
+        <p class="feature-card__text">Pensadas para facilitar o preparo e variar as refeições da semana.</p>
       </div>
       <div class="feature-card">
         <div class="feature-card__icon" aria-hidden="true">⚠️</div>
@@ -473,51 +484,67 @@
     <p class="section-title section-title--small">Quem usa, recomenda</p>
   </div>
 
-  <div class="testimonials__track" id="testimonials-track">
-    <div class="testimonial-card">
-      <p class="testimonial-card__quote">"Eu estava sempre procurando no celular o que preparar e acabava ficando perdida. Gostei muito de ter tudo organizado em um só lugar. Ficou muito mais fácil planejar a alimentação da semana."</p>
-      <p class="testimonial-card__author">Marina Costa <span>— mãe do Leo, 7 meses</span></p>
+  <div class="testimonials-marquee" id="testimonials-track" aria-label="Relatos de mães que usam o NutriMãe">
+    <div class="testimonials-marquee__row">
+      <div class="testimonials-marquee__group">
+        <article class="testimonial-card">
+          <span class="testimonial-card__mark" aria-hidden="true">“</span>
+          <p class="testimonial-card__quote">Eu estava sempre procurando no celular o que preparar e acabava ficando perdida. Gostei muito de ter tudo organizado em um só lugar. Ficou muito mais fácil planejar a alimentação da semana.</p>
+          <div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">MC</span><p class="testimonial-card__author">Marina Costa <span>mãe do Leo, 7 meses</span></p></div>
+        </article>
+        <article class="testimonial-card">
+          <span class="testimonial-card__mark" aria-hidden="true">“</span>
+          <p class="testimonial-card__quote">O que mais gostei foi poder acessar pelo celular quando estou preparando a comida. Não preciso ficar procurando informações em vários lugares.</p>
+          <div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">CR</span><p class="testimonial-card__author">Camila Ribeiro <span>mãe da Sofia, 9 meses</span></p></div>
+        </article>
+        <article class="testimonial-card">
+          <span class="testimonial-card__mark" aria-hidden="true">“</span>
+          <p class="testimonial-card__quote">Antes eu decidia tudo na última hora. Agora consigo olhar com antecedência e me organizar melhor para a semana. Facilitou bastante minha rotina.</p>
+          <div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">JM</span><p class="testimonial-card__author">Juliana Mendes <span>mãe do Theo, 11 meses</span></p></div>
+        </article>
+        <article class="testimonial-card">
+          <span class="testimonial-card__mark" aria-hidden="true">“</span>
+          <p class="testimonial-card__quote">Eu tinha muitas dúvidas sobre como organizar essa nova fase da alimentação. Ter um material estruturado para consultar deixou tudo muito mais simples para mim.</p>
+          <div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">AC</span><p class="testimonial-card__author">Amanda Castro <span>mãe da Alice, 6 meses</span></p></div>
+        </article>
+        <article class="testimonial-card">
+          <span class="testimonial-card__mark" aria-hidden="true">“</span>
+          <p class="testimonial-card__quote">Achei muito fácil de usar. Entrei pelo celular e já consegui encontrar o que precisava sem ficar perdida em um monte de informação.</p>
+          <div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">BN</span><p class="testimonial-card__author">Beatriz Nogueira <span>mãe do Miguel, 8 meses</span></p></div>
+        </article>
+      </div>
+      <div class="testimonials-marquee__group" aria-hidden="true">
+        <article class="testimonial-card"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Eu estava sempre procurando no celular o que preparar e acabava ficando perdida. Gostei muito de ter tudo organizado em um só lugar. Ficou muito mais fácil planejar a alimentação da semana.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">MC</span><p class="testimonial-card__author">Marina Costa <span>mãe do Leo, 7 meses</span></p></div></article>
+        <article class="testimonial-card"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">O que mais gostei foi poder acessar pelo celular quando estou preparando a comida. Não preciso ficar procurando informações em vários lugares.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">CR</span><p class="testimonial-card__author">Camila Ribeiro <span>mãe da Sofia, 9 meses</span></p></div></article>
+        <article class="testimonial-card"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Antes eu decidia tudo na última hora. Agora consigo olhar com antecedência e me organizar melhor para a semana. Facilitou bastante minha rotina.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">JM</span><p class="testimonial-card__author">Juliana Mendes <span>mãe do Theo, 11 meses</span></p></div></article>
+        <article class="testimonial-card"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Eu tinha muitas dúvidas sobre como organizar essa nova fase da alimentação. Ter um material estruturado para consultar deixou tudo muito mais simples para mim.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">AC</span><p class="testimonial-card__author">Amanda Castro <span>mãe da Alice, 6 meses</span></p></div></article>
+        <article class="testimonial-card"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Achei muito fácil de usar. Entrei pelo celular e já consegui encontrar o que precisava sem ficar perdida em um monte de informação.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">BN</span><p class="testimonial-card__author">Beatriz Nogueira <span>mãe do Miguel, 8 meses</span></p></div></article>
+      </div>
     </div>
-    <div class="testimonial-card">
-      <p class="testimonial-card__quote">"O que mais gostei foi poder acessar pelo celular quando estou preparando a comida. Não preciso ficar procurando informações em vários lugares."</p>
-      <p class="testimonial-card__author">Camila Ribeiro <span>— mãe da Sofia, 9 meses</span></p>
-    </div>
-    <div class="testimonial-card">
-      <p class="testimonial-card__quote">"Antes eu decidia tudo na última hora. Agora consigo olhar com antecedência e me organizar melhor para a semana. Facilitou bastante minha rotina."</p>
-      <p class="testimonial-card__author">Juliana Mendes <span>— mãe do Theo, 11 meses</span></p>
-    </div>
-    <div class="testimonial-card">
-      <p class="testimonial-card__quote">"Eu tinha muitas dúvidas sobre como organizar essa nova fase da alimentação. Ter um material estruturado para consultar deixou tudo muito mais simples para mim."</p>
-      <p class="testimonial-card__author">Amanda Castro <span>— mãe da Alice, 6 meses</span></p>
-    </div>
-    <div class="testimonial-card">
-      <p class="testimonial-card__quote">"Achei muito fácil de usar. Entrei pelo celular e já consegui encontrar o que precisava sem ficar perdida em um monte de informação."</p>
-      <p class="testimonial-card__author">Beatriz Nogueira <span>— mãe do Miguel, 8 meses</span></p>
-    </div>
-    <div class="testimonial-card">
-      <p class="testimonial-card__quote">"Com bebê pequeno, qualquer coisa que ajude a economizar tempo já faz diferença. Gostei principalmente de conseguir consultar tudo rapidamente durante a rotina."</p>
-      <p class="testimonial-card__author">Letícia Almeida <span>— mãe do Noah, 10 meses</span></p>
-    </div>
-    <div class="testimonial-card">
-      <p class="testimonial-card__quote">"Eu queria ter uma referência para consultar quando surgisse alguma dúvida durante essa fase. O NutriMãe acabou virando um apoio na minha organização do dia a dia."</p>
-      <p class="testimonial-card__author">Fernanda Lima <span>— mãe da Clara, 14 meses</span></p>
-    </div>
-    <div class="testimonial-card testimonial-card--short">
-      <p class="testimonial-card__quote">"Finalmente consegui deixar a alimentação do meu bebê muito mais organizada."</p>
-      <p class="testimonial-card__author">Bruna Fernandes <span>— mãe do Arthur, 12 meses</span></p>
-    </div>
-    <div class="testimonial-card testimonial-card--short">
-      <p class="testimonial-card__quote">"Prático, organizado e muito fácil de consultar pelo celular."</p>
-      <p class="testimonial-card__author">Renata Souza <span>— mãe da Maitê, 18 meses</span></p>
-    </div>
-    <div class="testimonial-card testimonial-card--short">
-      <p class="testimonial-card__quote">"O que eu mais precisava era de organização. E foi exatamente isso que encontrei."</p>
-      <p class="testimonial-card__author">Carolina Rocha <span>— mãe do Gael, 8 meses</span></p>
+
+    <div class="testimonials-marquee__row testimonials-marquee__row--reverse">
+      <div class="testimonials-marquee__group">
+        <article class="testimonial-card"><span class="testimonial-card__mark" aria-hidden="true">“</span><p class="testimonial-card__quote">Com bebê pequeno, qualquer coisa que ajude a economizar tempo já faz diferença. Gostei principalmente de conseguir consultar tudo rapidamente durante a rotina.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">LA</span><p class="testimonial-card__author">Letícia Almeida <span>mãe do Noah, 10 meses</span></p></div></article>
+        <article class="testimonial-card"><span class="testimonial-card__mark" aria-hidden="true">“</span><p class="testimonial-card__quote">Eu queria ter uma referência para consultar quando surgisse alguma dúvida durante essa fase. O NutriMãe acabou virando um apoio na minha organização do dia a dia.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">FL</span><p class="testimonial-card__author">Fernanda Lima <span>mãe da Clara, 14 meses</span></p></div></article>
+        <article class="testimonial-card testimonial-card--short"><span class="testimonial-card__mark" aria-hidden="true">“</span><p class="testimonial-card__quote">Finalmente consegui deixar a alimentação do meu bebê muito mais organizada.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">BF</span><p class="testimonial-card__author">Bruna Fernandes <span>mãe do Arthur, 12 meses</span></p></div></article>
+        <article class="testimonial-card testimonial-card--short"><span class="testimonial-card__mark" aria-hidden="true">“</span><p class="testimonial-card__quote">Prático, organizado e muito fácil de consultar pelo celular.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">RS</span><p class="testimonial-card__author">Renata Souza <span>mãe da Maitê, 18 meses</span></p></div></article>
+        <article class="testimonial-card testimonial-card--short"><span class="testimonial-card__mark" aria-hidden="true">“</span><p class="testimonial-card__quote">O que eu mais precisava era de organização. E foi exatamente isso que encontrei.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar" aria-hidden="true">CR</span><p class="testimonial-card__author">Carolina Rocha <span>mãe do Gael, 8 meses</span></p></div></article>
+      </div>
+      <div class="testimonials-marquee__group" aria-hidden="true">
+        <article class="testimonial-card"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Com bebê pequeno, qualquer coisa que ajude a economizar tempo já faz diferença. Gostei principalmente de conseguir consultar tudo rapidamente durante a rotina.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">LA</span><p class="testimonial-card__author">Letícia Almeida <span>mãe do Noah, 10 meses</span></p></div></article>
+        <article class="testimonial-card"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Eu queria ter uma referência para consultar quando surgisse alguma dúvida durante essa fase. O NutriMãe acabou virando um apoio na minha organização do dia a dia.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">FL</span><p class="testimonial-card__author">Fernanda Lima <span>mãe da Clara, 14 meses</span></p></div></article>
+        <article class="testimonial-card testimonial-card--short"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Finalmente consegui deixar a alimentação do meu bebê muito mais organizada.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">BF</span><p class="testimonial-card__author">Bruna Fernandes <span>mãe do Arthur, 12 meses</span></p></div></article>
+        <article class="testimonial-card testimonial-card--short"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">Prático, organizado e muito fácil de consultar pelo celular.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">RS</span><p class="testimonial-card__author">Renata Souza <span>mãe da Maitê, 18 meses</span></p></div></article>
+        <article class="testimonial-card testimonial-card--short"><span class="testimonial-card__mark">“</span><p class="testimonial-card__quote">O que eu mais precisava era de organização. E foi exatamente isso que encontrei.</p><div class="testimonial-card__person"><span class="testimonial-card__avatar">CR</span><p class="testimonial-card__author">Carolina Rocha <span>mãe do Gael, 8 meses</span></p></div></article>
+      </div>
     </div>
   </div>
 
   <div class="container">
-    <p class="testimonials__hint">← arraste para o lado para ver mais →</p>
+    <button class="testimonials__pause" id="testimonials-pause" type="button" aria-pressed="false">
+      <span aria-hidden="true">Ⅱ</span> Pausar relatos
+    </button>
+    <p class="testimonials__hint">No computador, o movimento também pausa ao passar o mouse</p>
     <button class="mid-cta" data-anchor-cta="depoimentos">Quero ter essa organização também</button>
   </div>
 </section>
@@ -526,8 +553,8 @@
 <section class="updates-banner">
   <div class="container updates-banner__grid">
     <div class="updates-banner__copy">
-      <h2>Atualizações toda semana, para você nunca ficar na dúvida</h2>
-      <p>Novos cardápios, receitas e conteúdos, pensados para cada fase e cada desafio.</p>
+      <h2>Conteúdo que acompanha cada fase da rotina</h2>
+      <p>Novos cardápios, receitas e materiais entram no mesmo acesso, sem precisar comprar arquivos separados.</p>
       <ul class="updates-banner__list">
         <li><span class="check-icon">✓</span> Novos cardápios toda semana</li>
         <li><span class="check-icon">✓</span> Receitas práticas sempre atualizadas</li>
@@ -546,8 +573,8 @@
 <section class="community-spotlight">
   <div class="container community-spotlight__grid">
     <div class="community-spotlight__copy">
-      <h2>Comunidade de mães que <span class="text-primary">entende você</span></h2>
-      <p>Troque experiências, faça perguntas e receba apoio de outras mães e da equipe NutriMãe.</p>
+      <h2>Trocas reais para uma rotina <span class="text-primary">mais organizada</span></h2>
+      <p>Compartilhe experiências e consulte conversas de outras mães e da equipe NutriMãe.</p>
     </div>
     <!-- Depoimento real, um dos 10 enviados — não é conteúdo inventado. -->
     <div class="testimonial-card community-spotlight__testimonial">
@@ -602,28 +629,28 @@
 
     <div class="objections__grid">
       <div class="objection-card">
-        <p class="objection-card__q">Vou ter tempo pra usar isso no dia a dia?</p>
-        <p class="objection-card__a">O cardápio e os cortes já vêm prontos — é abrir e seguir, sem planejar do zero.</p>
+        <p class="objection-card__q">Quanto tempo leva para consultar o app?</p>
+        <p class="objection-card__a">Cardápios e cortes ficam organizados por fase para uma consulta rápida no celular.</p>
       </div>
       <div class="objection-card">
-        <p class="objection-card__q">Já testei outros apps parecidos e não continuei usando.</p>
-        <p class="objection-card__a">Aqui o conteúdo já é filtrado pela fase exata do seu bebê — não precisa garimpar nada.</p>
+        <p class="objection-card__q">O que torna o NutriMãe diferente de materiais avulsos?</p>
+        <p class="objection-card__a">O conteúdo fica reunido no app e organizado pela fase escolhida, com busca e atualizações no mesmo acesso.</p>
       </div>
       <div class="objection-card">
-        <p class="objection-card__q">Não sou boa com tecnologia, vou saber usar?</p>
-        <p class="objection-card__a">A navegação é simples: 2 toques até qualquer alimento, sem menus complicados.</p>
+        <p class="objection-card__q">O aplicativo é simples de usar?</p>
+        <p class="objection-card__a">A navegação foi desenhada para chegar aos alimentos e cardápios em poucos toques.</p>
       </div>
       <div class="objection-card">
-        <p class="objection-card__q">Meu bebê tem alguma restrição — funciona pra ele?</p>
-        <p class="objection-card__a">O guia sinaliza alergênicos comuns por alimento, e o assistente já filtra pelo que evitar.</p>
+        <p class="objection-card__q">Como funcionam restrições e alergênicos?</p>
+        <p class="objection-card__a">O guia sinaliza alergênicos comuns. Restrições específicas devem ser acompanhadas pelo pediatra ou nutricionista responsável.</p>
       </div>
       <div class="objection-card">
-        <p class="objection-card__q">E se eu assinar e não gostar?</p>
+        <p class="objection-card__q">Como funciona a garantia?</p>
         <p class="objection-card__a">7 dias de garantia incondicional. Sem formulário longo, sem precisar justificar.</p>
       </div>
       <div class="objection-card">
-        <p class="objection-card__q">É seguro colocar meus dados de pagamento?</p>
-        <p class="objection-card__a">Pagamento processado com criptografia padrão do mercado. Seus dados nunca são compartilhados.</p>
+        <p class="objection-card__q">Como o pagamento é protegido?</p>
+        <p class="objection-card__a">O pagamento é processado em ambiente protegido. A Política de Privacidade explica como os dados são tratados.</p>
       </div>
     </div>
   </div>
@@ -648,8 +675,6 @@
     <p class="authority__text">
       Nossa proposta é organização e praticidade no dia a dia, sempre como apoio ao acompanhamento do
       pediatra ou nutricionista que cuida do seu bebê — nunca como substituto dele.
-      <!-- [PLACEHOLDER — substituir se houver profissional de saúde realmente vinculado à marca,
-           descrevendo formação, registro profissional e o papel dele na revisão do conteúdo.] -->
     </p>
   </div>
 </section>
@@ -661,12 +686,12 @@
 
     <div class="pricing-toggle" role="tablist">
       <button type="button" class="pricing-toggle__btn" id="toggle-mensal" data-plan-toggle="mensal" role="tab" aria-selected="false">Mensal</button>
-      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$261,80</span></button>
+      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$251,80</span></button>
     </div>
 
     <div class="plan-card-single" id="plan-card-mensal" hidden>
       <p class="plan-card__label">Plano Mensal</p>
-      <p class="plan-card__old">De R$47</p>
+      <p class="plan-card__context">Primeiro mês</p>
       <p class="plan-card__price">R$ 19,90<span>/mês</span></p>
       <p class="plan-card__note">no primeiro mês — depois R$29,90/mês</p>
       <ul class="offer-checklist">
@@ -679,6 +704,7 @@
     <div class="plan-card-single plan-card-single--featured" id="plan-card-anual">
       <span class="plan-card__badge">MAIS ESCOLHIDO</span>
       <p class="plan-card__label">Plano Anual</p>
+      <p class="plan-card__old">R$348,80 no plano mensal por 12 meses</p>
       <p class="plan-card__price">R$ 97<span>à vista</span></p>
       <p class="plan-card__note">ou 12x de R$9,70 no cartão</p>
       <ul class="offer-checklist">
@@ -698,7 +724,7 @@
 
     <p class="offer__guarantee">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
-      Teste o NutriMãe por 7 dias. Se não amar, devolvemos seu dinheiro, sem perguntas.
+      Acesse o NutriMãe por 7 dias. Se não fizer sentido para a rotina, devolvemos o valor, sem perguntas.
     </p>
 
     <p class="offer__recurrence">Cancele quando quiser, com 2 toques dentro do seu perfil no app.</p>
@@ -713,10 +739,8 @@
     <!-- Esta pergunta fica sempre visível, sem precisar clicar no "+" —
          é uma resposta de confiança, não deve ficar escondida. -->
     <div class="faq-note">
-      <p class="faq-note__question">O conteúdo é validado por profissionais de saúde?</p>
-      <!-- [PLACEHOLDER — se houver profissional de saúde realmente vinculado à marca,
-           descreva aqui formação e registro. Não afirme validação que não existe.] -->
-      <p class="faq-note__answer">O NutriMãe é um material de organização e planejamento da rotina alimentar. Ele serve como apoio prático no dia a dia, mas não substitui a orientação do pediatra ou do nutricionista que acompanha o seu bebê. Em caso de alergia, restrição alimentar ou qualquer dúvida específica sobre o desenvolvimento dele, consulte sempre o profissional responsável.</p>
+      <p class="faq-note__question">O NutriMãe substitui o acompanhamento profissional?</p>
+      <p class="faq-note__answer">Não. O NutriMãe organiza cardápios, cortes e informações para consulta no dia a dia. Ele não substitui a orientação do pediatra ou nutricionista. Em caso de alergia, restrição alimentar ou dúvida específica sobre o desenvolvimento, consulte o profissional responsável.</p>
     </div>
 
     <div class="faq-list">
@@ -808,22 +832,60 @@
 </div>
 
 <!-- ===================== RODAPÉ ===================== -->
-<footer class="site-footer">
-  <div class="container">
-    <!-- [PLACEHOLDER OBRIGATÓRIO — razão social e CNPJ reais. Não publicar
-         sem preencher: rodapé sem identificação da empresa é reprovado em
-         revisão de anúncio e é exigência legal (CDC) para venda online.] -->
-    <p>[PLACEHOLDER — Razão social] · CNPJ [PLACEHOLDER]</p>
-    <p>© 2026 NutriMãe. Todos os direitos reservados.</p>
-    <p class="site-footer__contact">
-      <!-- APP_URL: ajuste em script.js para o domínio real do app antes de publicar. -->
-      <a href="#" id="privacy-link">Política de Privacidade</a>
-      · <a href="mailto:contato@nutrimae.com">Contato</a>
-    </p>
-    <p class="site-footer__disclaimer">O NutriMãe é uma ferramenta de organização e planejamento da rotina alimentar. Não substitui orientação médica ou nutricional profissional.</p>
+<footer class="rich-footer">
+  <div class="rich-footer__inner">
+    <div class="rich-footer__grid">
+      <div class="rich-footer__brand">
+        <a class="rich-footer__logo" href="index.html" aria-label="NutriMãe — início">
+          <img src="assets/logo-192.webp" width="56" height="56" alt="" loading="lazy" decoding="async">
+          <span>NutriMãe</span>
+        </a>
+        <p>Organização, clareza e praticidade para consultar a alimentação do bebê no dia a dia.</p>
+      </div>
+
+      <nav class="rich-footer__column" aria-label="Produto">
+        <h2>Produto</h2>
+        <a href="index.html#como-funciona">Como funciona</a>
+        <a href="index.html#recursos">Recursos</a>
+        <a href="index.html#bloco-demo">Demonstração</a>
+        <a href="index.html#bloco-6">Planos</a>
+      </nav>
+
+      <nav class="rich-footer__column" aria-label="NutriMãe">
+        <h2>NutriMãe</h2>
+        <a href="sobre.html">Sobre</a>
+        <a href="faq.html">FAQ</a>
+        <a href="https://app.nutrimae.com/manual-sos">Manual S.O.S.</a>
+        <a href="mailto:contato@nutrimae.com">Contato</a>
+      </nav>
+
+      <nav class="rich-footer__column" aria-label="Informações legais">
+        <h2>Legal</h2>
+        <a href="https://app.nutrimae.com/politica-privacidade" id="privacy-link">Política de Privacidade</a>
+        <a href="faq.html">Pagamento e garantia</a>
+        <a href="mailto:contato@nutrimae.com">Canal de atendimento</a>
+      </nav>
+    </div>
+
+    <p class="rich-footer__disclaimer">O NutriMãe é uma ferramenta de organização e planejamento da rotina alimentar. Não substitui orientação médica ou nutricional profissional.</p>
+
+    <div class="rich-footer__bottom">
+      <div class="rich-footer__legal">
+        <p>© 2026 NutriMãe. Todos os direitos reservados.</p>
+        <p>CNPJ: <strong>68.580.891/0001-36</strong></p>
+      </div>
+
+      <a class="rich-footer__instagram" href="https://www.instagram.com/nutrimae.app/" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram do NutriMãe">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" class="rich-footer__instagram-dot"></circle></svg>
+        <span>Instagram</span>
+      </a>
+
+      <p class="rich-footer__made">Feito com <span aria-hidden="true">♥</span> no Brasil</p>
+    </div>
   </div>
 </footer>
 
 <script src="script.js"></script>
+<script src="support-widget.js"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@ import { SosButton } from "@/components/sos-button";
 import { ToastProvider } from "@/components/toast-provider";
 import { withSignedPhotoUrls } from "@/lib/baby-photos";
 import type { Baby } from "@/lib/types";
+import { hasPurchasedAppAccess } from "@/lib/entitlements";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -17,6 +18,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!(await hasPurchasedAppAccess(supabase, user.id))) {
+    redirect("/acesso-pendente");
   }
 
   const { data: babies } = await supabase

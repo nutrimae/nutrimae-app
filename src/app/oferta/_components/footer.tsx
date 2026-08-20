@@ -9,12 +9,15 @@ export function OfertaFooter() {
             revisão de anúncio e é exigência legal (CDC) para venda online.] */}
         <p>[PLACEHOLDER — Razão social] · CNPJ [PLACEHOLDER]</p>
         <p>© {new Date().getFullYear()} NutriMãe. Todos os direitos reservados.</p>
-        <div className="flex justify-center gap-3">
-          <Link href="/politica-privacidade" className="underline">
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href="/politica-privacidade"
+            className="inline-flex min-h-11 items-center px-1 underline"
+          >
             Política de Privacidade
           </Link>
           <span aria-hidden="true">·</span>
-          <a href="mailto:contato@nutrimae.com" className="underline">
+          <a href="mailto:contato@nutrimae.com" className="inline-flex min-h-11 items-center px-1 underline">
             Contato
           </a>
         </div>

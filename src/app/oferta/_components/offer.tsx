@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { PRODUCTS } from "@/lib/products";
 import { trackEvent } from "./track";
 import { saveOnboardingMonths } from "./onboarding-handoff";
+import { useAge } from "./age-context";
 
 const product = PRODUCTS.nutrimae_assinatura;
 
@@ -24,7 +25,10 @@ function handleCheckout(plan: "mensal" | "anual", onboardingMonths: number) {
   window.location.href = url ?? "/login";
 }
 
-export function Offer({ onboardingMonths }: { onboardingMonths: number }) {
+export function Offer() {
+  const { ageOption } = useAge();
+  const onboardingMonths = ageOption.onboardingMonths;
+
   return (
     <section id="oferta" className="bg-gradient-to-br from-primary-600 via-primary-500 to-primary-300 px-5 py-10">
       <div className="mx-auto flex w-full max-w-sm flex-col items-center text-center [text-shadow:0_1px_3px_rgba(0,0,0,0.25)]">

@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { Search, Lock } from "lucide-react";
-import { LOCKED_FOODS, SEARCHABLE_FOODS, type AgeOption } from "./data";
+import { LOCKED_FOODS, SEARCHABLE_FOODS } from "./data";
 import { trackEvent } from "./track";
+import { useAge } from "./age-context";
 
-export function FoodDemo({ ageOption }: { ageOption: AgeOption }) {
+export function FoodDemo() {
+  const { ageOption } = useAge();
   const [query, setQuery] = useState("");
 
   const match = useMemo(() => {

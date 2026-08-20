@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasPurchasedAppAccess } from "@/lib/entitlements";
 
 export default async function RootPage() {
   const supabase = await createClient();
@@ -10,6 +11,10 @@ export default async function RootPage() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!(await hasPurchasedAppAccess(supabase, user.id))) {
+    redirect("/acesso-pendente");
   }
 
   const { count } = await supabase

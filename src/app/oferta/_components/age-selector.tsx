@@ -1,20 +1,15 @@
 "use client";
 
-import { AGE_OPTIONS, getAgeOption, type AgeKey } from "./data";
+import { AGE_OPTIONS, type AgeKey } from "./data";
 import { trackEvent } from "./track";
 import { scrollToSection } from "./scroll";
+import { useAge } from "./age-context";
 
-export function AgeSelector({
-  selected,
-  onSelect,
-}: {
-  selected: AgeKey;
-  onSelect: (key: AgeKey) => void;
-}) {
-  const selectedOption = getAgeOption(selected);
+export function AgeSelector() {
+  const { ageKey: selected, ageOption: selectedOption, setAgeKey } = useAge();
 
   function handleSelect(key: AgeKey) {
-    onSelect(key);
+    setAgeKey(key);
     trackEvent("AgeSelected", { age: key });
   }
 

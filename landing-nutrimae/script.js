@@ -30,6 +30,80 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------------------------------------------------
+     Depoimentos: pausa acessível no mobile e no teclado
+     --------------------------------------------------- */
+  var testimonialsMarquee = document.getElementById('testimonials-track');
+  var testimonialsPauseButton = document.getElementById('testimonials-pause');
+
+  if (testimonialsMarquee && testimonialsPauseButton) {
+    testimonialsPauseButton.addEventListener('click', function () {
+      var isPaused = testimonialsMarquee.classList.toggle('is-paused');
+      testimonialsPauseButton.setAttribute('aria-pressed', String(isPaused));
+      testimonialsPauseButton.innerHTML = isPaused
+        ? '<span aria-hidden="true">▶</span> Continuar relatos'
+        : '<span aria-hidden="true">Ⅱ</span> Pausar relatos';
+    });
+  }
+
+  /* ---------------------------------------------------
+     Hero: efeito de apagar e escrever
+     --------------------------------------------------- */
+  var heroTypewriterStarted = false;
+
+  function startHeroTypewriter() {
+    if (heroTypewriterStarted) return;
+
+    var wordElement = document.getElementById('hero-typewriter-word');
+    if (!wordElement) return;
+
+    heroTypewriterStarted = true;
+    var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var words = ['em um só lugar', 'por fase', 'sempre à mão'];
+
+    if (reducedMotion) {
+      wordElement.textContent = words[0];
+      return;
+    }
+
+    var wordIndex = 0;
+    var characterIndex = words[0].length;
+    var deleting = true;
+
+    function typeNextCharacter() {
+      var currentWord = words[wordIndex];
+
+      if (deleting) {
+        characterIndex -= 1;
+        wordElement.textContent = currentWord.slice(0, Math.max(0, characterIndex));
+
+        if (characterIndex <= 0) {
+          deleting = false;
+          wordIndex = (wordIndex + 1) % words.length;
+          window.setTimeout(typeNextCharacter, 260);
+          return;
+        }
+
+        window.setTimeout(typeNextCharacter, 55);
+        return;
+      }
+
+      currentWord = words[wordIndex];
+      characterIndex += 1;
+      wordElement.textContent = currentWord.slice(0, characterIndex);
+
+      if (characterIndex >= currentWord.length) {
+        deleting = true;
+        window.setTimeout(typeNextCharacter, 1650);
+        return;
+      }
+
+      window.setTimeout(typeNextCharacter, 88);
+    }
+
+    window.setTimeout(typeNextCharacter, 1800);
+  }
+
+  /* ---------------------------------------------------
      Abertura interativa: quiz integrado à landing atual
      --------------------------------------------------- */
   var entryQuiz = document.getElementById('entry-quiz');
@@ -52,12 +126,88 @@ document.addEventListener('DOMContentLoaded', function () {
     var entryQuizLoadingText = document.getElementById('entry-quiz-loading-text');
     var entryQuizLoadingFill = document.getElementById('entry-quiz-loading-fill');
     var entryQuizLockedNodes = [];
+    var entryQuizPreview = document.getElementById('entry-quiz-preview');
+    var entryQuizPreviewText = document.getElementById('entry-quiz-preview-text');
     var ENTRY_AGE_LABELS = {
       'vai-comecar': 'o início da introdução alimentar',
       '6-meses': 'bebês de 6 meses',
       '7-9-meses': 'bebês de 7 a 9 meses',
       '10-12-meses': 'bebês de 10 a 12+ meses'
     };
+    var ENTRY_PRIORITY_LABELS = {
+      cortes: 'guia visual de cortes e texturas',
+      variedade: 'receitas práticas para variar',
+      rotina: 'cardápio semanal com lista de compras'
+    };
+    var ENTRY_SUPPORT_LABELS = {
+      'guia-visual': 'consultar alimento por alimento',
+      cardapio: 'seguir um plano pronto para cada dia',
+      receitas: 'trocar opções e montar combinações'
+    };
+
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Efeito de máquina de escrever: revela o título da etapa letra a letra
+    // em vez de aparecer pronto de uma vez. Some com um cursor piscando
+    // enquanto digita e o remove ao terminar.
+    function typewriterEffect(el) {
+      if (!el) return;
+      var fullText = el.getAttribute('data-full-text') || el.textContent;
+      el.setAttribute('data-full-text', fullText);
+
+      if (prefersReducedMotion) {
+        el.textContent = fullText;
+        return;
+      }
+
+      el.textContent = '';
+      var cursor = document.createElement('span');
+      cursor.className = 'quiz-headline__cursor';
+      cursor.setAttribute('aria-hidden', 'true');
+      el.appendChild(cursor);
+
+      var i = 0;
+      var speed = 18;
+      function typeNext() {
+        if (i >= fullText.length) {
+          cursor.remove();
+          return;
+        }
+        cursor.insertAdjacentText('beforebegin', fullText.charAt(i));
+        i += 1;
+        window.setTimeout(typeNext, speed);
+      }
+      window.setTimeout(typeNext, 120);
+    }
+
+    // Prévia dinâmica: atualiza, em tempo real, um pequeno cartão que
+    // resume o que já foi escolhido no quiz — não é conteúdo novo, é só um
+    // reflexo instantâneo das próprias respostas da pessoa.
+    function updateEntryQuizPreview() {
+      if (!entryQuizPreview || !entryQuizPreviewText) return;
+      var parts = [];
+      if (entryQuizAnswers.age) {
+        parts.push(ENTRY_AGE_LABELS[entryQuizAnswers.age] || 'a fase escolhida');
+      }
+      if (entryQuizAnswers.priority) {
+        parts.push('com foco em ' + (ENTRY_PRIORITY_LABELS[entryQuizAnswers.priority] || 'suas prioridades'));
+      }
+      if (entryQuizAnswers.support) {
+        parts.push('no formato de ' + (ENTRY_SUPPORT_LABELS[entryQuizAnswers.support] || 'sua preferência'));
+      }
+      if (!parts.length) {
+        entryQuizPreview.classList.add('entry-quiz__preview--empty');
+        return;
+      }
+
+      var text = 'Sua prévia: guia organizado para ' + parts.join(', ') + '.';
+      entryQuizPreview.classList.remove('entry-quiz__preview--empty');
+      entryQuizPreview.classList.add('is-updating');
+      window.setTimeout(function () {
+        entryQuizPreviewText.textContent = text;
+        entryQuizPreview.classList.remove('is-updating');
+      }, 140);
+    }
 
     try {
       var savedEntryQuizAnswers = JSON.parse(window.sessionStorage.getItem('nutrimae_entry_quiz_answers') || 'null');
@@ -88,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function focusFirstEntryOption(stepNumber) {
       var headline = entryQuizSteps[stepNumber] && entryQuizSteps[stepNumber].querySelector('.quiz-headline');
       if (headline) {
+        typewriterEffect(headline);
         window.setTimeout(function () { headline.focus({ preventScroll: true }); }, 40);
       }
     }
@@ -142,29 +293,6 @@ document.addEventListener('DOMContentLoaded', function () {
       renderFoodResult();
     }
 
-    function personalizeLandingFromQuiz() {
-      var ageLabel = ENTRY_AGE_LABELS[entryQuizAnswers.age] || 'a fase escolhida';
-      var heroEyebrow = document.querySelector('.hero__eyebrow');
-      var heroVideoTitle = document.querySelector('.hero__video-title');
-      var eyebrowBySupport = {
-        'guia-visual': 'Consulta rápida organizada para ',
-        cardapio: 'Plano diário organizado para ',
-        receitas: 'Opções flexíveis organizadas para '
-      };
-      var videoTitleByPriority = {
-        cortes: 'Veja o guia visual de cortes em ação para ',
-        variedade: 'Veja receitas e combinações no NutriMãe para ',
-        rotina: 'Veja o cardápio e a lista de compras para '
-      };
-
-      if (heroEyebrow) {
-        heroEyebrow.textContent = (eyebrowBySupport[entryQuizAnswers.support] || 'Conteúdo organizado para ') + ageLabel;
-      }
-      if (heroVideoTitle) {
-        heroVideoTitle.textContent = (videoTitleByPriority[entryQuizAnswers.priority] || 'Veja o NutriMãe em ação para ') + ageLabel;
-      }
-    }
-
     function revealLandingFromQuiz() {
       var deferredVideoThumbnail = document.getElementById('video-placeholder');
       if (deferredVideoThumbnail && !deferredVideoThumbnail.style.backgroundImage) {
@@ -194,6 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
           heroTitle.setAttribute('tabindex', '-1');
           heroTitle.focus({ preventScroll: true });
         }
+        startHeroTypewriter();
       }, 720);
     }
 
@@ -217,7 +346,6 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       applyEntryQuizAge(entryQuizAnswers.age || '6-meses');
-      personalizeLandingFromQuiz();
       revealLandingFromQuiz();
     }
 
@@ -278,6 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
         markEntryOption(button);
         entryQuizAnswers.age = button.getAttribute('data-entry-age');
         trackEvent('QuizAnswer', { step: 1, question: 'age', answer: entryQuizAnswers.age });
+        updateEntryQuizPreview();
         goToEntryQuizStep(1, 2);
       });
     });
@@ -288,6 +417,7 @@ document.addEventListener('DOMContentLoaded', function () {
         markEntryOption(button);
         entryQuizAnswers.priority = button.getAttribute('data-entry-priority');
         trackEvent('QuizAnswer', { step: 2, question: 'priority', answer: entryQuizAnswers.priority });
+        updateEntryQuizPreview();
         goToEntryQuizStep(2, 3);
       });
     });
@@ -299,6 +429,7 @@ document.addEventListener('DOMContentLoaded', function () {
         entryQuizChanging = true;
         entryQuizAnswers.support = button.getAttribute('data-entry-support');
         trackEvent('QuizAnswer', { step: 3, question: 'support', answer: entryQuizAnswers.support });
+        updateEntryQuizPreview();
         runEntryQuizLoading();
       });
     });
@@ -309,6 +440,9 @@ document.addEventListener('DOMContentLoaded', function () {
         var targetStep = Number(button.getAttribute('data-entry-back'));
         var currentStep = targetStep + 1;
         trackEvent('QuizBack', { from_step: currentStep, to_step: targetStep });
+        if (currentStep === 2) entryQuizAnswers.priority = null;
+        if (currentStep === 3) entryQuizAnswers.support = null;
+        updateEntryQuizPreview();
         goToEntryQuizStep(currentStep, targetStep);
       });
     });
@@ -336,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (entryQuizAlreadyCompleted) {
       window.setTimeout(function () {
         applyEntryQuizAge(entryQuizAnswers.age || '6-meses');
-        personalizeLandingFromQuiz();
+        startHeroTypewriter();
       }, 0);
     } else {
       updateEntryQuizProgress(1);
@@ -344,6 +478,8 @@ document.addEventListener('DOMContentLoaded', function () {
       trackEvent('QuizStart', { source: 'landing-entry' });
     }
   }
+
+  if (!entryQuiz) startHeroTypewriter();
 
   /* ---------------------------------------------------
      Scroll suave entre blocos
@@ -374,6 +510,88 @@ document.addEventListener('DOMContentLoaded', function () {
       return null;
     }
   }
+
+  /* ---------------------------------------------------
+     Demonstrações reais do produto: lazy load + loop
+     --------------------------------------------------- */
+  var productDemoVideos = document.querySelectorAll('[data-product-demo]');
+  var productDemoReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function loadProductDemo(video) {
+    if (video.getAttribute('data-loaded') === 'true') return;
+    var source = video.querySelector('source[data-src]');
+    if (!source) return;
+
+    source.src = source.getAttribute('data-src');
+    video.setAttribute('data-loaded', 'true');
+    video.load();
+  }
+
+  function playProductDemo(video) {
+    loadProductDemo(video);
+    video.muted = true;
+    var playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(function () {
+        // Alguns navegadores in-app podem bloquear autoplay; o poster continua visível.
+      });
+    }
+  }
+
+  function updateProductDemoVisibility(video) {
+    var rect = video.getBoundingClientRect();
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    var isNearViewport = rect.top < viewportHeight + 320 && rect.bottom > -180;
+
+    if (isNearViewport) {
+      loadProductDemo(video);
+      if (!productDemoReducedMotion && video.getAttribute('data-user-paused') !== 'true') {
+        playProductDemo(video);
+      }
+    } else if (!video.paused) {
+      video.pause();
+    }
+  }
+
+  productDemoVideos.forEach(function (video) {
+    var placement = video.getAttribute('data-demo-placement') || 'landing';
+    var viewed = false;
+
+    video.addEventListener('play', function () {
+      if (!viewed) {
+        viewed = true;
+        trackEvent('ProductDemoViewed', { placement: placement });
+      }
+    });
+
+    var observer = safeObserve(video, function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          loadProductDemo(video);
+          if (!productDemoReducedMotion && video.getAttribute('data-user-paused') !== 'true') {
+            playProductDemo(video);
+          }
+        } else if (!video.paused) {
+          video.pause();
+        }
+      });
+    }, { rootMargin: '320px 0px', threshold: 0.01 });
+
+    if (!observer) {
+      var scheduled = false;
+      var checkWithFallback = function () {
+        if (scheduled) return;
+        scheduled = true;
+        window.requestAnimationFrame(function () {
+          scheduled = false;
+          updateProductDemoVisibility(video);
+        });
+      };
+      window.addEventListener('scroll', checkWithFallback, { passive: true });
+      window.addEventListener('resize', checkWithFallback);
+      checkWithFallback();
+    }
+  });
 
   /* ---------------------------------------------------
      BLOCO 1: Hero
@@ -690,7 +908,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (ctaCheckoutDynamic) {
-      ctaCheckoutDynamic.textContent = isAnual ? 'Começar agora — Plano Anual' : 'Começar agora — Plano Mensal';
+      ctaCheckoutDynamic.textContent = isAnual ? 'Quero o acesso anual por R$97' : 'Quero começar por R$19,90';
     }
   }
 
@@ -808,6 +1026,42 @@ document.addEventListener('DOMContentLoaded', function () {
       trackEvent('StickyCtaClick');
       scrollToSection('bloco-6');
     });
+  }
+
+  /* ---------------------------------------------------
+     Revelação ao rolar — cards e títulos de seção entram com um
+     fade-up sutil ao alcançar a tela (ver CSS: .is-visible). Sem suporte
+     a IntersectionObserver, tudo já nasce visível via CSS puro.
+     --------------------------------------------------- */
+  var revealSelector = [
+    '.feature-card', '.audience-card', '.objection-card', '.faq-item',
+    '.journey__step', '.comparison__col', '.sos-card', '.chat-window',
+    '.mini-mock', 'section .section-title'
+  ].join(', ');
+  var revealTargets = document.querySelectorAll(revealSelector);
+
+  if (!supportsIO) {
+    revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
+  } else {
+    var revealObserver = null;
+    try {
+      revealObserver = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    } catch (e) {
+      revealObserver = null;
+    }
+
+    if (revealObserver) {
+      revealTargets.forEach(function (el) { revealObserver.observe(el); });
+    } else {
+      revealTargets.forEach(function (el) { el.classList.add('is-visible'); });
+    }
   }
 
   trackEvent('ViewContent', { page: 'oferta' });

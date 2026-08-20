@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bot } from "lucide-react";
 import { trackEvent } from "./track";
+import { scrollToSection } from "./scroll";
 
 type Method = "papinha" | "blw" | "misto" | "nao-decidi";
 type Allergen = "nao" | "ovo" | "leite" | "outro";
@@ -47,9 +48,14 @@ function allergenNote(allergen: Allergen): string {
   }
 }
 
-export function AssistantChat({ onFinish }: { onFinish: () => void }) {
+export function AssistantChat() {
   const [method, setMethod] = useState<Method | null>(null);
   const [allergen, setAllergen] = useState<Allergen | null>(null);
+
+  function handleFinish() {
+    trackEvent("AssistantFinish");
+    scrollToSection("oferta");
+  }
 
   function selectMethod(key: Method) {
     setMethod(key);
@@ -127,7 +133,7 @@ export function AssistantChat({ onFinish }: { onFinish: () => void }) {
           {method && allergen && (
             <button
               type="button"
-              onClick={onFinish}
+              onClick={handleFinish}
               className="min-h-12 rounded-xl bg-primary-500 px-4 font-heading text-sm font-bold text-white transition-transform active:scale-[0.98]"
             >
               Ver o que isso muda no meu plano

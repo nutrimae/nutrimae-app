@@ -8,6 +8,10 @@ Landing page de vendas isolada (HTML, CSS e JavaScript vanilla, sem dependência
 - `index.html` — a landing page completa (13 blocos, ver abaixo).
 - `styles.css` — todas as variáveis de cor/tipografia e estilos, mobile-first, 480px também no desktop.
 - `script.js` — toda a interatividade: seletor de fase, busca de alimentos, assistente, FAQ, barra de CTA fixa, checkout e hooks de rastreamento.
+- `faq.html` — central de ajuda com busca, filtros por categoria e perguntas expansíveis.
+- `sobre.html` — página institucional com proposta, princípios e limites do produto.
+- `institutional.css` + `institutional.js` — visual e interatividade das páginas FAQ/Sobre.
+- `support-widget.css` + `support-widget.js` — atendimento compartilhado entre a landing e as páginas institucionais. Clientes são direcionados à central real do app; visitantes podem preparar uma mensagem por e-mail.
 - `README.md` — este arquivo.
 
 Nenhum arquivo depende do código do app NutriMäe (Next.js). É seguro fazer deploy desta pasta separadamente, inclusive em domínio diferente.
@@ -41,18 +45,19 @@ Ao adicionar qualquer novo botão "Quero começar"/"Ver mais", siga essa regra: 
 6. **Assistente NutriMãe** — widget de 2 perguntas reais (método + alergênico), identificado como "respostas automáticas · não é uma pessoa real". Não é chat simulado com mensagens fake.
 7. **Tudo o que está incluso** (`#bloco-inclusos`) — checklist de valor real, sem preços fictícios riscados.
 8. **Manual S.O.S.** — bloco de tranquilidade (não de medo) com link para `/sos` no app.
-9. **Prova social** — estado vazio honesto enquanto não há depoimento real e autorizado.
+9. **Prova social** — carrossel contínuo com os relatos fornecidos pela marca, sem fotos, notas ou estatísticas inventadas.
 10. **Sobre o NutriMãe** (`#bloco-autoridade`).
 11. **Oferta** (`#bloco-6`) — planos Mensal e Anual lado a lado, recorrência visível acima do botão, cancelamento com o "onde".
 12. **FAQ** (`#bloco-faq`) — inclui "quanto pago depois do 1º mês" com o valor exato.
-13. **Rodapé** — razão social/CNPJ (placeholder), disclaimer.
+13. **Rodapé** — navegação institucional, CNPJ confirmado, disclaimer e Instagram.
 
 Mais uma **barra de CTA fixa** no mobile (fora da numeração), que aparece após o Hero e some perto da oferta.
 
 ## ⚠️ Bloqueadores de lançamento — não suba tráfego sem resolver
 
-- **CNPJ e razão social** — `index.html`, rodapé. Hoje está `[PLACEHOLDER]`. Rodapé sem identificação da empresa reprova revisão de anúncio e é exigência legal (CDC) para venda online.
-- **Depoimento real** — Bloco 9 está deliberadamente em estado vazio ("Estamos coletando os primeiros relatos..."). Nunca substitua por um depoimento inventado: propaganda enganosa (CDC art. 37) e motivo de reprovação no Meta.
+- **Razão social** — o CNPJ `68.580.891/0001-36` já está publicado no rodapé. A razão social não foi exibida porque ainda não foi confirmada em texto pelo responsável da marca.
+- **Depoimentos** — o carrossel usa somente os 10 relatos fornecidos pela marca. Não acrescente foto, nota, data ou resultado que não tenha autorização e comprovação.
+- **Instagram** — o botão do rodapé está centralizado no link `https://www.instagram.com/nutrimae.app/` nos arquivos `index.html`, `faq.html` e `sobre.html`. Confirme o perfil oficial antes do deploy e, se necessário, substitua a URL nos três arquivos.
 - **`APP_URL`** — em `script.js`, no topo, `var APP_URL = 'https://app.nutrimae.com';` está com um domínio de exemplo. Ajuste para o domínio real onde o app (login, `/sos`, `/politica-privacidade`) está publicado.
 - **URLs de checkout da Cartpanda** — ver seção abaixo.
 - **Vídeo VSL** e **Facebook Pixel** — ver seções abaixo.

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, QrCode, CreditCard } from "lucide-react";
+import { Loader2, QrCode, CreditCard, ShieldCheck } from "lucide-react";
 import { event } from "@/lib/fpixel";
+import { PixCountdown } from "@/components/pix-countdown";
 
 function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -45,7 +46,7 @@ export function DownsellCheckout({ parentOrderId, priceCents }: { parentOrderId:
   const [cardCvv, setCardCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string } | null>(null);
+  const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string; expiresAt: string } | null>(null);
 
   function handleDeclineFinal() {
     router.push("/app");
@@ -98,7 +99,7 @@ export function DownsellCheckout({ parentOrderId, priceCents }: { parentOrderId:
       }
 
       if (paymentMethod === "pix") {
-        setPix({ orderId: data.orderId, qrCode: data.pix.qrCode, qrCodeUrl: data.pix.qrCodeUrl });
+        setPix({ orderId: data.orderId, qrCode: data.pix.qrCode, qrCodeUrl: data.pix.qrCodeUrl, expiresAt: data.pix.expiresAt });
         pollPixStatus(data.orderId);
         return;
       }
@@ -126,6 +127,13 @@ export function DownsellCheckout({ parentOrderId, priceCents }: { parentOrderId:
           <img src={pix.qrCodeUrl} alt="QR Code Pix" className="h-48 w-48" />
         ) : null}
         <textarea readOnly value={pix.qrCode} className="w-full rounded-lg border border-gray-200 p-2 text-xs text-gray-500" rows={3} />
+        <PixCountdown
+          expiresAt={pix.expiresAt}
+          onExpire={() => {
+            setError("O Pix expirou. Tente de novo.");
+            setPix(null);
+          }}
+        />
         <p className="flex items-center gap-2 text-xs text-gray-400">
           <Loader2 className="h-3 w-3 animate-spin" /> Aguardando confirmação do pagamento...
         </p>
@@ -182,6 +190,10 @@ export function DownsellCheckout({ parentOrderId, priceCents }: { parentOrderId:
       >
         Não, quero apenas o meu acesso ao aplicativo base e aos bônus.
       </button>
+
+      <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> Pagamento seguro · dados protegidos
+      </p>
     </div>
   );
 }

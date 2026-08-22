@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments";
 import { findOrCreateLocalCustomer } from "@/lib/payments/find-or-create-customer";
+import { isValidCpf } from "@/lib/utils";
 
 /**
  * Único lugar que calcula preço. O corpo da requisição só carrega
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
   const customerDocument = typeof body.customer?.document === "string" ? onlyDigits(body.customer.document) : "";
   const customerPhone = typeof body.customer?.phone === "string" ? onlyDigits(body.customer.phone) : undefined;
 
-  if (!offerSlug || !paymentMethod || !customerName || !customerEmail || customerDocument.length !== 11) {
+  if (!offerSlug || !paymentMethod || !customerName || !customerEmail || !isValidCpf(customerDocument)) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 

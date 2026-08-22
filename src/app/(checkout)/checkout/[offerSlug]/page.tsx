@@ -55,6 +55,7 @@ export default async function CheckoutOfferPage({
               </span>
             )}
           </p>
+          {offerSlug === "nutrimae-anual" && <p className="mt-1 text-sm text-gray-500">ou 12x de R$9,70 no cartão</p>}
         </div>
 
         {offer.billing_type === "recurring" ? (

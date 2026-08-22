@@ -915,3 +915,9 @@ as $$
   where phone = p_phone
   returning *;
 $$;
+
+-- 14. Lembrete de Pix abandonado — marca quando já mandamos o WhatsApp de
+-- "faltou pagar" pra um pedido, pra não mandar duas vezes. Ver
+-- src/app/api/cron/abandoned-checkout/route.ts.
+alter table public.orders
+  add column if not exists abandoned_reminder_sent_at timestamptz;

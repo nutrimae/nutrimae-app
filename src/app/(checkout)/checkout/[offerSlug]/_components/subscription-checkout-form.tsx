@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard } from "lucide-react";
+import { CreditCard, ShieldCheck } from "lucide-react";
+import { isValidCpf } from "@/lib/utils";
 
 /**
  * Checkout de assinatura recorrente (Plano Mensal, NutriBot VIP) — isolado
@@ -40,6 +41,7 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [document, setDocument] = useState("");
+  const [documentTouched, setDocumentTouched] = useState(false);
   const [phone, setPhone] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
@@ -49,8 +51,18 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const documentDigits = document.replace(/\D/g, "");
+  const documentError = documentTouched && documentDigits.length === 11 && !isValidCpf(documentDigits) ? "CPF inválido — confira os números." : null;
+
   async function handleSubmit() {
     setError(null);
+
+    if (documentDigits.length !== 11 || !isValidCpf(documentDigits)) {
+      setDocumentTouched(true);
+      setError("Confira o CPF antes de continuar.");
+      return;
+    }
+
     setLoading(true);
     try {
       const cardToken = await tokenizeCard({
@@ -90,7 +102,16 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
       <div className="flex flex-col gap-3">
         <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
         <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="CPF (só números)" value={document} onChange={(e) => setDocument(e.target.value)} />
+        <div className="flex flex-col gap-1">
+          <input
+            className={`rounded-lg border p-3 text-sm ${documentError ? "border-red-400" : "border-gray-200"}`}
+            placeholder="CPF (só números)"
+            value={document}
+            onChange={(e) => setDocument(e.target.value)}
+            onBlur={() => setDocumentTouched(true)}
+          />
+          {documentError && <p className="text-xs text-red-600">{documentError}</p>}
+        </div>
         <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Telefone (com DDD)" value={phone} onChange={(e) => setPhone(e.target.value)} />
       </div>
 
@@ -120,6 +141,10 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
       >
         {loading ? "Processando..." : "Assinar agora"}
       </button>
+
+      <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> Pagamento seguro · dados protegidos
+      </p>
     </div>
   );
 }

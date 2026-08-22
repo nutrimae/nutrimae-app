@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, QrCode, CreditCard } from "lucide-react";
+import { Loader2, QrCode, CreditCard, ShieldCheck } from "lucide-react";
+import { isValidCpf } from "@/lib/utils";
+import { PixCountdown } from "@/components/pix-countdown";
 
 interface Bump {
   id: string;
@@ -62,6 +64,7 @@ export function CheckoutForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [document, setDocument] = useState("");
+  const [documentTouched, setDocumentTouched] = useState(false);
   const [phone, setPhone] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
@@ -70,12 +73,15 @@ export function CheckoutForm({
   const [cardCvv, setCardCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string } | null>(null);
+  const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string; expiresAt: string } | null>(null);
 
   const bumpTotal = bumps
     .filter((b) => selectedBumps.includes(b.slug))
     .reduce((sum, b) => sum + b.price_cents, 0);
   const totalCents = offer.priceCents + bumpTotal;
+
+  const documentDigits = document.replace(/\D/g, "");
+  const documentError = documentTouched && documentDigits.length === 11 && !isValidCpf(documentDigits) ? "CPF inválido — confira os números." : null;
 
   function toggleBump(slug: string) {
     setSelectedBumps((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
@@ -83,6 +89,13 @@ export function CheckoutForm({
 
   async function handleSubmit() {
     setError(null);
+
+    if (documentDigits.length !== 11 || !isValidCpf(documentDigits)) {
+      setDocumentTouched(true);
+      setError("Confira o CPF antes de continuar.");
+      return;
+    }
+
     setLoading(true);
     try {
       let cardToken: string | undefined;
@@ -116,7 +129,7 @@ export function CheckoutForm({
       }
 
       if (paymentMethod === "pix") {
-        setPix({ orderId: data.orderId, qrCode: data.pix.qrCode, qrCodeUrl: data.pix.qrCodeUrl });
+        setPix({ orderId: data.orderId, qrCode: data.pix.qrCode, qrCodeUrl: data.pix.qrCodeUrl, expiresAt: data.pix.expiresAt });
         pollPixStatus(data.orderId);
         return;
       }
@@ -167,6 +180,13 @@ export function CheckoutForm({
           <img src={pix.qrCodeUrl} alt="QR Code Pix" className="h-48 w-48" />
         ) : null}
         <textarea readOnly value={pix.qrCode} className="w-full rounded-lg border border-gray-200 p-2 text-xs text-gray-500" rows={3} />
+        <PixCountdown
+          expiresAt={pix.expiresAt}
+          onExpire={() => {
+            setError("O Pix expirou. Gere um novo pagamento.");
+            setPix(null);
+          }}
+        />
         <p className="flex items-center gap-2 text-xs text-gray-400">
           <Loader2 className="h-3 w-3 animate-spin" /> Aguardando confirmação do pagamento...
         </p>
@@ -194,7 +214,20 @@ export function CheckoutForm({
       <div className="flex flex-col gap-3">
         <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
         <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="CPF (só números)" value={document} onChange={(e) => setDocument(e.target.value)} />
+        <div className="flex flex-col gap-1">
+          <input
+            className={`rounded-lg border p-3 text-sm ${documentError ? "border-red-400" : "border-gray-200"}`}
+            placeholder="CPF (só números)"
+            value={document}
+            onChange={(e) => setDocument(e.target.value)}
+            onBlur={() => setDocumentTouched(true)}
+          />
+          {documentError ? (
+            <p className="text-xs text-red-600">{documentError}</p>
+          ) : (
+            <p className="text-xs text-gray-400">Pedimos o CPF só pra validar o pagamento com segurança, exigência do sistema bancário.</p>
+          )}
+        </div>
         <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Telefone (com DDD)" value={phone} onChange={(e) => setPhone(e.target.value)} />
       </div>
 
@@ -224,6 +257,7 @@ export function CheckoutForm({
             <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
             <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
           </div>
+          <p className="text-xs text-gray-400">ou 12x de {formatBRL(Math.round(totalCents / 12))} no cartão</p>
         </div>
       )}
 
@@ -242,6 +276,10 @@ export function CheckoutForm({
       >
         {loading ? "Processando..." : `Finalizar compra — ${formatBRL(totalCents)}`}
       </button>
+
+      <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> Pagamento seguro · dados protegidos · 7 dias de garantia
+      </p>
     </div>
   );
 }

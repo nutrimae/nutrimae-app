@@ -47,7 +47,7 @@ Ao adicionar qualquer novo botão "Quero começar"/"Ver mais", siga essa regra: 
 8. **Manual S.O.S.** — bloco de tranquilidade (não de medo) com link para `/sos` no app.
 9. **Prova social** — carrossel contínuo com os relatos fornecidos pela marca, sem fotos, notas ou estatísticas inventadas.
 10. **Sobre o NutriMãe** (`#bloco-autoridade`).
-11. **Oferta** (`#bloco-6`) — planos Mensal e Anual lado a lado, recorrência visível acima do botão, cancelamento com o "onde".
+11. **Oferta** (`#bloco-6`) — só o Plano Anual. O Mensal recorrente existe no backend (Pagar.me) mas fica atrás de feature flag até passar por sandbox e produção controlada — não mostrar aqui enquanto isso.
 12. **FAQ** (`#bloco-faq`) — inclui "quanto pago depois do 1º mês" com o valor exato.
 13. **Rodapé** — navegação institucional, CNPJ confirmado, disclaimer e Instagram.
 
@@ -58,17 +58,17 @@ Mais uma **barra de CTA fixa** no mobile (fora da numeração), que aparece apó
 - **Razão social** — o CNPJ `68.580.891/0001-36` já está publicado no rodapé. A razão social não foi exibida porque ainda não foi confirmada em texto pelo responsável da marca.
 - **Depoimentos** — o carrossel usa somente os 10 relatos fornecidos pela marca. Não acrescente foto, nota, data ou resultado que não tenha autorização e comprovação.
 - **Instagram** — o botão do rodapé está centralizado no link `https://www.instagram.com/nutrimae.app/` nos arquivos `index.html`, `faq.html` e `sobre.html`. Confirme o perfil oficial antes do deploy e, se necessário, substitua a URL nos três arquivos.
-- **`APP_URL`** — em `script.js`, no topo, `var APP_URL = 'https://app.nutrimae.com';` está com um domínio de exemplo. Ajuste para o domínio real onde o app (login, `/sos`, `/politica-privacidade`) está publicado.
-- **URLs de checkout da Cartpanda** — ver seção abaixo.
 - **Vídeo VSL** e **Facebook Pixel** — ver seções abaixo.
 
 ## Preço — fonte da verdade
 
-Mensal **R$19,90 no 1º mês → R$29,90/mês depois**, Anual **R$97 à vista (ou 12x de R$9,70 no cartão)**. Esses valores aparecem em 4 lugares desta página (oferta, FAQ "quanto pago depois", barra de CTA fixa) e devem ser **idênticos** aos do app principal (`src/lib/products.ts`, campo `nutrimae_assinatura`). Se o preço mudar, atualize os dois lugares — divergência entre landing page e checkout/app é o motivo clássico de chargeback e reprovação de conta de anúncios.
+Só o **Plano Anual, R$97 à vista (ou 12x de R$9,70 no cartão)**, é vendido publicamente. Esse valor aparece em 3 lugares desta página (oferta, FAQ, barra de CTA fixa) e deve ser **idêntico** ao do checkout/app principal (`src/lib/products.ts`, campo `nutrimae_assinatura.annual`, e `supabase/schema.sql` seção 12, oferta `nutrimae-anual`). Se o preço mudar, atualize os três lugares — divergência entre landing, checkout e banco é o motivo clássico de chargeback e reprovação de conta de anúncios.
 
-## Como adicionar as URLs reais de checkout (Cartpanda)
+O Plano Mensal recorrente já existe no backend (Pagar.me, ver `src/lib/payments/`), mas fica com `active=false` em `offers` até passar por sandbox e produção controlada — não reintroduzir na landing antes disso.
 
-No `script.js`, dentro de `goToCheckout()`, há um objeto `checkoutUrls` com `mensal` e `anual` como `null`. Preencha cada um com a URL de checkout real do respectivo plano. Enquanto estiverem vazios, os botões redirecionam para `APP_URL + '/login'` em vez de um link morto.
+## Checkout
+
+`APP_URL` (topo de `script.js`) aponta pro app Next.js publicado (`https://nutrimae-app.vercel.app` hoje — trocar aqui se um domínio próprio for configurado). O botão de oferta (`goToCheckout()` em `script.js`) manda direto pro checkout interno, `APP_URL + '/checkout/nutrimae-anual'` — não é mais CartPanda.
 
 ## Vídeo VSL
 
@@ -88,7 +88,7 @@ Os eventos já são disparados automaticamente pelo `script.js` nos seguintes po
 - `FoodSearchUsed` — busca usada na demonstração.
 - `AssistantAnswer` / `AssistantComplete` / `AssistantFinish` — respostas do assistente.
 - `OfferView` — chegada ao bloco de oferta.
-- `InitiateCheckout` — clique nos botões de checkout (mensal ou anual).
+- `InitiateCheckout` — clique no botão de checkout do Plano Anual.
 - `FaqOpen` / `StickyCtaClick`.
 
 ## Compatibilidade com navegadores in-app (Instagram / Facebook / TikTok)

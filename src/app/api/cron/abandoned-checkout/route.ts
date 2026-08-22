@@ -5,10 +5,16 @@ import { sanitizePhoneNumber } from "@/lib/utils";
 
 /**
  * Lembrete de Pix gerado mas não pago — roda via Vercel Cron (ver
- * vercel.json), a cada 15 minutos. Só olha pedidos com 20-40min de idade
- * (janela suficiente pra pegar quem realmente esqueceu, sem avisar cedo
- * demais nem tarde demais — o Pix em si expira em 30min) e que ainda não
- * receberam lembrete (abandoned_reminder_sent_at).
+ * vercel.json), 1x por dia às 15h UTC (~meio-dia em Brasília) — é o
+ * máximo permitido no plano Hobby da Vercel (crons mais frequentes que
+ * 1x/dia falham no deploy). Por isso a janela é de 1h a 36h de idade, não
+ * de minutos: com cadência diária, precisa cobrir o dia inteiro sem
+ * deixar buraco entre uma execução e a próxima, e sem pegar pedidos ainda
+ * dentro dos 30min de validade do próprio Pix.
+ *
+ * Se um dia o projeto for pro plano Pro da Vercel, dá pra apertar isso
+ * pra rodar a cada 15-30min (mais perto do momento real do abandono) —
+ * só trocar o "schedule" no vercel.json e a janela abaixo.
  *
  * Urgência real, não fabricada: a pessoa de fato gerou um Pix de verdade e
  * não pagou — isso não é reengajamento genérico, é "você começou algo e
@@ -41,8 +47,8 @@ export async function GET(request: Request) {
   const admin = createAdminClient();
 
   const now = Date.now();
-  const windowStart = new Date(now - 40 * 60 * 1000).toISOString();
-  const windowEnd = new Date(now - 20 * 60 * 1000).toISOString();
+  const windowStart = new Date(now - 36 * 60 * 60 * 1000).toISOString();
+  const windowEnd = new Date(now - 60 * 60 * 1000).toISOString();
 
   const { data: orders, error } = await admin
     .from("orders")

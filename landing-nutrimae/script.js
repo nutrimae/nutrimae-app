@@ -866,7 +866,7 @@ document.addEventListener('DOMContentLoaded', function () {
      --------------------------------------------------- */
   var sosLink = document.getElementById('sos-link');
   if (sosLink) {
-    sosLink.href = APP_URL + '/manual-sos';
+    sosLink.href = APP_URL + '/sos';
   }
 
   var privacyLink = document.getElementById('privacy-link');

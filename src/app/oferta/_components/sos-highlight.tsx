@@ -14,7 +14,7 @@ export function SosHighlight() {
           qualquer pessoa, sem precisar de assinatura.
         </p>
         <Link
-          href="/manual-sos"
+          href="/sos"
           className="mt-1 inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-sage-500 px-5 text-sm font-bold text-sage-700 transition-colors hover:bg-sage-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage-400 focus-visible:ring-offset-2"
         >
           Conhecer o Manual S.O.S.

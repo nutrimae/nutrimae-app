@@ -110,7 +110,7 @@ export default function LoginPage() {
           )}
         </section>
 
-        <Link href="/manual-sos" className="mt-5 flex min-h-14 items-center gap-3 rounded-2xl border border-red-100 bg-white/75 px-4 text-left shadow-sm">
+        <Link href="/sos" className="mt-5 flex min-h-14 items-center gap-3 rounded-2xl border border-red-100 bg-white/75 px-4 text-left shadow-sm">
           <HeartHandshake className="h-5 w-5 shrink-0 text-red-500" aria-hidden="true" />
           <span><strong className="block text-sm text-brown-800">Manual S.O.S. gratuito</strong><span className="text-xs text-brown-700/55">Acesse sem login em situações de urgência.</span></span>
         </Link>

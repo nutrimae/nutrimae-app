@@ -159,7 +159,7 @@ export class PagarMeProvider implements PaymentProvider {
 
     if (!charge || !tx?.qr_code || !tx.qr_code_url || !tx.expires_at) {
       throw new Error(
-        `Pagar.me: resposta de criação de Pix sem QR code — payload real: ${JSON.stringify(order).slice(0, 1500)}`,
+        `Pagar.me: resposta de criação de Pix sem QR code — payload real: ${JSON.stringify(order).slice(-3000)}`,
       );
     }
 

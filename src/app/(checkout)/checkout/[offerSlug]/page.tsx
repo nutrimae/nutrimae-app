@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CheckoutForm } from "./_components/checkout-form";
 import { SubscriptionCheckoutForm } from "./_components/subscription-checkout-form";
@@ -41,6 +42,17 @@ export default async function CheckoutOfferPage({
   return (
     <main className="min-h-dvh bg-gray-50 pb-10">
       <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-8">
+        {offerSlug === "nutrimae-anual" && (
+          <Image
+            src="/images/order-bumps/nutrimae-anual.png"
+            alt={offer.name}
+            width={600}
+            height={600}
+            priority
+            className="mx-auto w-full max-w-xs rounded-2xl object-cover shadow-sm"
+          />
+        )}
+
         <div className="text-center">
           <h1 className="text-2xl font-bold leading-tight text-gray-900">{offer.name}</h1>
           <p className="mt-2 text-3xl font-extrabold text-rose-600">

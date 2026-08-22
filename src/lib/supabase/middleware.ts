@@ -10,6 +10,14 @@ const PUBLIC_PATHS = [
   "/manual-sos",
   "/oferta",
   "/acesso-pendente",
+  // Funil de compra inteiro precisa ser público: quem está comprando ainda
+  // não tem conta (a conta só é criada pelo webhook após confirmação de
+  // pagamento — ver SECURITY_PURCHASE_ONLY.md). Sem isso aqui, todo
+  // visitante anônimo era redirecionado pro /login antes de ver o
+  // checkout, bloqueando qualquer venda nova.
+  "/checkout",
+  "/upsell",
+  "/downsell",
 ];
 
 function requiresPurchasedAccess(pathname: string) {

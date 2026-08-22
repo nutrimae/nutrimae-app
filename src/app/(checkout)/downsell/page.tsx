@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import { Clock } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DownsellCheckout } from "./_components/downsell-checkout";
@@ -50,6 +51,15 @@ export default async function DownsellPage({
       </div>
 
       <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-8">
+        <Image
+          src="/images/order-bumps/nutribot-30d.png"
+          alt="NutriBot — 30 Dias"
+          width={600}
+          height={600}
+          priority
+          className="mx-auto w-full max-w-xs rounded-2xl object-cover shadow-sm"
+        />
+
         {/* B. Headline e copy de ancoragem */}
         <div className="text-center">
           <h1 className="text-2xl font-bold leading-tight text-gray-900">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Loader2, QrCode, CreditCard, ShieldCheck } from "lucide-react";
 import { isValidCpf } from "@/lib/utils";
 import { PixCountdown } from "@/components/pix-countdown";
@@ -12,6 +13,12 @@ interface Bump {
   name: string;
   price_cents: number;
 }
+
+const BUMP_IMAGES: Record<string, string> = {
+  "protocolo-intestino": "/images/order-bumps/protocolo-intestino.png",
+  "sos-desmame": "/images/order-bumps/sos-desmame.png",
+  "nutribot-30d": "/images/order-bumps/nutribot-30d.png",
+};
 
 function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -200,11 +207,21 @@ export function CheckoutForm({
         <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
           <p className="text-sm font-semibold text-gray-800">Aproveite e leve também:</p>
           {bumps.map((bump) => (
-            <label key={bump.id} className="flex items-center justify-between gap-2 text-sm text-gray-700">
-              <span className="flex items-center gap-2">
-                <input type="checkbox" checked={selectedBumps.includes(bump.slug)} onChange={() => toggleBump(bump.slug)} />
-                {bump.name}
-              </span>
+            <label
+              key={bump.id}
+              className={`flex items-center gap-3 rounded-xl border p-2 text-sm text-gray-700 transition-colors ${selectedBumps.includes(bump.slug) ? "border-rose-300 bg-rose-50" : "border-gray-100"}`}
+            >
+              <input type="checkbox" checked={selectedBumps.includes(bump.slug)} onChange={() => toggleBump(bump.slug)} />
+              {BUMP_IMAGES[bump.slug] && (
+                <Image
+                  src={BUMP_IMAGES[bump.slug]}
+                  alt={bump.name}
+                  width={56}
+                  height={56}
+                  className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                />
+              )}
+              <span className="flex-1">{bump.name}</span>
               <span className="font-medium">{formatBRL(bump.price_cents)}</span>
             </label>
           ))}

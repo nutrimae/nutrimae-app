@@ -1,0 +1,109 @@
+/**
+ * Normalização do evento cru recebido pelo webhook (Evolution API). Portado
+ * de nutribot-n8n/src/normalize.js — mesma lógica, sem o envelope
+ * `{headers, params, query, body}` do node Webhook do n8n (aqui recebemos o
+ * corpo do POST direto).
+ *
+ * Formato da Evolution API: telefone em `data.key.remoteJid`
+ * (`"5511...@s.whatsapp.net"`), texto em `data.message.conversation` ou
+ * `data.message.extendedTextMessage.text`, id da mensagem em `data.key.id`,
+ * `fromMe` em `data.key.fromMe`, nome de quem mandou em `data.pushName`.
+ */
+
+const RESET_COMMANDS = new Set(["reiniciar", "reiniciar bot", "resetar", "comecar de novo", "menu"]);
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function stripAccents(value: string): string {
+  return value.normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+interface EvolutionKey {
+  remoteJid?: string;
+  id?: string;
+  fromMe?: boolean | string;
+}
+
+interface EvolutionMessage {
+  conversation?: string;
+  extendedTextMessage?: { text?: string };
+}
+
+interface EvolutionWebhookData {
+  key?: EvolutionKey;
+  message?: EvolutionMessage;
+  pushName?: string;
+}
+
+interface EvolutionWebhookBody {
+  data?: EvolutionWebhookData;
+}
+
+function extractMessageData(body: EvolutionWebhookBody) {
+  const source = body && typeof body === "object" ? body : {};
+  const data = source.data && typeof source.data === "object" ? source.data : ({} as EvolutionWebhookData);
+  const key = data.key && typeof data.key === "object" ? data.key : ({} as EvolutionKey);
+  const message = data.message && typeof data.message === "object" ? data.message : ({} as EvolutionMessage);
+
+  const remoteJid = typeof key.remoteJid === "string" ? key.remoteJid : null;
+  const rawPhone = remoteJid ? remoteJid.split("@")[0] : "";
+
+  const rawText = message.conversation ?? message.extendedTextMessage?.text ?? "";
+
+  const rawMessageId = key.id ?? "";
+  const rawSenderName = data.pushName ?? "";
+  const rawFromMe = key.fromMe;
+
+  return { rawPhone, rawText, rawMessageId, rawSenderName, rawFromMe };
+}
+
+export interface NormalizedEvent {
+  phone: string;
+  text: string;
+  textLower: string;
+  messageId: string;
+  senderName: string;
+  fromMe: boolean;
+  containsAt: boolean;
+  isValidEmail: boolean;
+  isInvalidEmail: boolean;
+  isReset: boolean;
+  normalizedEmail: string | null;
+}
+
+export function normalizeEvent(raw: unknown): NormalizedEvent {
+  const body = (raw ?? {}) as EvolutionWebhookBody;
+  const { rawPhone, rawText, rawMessageId, rawSenderName, rawFromMe } = extractMessageData(body);
+
+  const phone = String(rawPhone ?? "").trim();
+  const text = String(rawText ?? "").trim();
+  const textLower = text.toLowerCase();
+  const textLowerNoAccents = stripAccents(textLower);
+  const messageId = String(rawMessageId ?? "").trim();
+  const senderName = String(rawSenderName ?? "").trim();
+
+  const fromMe = rawFromMe === true || rawFromMe === "true";
+
+  const containsAt = text.includes("@");
+  const isValidEmail = EMAIL_REGEX.test(text);
+  const isInvalidEmail = containsAt && !isValidEmail;
+  const isReset = RESET_COMMANDS.has(textLowerNoAccents);
+
+  const normalizedEmail = isValidEmail ? text.toLowerCase() : null;
+
+  return {
+    phone,
+    text,
+    textLower,
+    messageId,
+    senderName,
+    fromMe,
+    containsAt,
+    isValidEmail,
+    isInvalidEmail,
+    isReset,
+    normalizedEmail,
+  };
+}
+
+export { RESET_COMMANDS, EMAIL_REGEX };

@@ -1,179 +1,108 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getAiResponse, transcribeAudio } from "@/lib/ai/nutribot-service";
-import { downloadMedia, sendMessage } from "@/lib/whatsapp/whatsapp-client";
-import { getEntitlementStatus } from "@/lib/entitlements";
+import { createTypebotClient } from "@/lib/nutribot/typebotClient";
+import { createEvolutionClient } from "@/lib/nutribot/evolutionClient";
+import { handleWhatsAppEvent } from "@/lib/nutribot/orchestrator";
+import { logError, logInfo } from "@/lib/nutribot/logger";
 
 /**
- * Webhook do WhatsApp Cloud API para a NutriBot.
+ * Webhook do NutriBot — substitui o workflow n8n (nutribot.workflow.json).
+ * Recebe eventos da Evolution API (self-hosted, servidor Hetzner) direto
+ * neste app Next.js, sem n8n no meio.
  *
- * Variáveis de ambiente necessárias (ver também nutribot-service.ts e
- * whatsapp-client.ts):
- * - WA_VERIFY_TOKEN (ou VERIFY_TOKEN): valor arbitrário definido por nós e
- *   configurado também no painel do Meta ao registrar este webhook (usado
- *   na verificação GET). Aceitamos os dois nomes porque diferentes guias
- *   da Meta/Cloud API usam nomenclaturas diferentes para a mesma variável.
- * - WA_TOKEN / WA_PHONE_ID: ver whatsapp-client.ts.
- * - OPENAI_API_KEY: ver nutribot-service.ts.
+ * A lógica de negócio (dedup, rotas, Typebot, Evolution API) é a MESMA já
+ * testada em produção — ver src/lib/nutribot/orchestrator.ts, portado
+ * literalmente de nutribot-n8n/src/orchestrator.js. Nada de comportamento
+ * foi redesenhado nesta migração, só a infraestrutura por baixo (Postgres
+ * próprio → Supabase, n8n → rota HTTP).
  *
- * Permissão de acesso: reaproveitamos o schema já existente em vez de criar
- * uma tabela isolada.
- * 1. `profiles.phone_number` (ver supabase/schema.sql, seção 5.1) guarda o
- *    telefone no formato internacional sem "+" — preenchido pelo webhook de
- *    compra quando a plataforma de pagamento envia o telefone da cliente.
- * 2. Achamos o `user_id` correspondente ao telefone que escreveu.
- * 3. Checamos em `user_products` se esse `user_id` tem o produto
- *    "nutribot_vip" (ver src/lib/products.ts) com status "active".
+ * Segurança: a Evolution API não assina o payload do webhook (mesma
+ * situação de antes, no n8n — não havia verificação nenhuma lá também).
+ * Como registramos essa URL nós mesmos na Evolution API, adicionamos uma
+ * proteção mínima extra: um token compartilhado na query string
+ * (?token=...), verificado contra WHATSAPP_WEBHOOK_TOKEN. Configure o
+ * mesmo valor ao registrar o webhook na Evolution API (POST
+ * /webhook/set/{instance}).
+ *
+ * Variáveis de ambiente necessárias: EVOLUTION_API_URL, EVOLUTION_API_KEY,
+ * EVOLUTION_INSTANCE_NAME, TYPEBOT_BASE_URL, TYPEBOT_PUBLIC_ID,
+ * TYPEBOT_API_TOKEN (opcional), SESSION_TTL_HOURS, ERROR_MESSAGE_COOLDOWN_MINUTES,
+ * WHATSAPP_SEND_TIMEOUT_MS, WHATSAPP_WEBHOOK_TOKEN (opcional).
  */
 
-const CHECKOUT_LINK = process.env.NUTRIBOT_CHECKOUT_LINK ?? "[LINK_DO_CHECKOUT]";
+interface EvolutionWebhookPayload {
+  event?: string;
+  instance?: string;
+  data?: unknown;
+}
 
-const NO_ACCESS_REPLY =
-  `Olá! Sou a NutriBot 🤖. Vi que você ainda não ativou seu acesso VIP. ` +
-  `Para tirar dúvidas 24h por dia comigo, libere seu acesso aqui: ${CHECKOUT_LINK}`;
+function verifyWebhookToken(request: Request): boolean {
+  const expected = process.env.WHATSAPP_WEBHOOK_TOKEN;
+  if (!expected) return true; // sem token configurado: mantém o comportamento atual (sem verificação)
 
-export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-
-  const mode = searchParams.get("hub.mode");
-  const token = searchParams.get("hub.verify_token");
-  const challenge = searchParams.get("hub.challenge");
-
-  const expectedToken = process.env.WA_VERIFY_TOKEN ?? process.env.VERIFY_TOKEN;
-
-  if (!expectedToken) {
-    console.error(
-      "[whatsapp-webhook] nenhuma env var de verify token configurada (WA_VERIFY_TOKEN / VERIFY_TOKEN)",
-    );
-    return new Response("Forbidden", { status: 403 });
-  }
-
-  if (mode === "subscribe" && token === expectedToken) {
-    return new Response(challenge ?? "", { status: 200 });
-  }
-
-  return new Response("Forbidden", { status: 403 });
-}
-
-interface WhatsAppTextMessage {
-  from: string;
-  type: "text";
-  text: { body: string };
-}
-
-interface WhatsAppAudioMessage {
-  from: string;
-  type: "audio";
-  audio: { id: string };
-}
-
-type WhatsAppMessage = WhatsAppTextMessage | WhatsAppAudioMessage | { from: string; type: string };
-
-function isTextMessage(message: WhatsAppMessage): message is WhatsAppTextMessage {
-  return message.type === "text";
-}
-
-function isAudioMessage(message: WhatsAppMessage): message is WhatsAppAudioMessage {
-  return message.type === "audio";
-}
-
-async function hasNutribotAccess(
-  admin: ReturnType<typeof createAdminClient>,
-  phoneNumber: string,
-): Promise<boolean> {
-  const { data: profile, error: profileError } = await admin
-    .from("profiles")
-    .select("user_id")
-    .eq("phone_number", phoneNumber)
-    .maybeSingle();
-
-  if (profileError) {
-    console.error("[whatsapp-webhook] falha ao consultar profiles por telefone", profileError);
-    return false;
-  }
-
-  if (!profile?.user_id) {
-    // Nenhuma conta com esse telefone — não é considerado erro, só sem acesso.
-    return false;
-  }
-
-  const status = await getEntitlementStatus(admin, profile.user_id, "nutribot_vip");
-  return status === "active";
-}
-
-async function handleIncomingMessage(from: string, message: WhatsAppMessage) {
-  const admin = createAdminClient();
-
-  const allowed = await hasNutribotAccess(admin, from);
-  if (!allowed) {
-    await sendMessage(from, NO_ACCESS_REPLY);
-    return;
-  }
-
-  let content: string | null = null;
-
-  if (isTextMessage(message)) {
-    content = message.text.body;
-  } else if (isAudioMessage(message)) {
-    try {
-      const audioBlob = await downloadMedia(message.audio.id);
-      content = await transcribeAudio(audioBlob);
-      console.log(`[whatsapp-webhook] áudio de ${from} transcrito: "${content}"`);
-    } catch (err) {
-      console.error(`[whatsapp-webhook] falha ao processar áudio de ${from}`, err);
-      await sendMessage(
-        from,
-        "Não consegui entender seu áudio agora 😕 Pode tentar escrever sua pergunta?",
-      );
-      return;
-    }
-  }
-
-  if (!content) {
-    await sendMessage(
-      from,
-      "Por agora só consigo entender mensagens de texto ou áudio 🙏",
-    );
-    return;
-  }
-
-  const reply = await getAiResponse(content);
-  await sendMessage(from, reply);
+  return searchParams.get("token") === expected;
 }
 
 export async function POST(request: Request) {
-  let body: unknown;
+  if (!verifyWebhookToken(request)) {
+    return NextResponse.json({ error: "invalid_token" }, { status: 401 });
+  }
+
+  let payload: EvolutionWebhookPayload;
   try {
-    body = await request.json();
+    payload = await request.json();
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const entries: any[] = (body as any)?.entry ?? [];
-
-    for (const entry of entries) {
-      const changes = entry?.changes ?? [];
-      for (const change of changes) {
-        const messages: WhatsAppMessage[] = change?.value?.messages ?? [];
-        for (const message of messages) {
-          if (!message?.from) continue;
-          // Processa de forma best-effort: uma falha numa mensagem não deve
-          // impedir o processamento das demais nem derrubar o webhook.
-          try {
-            await handleIncomingMessage(message.from, message);
-          } catch (err) {
-            console.error("[whatsapp-webhook] falha ao processar mensagem", err);
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error("[whatsapp-webhook] falha inesperada ao processar payload", err);
+  // A Evolution API pode ser configurada pra mandar vários tipos de evento
+  // (conexão, presença, etc.) pro mesmo webhook — só "messages.upsert"
+  // interessa aqui (mensagem recebida).
+  if (payload.event && payload.event !== "messages.upsert") {
+    return NextResponse.json({ ok: true, ignored: payload.event });
   }
 
-  // A Meta exige 200 rapidamente, independente do resultado do processamento,
-  // para não reenviar o mesmo evento em loop.
+  const admin = createAdminClient();
+
+  const evolutionApiUrl = process.env.EVOLUTION_API_URL;
+  const evolutionApiKey = process.env.EVOLUTION_API_KEY;
+  const evolutionInstanceName = process.env.EVOLUTION_INSTANCE_NAME;
+  const typebotBaseUrl = process.env.TYPEBOT_BASE_URL;
+  const typebotPublicId = process.env.TYPEBOT_PUBLIC_ID;
+
+  if (!evolutionApiUrl || !evolutionApiKey || !evolutionInstanceName || !typebotBaseUrl || !typebotPublicId) {
+    logError("whatsapp-webhook.missing_env", {});
+    return NextResponse.json({ error: "missing_configuration" }, { status: 500 });
+  }
+
+  const evolution = createEvolutionClient({
+    baseUrl: evolutionApiUrl,
+    instanceName: evolutionInstanceName,
+    apiKey: evolutionApiKey,
+    timeoutMs: Number(process.env.WHATSAPP_SEND_TIMEOUT_MS ?? 10_000),
+  });
+
+  const typebot = createTypebotClient({
+    baseUrl: typebotBaseUrl,
+    publicId: typebotPublicId,
+    apiToken: process.env.TYPEBOT_API_TOKEN || undefined,
+    timeoutMs: Number(process.env.TYPEBOT_TIMEOUT_MS ?? 15_000),
+  });
+
+  try {
+    const result = await handleWhatsAppEvent(payload, {
+      db: admin,
+      typebot,
+      evolution,
+      sessionTtlHours: Number(process.env.SESSION_TTL_HOURS ?? 24),
+      errorCooldownMinutes: Number(process.env.ERROR_MESSAGE_COOLDOWN_MINUTES ?? 10),
+    });
+    logInfo("whatsapp-webhook.processed", { route: result.route, sent: result.sent });
+  } catch (err) {
+    logError("whatsapp-webhook.failed", { errorMessage: err instanceof Error ? err.message : String(err) });
+  }
+
+  // A Evolution API espera 200 rapidamente — não reenviar em loop.
   return NextResponse.json({ ok: true });
 }

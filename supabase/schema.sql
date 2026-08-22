@@ -784,3 +784,134 @@ values
   ('nutrimae-mensal', 'nutrimae_assinatura', 'NutriMãe — Plano Mensal', 'recurring', 1990, 2990, false),
   ('nutribot-vip-mensal', 'nutribot_vip', 'NutriBot VIP', 'recurring', 3700, 3700, false)
 on conflict (slug) do nothing;
+
+-- 13. NutriBot — sessões de conversa do WhatsApp (migrado do Postgres próprio
+-- do n8n — ver nutribot-n8n/migrations/001 e 002, e nutribot-n8n/src/sql.js).
+-- Mesmas colunas, mesma lógica de dedup/upsert, só trocando "pg.Pool cru"
+-- por funções Postgres chamadas via supabase.rpc() a partir do Next.js —
+-- preserva a atomicidade (claim + upsert continuam sendo uma única
+-- instrução no servidor) sem precisar manter uma segunda conexão de banco.
+create table if not exists public.nutribot_whatsapp_sessions (
+  phone text primary key,
+  session_id text,
+  updated_at timestamptz not null default now(),
+  last_message_id text,
+  email_cliente text,
+  idade_bebe text,
+  status text not null default 'active',
+  ended_at timestamptz,
+  last_error_notified_at timestamptz,
+  last_route text
+);
+
+create index if not exists idx_nutribot_sessions_updated_at
+  on public.nutribot_whatsapp_sessions (updated_at);
+
+alter table public.nutribot_whatsapp_sessions enable row level security;
+-- Sem nenhuma policy: só a service role (que ignora RLS) acessa esta
+-- tabela — é estado interno do bot, nunca lido/escrito pelo cliente.
+
+-- Reivindica um messageId pra um telefone (dedup). Se já processado (mesmo
+-- last_message_id), devolve claimed=false — quem chamar não deve seguir
+-- para Typebot/Evolution API. Não bate updated_at de propósito: esse campo
+-- é o relógio da expiração de 24h e só deve refletir interação real com o
+-- Typebot, não a mera chegada de uma mensagem (senão a expiração nunca dispara).
+create or replace function public.nutribot_claim_message(p_phone text, p_message_id text)
+returns table (
+  claimed boolean,
+  is_new_row boolean,
+  session_id text,
+  email_cliente text,
+  idade_bebe text,
+  status text,
+  updated_at timestamptz,
+  ended_at timestamptz
+)
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  r record;
+  found_row boolean;
+begin
+  insert into public.nutribot_whatsapp_sessions (phone, last_message_id, updated_at, status)
+  values (p_phone, p_message_id, now(), 'active')
+  on conflict (phone) do update set
+    last_message_id = excluded.last_message_id
+  where public.nutribot_whatsapp_sessions.last_message_id is distinct from excluded.last_message_id
+  returning
+    public.nutribot_whatsapp_sessions.session_id,
+    public.nutribot_whatsapp_sessions.email_cliente,
+    public.nutribot_whatsapp_sessions.idade_bebe,
+    public.nutribot_whatsapp_sessions.status,
+    public.nutribot_whatsapp_sessions.updated_at,
+    public.nutribot_whatsapp_sessions.ended_at,
+    (xmax = 0) as is_new_row
+  into r;
+
+  found_row := found;
+
+  if not found_row then
+    return query select false, false, null::text, null::text, null::text, null::text, null::timestamptz, null::timestamptz;
+  else
+    return query select true, r.is_new_row, r.session_id, r.email_cliente, r.idade_bebe, r.status, r.updated_at, r.ended_at;
+  end if;
+end;
+$$;
+
+-- Grava o resultado de uma chamada ao Typebot (start ou continue),
+-- preservando email_cliente/idade_bebe existentes quando o novo valor vem
+-- vazio — nunca sobrescreve memória já capturada com string vazia.
+create or replace function public.nutribot_upsert_session_after_reply(
+  p_phone text,
+  p_session_id text,
+  p_last_message_id text,
+  p_email_cliente text,
+  p_idade_bebe text,
+  p_status text,
+  p_ended_at timestamptz,
+  p_route text
+)
+returns setof public.nutribot_whatsapp_sessions
+language sql
+security definer set search_path = public
+as $$
+  insert into public.nutribot_whatsapp_sessions (
+    phone, session_id, updated_at, last_message_id, email_cliente, idade_bebe, status, ended_at, last_route
+  )
+  values (p_phone, p_session_id, now(), p_last_message_id, p_email_cliente, p_idade_bebe, p_status, p_ended_at, p_route)
+  on conflict (phone) do update set
+    session_id      = coalesce(nullif(excluded.session_id, ''), public.nutribot_whatsapp_sessions.session_id),
+    updated_at      = now(),
+    last_message_id = coalesce(nullif(excluded.last_message_id, ''), public.nutribot_whatsapp_sessions.last_message_id),
+    email_cliente   = coalesce(nullif(excluded.email_cliente, ''), public.nutribot_whatsapp_sessions.email_cliente),
+    idade_bebe      = coalesce(nullif(excluded.idade_bebe, ''), public.nutribot_whatsapp_sessions.idade_bebe),
+    status          = excluded.status,
+    ended_at        = excluded.ended_at,
+    last_route      = excluded.last_route
+  returning *;
+$$;
+
+create or replace function public.nutribot_mark_error_notified(p_phone text)
+returns void
+language sql
+security definer set search_path = public
+as $$
+  update public.nutribot_whatsapp_sessions
+  set last_error_notified_at = now()
+  where phone = p_phone;
+$$;
+
+-- Sincronização vinda do próprio Typebot (bloco HTTP Request pós-captura de
+-- idade): grava idade_bebe sem tocar session_id/status.
+create or replace function public.nutribot_sync_idade_from_typebot(p_phone text, p_idade_bebe text)
+returns setof public.nutribot_whatsapp_sessions
+language sql
+security definer set search_path = public
+as $$
+  update public.nutribot_whatsapp_sessions
+  set idade_bebe = coalesce(nullif(p_idade_bebe, ''), idade_bebe),
+      updated_at = now()
+  where phone = p_phone
+  returning *;
+$$;

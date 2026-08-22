@@ -8,9 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------------------------------------------
      Configuração
      --------------------------------------------------- */
-  // APP_URL: ajuste para o domínio real do app publicado antes de subir
-  // tráfego. Usado nos links de checkout (fallback), S.O.S. e privacidade.
-  var APP_URL = 'https://app.nutrimae.com';
+  // APP_URL: domínio real do app Next.js publicado (nutrimae-app). Troque
+  // aqui se um domínio próprio (ex.: app.nutrimae.com) for configurado no
+  // DNS depois. Usado nos links de checkout (fallback), S.O.S. e privacidade.
+  var APP_URL = 'https://nutrimae-app.vercel.app';
 
   /* ---------------------------------------------------
      Rastreamento de eventos (hooks para Meta Pixel)
@@ -888,54 +889,22 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: 0.3 });
 
   /* ---------------------------------------------------
-     BLOCO 11: Oferta — toggle Mensal / Anual + Checkout
+     BLOCO 11: Oferta — Plano Anual + Checkout
      --------------------------------------------------- */
-  var currentPlan = 'anual';
-  var toggleButtons = document.querySelectorAll('.pricing-toggle__btn');
-  var planCardMensal = document.getElementById('plan-card-mensal');
-  var planCardAnual = document.getElementById('plan-card-anual');
+  // Só o Anual é vendido aqui — ver comentário na seção "OFERTA" do
+  // index.html sobre o Mensal ficar atrás de feature flag por enquanto.
   var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
-
-  function updatePlanView() {
-    var isAnual = currentPlan === 'anual';
-    if (planCardMensal) planCardMensal.hidden = isAnual;
-    if (planCardAnual) planCardAnual.hidden = !isAnual;
-
-    toggleButtons.forEach(function (btn) {
-      var isActive = btn.getAttribute('data-plan-toggle') === currentPlan;
-      btn.classList.toggle('is-active', isActive);
-      btn.setAttribute('aria-selected', String(isActive));
-    });
-
-    if (ctaCheckoutDynamic) {
-      ctaCheckoutDynamic.textContent = isAnual ? 'Quero o acesso anual por R$97' : 'Quero começar por R$19,90';
-    }
+  if (ctaCheckoutDynamic) {
+    ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$97';
   }
 
-  toggleButtons.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      currentPlan = btn.getAttribute('data-plan-toggle');
-      trackEvent('PlanToggle', { plan: currentPlan });
-      updatePlanView();
-    });
-  });
-
-  updatePlanView();
-
-  function goToCheckout(plan) {
-    trackEvent('InitiateCheckout', { plan: plan, age: currentAgeKey });
-    // CHECKOUT CARTPANDA: substitua pela URL real de checkout de cada plano.
-    // Sem URL configurada ainda, manda para o cadastro no app em vez de um
-    // link morto.
-    var checkoutUrls = {
-      mensal: null, // 'https://SEU-CHECKOUT-CARTPANDA.com/mensal'
-      anual: null   // 'https://SEU-CHECKOUT-CARTPANDA.com/anual'
-    };
-    window.location.href = checkoutUrls[plan] || (APP_URL + '/login');
+  function goToCheckout() {
+    trackEvent('InitiateCheckout', { plan: 'anual', age: currentAgeKey });
+    window.location.href = APP_URL + '/checkout/nutrimae-anual';
   }
 
   if (ctaCheckoutDynamic) {
-    ctaCheckoutDynamic.addEventListener('click', function () { goToCheckout(currentPlan); });
+    ctaCheckoutDynamic.addEventListener('click', goToCheckout);
   }
 
   /* ---------------------------------------------------

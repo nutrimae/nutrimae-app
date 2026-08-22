@@ -683,27 +683,13 @@
   </div>
 </section>
 
-<!-- ===================== OFERTA (toggle Mensal / Anual) ===================== -->
+<!-- ===================== OFERTA (Plano Anual) =====================
+     Só o Plano Anual fica público por enquanto — o Mensal recorrente já
+     existe no backend, mas fica atrás de feature flag até passar por
+     sandbox e produção controlada com o Pagar.me. -->
 <section id="bloco-6" class="offer">
   <div class="container">
-    <h2 class="offer__title">Escolha o plano ideal para sua família</h2>
-
-    <div class="pricing-toggle" role="tablist">
-      <button type="button" class="pricing-toggle__btn" id="toggle-mensal" data-plan-toggle="mensal" role="tab" aria-selected="false">Mensal</button>
-      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$251,80</span></button>
-    </div>
-
-    <div class="plan-card-single" id="plan-card-mensal" hidden>
-      <p class="plan-card__label">Plano Mensal</p>
-      <p class="plan-card__context">Primeiro mês</p>
-      <p class="plan-card__price">R$ 19,90<span>/mês</span></p>
-      <p class="plan-card__note">no primeiro mês — depois R$29,90/mês</p>
-      <ul class="offer-checklist">
-        <li><span class="check-icon">✓</span> Tudo do NutriMãe</li>
-        <li><span class="check-icon">✓</span> Atualizações semanais</li>
-        <li><span class="check-icon">✓</span> Cancelamento quando quiser</li>
-      </ul>
-    </div>
+    <h2 class="offer__title">Comece a organizar a alimentação do seu bebê hoje</h2>
 
     <div class="plan-card-single plan-card-single--featured" id="plan-card-anual">
       <span class="plan-card__badge">MAIS ESCOLHIDO</span>

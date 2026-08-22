@@ -62,6 +62,9 @@ interface PagarmeWebhookPayload {
     order?: { id?: unknown };
     status?: unknown;
     charges?: Array<{ id?: unknown; status?: unknown }>;
+    subscription?: { id?: unknown };
+    subscription_id?: unknown;
+    next_billing_at?: unknown;
   };
 }
 
@@ -147,6 +150,90 @@ async function grantAccessForOrder(
   );
 }
 
+/**
+ * Fase de assinatura — ainda não exposta no checkout público (nenhuma
+ * offer recorrente está com active=true), mas o processamento já é real:
+ * quando a oferta for ativada, é este código que confirma pagamento de
+ * fatura e libera/revoga acesso, nunca o /api/checkout/subscription.
+ *
+ * Eventos `invoice.paid`/`invoice.payment_failed` existem de verdade na
+ * API v5 (confirmado na doc oficial) mas ainda NÃO estão marcados no
+ * webhook cadastrado no painel do Pagar.me (só order.*, charge.*,
+ * subscription.created/activated/canceled foram marcados até agora) —
+ * antes de ativar qualquer offer recorrente, marcar esses dois eventos lá.
+ *
+ * ⚠️ Formato exato do payload de "invoice.*" (nome do campo que liga a
+ * fatura à assinatura: assumido `data.subscription.id` ou
+ * `data.subscription_id`) não foi confirmado contra uma entrega real —
+ * confirmar assim que a primeira fatura de teste chegar, antes de ativar
+ * a oferta recorrente em produção.
+ */
+async function findSubscriptionRow(admin: AdminClient, pagarmeSubscriptionId: string) {
+  const { data } = await admin
+    .from("subscriptions")
+    .select("id, customer_id, offer_id")
+    .eq("pagarme_subscription_id", pagarmeSubscriptionId)
+    .maybeSingle();
+  return data;
+}
+
+async function grantAccessForSubscription(
+  admin: AdminClient,
+  subscriptionRow: { id: string; customer_id: string; offer_id: string },
+) {
+  const { data: offer } = await admin.from("offers").select("product_key, name").eq("id", subscriptionRow.offer_id).maybeSingle();
+  const { data: customer } = await admin
+    .from("customers")
+    .select("email, phone_number")
+    .eq("id", subscriptionRow.customer_id)
+    .maybeSingle();
+
+  if (!offer || !customer) {
+    console.error("[pagarme-webhook] oferta/cliente ausente ao liberar acesso de assinatura", subscriptionRow);
+    return;
+  }
+
+  if (!isKnownProductKey(offer.product_key)) {
+    console.error("[pagarme-webhook] product_key desconhecido na oferta", offer.product_key);
+    return;
+  }
+
+  const { userId } = await findOrCreateUser(admin, customer.email);
+
+  await admin.from("customers").update({ user_id: userId }).eq("id", subscriptionRow.customer_id);
+
+  if (customer.phone_number) {
+    await savePhoneNumber(admin, userId, customer.phone_number);
+  }
+
+  await admin.from("user_products").upsert(
+    {
+      user_id: userId,
+      product_id: offer.product_key,
+      product_name: offer.name,
+      status: "active",
+      canceled_at: null,
+    },
+    { onConflict: "user_id,product_id" },
+  );
+}
+
+async function revokeAccessForSubscription(
+  admin: AdminClient,
+  subscriptionRow: { id: string; customer_id: string; offer_id: string },
+) {
+  const { data: offer } = await admin.from("offers").select("product_key").eq("id", subscriptionRow.offer_id).maybeSingle();
+  const { data: customer } = await admin.from("customers").select("user_id").eq("id", subscriptionRow.customer_id).maybeSingle();
+
+  if (!offer || !customer?.user_id || !isKnownProductKey(offer.product_key)) return;
+
+  await admin
+    .from("user_products")
+    .update({ status: "cancelled", canceled_at: new Date().toISOString() })
+    .eq("user_id", customer.user_id)
+    .eq("product_id", offer.product_key);
+}
+
 export async function POST(request: Request) {
   const rawBody = await request.text();
 
@@ -227,12 +314,79 @@ export async function POST(request: Request) {
       }
 
       case "subscription.created":
-      case "subscription.canceled":
-        // Fase de assinatura ainda não exposta no checkout público — sem
-        // "offers" active=true apontando pra recorrência, este evento não
-        // deveria chegar em produção ainda. Loga e ignora com segurança.
-        await finalizeWebhookEvent(admin, claim.logId, { status: "ignored" });
+      case "subscription.activated": {
+        const pagarmeSubscriptionId = typeof data.id === "string" ? data.id : undefined;
+        if (pagarmeSubscriptionId) {
+          await admin
+            .from("subscriptions")
+            .update({ status: "active", updated_at: new Date().toISOString() })
+            .eq("pagarme_subscription_id", pagarmeSubscriptionId);
+        }
+        await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
         break;
+      }
+
+      case "subscription.canceled": {
+        const pagarmeSubscriptionId = typeof data.id === "string" ? data.id : undefined;
+        const subscriptionRow = pagarmeSubscriptionId ? await findSubscriptionRow(admin, pagarmeSubscriptionId) : null;
+        if (subscriptionRow) {
+          await admin
+            .from("subscriptions")
+            .update({ status: "canceled", canceled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .eq("id", subscriptionRow.id);
+          await revokeAccessForSubscription(admin, subscriptionRow);
+        }
+        await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
+        break;
+      }
+
+      case "invoice.paid": {
+        // Confirma o pagamento de um ciclo (1º ou recorrente) — é aqui,
+        // nunca no checkout, que o acesso da assinatura é liberado de verdade.
+        const pagarmeSubscriptionId =
+          typeof data.subscription?.id === "string"
+            ? data.subscription.id
+            : typeof data.subscription_id === "string"
+              ? data.subscription_id
+              : undefined;
+        const subscriptionRow = pagarmeSubscriptionId ? await findSubscriptionRow(admin, pagarmeSubscriptionId) : null;
+        if (subscriptionRow) {
+          await admin
+            .from("subscriptions")
+            .update({
+              status: "active",
+              next_billing_at: typeof data.next_billing_at === "string" ? data.next_billing_at : undefined,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", subscriptionRow.id);
+          await grantAccessForSubscription(admin, subscriptionRow);
+        } else {
+          console.error("[pagarme-webhook] assinatura não encontrada localmente para invoice.paid", { pagarmeSubscriptionId });
+        }
+        await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        // Cobrança do ciclo falhou — marca "past_due", mas não revoga acesso
+        // aqui (revogação só acontece em subscription.canceled). Evita
+        // cortar acesso por uma falha pontual de cartão antes de qualquer
+        // política de retentativa/cancelamento ser definida.
+        const pagarmeSubscriptionId =
+          typeof data.subscription?.id === "string"
+            ? data.subscription.id
+            : typeof data.subscription_id === "string"
+              ? data.subscription_id
+              : undefined;
+        if (pagarmeSubscriptionId) {
+          await admin
+            .from("subscriptions")
+            .update({ status: "past_due", updated_at: new Date().toISOString() })
+            .eq("pagarme_subscription_id", pagarmeSubscriptionId);
+        }
+        await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
+        break;
+      }
 
       default:
         await finalizeWebhookEvent(admin, claim.logId, { status: "ignored" });

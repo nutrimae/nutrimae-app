@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CheckoutForm } from "./_components/checkout-form";
+import { SubscriptionCheckoutForm } from "./_components/subscription-checkout-form";
 
 /**
  * Carrega a oferta pelo slug direto do banco — se estiver inativa (ex.:
  * Mensal/NutriBot VIP antes de a assinatura recorrente estar validada) ou
  * não existir, cai em 404. É essa checagem, não uma flag no front, que
- * mantém ofertas desativadas fora do ar de verdade.
+ * mantém ofertas desativadas fora do ar de verdade — inclusive pra
+ * ofertas recorrentes, que só passam a existir aqui quando `active=true`.
  */
 export default async function CheckoutOfferPage({
   params,
@@ -18,11 +20,11 @@ export default async function CheckoutOfferPage({
 
   const { data: offer } = await admin
     .from("offers")
-    .select("id, slug, name, price_cents, billing_type, active")
+    .select("id, slug, name, price_cents, recurring_price_cents, billing_type, active")
     .eq("slug", offerSlug)
     .maybeSingle();
 
-  if (!offer || !offer.active || offer.billing_type !== "one_time") {
+  if (!offer || !offer.active) {
     notFound();
   }
 
@@ -43,10 +45,23 @@ export default async function CheckoutOfferPage({
           <h1 className="text-2xl font-bold leading-tight text-gray-900">{offer.name}</h1>
           <p className="mt-2 text-3xl font-extrabold text-rose-600">
             {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            {offer.billing_type === "recurring" && (
+              <span className="text-base font-semibold text-gray-700">
+                {" "}
+                no 1º ciclo
+                {offer.recurring_price_cents != null && offer.recurring_price_cents !== offer.price_cents
+                  ? `, depois ${(offer.recurring_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mês`
+                  : "/mês"}
+              </span>
+            )}
           </p>
         </div>
 
-        <CheckoutForm offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents }} bumps={bumps} />
+        {offer.billing_type === "recurring" ? (
+          <SubscriptionCheckoutForm offer={{ slug: offer.slug, name: offer.name }} />
+        ) : (
+          <CheckoutForm offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents }} bumps={bumps} />
+        )}
       </div>
     </main>
   );

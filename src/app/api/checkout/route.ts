@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments";
+import { findOrCreateLocalCustomer } from "@/lib/payments/find-or-create-customer";
 
 /**
  * Único lugar que calcula preço. O corpo da requisição só carrega
@@ -86,49 +87,12 @@ export async function POST(request: Request) {
   try {
     const provider = getPaymentProvider();
 
-    let customerId: string;
-    const { data: existingCustomer } = await admin
-      .from("customers")
-      .select("id, pagarme_customer_id")
-      .eq("email", customerEmail)
-      .maybeSingle();
-
-    if (existingCustomer?.pagarme_customer_id) {
-      customerId = existingCustomer.id;
-    } else {
-      const providerCustomer = await provider.createCustomer({
-        name: customerName,
-        email: customerEmail,
-        document: customerDocument,
-        phone: customerPhone,
-      });
-
-      if (existingCustomer) {
-        await admin.from("customers").update({ pagarme_customer_id: providerCustomer.providerCustomerId }).eq("id", existingCustomer.id);
-        customerId = existingCustomer.id;
-      } else {
-        const { data: created, error } = await admin
-          .from("customers")
-          .insert({
-            email: customerEmail,
-            name: customerName,
-            document: customerDocument,
-            phone_number: customerPhone,
-            pagarme_customer_id: providerCustomer.providerCustomerId,
-          })
-          .select("id")
-          .single();
-        if (error || !created) throw error ?? new Error("Falha ao criar customer local.");
-        customerId = created.id;
-      }
-    }
-
-    const { data: providerCustomerRow } = await admin
-      .from("customers")
-      .select("pagarme_customer_id")
-      .eq("id", customerId)
-      .single();
-    const providerCustomerId = providerCustomerRow!.pagarme_customer_id as string;
+    const { customerId, providerCustomerId } = await findOrCreateLocalCustomer(admin, provider, {
+      name: customerName,
+      email: customerEmail,
+      document: customerDocument,
+      phone: customerPhone,
+    });
 
     const description = [offer.name, ...bumpOffers.map((b) => b.name)].join(" + ");
 

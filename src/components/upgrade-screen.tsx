@@ -81,13 +81,10 @@ export function UpgradeScreen({ product }: { product: Product }) {
         <p className="mt-1 text-right text-xs text-brown-700/50">{product.priceNote}</p>
       </div>
 
-      {product.checkoutUrl ? (
-        <a href={product.checkoutUrl} target="_blank" rel="noreferrer">
-          <Button variant="brand">Quero desbloquear</Button>
-        </a>
-      ) : (
-        <Button disabled>Assinatura em breve por aqui</Button>
-      )}
+      {/* Plano Mensal recorrente ainda não vendido publicamente (feature
+          flag desligada em offers.active) — sem checkout de verdade pra
+          linkar aqui ainda. */}
+      <Button disabled>Assinatura em breve por aqui</Button>
 
       <Link
         href="/app"

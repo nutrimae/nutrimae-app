@@ -32,9 +32,12 @@ test("app e onboarding repetem a autorização no servidor", async () => {
   assert.match(onboardingLayout, /hasPurchasedAppAccess/);
 });
 
-test("webhook continua sendo a porta de criação via convite administrativo", async () => {
-  const webhook = await read("src/app/api/webhooks/cartpanda/route.ts");
-  assert.match(webhook, /x-webhook-secret/);
-  assert.match(webhook, /inviteUserByEmail/);
+test("webhook do Pagar.me continua sendo a porta de criação via convite administrativo", async () => {
+  const webhook = await read("src/app/api/webhooks/pagarme/route.ts");
+  assert.match(webhook, /verifyBasicAuth/);
+  assert.match(webhook, /findOrCreateUser/);
   assert.match(webhook, /user_products/);
+
+  const findOrCreateUser = await read("src/lib/webhooks/find-or-create-user.ts");
+  assert.match(findOrCreateUser, /inviteUserByEmail/);
 });

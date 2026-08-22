@@ -4,8 +4,8 @@ type AdminClient = ReturnType<typeof createAdminClient>;
 
 /**
  * Log simples (sem idempotência) — grava o evento já com o status final.
- * Usado pelo webhook da Cartpanda desde sempre; best-effort, nunca lança
- * (uma falha ao gravar log não pode derrubar o processamento do webhook).
+ * Best-effort, nunca lança (uma falha ao gravar log não pode derrubar o
+ * processamento do webhook).
  */
 export async function logWebhookEvent(
   admin: AdminClient,

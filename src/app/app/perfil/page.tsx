@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, ExternalLink, ShieldCheck, TrendingUp, Crown } from "lucide-react";
+import { LogOut, ShieldCheck, TrendingUp, Crown } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -74,8 +74,6 @@ export default function PerfilPage() {
     await supabase.auth.signOut();
     router.push("/login");
   }
-
-  const portalUrl = process.env.NEXT_PUBLIC_CARTPANDA_PORTAL_URL;
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
@@ -164,18 +162,12 @@ export default function PerfilPage() {
 
       <div>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Assinatura</h2>
-        {portalUrl ? (
-          <a href={portalUrl} target="_blank" rel="noreferrer">
-            <Button variant="secondary" className="flex items-center justify-center gap-2">
-              <ExternalLink className="h-5 w-5" strokeWidth={2} />
-              Gerenciar assinatura
-            </Button>
-          </a>
-        ) : (
-          <p className="rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
-            O portal de gerenciamento de assinatura ainda não foi configurado.
-          </p>
-        )}
+        {/* Plano Anual é pagamento único (sem assinatura recorrente pra
+            gerenciar). Quando o Plano Mensal for ativado, este bloco ganha
+            um link real de gerenciamento via Pagar.me. */}
+        <p className="rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
+          Seu plano atual é pagamento único — sem cobrança recorrente pra gerenciar. Dúvidas? Fale com o suporte.
+        </p>
       </div>
 
       {!vipAccess.loading && !vipAccess.hasAny && (

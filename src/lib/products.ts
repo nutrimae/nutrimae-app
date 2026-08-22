@@ -43,8 +43,6 @@ export interface Product {
   bundled: BundledItem[];
   /** Módulos liberados por este produto. */
   modules: ModuleKey[];
-  /** Link externo de checkout (Cartpanda) do plano mensal. Ainda não configurado para os módulos futuros. */
-  checkoutUrl?: string;
   /** Se as telas dos módulos já existem no app. */
   built: boolean;
   /**
@@ -57,8 +55,6 @@ export interface Product {
     note: string;
     /** Opção de parcelamento real (não é price/12 — o cartão cobra um pouco mais). */
     installmentNote: string;
-    /** Link externo de checkout (Cartpanda) do plano anual. */
-    checkoutUrl?: string;
   };
 }
 

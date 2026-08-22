@@ -540,3 +540,247 @@ end $$;
 -- Bebês cadastrados antes desta sessão não têm gênero: assumem 'female'
 -- (tema rosa) por padrão, como definido pelo produto.
 update public.babies set gender = 'female' where gender is null;
+
+-- 12. Checkout próprio (Pagar.me) — clientes, ofertas, pedidos, pagamentos
+--
+-- Substitui os links externos da CartPanda por um checkout nosso. "offers" é
+-- a fonte única de verdade de preço/nome (landing, checkout e banco sempre
+-- leem daqui, nunca de um valor hardcoded em outro lugar) e aponta, via
+-- product_key, para o mesmo enum ProductKey já usado por user_products —
+-- getEntitlementStatus() e hasPurchasedAppAccess() não mudam nada.
+--
+-- Dinheiro sempre em centavos (inteiro). RLS: leitura só da própria linha
+-- (exceto "offers", que é pública já que o checkout lê preço sem estar
+-- logado); escrita em qualquer uma dessas tabelas só pela service role — o
+-- mesmo modelo já usado em "user_products" (nenhuma policy de
+-- insert/update/delete pra usuária comum, de propósito).
+
+create table if not exists public.customers (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users (id) on delete set null,
+  pagarme_customer_id text,
+  email text not null,
+  name text not null,
+  document text not null,
+  phone_number text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create unique index if not exists customers_pagarme_customer_id_idx
+  on public.customers (pagarme_customer_id)
+  where pagarme_customer_id is not null;
+
+create index if not exists customers_email_idx on public.customers (email);
+create index if not exists customers_user_id_idx on public.customers (user_id);
+
+-- "product_key" não é FK (ProductKey vive em TypeScript, não no banco) — a
+-- validação de que é uma chave conhecida acontece na aplicação, igual já
+-- acontece hoje com user_products.product_id.
+create table if not exists public.offers (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  product_key text not null,
+  name text not null,
+  billing_type text not null,
+  price_cents integer not null,
+  recurring_price_cents integer,
+  active boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'offers_billing_type_check') then
+    alter table public.offers
+      add constraint offers_billing_type_check
+      check (billing_type in ('one_time', 'recurring'));
+  end if;
+end $$;
+
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  customer_id uuid not null references customers (id),
+  user_id uuid references auth.users (id) on delete set null,
+  offer_id uuid not null references offers (id),
+  parent_order_id uuid references orders (id),
+  pagarme_order_id text,
+  status text not null default 'pending',
+  payment_method text not null,
+  amount_cents integer not null,
+  utm jsonb,
+  quiz_answers jsonb,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create unique index if not exists orders_pagarme_order_id_idx
+  on public.orders (pagarme_order_id)
+  where pagarme_order_id is not null;
+
+create index if not exists orders_customer_id_idx on public.orders (customer_id);
+create index if not exists orders_user_id_idx on public.orders (user_id);
+create index if not exists orders_parent_order_id_idx on public.orders (parent_order_id);
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'orders_status_check') then
+    alter table public.orders
+      add constraint orders_status_check
+      check (status in ('pending', 'paid', 'refused', 'expired', 'canceled', 'refunded'));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'orders_payment_method_check') then
+    alter table public.orders
+      add constraint orders_payment_method_check
+      check (payment_method in ('pix', 'credit_card'));
+  end if;
+end $$;
+
+create table if not exists public.order_items (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references orders (id) on delete cascade,
+  offer_id uuid not null references offers (id),
+  description text not null,
+  quantity integer not null default 1,
+  unit_amount_cents integer not null,
+  total_amount_cents integer not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists order_items_order_id_idx on public.order_items (order_id);
+
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references orders (id) on delete cascade,
+  pagarme_charge_id text,
+  pagarme_transaction_id text,
+  method text not null,
+  status text not null,
+  amount_cents integer not null,
+  pix_qr_code text,
+  pix_qr_code_url text,
+  pix_expires_at timestamptz,
+  card_brand text,
+  card_last4 text,
+  raw_last_event jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists payments_order_id_idx on public.payments (order_id);
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'payments_method_check') then
+    alter table public.payments
+      add constraint payments_method_check
+      check (method in ('pix', 'credit_card'));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'payments_status_check') then
+    alter table public.payments
+      add constraint payments_status_check
+      check (status in ('pending', 'paid', 'refused', 'expired', 'canceled'));
+  end if;
+end $$;
+
+-- Assinaturas recorrentes (Plano Mensal, NutriBot VIP). O código de
+-- assinatura já é implementado de verdade (não é um stub) — o que mantém
+-- isso fora do ar em produção é simplesmente nenhuma "offer" com
+-- billing_type='recurring' estar com active=true ainda. Ver
+-- src/lib/payments/pagarme.ts.
+create table if not exists public.subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  customer_id uuid not null references customers (id),
+  offer_id uuid not null references offers (id),
+  pagarme_subscription_id text unique,
+  status text not null default 'pending',
+  next_billing_at timestamptz,
+  canceled_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists subscriptions_customer_id_idx on public.subscriptions (customer_id);
+
+-- Idempotência de webhook: cada evento (de qualquer provedor) só pode ser
+-- processado uma vez. O handler insere a linha ANTES de processar; se
+-- provider_event_id já existir para o mesmo provider, o índice único
+-- rejeita o insert (23505) e o handler responde 200 sem reprocessar —
+-- funciona mesmo com duas entregas concorrentes do mesmo evento.
+alter table public.webhook_logs
+  add column if not exists provider text not null default 'cartpanda';
+
+alter table public.webhook_logs
+  add column if not exists provider_event_id text;
+
+create unique index if not exists webhook_logs_provider_event_idx
+  on public.webhook_logs (provider, provider_event_id)
+  where provider_event_id is not null;
+
+alter table public.customers enable row level security;
+alter table public.offers enable row level security;
+alter table public.orders enable row level security;
+alter table public.order_items enable row level security;
+alter table public.payments enable row level security;
+alter table public.subscriptions enable row level security;
+
+drop policy if exists "Usuárias veem seus próprios dados de cliente" on public.customers;
+create policy "Usuárias veem seus próprios dados de cliente"
+  on public.customers for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Ofertas ativas são públicas" on public.offers;
+create policy "Ofertas ativas são públicas"
+  on public.offers for select
+  using (active = true);
+
+drop policy if exists "Usuárias veem seus próprios pedidos" on public.orders;
+create policy "Usuárias veem seus próprios pedidos"
+  on public.orders for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Usuárias veem os itens dos próprios pedidos" on public.order_items;
+create policy "Usuárias veem os itens dos próprios pedidos"
+  on public.order_items for select
+  using (exists (
+    select 1 from public.orders
+    where orders.id = order_items.order_id and orders.user_id = auth.uid()
+  ));
+
+drop policy if exists "Usuárias veem os pagamentos dos próprios pedidos" on public.payments;
+create policy "Usuárias veem os pagamentos dos próprios pedidos"
+  on public.payments for select
+  using (exists (
+    select 1 from public.orders
+    where orders.id = payments.order_id and orders.user_id = auth.uid()
+  ));
+
+drop policy if exists "Usuárias veem suas próprias assinaturas" on public.subscriptions;
+create policy "Usuárias veem suas próprias assinaturas"
+  on public.subscriptions for select
+  using (exists (
+    select 1 from public.customers
+    where customers.id = subscriptions.customer_id and customers.user_id = auth.uid()
+  ));
+
+-- Nenhuma policy de insert/update/delete em nenhuma destas tabelas, de
+-- propósito — só a service role (que ignora RLS) escreve, a partir do
+-- webhook do Pagar.me e da rota /api/checkout. Ver
+-- src/app/api/webhooks/pagarme/route.ts e src/app/api/checkout/route.ts.
+
+-- Sementes das ofertas ativas no lançamento. As ofertas de assinatura
+-- (Mensal, NutriBot VIP) já existem aqui mas com active=false — ligar só
+-- depois de validar em sandbox e produção controlada (ver plano de
+-- implementação).
+insert into public.offers (slug, product_key, name, billing_type, price_cents, recurring_price_cents, active)
+values
+  ('nutrimae-anual', 'nutrimae_assinatura', 'NutriMãe — Plano Anual', 'one_time', 9700, null, true),
+  ('sos-desmame', 'sos_desmame_noturno', 'SOS Desmame Noturno', 'one_time', 2700, null, true),
+  ('protocolo-intestino', 'protocolo_intestino_livre', 'Protocolo Intestino Livre', 'one_time', 1700, null, true),
+  ('nutribot-30d', 'nutribot_30d', 'NutriBot — 30 Dias', 'one_time', 2790, null, true),
+  ('nutrimae-mensal', 'nutrimae_assinatura', 'NutriMãe — Plano Mensal', 'recurring', 1990, 2990, false),
+  ('nutribot-vip-mensal', 'nutribot_vip', 'NutriBot VIP', 'recurring', 3700, 3700, false)
+on conflict (slug) do nothing;

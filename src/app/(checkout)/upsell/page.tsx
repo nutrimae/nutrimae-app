@@ -1,8 +1,7 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { Check, Info } from "lucide-react";
-import { event } from "@/lib/fpixel";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { UpsellActions } from "./_components/upsell-actions";
 
 /**
  * Upsell de 1 clique — NutriBot VIP (R$37/mês).
@@ -17,22 +16,21 @@ import { event } from "@/lib/fpixel";
  * perigoso de verdade. O NutriBot aqui é vendido para dúvidas do dia a dia
  * (receitas, cortes, rotina) — nunca para emergências — e o aviso de
  * segurança abaixo deixa isso explícito.
+ *
+ * Exige um pedido pago de verdade (validado no servidor) pra existir —
+ * sem isso, redireciona pra fora do funil.
  */
-export default function UpsellPage() {
-  const router = useRouter();
+export default async function UpsellPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderId?: string }>;
+}) {
+  const { orderId } = await searchParams;
+  if (!orderId) redirect("/app");
 
-  function handleBuy() {
-    event("AddToCart", { value: 37.0, currency: "BRL", content_name: "NutriBot VIP" });
-    console.log("[upsell] NutriBot VIP — compra de 1 clique iniciada");
-    // TODO: integrar aqui o script de cobrança de 1-clique da
-    // Hotmart/Kiwify (usa o cartão já salvo no pedido principal).
-    // Ex.: window.HotmartCheckout.chargeOneClick({ offerId: "..." })
-  }
-
-  function handleDecline() {
-    console.log("[upsell] NutriBot VIP recusado — indo para downsell");
-    router.push("/downsell");
-  }
+  const admin = createAdminClient();
+  const { data: order } = await admin.from("orders").select("id, status").eq("id", orderId).maybeSingle();
+  if (!order || order.status !== "paid") redirect("/app");
 
   return (
     <main className="min-h-dvh bg-gray-50 pb-10">
@@ -98,28 +96,8 @@ export default function UpsellPage() {
           </span>
         </div>
 
-        {/* F. CTA de 1 clique */}
-        <div className="flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={handleBuy}
-            className="min-h-16 w-full animate-[pulse_2s_ease-in-out_infinite] rounded-2xl bg-[#25D366] px-6 text-lg font-bold text-white shadow-lg transition-colors hover:bg-[#20bd5a]"
-          >
-            SIM! Quero adicionar o NutriBot VIP (R$37/mês)
-          </button>
-          <p className="text-center text-xs text-gray-500">
-            Cobrança adicionada com 1 clique no cartão já cadastrado. Cancele quando quiser.
-          </p>
-        </div>
-
-        {/* G. Recusa (aciona o downsell) */}
-        <button
-          type="button"
-          onClick={handleDecline}
-          className="mx-auto text-sm text-gray-400 underline hover:text-gray-600"
-        >
-          Não, obrigada. Continuar sem o NutriBot.
-        </button>
+        {/* F/G. CTA de compra e recusa */}
+        <UpsellActions orderId={order.id} />
       </div>
     </main>
   );

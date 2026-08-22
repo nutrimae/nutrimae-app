@@ -1,34 +1,44 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { Clock } from "lucide-react";
-import { event } from "@/lib/fpixel";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { DownsellCheckout } from "./_components/downsell-checkout";
 
 /**
- * Downsell — segunda chance do NutriBot com desconto (R$19,90 no 1º mês).
+ * Downsell — segunda chance do NutriBot com desconto: NutriBot — 30 Dias
+ * (oferta "nutribot-30d", pagamento único). É a mesma oferta usada como
+ * order bump no checkout do Plano Anual — preço lido do banco (offers),
+ * nunca hardcoded aqui, pra não divergir.
+ *
+ * Cobra de verdade (reaproveita o caminho one-time via
+ * /api/checkout/downsell) — diferente do upsell (NutriBot VIP, recorrente),
+ * que ainda não tem cobrança real habilitada.
  *
  * Ajuste em relação ao pedido original: troquei "Última chance antes de
  * liberar seu acesso ao App" pelo texto abaixo. O original insinuava que o
  * acesso ao aplicativo — que ela já pagou na compra principal — ficava
  * retido até ela decidir sobre este upsell. Isso é um dark pattern real
  * (segurar entrega de algo já comprado pra pressionar uma venda separada),
- * não só uma questão de tom. A urgência real aqui é a própria oferta: essa
- * tela mesmo não aparece de novo, então usei isso — é verdade, não
- * inventado.
+ * não só uma questão de tom.
  */
-export default function DownsellPage() {
-  const router = useRouter();
+export default async function DownsellPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderId?: string }>;
+}) {
+  const { orderId } = await searchParams;
+  if (!orderId) redirect("/app");
 
-  function handleAcceptDownsell() {
-    event("AddToCart", { value: 19.9, currency: "BRL", content_name: "NutriBot VIP" });
-    console.log("Compra Downsell");
-    // TODO: integrar aqui o script de cobrança de 1-clique da
-    // Hotmart/Kiwify para o plano promocional do NutriBot.
-  }
+  const admin = createAdminClient();
+  const { data: order } = await admin.from("orders").select("id, status").eq("id", orderId).maybeSingle();
+  if (!order || order.status !== "paid") redirect("/app");
 
-  function handleDeclineFinal() {
-    router.push("/app");
-  }
+  const { data: offer } = await admin
+    .from("offers")
+    .select("price_cents, active")
+    .eq("slug", "nutribot-30d")
+    .maybeSingle();
+
+  if (!offer || !offer.active) redirect("/app");
 
   return (
     <main className="min-h-dvh bg-gray-50 pb-10">
@@ -43,11 +53,11 @@ export default function DownsellPage() {
         {/* B. Headline e copy de ancoragem */}
         <div className="text-center">
           <h1 className="text-2xl font-bold leading-tight text-gray-900">
-            Eu entendo... assumir uma mensalidade agora pode parecer muito.
+            Eu entendo... assumir mais um gasto agora pode parecer muito.
           </h1>
           <p className="mt-3 text-base text-gray-600">
-            Mas eu não quero que você fique sem essa ajuda na cozinha. Que tal testar o NutriBot VIP por 30 dias
-            com quase 50% de desconto?
+            Mas eu não quero que você fique sem essa ajuda na cozinha. Que tal testar o NutriBot por 30 dias com
+            desconto?
           </p>
         </div>
 
@@ -58,31 +68,12 @@ export default function DownsellPage() {
           </span>
           <p className="mt-2 text-sm font-medium text-gray-500 line-through">De R$37,00</p>
           <p className="text-4xl font-extrabold text-rose-600">
-            R$19,90<span className="text-base font-semibold text-gray-700"> no primeiro mês</span>
+            {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
-          <p className="mt-2 text-xs text-gray-500">
-            A partir do segundo mês, R$37/mês. Cancele com 1 clique a qualquer momento.
-          </p>
+          <p className="mt-2 text-xs text-gray-500">Pagamento único, 30 dias de acesso ao NutriBot.</p>
         </div>
 
-        {/* D. CTA de aceite */}
-        <button
-          type="button"
-          onClick={handleAcceptDownsell}
-          className="min-h-16 w-full rounded-2xl bg-[#25D366] px-6 text-lg font-bold text-white shadow-lg transition-colors hover:bg-[#20bd5a]"
-        >
-          SIM! Quero testar por R$19,90
-        </button>
-
-        {/* E. Recusa definitiva — libera para o app principal, que ela já
-            pagou na compra original. */}
-        <button
-          type="button"
-          onClick={handleDeclineFinal}
-          className="mx-auto text-sm text-gray-400 underline hover:text-gray-600"
-        >
-          Não, quero apenas o meu acesso ao aplicativo base e aos bônus.
-        </button>
+        <DownsellCheckout parentOrderId={order.id} priceCents={offer.price_cents} />
       </div>
     </main>
   );

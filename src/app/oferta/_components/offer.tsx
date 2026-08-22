@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { PRODUCTS } from "@/lib/products";
 import { trackEvent } from "./track";
@@ -12,22 +13,18 @@ function formatPrice(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-function handleCheckout(plan: "mensal" | "anual", onboardingMonths: number) {
-  trackEvent("InitiateCheckout", { plan });
-  const url = plan === "anual" ? product.annual?.checkoutUrl : product.checkoutUrl;
-  // CHECKOUT CARTPANDA: sem checkoutUrl configurado ainda, manda para o
-  // cadastro (o mesmo fallback já usado em upgrade-screen.tsx) em vez de um
-  // link morto. /login não aceita um parâmetro de redirecionamento (é sempre
-  // "/" → RootPage → onboarding/welcome para quem ainda não tem bebê), então
-  // a fase escolhida viaja via sessionStorage, não por query string — mesma
-  // técnica já usada por SplashScreen. Lida em onboarding/baby/page.tsx.
-  saveOnboardingMonths(onboardingMonths);
-  window.location.href = url ?? "/login";
-}
-
 export function Offer() {
+  const router = useRouter();
   const { ageOption } = useAge();
   const onboardingMonths = ageOption.onboardingMonths;
+
+  function handleCheckout() {
+    trackEvent("InitiateCheckout", { plan: "anual" });
+    // A fase escolhida viaja via sessionStorage, não por query string — mesma
+    // técnica já usada por SplashScreen. Lida em onboarding/baby/page.tsx.
+    saveOnboardingMonths(onboardingMonths);
+    router.push("/checkout/nutrimae-anual");
+  }
 
   return (
     <section id="oferta" className="bg-gradient-to-br from-primary-600 via-primary-500 to-primary-300 px-5 py-10">
@@ -37,20 +34,10 @@ export function Offer() {
         </h2>
 
         <div className="mt-6 grid w-full grid-cols-1 gap-3">
-          {/* Mensal */}
-          <div className="rounded-3xl bg-white/95 p-5 text-left text-brown-800 shadow-lg [text-shadow:none]">
-            <p className="font-heading text-sm font-bold uppercase tracking-wide text-brown-700/70">Mensal</p>
-            <p className="mt-1 text-sm text-brown-700/70 line-through">De R$47</p>
-            <p className="font-heading text-3xl font-extrabold text-primary-600">
-              {formatPrice(product.price)}
-              <span className="text-base font-semibold text-brown-700"> {product.priceNote}</span>
-            </p>
-            <p className="mt-1 text-sm font-semibold text-brown-700">
-              Depois {formatPrice(product.regularPrice)}/mês. Cancele quando quiser, sem burocracia.
-            </p>
-          </div>
-
-          {/* Anual */}
+          {/* Só o Plano Anual fica exposto na landing por enquanto — o
+              Mensal recorrente já existe no backend, mas fica atrás de
+              feature flag (offers.active) até passar por sandbox e
+              produção controlada com o Pagar.me. */}
           {product.annual && (
             <div className="relative rounded-3xl border-2 border-white bg-white/95 p-5 text-left text-brown-800 shadow-lg [text-shadow:none]">
               <span className="absolute -top-3 right-4 rounded-full bg-green-500 px-3 py-1 text-xs font-bold text-white shadow">
@@ -80,26 +67,13 @@ export function Offer() {
           </li>
         </ul>
 
-        <p className="mt-6 text-sm font-semibold text-white">
-          Depois do 1º mês: {formatPrice(product.regularPrice)}/mês. Cancele quando quiser, com 2 toques dentro do
-          seu perfil no app.
-        </p>
-
-        <button
-          type="button"
-          onClick={() => handleCheckout("mensal", onboardingMonths)}
-          className="mt-4 min-h-14 w-full rounded-2xl bg-green-500 px-6 font-heading text-base font-extrabold text-brown-900 shadow-[0_10px_28px_rgba(0,0,0,0.2),0_6px_22px_rgba(34,197,94,0.45)] transition-transform duration-100 ease-out hover:bg-green-600 active:scale-[0.98]"
-        >
-          Quero Organizar a Alimentação do Meu Bebê
-        </button>
-
         {product.annual && (
           <button
             type="button"
-            onClick={() => handleCheckout("anual", onboardingMonths)}
-            className="mt-3 min-h-12 w-full rounded-2xl border-2 border-white/70 px-6 font-heading text-sm font-bold text-white transition-transform duration-100 ease-out active:scale-[0.98]"
+            onClick={handleCheckout}
+            className="mt-4 min-h-14 w-full rounded-2xl bg-green-500 px-6 font-heading text-base font-extrabold text-brown-900 shadow-[0_10px_28px_rgba(0,0,0,0.2),0_6px_22px_rgba(34,197,94,0.45)] transition-transform duration-100 ease-out hover:bg-green-600 active:scale-[0.98]"
           >
-            Prefiro o plano anual ({formatPrice(product.annual.price)})
+            Quero Organizar a Alimentação do Meu Bebê
           </button>
         )}
 

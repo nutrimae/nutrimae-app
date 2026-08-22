@@ -20,7 +20,8 @@ export type ProductKey =
   | "calculadora_fraldas"
   | "sos_desmame_noturno"
   | "protocolo_intestino_livre"
-  | "nutribot_vip";
+  | "nutribot_vip"
+  | "nutribot_30d";
 
 export interface BundledItem {
   label: string;
@@ -146,16 +147,33 @@ export const PRODUCTS: Record<ProductKey, Product> = {
   // Acesso à NutriBot (assistente via WhatsApp) — não é um módulo do app
   // (por isso "modules: []"), só é concedido pelo webhook de compra e
   // consultado pelo webhook do WhatsApp (ver src/app/api/whatsapp/webhook).
-  // Preço/priceNote são placeholders: ajustar para o valor real de venda.
+  // Preço sincronizado com a oferta "nutribot-vip-mensal" em supabase/schema.sql
+  // — essa oferta fica com active=false até a assinatura recorrente do
+  // Pagar.me estar validada (é o upsell recorrente, atrás da mesma trava do
+  // Plano Mensal).
   nutribot_vip: {
     key: "nutribot_vip",
-    name: "NutriBot (WhatsApp)",
-    price: 19.9,
-    regularPrice: 19.9,
+    name: "NutriBot VIP (WhatsApp)",
+    price: 37,
+    regularPrice: 37,
     priceNote: "por mês",
     bundled: [],
     modules: [],
     built: true,
+  },
+  // Downsell de pagamento único do NutriBot — mesmo assistente, sem
+  // recorrência. Preço sincronizado com a oferta "nutribot-30d" em
+  // supabase/schema.sql (essa sim já ativa, por ser pagamento único).
+  nutribot_30d: {
+    key: "nutribot_30d",
+    name: "NutriBot — 30 Dias",
+    price: 27.9,
+    regularPrice: 37,
+    priceNote: "pagamento único, 30 dias de acesso",
+    bundled: [],
+    modules: [],
+    built: true,
+    oneTimePayment: true,
   },
 };
 

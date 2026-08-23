@@ -26,7 +26,7 @@ export default function PhotoStepPage() {
   }
 
   async function goNext() {
-    router.push("/onboarding/tour");
+    router.push("/onboarding/region");
   }
 
   async function handleSave() {
@@ -130,7 +130,7 @@ export default function PhotoStepPage() {
 
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-6">
-          <ProgressDots step={3} total={5} />
+          <ProgressDots step={3} total={6} />
         </div>
         <div className="flex flex-col gap-3">
           <Button onClick={handleSave} disabled={loading} variant="brand">

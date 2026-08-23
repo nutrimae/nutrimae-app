@@ -83,7 +83,7 @@ export default function TourPage() {
 
       <div className="mx-auto w-full max-w-sm">
         <div className="mb-6">
-          <ProgressDots step={4} total={5} />
+          <ProgressDots step={5} total={6} />
         </div>
         <div className="mb-4 flex items-center justify-center gap-2">
           {slides.map((_, i) => (

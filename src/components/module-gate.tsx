@@ -39,7 +39,18 @@ export async function ModuleGate({
   const status = await getEntitlementStatus(supabase, user.id, productKey);
 
   if (status !== "active") {
-    return <UpgradeScreen product={PRODUCTS[productKey]} />;
+    // Se existir uma offer ativa de pagamento único pra este produto (ver
+    // supabase/schema.sql seção "offers"), linka pro checkout de verdade em
+    // vez do estado morto "assinatura em breve".
+    const { data: offer } = await supabase
+      .from("offers")
+      .select("slug")
+      .eq("product_key", productKey)
+      .eq("billing_type", "one_time")
+      .eq("active", true)
+      .maybeSingle();
+
+    return <UpgradeScreen product={PRODUCTS[productKey]} checkoutHref={offer ? `/checkout/${offer.slug}` : undefined} />;
   }
 
   return <>{children}</>;

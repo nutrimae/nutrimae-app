@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, AlertTriangle, Info, ListChecks } from "lucide-react";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { BackButton } from "@/components/back-button";
+import { ListenButton } from "@/components/listen-button";
 
 const MILD_SIGNS = [
   "Pequenas manchinhas vermelhas ao redor da boca",
@@ -42,6 +43,12 @@ export default function AlergiaPage() {
             Depois de introduzir um alimento novo, observe o bebê por 3 a 5 dias antes
             de oferecer outro alimento novo.
           </p>
+          <ListenButton
+            contentType="alergia"
+            contentId="guia-alergia"
+            text={`Sinais de alergia alimentar. Depois de introduzir um alimento novo, observe o bebê por 3 a 5 dias antes de oferecer outro alimento novo. Sinais leves, observar: ${MILD_SIGNS.join(". ")}. Sinais de alerta grave, atendimento imediato: ${SEVERE_SIGNS.join(". ")}.`}
+            className="mt-3"
+          />
         </div>
 
         <Link

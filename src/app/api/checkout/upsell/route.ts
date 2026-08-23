@@ -1,0 +1,154 @@
+import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getPaymentProvider } from "@/lib/payments";
+
+/**
+ * Cobrança de OTO1 (upsell pós-compra) — genérica por offerSlug, pra não
+ * duplicar essa lógica a cada nova oferta de upsell. Mesmo padrão do
+ * downsell (src/app/api/checkout/downsell/route.ts): reaproveita os dados
+ * do cliente já coletados no pedido pai, preço sempre relido de "offers".
+ *
+ * Hoje usada pelo OTO1 adaptado pro Anual (Batch Cooking & Congelamento —
+ * ver memória "project-bump-upsell-mensal-swap" sobre a adaptação
+ * temporária). Só aceita ofertas one_time — assinatura nunca passa por
+ * aqui.
+ */
+
+interface UpsellBody {
+  parentOrderId?: unknown;
+  offerSlug?: unknown;
+  paymentMethod?: unknown;
+  cardToken?: unknown;
+}
+
+export async function POST(request: Request) {
+  let body: UpsellBody;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+  }
+
+  const parentOrderId = typeof body.parentOrderId === "string" ? body.parentOrderId : null;
+  const offerSlug = typeof body.offerSlug === "string" ? body.offerSlug : null;
+  const paymentMethod = body.paymentMethod === "pix" || body.paymentMethod === "credit_card" ? body.paymentMethod : null;
+
+  if (!parentOrderId || !offerSlug || !paymentMethod) {
+    return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
+  }
+
+  if (paymentMethod === "credit_card" && typeof body.cardToken !== "string") {
+    return NextResponse.json({ error: "missing_card_token" }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+
+  const { data: parentOrder } = await admin
+    .from("orders")
+    .select("id, status, customer_id")
+    .eq("id", parentOrderId)
+    .maybeSingle();
+
+  if (!parentOrder || parentOrder.status !== "paid") {
+    return NextResponse.json({ error: "parent_order_not_paid" }, { status: 403 });
+  }
+
+  const { data: customer } = await admin
+    .from("customers")
+    .select("id, pagarme_customer_id")
+    .eq("id", parentOrder.customer_id)
+    .maybeSingle();
+
+  if (!customer?.pagarme_customer_id) {
+    return NextResponse.json({ error: "customer_not_found" }, { status: 404 });
+  }
+
+  const { data: offer } = await admin
+    .from("offers")
+    .select("id, product_key, name, billing_type, price_cents, active")
+    .eq("slug", offerSlug)
+    .maybeSingle();
+
+  if (!offer || !offer.active || offer.billing_type !== "one_time") {
+    return NextResponse.json({ error: "offer_not_available" }, { status: 404 });
+  }
+
+  try {
+    const provider = getPaymentProvider();
+
+    const { data: orderRow, error: orderError } = await admin
+      .from("orders")
+      .insert({
+        customer_id: customer.id,
+        offer_id: offer.id,
+        parent_order_id: parentOrder.id,
+        status: "pending",
+        payment_method: paymentMethod,
+        amount_cents: offer.price_cents,
+      })
+      .select("id")
+      .single();
+
+    if (orderError || !orderRow) throw orderError ?? new Error("Falha ao criar order local.");
+
+    await admin.from("order_items").insert({
+      order_id: orderRow.id,
+      offer_id: offer.id,
+      description: offer.name,
+      quantity: 1,
+      unit_amount_cents: offer.price_cents,
+      total_amount_cents: offer.price_cents,
+    });
+
+    if (paymentMethod === "pix") {
+      const pix = await provider.createPixPayment({
+        providerCustomerId: customer.pagarme_customer_id,
+        amountCents: offer.price_cents,
+        description: offer.name,
+        metadata: { order_id: orderRow.id, parent_order_id: parentOrder.id },
+      });
+
+      await admin.from("orders").update({ pagarme_order_id: pix.providerOrderId }).eq("id", orderRow.id);
+      await admin.from("payments").insert({
+        order_id: orderRow.id,
+        pagarme_charge_id: pix.providerChargeId,
+        method: "pix",
+        status: "pending",
+        amount_cents: offer.price_cents,
+        pix_qr_code: pix.qrCode,
+        pix_qr_code_url: pix.qrCodeUrl,
+        pix_expires_at: pix.expiresAt,
+      });
+
+      return NextResponse.json({
+        orderId: orderRow.id,
+        status: "pending",
+        pix: { qrCode: pix.qrCode, qrCodeUrl: pix.qrCodeUrl, expiresAt: pix.expiresAt },
+      });
+    }
+
+    const card = await provider.createCardPayment({
+      providerCustomerId: customer.pagarme_customer_id,
+      amountCents: offer.price_cents,
+      description: offer.name,
+      cardToken: body.cardToken as string,
+      metadata: { order_id: orderRow.id, parent_order_id: parentOrder.id },
+    });
+
+    await admin.from("orders").update({ pagarme_order_id: card.providerOrderId }).eq("id", orderRow.id);
+    await admin.from("payments").insert({
+      order_id: orderRow.id,
+      pagarme_charge_id: card.providerChargeId,
+      method: "credit_card",
+      status: card.status === "paid" ? "paid" : card.status === "refused" ? "refused" : "pending",
+      amount_cents: offer.price_cents,
+      card_brand: card.cardBrand,
+      card_last4: card.cardLast4,
+    });
+
+    return NextResponse.json({ orderId: orderRow.id, status: card.status });
+  } catch (err) {
+    console.error("[checkout/upsell] falha ao processar pedido", err);
+    return NextResponse.json({ error: "payment_processing_failed" }, { status: 502 });
+  }
+}

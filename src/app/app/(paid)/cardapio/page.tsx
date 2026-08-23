@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { BalancedPlate } from "@/components/balanced-plate";
+import { useRegion } from "@/lib/use-region";
 import {
   AGE_BAND_LABEL,
   ageBandForMonths,
@@ -38,6 +39,7 @@ export default function CardapioPage() {
   const [triedFoodKeys, setTriedFoodKeys] = useState<Set<string>>(new Set());
   const [dietFilter, setDietFilter] = useState<DietFilter>("padrao");
   const [chosenPratinhoIds, setChosenPratinhoIds] = useState<string[]>([]);
+  const { region } = useRegion();
 
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
@@ -107,6 +109,7 @@ export default function CardapioPage() {
   const suggestionOptions = {
     triedFoodKeys: hasDiario ? triedFoodKeys : undefined,
     avoidAllergen,
+    region,
   };
 
   function overrideKey(mealType: MealType) {

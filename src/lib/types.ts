@@ -1,3 +1,5 @@
+import type { Region } from "@/lib/regions";
+
 export type BabyGender = "male" | "female";
 
 export interface Baby {
@@ -8,6 +10,15 @@ export interface Baby {
   photo_url: string | null;
   diet_filter: string;
   gender: BabyGender | null;
+  created_at: string;
+}
+
+export interface Profile {
+  user_id: string;
+  display_name: string | null;
+  is_admin: boolean;
+  phone_number: string | null;
+  region: Region | null;
   created_at: string;
 }
 

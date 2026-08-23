@@ -1,4 +1,5 @@
 import type { AgeBand } from "@/lib/menu";
+import type { Region } from "@/lib/regions";
 
 export type RecipeMealType = "cafe" | "almoco" | "lanche" | "ceia";
 
@@ -54,6 +55,10 @@ export interface Recipe {
   ingredients: string[];
   steps: string[];
   allergens: Allergen[];
+  /** Regiões de origem — pode pertencer a mais de uma. Ausente = receita nacional. */
+  regiao?: Region[];
+  /** Status de revisão para receitas novas. Receitas sem esse campo são consideradas aprovadas. */
+  revisao?: "pendente" | "aprovado";
 }
 
 export const RECIPES: Recipe[] = [
@@ -1086,6 +1091,295 @@ export const RECIPES: Recipe[] = [
     ],
     allergens: ["ovo", "gluten"],
   },
+
+  // ─── Receitas Regionais ─── (todas com revisao: "pendente")
+
+  // Norte (4)
+  {
+    id: "pure-macaxeira-frango-norte",
+    title: "Purê de macaxeira com frango desfiado",
+    ageBand: "6-7",
+    mealType: "almoco",
+    prepTimeMinutes: 30,
+    difficulty: "medio",
+    ingredients: ["100g de macaxeira (mandioca/aipim)", "50g de peito de frango", "1 colher de chá de azeite"],
+    steps: [
+      "Descasque a macaxeira, retire o fio central e corte em pedaços.",
+      "Cozinhe a macaxeira em água até ficar bem macia (cerca de 25 minutos).",
+      "Cozinhe o frango até ficar bem cozido e desfie bem fino.",
+      "Amasse a macaxeira com garfo, misture o frango desfiado e finalize com azeite.",
+    ],
+    allergens: [],
+    regiao: ["norte", "nordeste"],
+    revisao: "pendente",
+  },
+  {
+    id: "papinha-tambaqui-mandioca",
+    title: "Papinha de tambaqui com mandioca",
+    ageBand: "6-7",
+    mealType: "almoco",
+    prepTimeMinutes: 35,
+    difficulty: "medio",
+    ingredients: ["80g de filé de tambaqui", "100g de mandioca", "1 folha de louro", "1 colher de chá de azeite"],
+    steps: [
+      "Cozinhe a mandioca descascada até ficar bem macia.",
+      "Cozinhe o tambaqui em água com louro até ficar completamente cozido.",
+      "Desfie o peixe com as mãos, verificando CUIDADOSAMENTE cada porção para retirar todas as espinhas.",
+      "Amasse a mandioca, misture o peixe desfiado (sem espinhas) e finalize com azeite.",
+    ],
+    allergens: ["peixe"],
+    regiao: ["norte"],
+    revisao: "pendente",
+  },
+  {
+    id: "creme-cupuacu-banana",
+    title: "Creme de cupuaçu com banana",
+    ageBand: "8-9",
+    mealType: "lanche",
+    prepTimeMinutes: 10,
+    difficulty: "facil",
+    ingredients: ["50g de polpa de cupuaçu (pura, sem açúcar)", "1 banana madura", "2 colheres de sopa de água"],
+    steps: [
+      "Bata a polpa de cupuaçu com a água no liquidificador.",
+      "Amasse a banana com garfo.",
+      "Misture o creme de cupuaçu com a banana amassada até ficar homogêneo.",
+    ],
+    allergens: [],
+    regiao: ["norte"],
+    revisao: "pendente",
+  },
+  {
+    id: "pirao-pirarucu-legumes",
+    title: "Pirão de pirarucu com legumes",
+    ageBand: "10-12",
+    mealType: "almoco",
+    prepTimeMinutes: 40,
+    difficulty: "medio",
+    ingredients: ["80g de pirarucu", "1 cenoura pequena", "1 batata pequena", "2 colheres de sopa de farinha de mandioca", "1 colher de chá de azeite"],
+    steps: [
+      "Cozinhe o pirarucu em água até ficar bem cozido. Reserve o caldo.",
+      "Desfie o peixe com as mãos, checando minuciosamente cada porção para espinhas.",
+      "Cozinhe a cenoura e a batata até ficarem bem macias.",
+      "Dissolva a farinha de mandioca no caldo do peixe e cozinhe mexendo até engrossar.",
+      "Pique os legumes em pedacinhos pequenos e misture com o peixe e o pirão.",
+      "Finalize com azeite.",
+    ],
+    allergens: ["peixe"],
+    regiao: ["norte"],
+    revisao: "pendente",
+  },
+
+  // Nordeste (4)
+  {
+    id: "feijao-corda-abobora",
+    title: "Feijão-de-corda com abóbora amassada",
+    ageBand: "6-7",
+    mealType: "almoco",
+    prepTimeMinutes: 45,
+    difficulty: "medio",
+    ingredients: ["50g de feijão-de-corda (deixar de molho 8h)", "100g de abóbora (jerimum)", "1 colher de chá de azeite"],
+    steps: [
+      "Deixe o feijão-de-corda de molho por 8 horas, trocando a água.",
+      "Cozinhe na pressão por 20 minutos até ficar bem mole.",
+      "Cozinhe a abóbora no vapor até ficar macia.",
+      "Amasse o feijão com caldo e a abóbora juntos até virar um purê grosso.",
+      "Finalize com azeite.",
+    ],
+    allergens: [],
+    regiao: ["nordeste"],
+    revisao: "pendente",
+  },
+  {
+    id: "pure-jerimum-carne",
+    title: "Purê de jerimum com carne moída",
+    ageBand: "8-9",
+    mealType: "almoco",
+    prepTimeMinutes: 30,
+    difficulty: "medio",
+    ingredients: ["150g de jerimum (abóbora)", "50g de carne moída magra (patinho)", "1 colher de chá de azeite"],
+    steps: [
+      "Cozinhe o jerimum no vapor até ficar bem macio.",
+      "Cozinhe a carne moída em água até ficar completamente cozida, escorrendo a gordura.",
+      "Amasse o jerimum e misture a carne moída, amassando levemente para desfiar.",
+      "Finalize com azeite.",
+    ],
+    allergens: [],
+    regiao: ["nordeste"],
+    revisao: "pendente",
+  },
+  {
+    id: "suco-caju-mamao",
+    title: "Suco de caju com mamão",
+    ageBand: "8-9",
+    mealType: "lanche",
+    prepTimeMinutes: 10,
+    difficulty: "facil",
+    ingredients: ["1 caju maduro (apenas a fruta, SEM a castanha)", "1 fatia de mamão", "50ml de água"],
+    steps: [
+      "Lave o caju e retire a castanha (se estiver presa). Use APENAS o pedúnculo (fruta).",
+      "Esprema o caju para extrair o suco e coe bem para remover fibras.",
+      "Bata o mamão com o suco de caju e a água.",
+      "Sirva na hora — não adoçar.",
+    ],
+    allergens: [],
+    regiao: ["nordeste"],
+    revisao: "pendente",
+  },
+  {
+    id: "cuscuz-nordestino-ovo",
+    title: "Cuscuz nordestino molinho com ovo",
+    ageBand: "10-12",
+    mealType: "cafe",
+    prepTimeMinutes: 20,
+    difficulty: "facil",
+    ingredients: ["3 colheres de sopa de flocão de milho", "1 ovo", "água", "1 colher de chá de azeite"],
+    steps: [
+      "Hidrate o flocão de milho com água (proporção 1:1) e deixe descansar 10 minutos.",
+      "Cozinhe no vapor (cuscuzeira ou peneira sobre panela) por 5-8 minutos.",
+      "Cozinhe o ovo até ficar bem cozido (gema firme) e pique em pedacinhos.",
+      "Amasse o cuscuz com garfo para ficar bem molinho, misture o ovo picado e finalize com azeite.",
+    ],
+    allergens: ["ovo"],
+    regiao: ["nordeste"],
+    revisao: "pendente",
+  },
+
+  // Centro-Oeste (3)
+  {
+    id: "arroz-pequi-desfiado",
+    title: "Arroz com pequi (polpa raspada)",
+    ageBand: "13-24",
+    mealType: "almoco",
+    prepTimeMinutes: 50,
+    difficulty: "medio",
+    ingredients: ["2 pequis", "1/2 xícara de arroz", "1 colher de chá de azeite"],
+    steps: [
+      "Cozinhe os pequis em água por 30-40 minutos.",
+      "COM UMA COLHER, raspe cuidadosamente toda a polpa de cada caroço. NUNCA morda ou quebre o caroço (espinhos internos perigosos).",
+      "Verifique visualmente se não há fragmentos de caroço na polpa raspada.",
+      "Cozinhe o arroz normalmente.",
+      "Misture a polpa de pequi raspada ao arroz cozido e finalize com azeite.",
+    ],
+    allergens: [],
+    regiao: ["centro_oeste"],
+    revisao: "pendente",
+  },
+  {
+    id: "guariroba-refogada-frango",
+    title: "Guariroba refogada com frango",
+    ageBand: "10-12",
+    mealType: "almoco",
+    prepTimeMinutes: 45,
+    difficulty: "medio",
+    ingredients: ["80g de guariroba (palmito-amargo)", "50g de peito de frango", "1 colher de chá de azeite", "1 dente de alho"],
+    steps: [
+      "Cozinhe a guariroba em água por 30 minutos, trocando a água uma vez para reduzir o amargor.",
+      "Cozinhe o frango até ficar bem cozido e desfie.",
+      "Pique a guariroba cozida bem miúda.",
+      "Refogue o alho no azeite, adicione a guariroba picada e o frango desfiado.",
+      "Cozinhe por mais 5 minutos mexendo.",
+    ],
+    allergens: [],
+    regiao: ["centro_oeste"],
+    revisao: "pendente",
+  },
+  {
+    id: "empanado-guariroba-queijo",
+    title: "Bolinho de guariroba com queijo",
+    ageBand: "13-24",
+    mealType: "lanche",
+    prepTimeMinutes: 40,
+    difficulty: "medio",
+    ingredients: ["100g de guariroba cozida", "30g de queijo minas frescal", "1 colher de sopa de farinha de trigo", "1 ovo"],
+    steps: [
+      "Cozinhe a guariroba por 30 minutos até ficar bem macia. Pique bem miúda.",
+      "Misture com o queijo ralado, a farinha e o ovo batido.",
+      "Modele bolinhos pequenos (tamanho de uma colher de sopa).",
+      "Asse em forno a 180°C por 15-20 minutos até dourar (não frite — asse).",
+    ],
+    allergens: ["leite", "gluten", "ovo"],
+    regiao: ["centro_oeste"],
+    revisao: "pendente",
+  },
+
+  // Sul (2)
+  {
+    id: "pure-pinhao-batata",
+    title: "Purê de pinhão com batata",
+    ageBand: "10-12",
+    mealType: "almoco",
+    prepTimeMinutes: 50,
+    difficulty: "medio",
+    ingredients: ["6 pinhões", "1 batata média", "1 colher de chá de azeite"],
+    steps: [
+      "Faça um corte na casca de cada pinhão.",
+      "Cozinhe na panela de pressão por 40 minutos.",
+      "Retire a casca e a película marrom interna de cada pinhão.",
+      "Cozinhe a batata até ficar macia.",
+      "Amasse o pinhão e a batata juntos com garfo até virar purê. Finalize com azeite.",
+    ],
+    allergens: [],
+    regiao: ["sul"],
+    revisao: "pendente",
+  },
+  {
+    id: "sopa-pinhao-legumes",
+    title: "Sopa de pinhão com legumes",
+    ageBand: "13-24",
+    mealType: "ceia",
+    prepTimeMinutes: 60,
+    difficulty: "medio",
+    ingredients: ["8 pinhões", "1 cenoura pequena", "1 batata pequena", "1 abobrinha pequena", "1 colher de chá de azeite"],
+    steps: [
+      "Cozinhe os pinhões na pressão por 40 minutos. Descasque e pique em pedaços pequenos.",
+      "Pique todos os legumes em cubos pequenos.",
+      "Cozinhe os legumes em água até ficarem macios.",
+      "Adicione os pinhões picados à sopa.",
+      "Amasse levemente parte dos legumes para engrossar o caldo. Finalize com azeite.",
+    ],
+    allergens: [],
+    regiao: ["sul"],
+    revisao: "pendente",
+  },
+
+  // Multi-região (2)
+  {
+    id: "acai-puro-banana",
+    title: "Açaí puro com banana (sem açúcar)",
+    ageBand: "13-24",
+    mealType: "lanche",
+    prepTimeMinutes: 5,
+    difficulty: "facil",
+    ingredients: ["100g de polpa de açaí pura (sem açúcar)", "1 banana madura"],
+    steps: [
+      "Use polpa de açaí 100% pura — verifique no rótulo que NÃO contém açúcar, xarope ou guaraná.",
+      "Bata a polpa semi-congelada com um pouco de água até ficar cremosa.",
+      "Amasse a banana e misture com o açaí.",
+      "Sirva imediatamente — não adoçar.",
+    ],
+    allergens: [],
+    regiao: ["norte"],
+    revisao: "pendente",
+  },
+  {
+    id: "caldo-tucunare-batata-cenoura",
+    title: "Caldo de tucunaré com batata e cenoura",
+    ageBand: "8-9",
+    mealType: "almoco",
+    prepTimeMinutes: 35,
+    difficulty: "medio",
+    ingredients: ["80g de tucunaré", "1 batata pequena", "1 cenoura pequena", "1 colher de chá de azeite"],
+    steps: [
+      "Cozinhe o tucunaré em água até ficar completamente cozido.",
+      "Desfie com as mãos, verificando CUIDADOSAMENTE cada porção para retirar TODAS as espinhas.",
+      "Cozinhe a batata e a cenoura em cubos até ficarem bem macias.",
+      "Amasse os legumes com um pouco do caldo de cozimento do peixe.",
+      "Misture o peixe desfiado (sem espinhas) com os legumes amassados. Finalize com azeite.",
+    ],
+    allergens: ["peixe"],
+    regiao: ["norte"],
+    revisao: "pendente",
+  },
 ];
 
 export const TOTAL_RECIPES = RECIPES.length;
@@ -1106,11 +1400,14 @@ export function searchRecipes(params: {
   mealType?: RecipeMealType;
   excludeAllergens?: Allergen[];
   blwOnly?: boolean;
+  region?: Region | null;
 }): Recipe[] {
-  const { query, ageBand, mealType, excludeAllergens, blwOnly } = params;
+  const { query, ageBand, mealType, excludeAllergens, blwOnly, region } = params;
   const q = query?.trim().toLowerCase() ?? "";
 
-  return RECIPES.filter((recipe) => {
+  const filtered = RECIPES.filter((recipe) => {
+    // Receitas pendentes de revisão não aparecem para usuárias
+    if (recipe.revisao === "pendente") return false;
     if (ageBand && recipe.ageBand !== ageBand) return false;
     if (mealType && recipe.mealType !== mealType) return false;
     if (blwOnly && !isBlwFriendly(recipe)) return false;
@@ -1123,4 +1420,18 @@ export function searchRecipes(params: {
     }
     return true;
   });
+
+  if (!region) return filtered;
+
+  // Priorizar receitas da região, sem excluir as nacionais
+  return filtered.sort((a, b) => {
+    const aScore = a.regiao?.includes(region) ? 1 : 0;
+    const bScore = b.regiao?.includes(region) ? 1 : 0;
+    return bScore - aScore;
+  });
+}
+
+/** Retorna receitas pendentes de revisão (para o painel admin). */
+export function getPendingRecipes(): Recipe[] {
+  return RECIPES.filter((r) => r.revisao === "pendente");
 }

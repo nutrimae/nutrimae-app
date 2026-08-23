@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X, Check, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { X, Check, Sparkles, BookHeart } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ export function DiarioContent() {
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState<DiaryFood | null>(null);
   const [justUpdated, setJustUpdated] = useState(false);
+  const [bookInviteAvailable, setBookInviteAvailable] = useState(false);
 
   useEffect(() => {
     if (!activeBaby) return;
@@ -72,6 +74,11 @@ export function DiarioContent() {
         milestoneMap[row.milestone_key] = row.achieved_at;
       }
       setMilestones(milestoneMap);
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData.user) {
+        const accountAge = Date.now() - new Date(authData.user.created_at).getTime();
+        setBookInviteAvailable(accountAge >= 7 * 86_400_000);
+      }
       setLoading(false);
     }
 
@@ -191,6 +198,25 @@ export function DiarioContent() {
           />
         </div>
       </div>
+
+      {triedCount >= 10 && bookInviteAvailable && (
+        <Link
+          href="/app/livro-ilustrado"
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#FFE8F0] via-white to-[#FFF4D9] p-5 shadow-[0_12px_36px_rgba(255,107,157,0.12)] transition-transform active:scale-[0.98]"
+        >
+          <div className="absolute -right-5 -top-5 h-20 w-20 rounded-full bg-primary-200/35 blur-xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm">
+              <BookHeart className="h-7 w-7 text-primary-600" />
+            </div>
+            <div>
+              <p className="type-tiny font-semibold uppercase tracking-wider text-primary-600">Seu diario ja conta uma historia</p>
+              <h2 className="mt-1 font-heading text-lg font-bold leading-tight text-brown-800">Transforme os momentos de {activeBaby.name.split(" ")[0]} em um livro ilustrado</h2>
+              <p className="mt-1 text-xs text-brown-700/60">Veja uma previa personalizada</p>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {CATEGORY_ORDER.map((category) => (
         <div key={category}>

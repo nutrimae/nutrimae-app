@@ -20,6 +20,10 @@ const BUMP_IMAGES: Record<string, string> = {
   "nutribot-30d": "/images/order-bumps/nutribot-30d.png",
 };
 
+const BUMP_DESCRIPTIONS: Record<string, string> = {
+  "batch-cooking": "Cozinhe a semana inteira em uma hora só. Método de porcionamento, tabela de validade e etiquetas pra imprimir. Acesso vitalício, não entra na assinatura.",
+};
+
 function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
@@ -221,7 +225,12 @@ export function CheckoutForm({
                   className="h-14 w-14 shrink-0 rounded-lg object-cover"
                 />
               )}
-              <span className="flex-1">{bump.name}</span>
+              <span className="flex-1">
+                <span className="block">{bump.name}</span>
+                {BUMP_DESCRIPTIONS[bump.slug] && (
+                  <span className="mt-0.5 block text-xs text-gray-500">{BUMP_DESCRIPTIONS[bump.slug]}</span>
+                )}
+              </span>
               <span className="font-medium">{formatBRL(bump.price_cents)}</span>
             </label>
           ))}

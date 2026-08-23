@@ -9,8 +9,10 @@ export type ModuleKey =
   | "restricao_alimentar"
   | "rotina_sono"
   | "calculadora_fraldas"
+  | "livro_ilustrado"
   | "sos_desmame_noturno"
-  | "protocolo_intestino_livre";
+  | "protocolo_intestino_livre"
+  | "batch_cooking";
 
 export type ProductKey =
   | "nutrimae_assinatura"
@@ -21,7 +23,9 @@ export type ProductKey =
   | "sos_desmame_noturno"
   | "protocolo_intestino_livre"
   | "nutribot_vip"
-  | "nutribot_30d";
+  | "nutribot_30d"
+  | "livro_ilustrado"
+  | "batch_cooking";
 
 export interface BundledItem {
   label: string;
@@ -116,6 +120,17 @@ export const PRODUCTS: Record<ProductKey, Product> = {
     modules: ["calculadora_fraldas"],
     built: false,
   },
+  livro_ilustrado: {
+    key: "livro_ilustrado",
+    name: "Livro Ilustrado da Introducao Alimentar",
+    price: 119,
+    regularPrice: 149,
+    priceNote: "pagamento unico, arquivo digital personalizado",
+    bundled: [],
+    modules: ["livro_ilustrado"],
+    built: true,
+    oneTimePayment: true,
+  },
   // Order bump: acesso vitalício, pagamento único (não é assinatura recorrente).
   sos_desmame_noturno: {
     key: "sos_desmame_noturno",
@@ -168,6 +183,20 @@ export const PRODUCTS: Record<ProductKey, Product> = {
     priceNote: "pagamento único, 30 dias de acesso",
     bundled: [],
     modules: [],
+    built: true,
+    oneTimePayment: true,
+  },
+  // Order bump do checkout do Plano Anual + expansão vendida solta dentro do
+  // app. Preço sincronizado com a oferta "batch-cooking" em
+  // supabase/schema.sql.
+  batch_cooking: {
+    key: "batch_cooking",
+    name: "Batch Cooking & Congelamento",
+    price: 27,
+    regularPrice: 27,
+    priceNote: "pagamento único, acesso vitalício",
+    bundled: [],
+    modules: ["batch_cooking"],
     built: true,
     oneTimePayment: true,
   },

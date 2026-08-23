@@ -34,9 +34,12 @@ export default async function CheckoutOfferPage({
     const { data } = await admin
       .from("offers")
       .select("id, slug, name, price_cents")
-      .in("slug", ["sos-desmame", "protocolo-intestino", "nutribot-30d"])
+      .in("slug", ["batch-cooking", "sos-desmame", "protocolo-intestino", "nutribot-30d"])
       .eq("active", true);
-    bumps = data ?? [];
+    // Batch Cooking primeiro de propósito: resolve a dor que a compra
+    // principal acabou de criar ("o que eu dou" -> "quando eu cozinho isso").
+    const priority = ["batch-cooking", "sos-desmame", "protocolo-intestino", "nutribot-30d"];
+    bumps = (data ?? []).sort((a, b) => priority.indexOf(a.slug) - priority.indexOf(b.slug));
   }
 
   return (

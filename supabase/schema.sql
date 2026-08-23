@@ -921,3 +921,210 @@ $$;
 -- src/app/api/cron/abandoned-checkout/route.ts.
 alter table public.orders
   add column if not exists abandoned_reminder_sent_at timestamptz;
+
+-- 15. Livro Ilustrado da Introducao Alimentar
+-- Expansao personalizada gerada a partir do Diario. Todos os arquivos ficam
+-- privados e organizados pela primeira pasta = auth.uid().
+create table if not exists public.illustrated_books (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  baby_id uuid not null references public.babies (id) on delete cascade,
+  status text not null default 'draft'
+    check (status in ('draft', 'generating', 'review_pending', 'ready', 'failed')),
+  use_reference_photo boolean not null default false,
+  reference_photo_path text,
+  script jsonb not null default '[]'::jsonb,
+  pages jsonb not null default '[]'::jsonb,
+  pdf_path text,
+  provider text,
+  model text,
+  privacy_policy_version text,
+  privacy_consent_at timestamptz,
+  automated_review jsonb,
+  failure_reason text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  generated_at timestamptz
+);
+
+alter table public.profiles
+  add column if not exists credito_expansao_centavos integer not null default 0;
+
+alter table public.orders
+  add column if not exists expansion_credit_granted_at timestamptz;
+
+-- Credito idempotente: o mesmo webhook/pedido nunca soma duas vezes.
+create or replace function public.grant_expansion_credit(
+  p_order_id uuid,
+  p_user_id uuid,
+  p_amount_centavos integer
+)
+returns boolean
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  update public.orders
+  set expansion_credit_granted_at = now()
+  where id = p_order_id
+    and expansion_credit_granted_at is null;
+
+  if not found then
+    return false;
+  end if;
+
+  update public.profiles
+  set credito_expansao_centavos = credito_expansao_centavos + greatest(p_amount_centavos, 0)
+  where user_id = p_user_id;
+  return true;
+end;
+$$;
+
+revoke all on function public.grant_expansion_credit(uuid, uuid, integer) from public, anon, authenticated;
+grant execute on function public.grant_expansion_credit(uuid, uuid, integer) to service_role;
+
+create index if not exists illustrated_books_user_baby_idx
+  on public.illustrated_books (user_id, baby_id, created_at desc);
+
+alter table public.illustrated_books enable row level security;
+
+drop policy if exists "Responsavel le os proprios livros" on public.illustrated_books;
+create policy "Responsavel le os proprios livros"
+  on public.illustrated_books for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Responsavel cria os proprios livros" on public.illustrated_books;
+create policy "Responsavel cria os proprios livros"
+  on public.illustrated_books for insert
+  with check (
+    auth.uid() = user_id
+    and exists (
+      select 1 from public.babies b
+      where b.id = baby_id and b.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "Responsavel atualiza os proprios livros" on public.illustrated_books;
+create policy "Responsavel atualiza os proprios livros"
+  on public.illustrated_books for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Responsavel exclui os proprios livros" on public.illustrated_books;
+create policy "Responsavel exclui os proprios livros"
+  on public.illustrated_books for delete
+  using (auth.uid() = user_id);
+
+insert into storage.buckets (id, name, public)
+values ('illustrated-books', 'illustrated-books', false)
+on conflict (id) do update set public = false;
+
+drop policy if exists "Responsavel le arquivos dos proprios livros" on storage.objects;
+create policy "Responsavel le arquivos dos proprios livros"
+  on storage.objects for select
+  using (bucket_id = 'illustrated-books' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "Responsavel envia arquivos dos proprios livros" on storage.objects;
+create policy "Responsavel envia arquivos dos proprios livros"
+  on storage.objects for insert
+  with check (bucket_id = 'illustrated-books' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "Responsavel atualiza arquivos dos proprios livros" on storage.objects;
+create policy "Responsavel atualiza arquivos dos proprios livros"
+  on storage.objects for update
+  using (bucket_id = 'illustrated-books' and (storage.foldername(name))[1] = auth.uid()::text)
+  with check (bucket_id = 'illustrated-books' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "Responsavel exclui arquivos dos proprios livros" on storage.objects;
+create policy "Responsavel exclui arquivos dos proprios livros"
+  on storage.objects for delete
+  using (bucket_id = 'illustrated-books' and (storage.foldername(name))[1] = auth.uid()::text);
+
+insert into public.offers (slug, product_key, name, billing_type, price_cents, recurring_price_cents, active)
+values ('livro-ilustrado', 'livro_ilustrado', 'Livro Ilustrado da Introducao Alimentar', 'one_time', 11900, null, true)
+on conflict (slug) do update set
+  product_key = excluded.product_key,
+  name = excluded.name,
+  billing_type = excluded.billing_type,
+  price_cents = excluded.price_cents,
+  recurring_price_cents = excluded.recurring_price_cents,
+  active = excluded.active;
+
+-- Batch Cooking & Congelamento — order bump do checkout do Anual + expansão
+-- vendida solta dentro do app (ver PROMPT_4_BUMP_UPSELL_DOWNSELL.md e
+-- src/app/app/(paid)/batch-cooking/). Pagamento único, vitalício.
+insert into public.offers (slug, product_key, name, billing_type, price_cents, recurring_price_cents, active)
+values ('batch-cooking', 'batch_cooking', 'Batch Cooking & Congelamento', 'one_time', 2700, null, true)
+on conflict (slug) do update set
+  product_key = excluded.product_key,
+  name = excluded.name,
+  billing_type = excluded.billing_type,
+  price_cents = excluded.price_cents,
+  recurring_price_cents = excluded.recurring_price_cents,
+  active = excluded.active;
+
+notify pgrst, 'reload schema';
+
+-- ═══════════════════════════════════════════════════════════════
+-- Regional menu + TTS (Prompt G + H)
+-- ═══════════════════════════════════════════════════════════════
+
+-- Região opcional no perfil para personalização de cardápio regional
+alter table public.profiles
+  add column if not exists region text
+  check (region is null or region in ('norte', 'nordeste', 'centro_oeste', 'sudeste', 'sul'));
+
+-- Painel de revisão de conteúdo (alimentos e receitas regionais)
+create table if not exists public.content_reviews (
+  id uuid primary key default gen_random_uuid(),
+  content_type text not null check (content_type in ('food', 'recipe', 'menu_suggestion')),
+  content_id text not null,
+  status text not null default 'pendente' check (status in ('pendente', 'aprovado', 'rejeitado')),
+  priority text not null default 'normal' check (priority in ('normal', 'alta')),
+  reviewer_id uuid references auth.users (id),
+  notes text,
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  unique (content_type, content_id)
+);
+
+create index if not exists content_reviews_status_idx on public.content_reviews (status);
+alter table public.content_reviews enable row level security;
+
+drop policy if exists "Admins gerenciam revisões" on public.content_reviews;
+create policy "Admins gerenciam revisões"
+  on public.content_reviews for all
+  using (
+    exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true)
+  );
+
+-- Cache de áudio TTS gerado
+create table if not exists public.tts_audio_cache (
+  id uuid primary key default gen_random_uuid(),
+  content_type text not null,
+  content_id text not null,
+  content_hash text not null,
+  storage_path text not null,
+  duration_seconds integer,
+  created_at timestamptz not null default now(),
+  unique (content_type, content_id)
+);
+
+alter table public.tts_audio_cache enable row level security;
+
+drop policy if exists "Usuárias autenticadas leem cache de áudio" on public.tts_audio_cache;
+create policy "Usuárias autenticadas leem cache de áudio"
+  on public.tts_audio_cache for select
+  using (auth.uid() is not null);
+
+drop policy if exists "Service role gerencia cache TTS" on public.tts_audio_cache;
+create policy "Service role gerencia cache TTS"
+  on public.tts_audio_cache for all
+  using (
+    exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true)
+  );
+
+-- Bucket público para áudios TTS (conteúdo editorial cacheado, sem dados pessoais)
+insert into storage.buckets (id, name, public)
+values ('tts-audio', 'tts-audio', true)
+on conflict (id) do update set public = true;

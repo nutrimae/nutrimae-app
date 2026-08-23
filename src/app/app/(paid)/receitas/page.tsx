@@ -8,6 +8,7 @@ import { useActiveBaby } from "@/components/active-baby-context";
 import { ageInMonths } from "@/lib/age";
 import { AGE_BAND_LABEL, ageBandForMonths, type AgeBand } from "@/lib/menu";
 import { BackButton } from "@/components/back-button";
+import { useRegion } from "@/lib/use-region";
 import {
   ALLERGEN_LABEL,
   RECIPE_MEAL_TYPE_LABEL,
@@ -26,6 +27,7 @@ export default function ReceitasPage() {
   const searchParams = useSearchParams();
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const babyBand = useMemo(() => ageBandForMonths(months), [months]);
+  const { region } = useRegion();
 
   const [query, setQuery] = useState("");
   const [ageBand, setAgeBand] = useState<AgeBand | "todas">(activeBaby ? babyBand : "todas");
@@ -47,9 +49,10 @@ export default function ReceitasPage() {
       mealType: mealType === "todas" ? undefined : mealType,
       excludeAllergens: excludedAllergens,
       blwOnly,
+      region,
     });
     return onlyFavorites ? base.filter((r) => favoriteIds.includes(r.id)) : base;
-  }, [query, ageBand, mealType, onlyFavorites, favoriteIds, excludedAllergens, blwOnly]);
+  }, [query, ageBand, mealType, onlyFavorites, favoriteIds, excludedAllergens, blwOnly, region]);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">

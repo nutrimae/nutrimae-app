@@ -8,7 +8,7 @@ function formatPrice(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export function UpgradeScreen({ product }: { product: Product }) {
+export function UpgradeScreen({ product, checkoutHref }: { product: Product; checkoutHref?: string }) {
   const total = totalStackedValue(product);
 
   return (
@@ -81,10 +81,16 @@ export function UpgradeScreen({ product }: { product: Product }) {
         <p className="mt-1 text-right text-xs text-brown-700/50">{product.priceNote}</p>
       </div>
 
-      {/* Plano Mensal recorrente ainda não vendido publicamente (feature
-          flag desligada em offers.active) — sem checkout de verdade pra
-          linkar aqui ainda. */}
-      <Button disabled>Assinatura em breve por aqui</Button>
+      {checkoutHref ? (
+        <Link href={checkoutHref}>
+          <Button variant="brand">Quero desbloquear</Button>
+        </Link>
+      ) : (
+        // Plano Mensal recorrente ainda não vendido publicamente (feature
+        // flag desligada em offers.active) — sem checkout de verdade pra
+        // linkar aqui ainda.
+        <Button disabled>Assinatura em breve por aqui</Button>
+      )}
 
       <Link
         href="/app"

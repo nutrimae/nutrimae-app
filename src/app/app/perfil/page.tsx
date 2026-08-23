@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, ShieldCheck, TrendingUp, Crown } from "lucide-react";
+import { LogOut, ShieldCheck, TrendingUp, Crown, MapPin } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,18 @@ import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/back-button";
 import { useVipAccess } from "@/lib/use-vip-access";
 import type { BabyGender } from "@/lib/types";
+import { REGIONS, type Region } from "@/lib/regions";
+import { useRegion } from "@/lib/use-region";
 
 export default function PerfilPage() {
   const router = useRouter();
   const { activeBaby, updateBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const vipAccess = useVipAccess();
+  const { region, setRegion } = useRegion();
 
   const [email, setEmail] = useState("");
+  const [creditoExpansaoCentavos, setCreditoExpansaoCentavos] = useState(0);
   const [babyName, setBabyName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState<BabyGender>("female");
@@ -30,8 +34,15 @@ export default function PerfilPage() {
   const [passwordSaved, setPasswordSaved] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       setEmail(data.user?.email ?? "");
+      if (!data.user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("credito_expansao_centavos")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+      setCreditoExpansaoCentavos(profile?.credito_expansao_centavos ?? 0);
     });
   }, [supabase]);
 
@@ -139,6 +150,40 @@ export default function PerfilPage() {
       )}
 
       <div>
+        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Sua região</h2>
+        <div className="flex flex-col gap-2 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
+          <p className="text-sm text-brown-700/70">
+            Usamos para priorizar alimentos e receitas da sua região no cardápio.
+          </p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {REGIONS.map((r) => (
+              <button
+                key={r.key}
+                type="button"
+                onClick={() => setRegion(region === r.key ? null : r.key)}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
+                  region === r.key
+                    ? "bg-primary-500 text-white"
+                    : "bg-sage-50 text-brown-700"
+                }`}
+              >
+                <span>{r.emoji}</span> {r.label}
+              </button>
+            ))}
+          </div>
+          {region && (
+            <button
+              type="button"
+              onClick={() => setRegion(null)}
+              className="mt-1 text-left text-sm font-medium text-brown-700/50"
+            >
+              Limpar seleção
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Dados da conta</h2>
         <div className="flex flex-col gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <div>
@@ -168,6 +213,15 @@ export default function PerfilPage() {
         <p className="rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
           Seu plano atual é pagamento único — sem cobrança recorrente pra gerenciar. Dúvidas? Fale com o suporte.
         </p>
+        {creditoExpansaoCentavos > 0 && (
+          <p className="mt-2 rounded-2xl bg-amber-50 p-4 text-sm text-brown-700">
+            Você tem{" "}
+            <strong className="text-brown-800">
+              {(creditoExpansaoCentavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            </strong>{" "}
+            em créditos de expansões compradas — guardados pra quando lançarmos novidades de upgrade.
+          </p>
+        )}
       </div>
 
       {!vipAccess.loading && !vipAccess.hasAny && (

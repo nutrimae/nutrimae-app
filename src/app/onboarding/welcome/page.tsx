@@ -36,7 +36,7 @@ export default function WelcomePage() {
 
       <div className="relative mx-auto w-full max-w-sm">
         <div className="mb-6">
-          <ProgressDots step={0} total={5} />
+          <ProgressDots step={0} total={6} />
         </div>
         <Button variant="brand" onClick={() => router.push("/onboarding/baby")}>Vamos começar</Button>
       </div>

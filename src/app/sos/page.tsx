@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Phone,
   Volume2,
@@ -15,6 +15,7 @@ import {
   PersonStanding,
 } from "lucide-react";
 import { BackButton as PageBackButton } from "@/components/back-button";
+import { ListenButton } from "@/components/listen-button";
 
 // Rota pública do Manual S.O.S. — sem login, sem assinatura, sem oferta.
 // Fica fora de /app de propósito: não pode depender de ActiveBabyProvider
@@ -145,6 +146,15 @@ function AgeGroupPicker({ onPick }: { onPick: (group: AgeGroup) => void }) {
 export default function SosPage() {
   const [view, setView] = useState<View>("identify");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
+
+  // Registrar Service Worker para cache offline dos áudios do S.O.S.
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        // Silent fail — SW é opcional, o app funciona sem ele
+      });
+    }
+  }, []);
 
   const isInfant = ageGroup === "infant";
   const steps = isInfant ? INFANT_STEPS : CHILD_STEPS;
@@ -311,6 +321,15 @@ export default function SosPage() {
                     </li>
                   ))}
                 </ol>
+
+                <ListenButton
+                  contentType="sos"
+                  contentId={`engasgo-${ageGroup}`}
+                  text={(
+                    ageGroup === "infant" ? INFANT_STEPS : CHILD_STEPS
+                  ).map((s, i) => `Passo ${i + 1}: ${s.title}. ${s.text}`).join(" ")}
+                  className="mt-3"
+                />
 
                 <p className="mt-2 rounded-2xl bg-peach-100 p-4 text-sm text-brown-700">
                   Resumo educativo, não substitui treinamento certificado. Ligue 192

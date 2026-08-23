@@ -116,7 +116,7 @@ async function grantAccessForOrder(
   admin: AdminClient,
   orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null },
 ) {
-  const { data: offer } = await admin.from("offers").select("product_key, name").eq("id", orderRow.offer_id).maybeSingle();
+  const { data: offer } = await admin.from("offers").select("product_key, name, price_cents").eq("id", orderRow.offer_id).maybeSingle();
   const { data: customer } = await admin.from("customers").select("email, phone_number").eq("id", orderRow.customer_id).maybeSingle();
 
   if (!offer || !customer) {
@@ -148,6 +148,55 @@ async function grantAccessForOrder(
     },
     { onConflict: "user_id,product_id" },
   );
+
+  // Um pedido pode ter mais de um item (o Anual + order bumps no mesmo
+  // checkout) — cada item libera o produto correspondente, não só a oferta
+  // principal do pedido. Sem isso, quem compra um bump nunca recebe acesso
+  // a ele.
+  const { data: items } = await admin
+    .from("order_items")
+    .select("total_amount_cents, offers(product_key, name)")
+    .eq("order_id", orderRow.id);
+
+  let expansionCreditCentavos = 0;
+
+  for (const item of items ?? []) {
+    const itemOffer = item.offers as unknown as { product_key?: string; name?: string } | null;
+    if (!itemOffer?.product_key) continue;
+    if (!isKnownProductKey(itemOffer.product_key)) {
+      console.error("[pagarme-webhook] product_key desconhecido em order_items", itemOffer.product_key);
+      continue;
+    }
+
+    // A assinatura principal já foi liberada acima via `offer` — refazer o
+    // upsert aqui é inofensivo (mesmo valor), mas não conta como expansão.
+    await admin.from("user_products").upsert(
+      {
+        user_id: userId,
+        product_id: itemOffer.product_key,
+        product_name: itemOffer.name ?? itemOffer.product_key,
+        status: "active",
+        canceled_at: null,
+      },
+      { onConflict: "user_id,product_id" },
+    );
+
+    // Tudo que não é a assinatura principal (nutrimae_assinatura) conta como
+    // expansão pra fins de crédito — bump, OTO1/OTO2, compra solta no app,
+    // inclusive quando a expansão É a oferta principal do pedido (ex.:
+    // Livro Ilustrado comprado sozinho, sem passar pelo Anual).
+    if (itemOffer.product_key !== "nutrimae_assinatura") {
+      expansionCreditCentavos += item.total_amount_cents;
+    }
+  }
+
+  if (expansionCreditCentavos > 0) {
+    await admin.rpc("grant_expansion_credit", {
+      p_order_id: orderRow.id,
+      p_user_id: userId,
+      p_amount_centavos: expansionCreditCentavos,
+    });
+  }
 }
 
 /**

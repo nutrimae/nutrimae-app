@@ -90,7 +90,7 @@ export default function GenderStepPage() {
       </div>
 
       <div className="mx-auto mt-8 w-full max-w-sm">
-        <ProgressDots step={2} total={5} />
+        <ProgressDots step={2} total={6} />
       </div>
     </main>
   );

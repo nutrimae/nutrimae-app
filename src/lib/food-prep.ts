@@ -211,6 +211,131 @@ export const FOOD_PREP_GUIDES: FoodPrepGuide[] = [
     freezing: "Cozido, com caldo, em potes pequenos, por até 3 meses.",
     thawing: "Descongele na geladeira e aqueça bem antes de servir.",
   },
+  // ─── Guias de Preparo Regionais ───
+
+  {
+    foodId: "acai",
+    steps: [
+      { action: "Use polpa de açaí 100% pura, congelada, sem adição de açúcar ou xarope.", why: "Açaí comercial geralmente vem com muito açúcar adicionado — verificar rótulo." },
+      { action: "Bata a polpa congelada com um pouco de água até ficar cremoso e liso.", why: "Consistência lisa evita pedaços que possam engasgar." },
+      { action: "Misture com banana madura amassada para adoçar naturalmente.", why: "A banana dá doçura sem precisar de açúcar." },
+    ],
+    freezing: "A polpa pura pode ser recongelada em cubos de gelo por até 3 meses.",
+    thawing: "Descongele parcialmente e bata no liquidificador. Não precisa descongelar totalmente.",
+  },
+  {
+    foodId: "tucuma",
+    steps: [
+      { action: "Escolha tucumãs maduros — a casca deve estar amarelo-alaranjada escura.", why: "Tucumã verde é muito duro e fibroso demais para bebê." },
+      { action: "Retire toda a polpa do caroço com uma faca, raspando bem.", why: "O caroço é muito duro e não pode ser oferecido ao bebê." },
+      { action: "Amasse a polpa com garfo até formar um purê, ou bata no liquidificador.", why: "A textura fibrosa do tucumã precisa ser bem processada para bebês." },
+    ],
+    freezing: "Congele a polpa já processada em potinhos por até 2 meses.",
+    thawing: "Descongele na geladeira de um dia para o outro.",
+  },
+  {
+    foodId: "cupuacu",
+    steps: [
+      { action: "Retire a polpa das sementes — use polpa congelada de boa procedência se não tiver a fruta fresca.", why: "A polpa fresca é ácida e viscosa; congelada é mais prática." },
+      { action: "Bata no liquidificador com um pouco de água e coe se for para bebê de 6-7 meses.", why: "Coar remove fibras grossas que podem ser difíceis de engolir nos primeiros meses." },
+      { action: "Misture com banana ou mamão para equilibrar a acidez.", why: "Cupuaçu puro é bem azedo — misturar com fruta doce melhora a aceitação." },
+    ],
+    freezing: "Congele a polpa pura em forminhas de gelo por até 3 meses.",
+    thawing: "Descongele na geladeira ou em banho-maria em fogo baixo.",
+  },
+  {
+    foodId: "tambaqui",
+    steps: [
+      { action: "Cozinhe o peixe em água ou vapor até ficar totalmente cozido e opaco.", why: "Peixe mal cozido pode conter parasitas — cozimento completo é obrigatório." },
+      { action: "Desfie o peixe em fios bem finos com as mãos.", why: "Desfiar manualmente permite sentir espinhas que passam despercebidas com garfo." },
+      { action: "PASSE OS DEDOS por todo o peixe desfiado, sentindo cuidadosamente por espinhas.", why: "Tambaqui tem muitas espinhas finas — a checagem manual é a única forma segura." },
+      { action: "Amasse ou misture em papinhas com legumes.", why: "Misturar com purê de legumes facilita a ingestão e enriquece nutricionalmente." },
+    ],
+    freezing: "Congele o peixe já cozido e desfiado (sem espinhas) em porções pequenas por até 2 meses.",
+    thawing: "Descongele na geladeira de um dia para o outro. Reaqueça completamente antes de servir.",
+  },
+  {
+    foodId: "pirarucu",
+    steps: [
+      { action: "Cozinhe as postas ou filés em água até ficarem bem cozidos.", why: "Pirarucu é um peixe grande e tem postas grossas — garantir cozimento por dentro." },
+      { action: "Desfie todo o peixe com as mãos e cheque espinhas manualmente.", why: "Mesmo sendo peixe de postas grandes, pode ter espinhas escondidas." },
+      { action: "Amasse ou misture em preparações com legumes.", why: "O sabor suave do pirarucu combina bem com purês." },
+    ],
+    freezing: "Congele desfiado e livre de espinhas em porções por até 2 meses.",
+    thawing: "Descongele na geladeira. Reaqueça bem antes de servir.",
+  },
+  {
+    foodId: "tucunare",
+    steps: [
+      { action: "Cozinhe o peixe inteiro ou em postas até ficar completamente cozido.", why: "Tucunaré cru ou mal passado não deve ser oferecido a bebês." },
+      { action: "Desfie cuidadosamente com as mãos e cheque cada porção para espinhas.", why: "Checagem manual é obrigatória — espinhas finas são perigosas." },
+      { action: "Misture com purê de legumes ou use em caldos.", why: "O caldo de tucunaré é nutritivo e saboroso para papinhas." },
+    ],
+    freezing: "Congele desfiado e livre de espinhas por até 2 meses.",
+    thawing: "Descongele na geladeira de um dia para o outro.",
+  },
+  {
+    foodId: "umbu",
+    steps: [
+      { action: "Escolha umbus bem maduros — devem estar macios ao toque e com cor amarelada.", why: "Umbu verde é muito ácido e pode irritar o estômago do bebê." },
+      { action: "Lave bem, retire a casca e o caroço.", why: "A casca é grossa e o caroço grande — ambos devem ser removidos." },
+      { action: "Amasse a polpa com garfo.", why: "A polpa madura já é bem macia e fácil de amassar." },
+    ],
+    freezing: "Congele a polpa amassada em forminhas de gelo por até 3 meses.",
+    thawing: "Descongele na geladeira.",
+  },
+  {
+    foodId: "caju-fruta",
+    steps: [
+      { action: "Escolha cajus bem maduros, macios e de cor intensa (amarelo ou vermelho).", why: "Caju verde é muito adstringente e difícil de engolir." },
+      { action: "Lave, remova a castanha (se ainda estiver presa) e esprema o suco.", why: "A castanha de caju é ALÉRGENO — não oferecer para o bebê." },
+      { action: "Coe o suco para remover fibras e ofereça puro ou misturado com outra fruta.", why: "As fibras do caju são longas e podem ser difíceis de engolir." },
+    ],
+    freezing: "Congele o suco coado em forminhas de gelo por até 2 meses.",
+    thawing: "Descongele na geladeira.",
+  },
+  {
+    foodId: "feijao-de-corda",
+    steps: [
+      { action: "Deixe os grãos de molho por 8-12 horas, trocando a água pelo menos uma vez.", why: "O molho reduz fitatos e facilita a digestão." },
+      { action: "Cozinhe em panela de pressão por 20-25 minutos até ficar bem mole.", why: "Grãos duros são risco de engasgo — precisam ficar bem macios." },
+      { action: "Para bebê de 6-7 meses, amasse com garfo e use bastante caldo.", why: "O caldo grosso do feijão é rico em ferro e nutrientes." },
+    ],
+    freezing: "Congele cozido (com caldo) em porções por até 3 meses.",
+    thawing: "Descongele na geladeira e reaqueça completamente.",
+  },
+  {
+    foodId: "pequi",
+    steps: [
+      { action: "Cozinhe o pequi inteiro (com caroço) em água por 30-40 minutos.", why: "O cozimento longo amolece a polpa e facilita a retirada sem risco." },
+      { action: "COM UMA COLHER, raspe toda a polpa ao redor do caroço. NUNCA morda, rosse ou quebre o caroço.", why: "O caroço do pequi contém milhares de espinhos finíssimos por dentro que podem perfurar boca, gengiva e garganta — risco grave de lesão." },
+      { action: "Verifique visualmente se nenhum espinho ou fragmento de caroço ficou na polpa.", why: "Mesmo raspando com colher, fragmentos podem se soltar." },
+      { action: "Amasse a polpa com garfo até virar purê e misture em arroz ou papinhas.", why: "Garante que nenhum fragmento de caroço passou despercebido na textura lisa." },
+    ],
+    freezing: "Congele a polpa já retirada do caroço, amassada, em potinhos por até 3 meses.",
+    thawing: "Descongele na geladeira de um dia para o outro.",
+  },
+  {
+    foodId: "guariroba",
+    steps: [
+      { action: "Corte a guariroba em rodelas finas e cozinhe em água por pelo menos 30 minutos.", why: "A guariroba é naturalmente amarga e firme — o cozimento longo suaviza ambos." },
+      { action: "Troque a água pelo menos uma vez durante o cozimento se quiser reduzir o amargor.", why: "Parte do amargor sai na água de cozimento." },
+      { action: "Pique bem miúda depois de cozida.", why: "A textura fibrosa pode ser difícil de mastigar para bebês." },
+    ],
+    freezing: "Congele cozida e picada em porções por até 2 meses.",
+    thawing: "Descongele na geladeira e reaqueça.",
+  },
+  {
+    foodId: "pinhao",
+    steps: [
+      { action: "Faça um corte na casca de cada pinhão (como se faz com castanha).", why: "O corte permite que o vapor entre e cozinhe por dentro." },
+      { action: "Cozinhe na panela de pressão por 40 minutos, ou em água fervente por 1 hora.", why: "Pinhão mal cozido é duro e representa risco alto de engasgo." },
+      { action: "Retire a casca e a película marrom interna.", why: "A película é amarga e difícil de digerir." },
+      { action: "Pique em pedaços BEM pequenos ou amasse com garfo.", why: "Pinhão inteiro ou em pedaços grandes é risco de engasgo mesmo cozido." },
+    ],
+    freezing: "Congele já cozido e descascado em saco hermético por até 3 meses.",
+    thawing: "Descongele na geladeira. Pode reaquecer no vapor.",
+  },
 ];
 
 export function getFoodPrepGuide(foodId: string): FoodPrepGuide | undefined {

@@ -165,7 +165,7 @@ export default function BabyStepPage() {
       </div>
 
       <div className="mx-auto mt-8 w-full max-w-sm">
-        <ProgressDots step={1} total={5} />
+        <ProgressDots step={1} total={6} />
       </div>
     </main>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Clock, ChefHat, Heart, Share2, Star, AlertTriangle } from "lucide-react";
 import { BackButton } from "@/components/back-button";
+import { ListenButton } from "@/components/listen-button";
 import { AGE_BAND_LABEL } from "@/lib/menu";
 import { ALLERGEN_LABEL, RECIPE_MEAL_TYPE_LABEL, RECIPES } from "@/lib/recipes";
 import {
@@ -172,6 +173,18 @@ export default function RecipeDetailPage() {
             </li>
           ))}
         </ol>
+
+        <ListenButton
+          contentType="recipe"
+          contentId={recipe.id}
+          text={[
+            `${recipe.title}.`,
+            `Ingredientes: ${recipe.ingredients.join(", ")}.`,
+            "Modo de preparo:",
+            ...recipe.steps.map((s, i) => `Passo ${i + 1}: ${s}`),
+          ].join(" ")}
+          className="mt-3"
+        />
       </section>
     </main>
   );

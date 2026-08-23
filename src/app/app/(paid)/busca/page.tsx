@@ -9,16 +9,19 @@ import { ageBandForMonths, AGE_BAND_LABEL } from "@/lib/menu";
 import { searchFoods, type FoodItem } from "@/lib/foods";
 import { getFoodPrepGuide } from "@/lib/food-prep";
 import { BackButton } from "@/components/back-button";
+import { ListenButton } from "@/components/listen-button";
+import { useRegion } from "@/lib/use-region";
 
 export default function BuscaPage() {
   const { activeBaby } = useActiveBaby();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<FoodItem | null>(null);
+  const { region } = useRegion();
 
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
 
-  const results = useMemo(() => searchFoods(query), [query]);
+  const results = useMemo(() => searchFoods(query, region), [query, region]);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
@@ -142,6 +145,18 @@ function FoodDetail({
           <p className="text-brown-800">{food.warning}</p>
         </div>
       )}
+
+      <div className="mt-4">
+        <ListenButton
+          contentType="food"
+          contentId={food.id}
+          text={[
+            `${food.name}.`,
+            `Corte recomendado para ${AGE_BAND_LABEL[ageBand]}: ${food.cuts[ageBand]}`,
+            food.warning ? `Atenção: ${food.warning}` : "",
+          ].filter(Boolean).join(" ")}
+        />
+      </div>
 
       <FoodPrepSection foodId={food.id} />
     </div>

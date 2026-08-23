@@ -1,4 +1,5 @@
 import { ageInMonths } from "@/lib/age";
+import type { Region } from "@/lib/regions";
 
 export type AgeBand = "6-7" | "8-9" | "10-12" | "13-24";
 
@@ -55,6 +56,8 @@ export interface MealSuggestion {
   description: string;
   prep: string;
   ingredients: Ingredient[];
+  /** Regiões de origem — sugestões com região recebem bônus quando a usuária é da mesma região. */
+  regiao?: Region[];
 }
 
 type Pool = Record<AgeBand, Record<MealType, MealSuggestion[]>>;
@@ -119,6 +122,30 @@ const MENU_POOL: Pool = {
           { name: "Chuchu", category: "feira" },
           { name: "Azeite", category: "outros" },
         ],
+      },
+      {
+        id: "6-7-almoco-regional-ne-1",
+        title: "Feijão-de-corda com jerimum",
+        description: "Feijão-de-corda cozido com abóbora, tudo bem amassadinho.",
+        prep: "Cozinhe o feijão-de-corda (demolhado 8h) na pressão por 20 min. Cozinhe o jerimum (abóbora) no vapor. Amasse tudo junto com o caldo do feijão e um fio de azeite.",
+        ingredients: [
+          { name: "Feijão-de-corda", category: "mercado" },
+          { name: "Abóbora (jerimum)", category: "feira" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["nordeste"],
+      },
+      {
+        id: "6-7-almoco-regional-n-1",
+        title: "Papa de macaxeira com frango",
+        description: "Macaxeira cozida e amassada com frango desfiado bem fininho.",
+        prep: "Cozinhe a macaxeira até ficar macia (25 min). Cozinhe e desfie o frango bem fino. Amasse tudo junto com um fio de azeite.",
+        ingredients: [
+          { name: "Macaxeira (mandioca)", category: "feira" },
+          { name: "Frango (peito)", category: "mercado" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["norte", "nordeste"],
       },
     ],
     lanche: [
@@ -236,6 +263,30 @@ const MENU_POOL: Pool = {
           { name: "Carne moída", category: "mercado" },
         ],
       },
+      {
+        id: "8-9-almoco-regional-ne-1",
+        title: "Purê de jerimum com carne moída",
+        description: "Abóbora cozida com carne moída desfiada, textura amassada.",
+        prep: "Cozinhe o jerimum (abóbora) no vapor até ficar macio. Cozinhe a carne moída em água. Amasse tudo junto com azeite.",
+        ingredients: [
+          { name: "Abóbora (jerimum)", category: "feira" },
+          { name: "Carne moída", category: "mercado" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["nordeste"],
+      },
+      {
+        id: "8-9-almoco-regional-n-1",
+        title: "Caldo de tucunaré com batata",
+        description: "Peixe de rio com batata amassada, caldo nutritivo.",
+        prep: "Cozinhe o tucunaré e desfie checando espinhas. Cozinhe a batata. Amasse tudo com caldo do peixe e azeite.",
+        ingredients: [
+          { name: "Tucunaré", category: "feira" },
+          { name: "Batata", category: "feira" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["norte"],
+      },
     ],
     lanche: [
       {
@@ -329,6 +380,18 @@ const MENU_POOL: Pool = {
           { name: "Manga", category: "feira" },
         ],
       },
+      {
+        id: "10-12-cafe-regional-ne-1",
+        title: "Cuscuz molinho com ovo",
+        description: "Cuscuz nordestino de flocão bem hidratado, com ovo picado.",
+        prep: "Hidrate o flocão (1:1 com água, 10 min). Cozinhe no vapor 5-8 min. Cozinhe o ovo e pique. Amasse o cuscuz e misture com ovo e azeite.",
+        ingredients: [
+          { name: "Flocão de milho", category: "mercado" },
+          { name: "Ovo", category: "mercado" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["nordeste"],
+      },
     ],
     almoco: [
       {
@@ -362,6 +425,31 @@ const MENU_POOL: Pool = {
           { name: "Filé de peixe", category: "mercado" },
           { name: "Abóbora", category: "feira" },
         ],
+      },
+      {
+        id: "10-12-almoco-regional-co-1",
+        title: "Guariroba refogada com frango",
+        description: "Palmito-amargo cozido e picadinho com frango desfiado.",
+        prep: "Cozinhe a guariroba por 30 min, trocando a água. Pique miúda. Desfie o frango cozido. Refogue tudo com alho e azeite.",
+        ingredients: [
+          { name: "Guariroba", category: "feira" },
+          { name: "Frango (peito)", category: "mercado" },
+          { name: "Alho", category: "feira" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["centro_oeste"],
+      },
+      {
+        id: "10-12-almoco-regional-s-1",
+        title: "Purê de pinhão com batata",
+        description: "Pinhão bem cozido amassado com batata — cremoso e nutritivo.",
+        prep: "Cozinhe pinhões na pressão por 40 min. Descasque e retire a película. Cozinhe batata. Amasse tudo junto com azeite.",
+        ingredients: [
+          { name: "Pinhão", category: "feira" },
+          { name: "Batata", category: "feira" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["sul"],
       },
     ],
     lanche: [
@@ -499,6 +587,18 @@ const MENU_POOL: Pool = {
           { name: "Vagem", category: "feira" },
         ],
       },
+      {
+        id: "13-24-almoco-regional-co-1",
+        title: "Arroz com pequi (polpa raspada)",
+        description: "Arroz com polpa de pequi raspada da casca — sabor do cerrado.",
+        prep: "Cozinhe os pequis por 40 min. Raspe a polpa com colher (NUNCA morder o caroço — espinhos internos). Misture com arroz cozido e azeite.",
+        ingredients: [
+          { name: "Pequi", category: "feira" },
+          { name: "Arroz", category: "mercado" },
+          { name: "Azeite", category: "mercado" },
+        ],
+        regiao: ["centro_oeste"],
+      },
     ],
     lanche: [
       {
@@ -620,6 +720,8 @@ export interface SuggestionOptions {
   triedFoodKeys?: Set<string>;
   /** Alergênico a evitar (Cardápio de Restrição). */
   avoidAllergen?: AllergenTag | null;
+  /** Região da usuária para priorização de sugestões regionais. */
+  region?: Region | null;
 }
 
 export function getSuggestion(
@@ -629,13 +731,13 @@ export function getSuggestion(
   options: SuggestionOptions = {},
 ): MealSuggestion {
   const pool = MENU_POOL[ageBand][mealType];
-  const { overrideIndex, triedFoodKeys, avoidAllergen } = options;
+  const { overrideIndex, triedFoodKeys, avoidAllergen, region } = options;
 
   if (overrideIndex !== undefined) {
     return pool[((overrideIndex % pool.length) + pool.length) % pool.length];
   }
 
-  if (!triedFoodKeys && !avoidAllergen) {
+  if (!triedFoodKeys && !avoidAllergen && !region) {
     return pool[dayIndex % pool.length];
   }
 
@@ -654,6 +756,10 @@ export function getSuggestion(
       for (const ingredient of suggestion.ingredients) {
         if (!triedFoodKeys.has(slugifyIngredient(ingredient.name))) score += 1;
       }
+    }
+    // Bônus regional: prioriza sugestões da região da usuária, sem excluir as nacionais
+    if (region && suggestion.regiao?.includes(region)) {
+      score += 5;
     }
     // Pequeno bônus para o índice "natural" do dia, só para desempatar.
     if (index === dayIndex % pool.length) score += 0.1;

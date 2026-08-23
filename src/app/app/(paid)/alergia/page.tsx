@@ -44,7 +44,7 @@ export default function AlergiaPage() {
             de oferecer outro alimento novo.
           </p>
           <ListenButton
-            contentType="alergia"
+            contentType="allergy"
             contentId="guia-alergia"
             text={`Sinais de alergia alimentar. Depois de introduzir um alimento novo, observe o bebê por 3 a 5 dias antes de oferecer outro alimento novo. Sinais leves, observar: ${MILD_SIGNS.join(". ")}. Sinais de alerta grave, atendimento imediato: ${SEVERE_SIGNS.join(". ")}.`}
             className="mt-3"

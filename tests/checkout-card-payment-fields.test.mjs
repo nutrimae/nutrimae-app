@@ -37,6 +37,13 @@ test("as 3 rotas de checkout com cartão (principal, upsell, downsell) exigem bi
   }
 });
 
+test("assinatura (createSubscription) envia quantity no item e discount_type flat no desconto do 1º ciclo", async () => {
+  const pagarme = await read("src/lib/payments/pagarme.ts");
+  const fn = pagarme.slice(pagarme.indexOf("async createSubscription"), pagarme.indexOf("async cancelSubscription"));
+  assert.match(fn, /items:\s*\[\{[^}]*quantity:\s*1/, "item da assinatura precisa de quantity");
+  assert.match(fn, /discount_type:\s*"flat"/, "desconto precisa de discount_type flat pra value ser centavos, nao porcentagem");
+});
+
 test("os formulários de checkout com cartão coletam e enviam o endereço de cobrança", async () => {
   for (const file of [
     "src/app/(checkout)/checkout/[offerSlug]/_components/checkout-form.tsx",

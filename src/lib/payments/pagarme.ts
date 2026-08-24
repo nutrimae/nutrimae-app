@@ -46,8 +46,17 @@ import type {
  *   `card_token`). Ver BillingAddress em ./provider.ts.
  * - Pix falhou no sandbox desta conta com
  *   "action_forbidden | Sem ambiente configurado para este tipo de
- *   transação" — não é bug de código, é configuração pendente no painel do
- *   Pagar.me (habilitar Pix pra esta conta/ambiente antes de testar de novo).
+ *   transação" — não era bug de código, era configuração pendente no painel
+ *   do Pagar.me (suporte da Pagar.me habilitou Pix pra esta conta/ambiente;
+ *   confirmado pago via webhook depois disso).
+ * - POST /subscriptions: `items[0].quantity` é obrigatório (diferente de
+ *   /orders, onde é opcional) — "The quantity field is required." sem ele.
+ *   `discounts[].discount_type` precisa ser `"flat"` explicitamente pra
+ *   `value` ser centavos; sem isso a Pagar.me assume `"percentage"` por
+ *   padrão e rejeita qualquer valor > 100. `billing_address` aninhado em
+ *   `card` (mesmo padrão do createCardPayment) também funciona aqui.
+ *   Assinatura de teste criada e confirmada com status "active" e desconto
+ *   do 1º ciclo aplicado corretamente.
  *
  * ✅ Confirmado direto no painel do Pagar.me (conta de teste real): a
  * autenticação de webhook é HTTP Basic Auth (usuário/senha escolhidos ao
@@ -260,23 +269,29 @@ export class PagarMeProvider implements PaymentProvider {
         customer_id: input.providerCustomerId,
         payment_method: "credit_card",
         card_token: input.cardToken,
-        // ⚠️ Posição de billing_address aqui é por analogia ao /orders
-        // (confirmado contra o sandbox, ver createCardPayment acima) — o
-        // endpoint /subscriptions NÃO foi testado de verdade nesta sessão
-        // (oferta recorrente ainda desativada). Confirmar contra uma
-        // chamada real antes de ativar qualquer offer recorrente.
+        // ✅ Confirmado contra o sandbox real nesta sessão (antes só tinha
+        // sido testado por analogia ao /orders, nunca chamado de verdade):
+        // billing_address aninhado em `card` funciona igual ao createCardPayment.
         card: { billing_address: billingAddressPayload(input.billingAddress) },
         interval: "month",
         interval_count: 1,
         billing_type: "prepaid",
-        items: [{ code: itemCode(input.metadata), description: input.description, pricing_scheme: { price: input.amountCents } }],
-        // Desconto só no 1º ciclo — é assim que o Pagar.me v5 suporta preço
-        // promocional de primeiro ciclo (confirmado na doc de "assinatura
-        // avulsa": discounts[].cycles limita a quantos ciclos o desconto vale).
+        // "quantity" é exigido aqui (diferente de /orders, onde é opcional) —
+        // sem ele: "The quantity field is required.".
+        items: [{ code: itemCode(input.metadata), quantity: 1, description: input.description, pricing_scheme: { price: input.amountCents } }],
+        // Desconto só no 1º ciclo — discounts[].cycles limita a quantos
+        // ciclos o desconto vale. discount_type precisa ser "flat" pra
+        // "value" ser centavos; sem isso a Pagar.me assume "percentage" por
+        // padrão e rejeita qualquer valor > 100 (descoberto contra o
+        // sandbox — a doc não deixa esse default claro).
         ...(hasPromoCycle
           ? {
               discounts: [
-                { cycles: 1, value: input.amountCents - (input.firstCycleAmountCents ?? input.amountCents) },
+                {
+                  discount_type: "flat",
+                  cycles: 1,
+                  value: input.amountCents - (input.firstCycleAmountCents ?? input.amountCents),
+                },
               ],
             }
           : {}),

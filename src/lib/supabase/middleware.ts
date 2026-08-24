@@ -5,6 +5,12 @@ const PUBLIC_PATHS = [
   "/login",
   "/auth/callback",
   "/auth/auth-code-error",
+  // Convite/recuperação de senha chegam sem sessão nenhuma no cookie (o
+  // token vem no #hash da URL, que o servidor nunca vê) — a sessão só é
+  // capturada pelo SDK no navegador, depois que a página carrega. Sem
+  // isso aqui, todo cliente novo (sem sessão anterior) era redirecionado
+  // pro /login antes de o JS ter a chance de rodar, perdendo o token.
+  "/auth/set-password",
   "/politica-privacidade",
   "/sos",
   "/manual-sos",

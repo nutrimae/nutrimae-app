@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 
 export default function SetPasswordPage() {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -30,16 +30,23 @@ export default function SetPasswordPage() {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    setLoading(false);
-
-    if (error) {
-      setError("Não deu para salvar a senha agora. Tente de novo em instantes.");
-      return;
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        // updateUser() pode rejeitar a promise (ex.: AuthSessionMissingError,
+        // quando a sessão do convite/recuperação ainda não foi capturada do
+        // #hash) em vez de só devolver { error } — sem o try/finally aqui,
+        // o botão ficava travado em "loading" pra sempre nesse caso.
+        setError("Não deu para salvar a senha agora. Tente de novo em instantes.");
+        return;
+      }
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError("Sua sessão de convite expirou. Volte pro e-mail e peça um novo link.");
+    } finally {
+      setLoading(false);
     }
-
-    router.push("/");
-    router.refresh();
   }
 
   return (

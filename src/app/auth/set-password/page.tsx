@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,18 @@ export default function SetPasswordPage() {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkExpired, setLinkExpired] = useState(false);
+
+  useEffect(() => {
+    // O e-mail chega com o link certo, mas Gmail/Outlook costumam escanear
+    // (abrir) o link sozinhos antes da pessoa clicar de verdade, consumindo
+    // o token de uso único — a Supabase manda pra cá com o erro no #hash
+    // em vez de um access_token válido. Detecta isso ANTES de deixar
+    // preencher senha à toa (só falharia no fim, sem explicar o motivo).
+    if (window.location.hash.includes("error_code=otp_expired") || window.location.hash.includes("access_denied")) {
+      setLinkExpired(true);
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,40 +73,51 @@ export default function SetPasswordPage() {
             Bem-vinda ao NutriMãe
           </h1>
           <p className="mt-2 text-brown-700">
-            Sua conta já está pronta. Crie uma senha para continuar.
+            {linkExpired
+              ? "Esse link expirou antes de você abrir (acontece quando o e-mail escaneia o link primeiro)."
+              : "Sua conta já está pronta. Crie uma senha para continuar."}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            label="Nova senha"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
-            required
-          />
-          <Input
-            id="confirm-password"
-            type="password"
-            autoComplete="new-password"
-            label="Confirme a senha"
-            placeholder="••••••••"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            minLength={6}
-            required
-          />
+        {linkExpired ? (
+          <Link
+            href="/login"
+            className="flex min-h-14 items-center justify-center rounded-2xl bg-sage-500 px-6 font-heading text-base font-bold text-white"
+          >
+            Pedir um novo link
+          </Link>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <Input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              label="Nova senha"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+            />
+            <Input
+              id="confirm-password"
+              type="password"
+              autoComplete="new-password"
+              label="Confirme a senha"
+              placeholder="••••••••"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              minLength={6}
+              required
+            />
 
-          {error && <p className="text-sm font-medium text-terracotta-600">{error}</p>}
+            {error && <p className="text-sm font-medium text-terracotta-600">{error}</p>}
 
-          <Button type="submit" disabled={loading}>
-            {loading ? "Salvando..." : "Salvar e continuar"}
-          </Button>
-        </form>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Salvando..." : "Salvar e continuar"}
+            </Button>
+          </form>
+        )}
       </div>
     </main>
   );

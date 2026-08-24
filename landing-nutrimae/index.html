@@ -684,12 +684,20 @@
 </section>
 
 <!-- ===================== OFERTA (Plano Anual) =====================
-     Só o Plano Anual fica público por enquanto — o Mensal recorrente já
-     existe no backend, mas fica atrás de feature flag até passar por
-     sandbox e produção controlada com o Pagar.me. -->
+     O Mensal recorrente volta a aparecer aqui como vitrine/âncora de
+     preço (comparação, sem CTA própria) — o checkout dele ainda não está
+     ativo (fica atrás de feature flag até passar por sandbox e produção
+     controlada com o Pagar.me), então o botão "Começar agora" continua
+     levando só pro Anual, a única oferta comprável agora. -->
 <section id="bloco-6" class="offer">
   <div class="container">
     <h2 class="offer__title">Comece a organizar a alimentação do seu bebê hoje</h2>
+
+    <div class="plan-card-single" id="plan-card-mensal">
+      <p class="plan-card__label">Plano Mensal</p>
+      <p class="plan-card__price">R$ 19,90<span>no primeiro mês</span></p>
+      <p class="plan-card__note">depois R$29,90/mês — cancele quando quiser</p>
+    </div>
 
     <div class="plan-card-single plan-card-single--featured" id="plan-card-anual">
       <span class="plan-card__badge">MAIS ESCOLHIDO</span>

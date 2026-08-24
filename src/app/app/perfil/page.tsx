@@ -23,6 +23,20 @@ export default function PerfilPage() {
 
   const [email, setEmail] = useState("");
   const [creditoExpansaoCentavos, setCreditoExpansaoCentavos] = useState(0);
+  const [subscription, setSubscription] = useState<{
+    id: string;
+    status: string;
+    nextBillingAt: string | null;
+    offerName: string;
+  } | null>(null);
+  const [cancelingSubscription, setCancelingSubscription] = useState(false);
+  const [cancelRequested, setCancelRequested] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [savingPhone, setSavingPhone] = useState(false);
+  const [phoneSaved, setPhoneSaved] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [babyName, setBabyName] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState<BabyGender>("female");
@@ -39,12 +53,44 @@ export default function PerfilPage() {
       if (!data.user) return;
       const { data: profile } = await supabase
         .from("profiles")
-        .select("credito_expansao_centavos")
+        .select("credito_expansao_centavos, phone_number")
         .eq("user_id", data.user.id)
         .maybeSingle();
       setCreditoExpansaoCentavos(profile?.credito_expansao_centavos ?? 0);
+      setPhoneNumber(profile?.phone_number ?? "");
+
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("id, status, next_billing_at, offers(name)")
+        .in("status", ["active", "past_due"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (sub) {
+        const offerName = (sub.offers as unknown as { name?: string } | null)?.name ?? "Assinatura";
+        setSubscription({ id: sub.id, status: sub.status, nextBillingAt: sub.next_billing_at, offerName });
+      }
     });
   }, [supabase]);
+
+  async function handleCancelSubscription() {
+    if (!subscription) return;
+    setCancelingSubscription(true);
+    setCancelError(null);
+    const res = await fetch("/api/account/subscription/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscriptionId: subscription.id }),
+    });
+    setCancelingSubscription(false);
+    if (!res.ok) {
+      setCancelError("Não conseguimos cancelar agora. Tente de novo em instantes ou fale com o suporte.");
+      return;
+    }
+    setConfirmingCancel(false);
+    setCancelRequested(true);
+  }
 
   useEffect(() => {
     if (activeBaby) {
@@ -79,6 +125,25 @@ export default function PerfilPage() {
       setPasswordSaved(true);
       setTimeout(() => setPasswordSaved(false), 2500);
     }
+  }
+
+  async function handleSavePhone() {
+    setSavingPhone(true);
+    setPhoneError(null);
+    const res = await fetch("/api/profile/phone", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone_number: phoneNumber.trim() }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setSavingPhone(false);
+    if (!res.ok) {
+      setPhoneError(data.message ?? "Não foi possível salvar o telefone.");
+      return;
+    }
+    setPhoneNumber(data.phone_number ?? "");
+    setPhoneSaved(true);
+    setTimeout(() => setPhoneSaved(false), 2500);
   }
 
   async function handleSignOut() {
@@ -190,6 +255,23 @@ export default function PerfilPage() {
             <p className="text-sm font-semibold text-brown-700">E-mail</p>
             <p className="text-brown-800">{email}</p>
           </div>
+          <div>
+            <Input
+              id="phone-number"
+              type="tel"
+              label="WhatsApp"
+              placeholder="DDD + número, ex.: 11987654321"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+            <p className="mt-1 text-xs text-brown-700/60">
+              Usado pro NutriBot e, se sua conta for admin, pra receber os alertas do painel do negócio.
+            </p>
+            {phoneError && <p className="mt-1 text-xs font-semibold text-red-600">{phoneError}</p>}
+            <Button onClick={handleSavePhone} disabled={savingPhone} className="mt-2 w-full">
+              {savingPhone ? "Salvando..." : phoneSaved ? "Salvo!" : "Salvar WhatsApp"}
+            </Button>
+          </div>
           <Input
             id="new-password"
             type="password"
@@ -207,12 +289,53 @@ export default function PerfilPage() {
 
       <div>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Assinatura</h2>
-        {/* Plano Anual é pagamento único (sem assinatura recorrente pra
-            gerenciar). Quando o Plano Mensal for ativado, este bloco ganha
-            um link real de gerenciamento via Pagar.me. */}
-        <p className="rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
-          Seu plano atual é pagamento único — sem cobrança recorrente pra gerenciar. Dúvidas? Fale com o suporte.
-        </p>
+        {subscription ? (
+          <div className="flex flex-col gap-3 rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
+            {cancelRequested ? (
+              <p>
+                Cancelamento enviado! Seu acesso continua ativo até o fim do ciclo já pago
+                {subscription.nextBillingAt
+                  ? ` (${new Date(subscription.nextBillingAt).toLocaleDateString("pt-BR")})`
+                  : ""}
+                , e não haverá nova cobrança depois disso.
+              </p>
+            ) : (
+              <>
+                <p>
+                  Seu plano atual é o <strong className="text-brown-800">{subscription.offerName}</strong>, com
+                  cobrança recorrente.
+                  {subscription.nextBillingAt && (
+                    <> Próxima cobrança em {new Date(subscription.nextBillingAt).toLocaleDateString("pt-BR")}.</>
+                  )}
+                </p>
+                {confirmingCancel ? (
+                  <div className="flex flex-col gap-2">
+                    <p className="font-semibold text-brown-800">
+                      Cancelar mesmo? Seu acesso continua até o fim do ciclo já pago, sem multa.
+                    </p>
+                    {cancelError && <p className="text-red-600">{cancelError}</p>}
+                    <div className="flex gap-2">
+                      <Button variant="ghost" onClick={() => setConfirmingCancel(false)} className="flex-1">
+                        Voltar
+                      </Button>
+                      <Button onClick={handleCancelSubscription} disabled={cancelingSubscription} className="flex-1">
+                        {cancelingSubscription ? "Cancelando..." : "Confirmar cancelamento"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button variant="ghost" onClick={() => setConfirmingCancel(true)}>
+                    Cancelar assinatura
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
+          <p className="rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
+            Seu plano atual é pagamento único — sem cobrança recorrente pra gerenciar. Dúvidas? Fale com o suporte.
+          </p>
+        )}
         {creditoExpansaoCentavos > 0 && (
           <p className="mt-2 rounded-2xl bg-amber-50 p-4 text-sm text-brown-700">
             Você tem{" "}

@@ -17,6 +17,7 @@ export default function SetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [linkExpired, setLinkExpired] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
 
   useEffect(() => {
     // O e-mail chega com o link certo, mas Gmail/Outlook costumam escanear
@@ -24,10 +25,36 @@ export default function SetPasswordPage() {
     // o token de uso único — a Supabase manda pra cá com o erro no #hash
     // em vez de um access_token válido. Detecta isso ANTES de deixar
     // preencher senha à toa (só falharia no fim, sem explicar o motivo).
-    if (window.location.hash.includes("error_code=otp_expired") || window.location.hash.includes("access_denied")) {
+    const hash = window.location.hash;
+    if (hash.includes("error_code=otp_expired") || hash.includes("access_denied")) {
       setLinkExpired(true);
+      return;
     }
-  }, []);
+
+    // @supabase/ssr (createBrowserClient) NÃO lê o #access_token sozinho
+    // como o client "puro" do supabase-js faz (detectSessionInUrl não se
+    // aplica aqui) — confirmado contra o sandbox: sem isto, nenhum cookie
+    // de sessão era gravado mesmo com o token válido na URL, e
+    // updateUser() sempre falhava com "sessão ausente". Extrai o token do
+    // hash manualmente e cria a sessão explicitamente.
+    const params = new URLSearchParams(hash.replace(/^#/, ""));
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+
+    if (!accessToken || !refreshToken) {
+      setLinkExpired(true);
+      return;
+    }
+
+    supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ error }) => {
+      if (error) {
+        setLinkExpired(true);
+        return;
+      }
+      window.history.replaceState(null, "", window.location.pathname);
+      setSessionReady(true);
+    });
+  }, [supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,6 +113,8 @@ export default function SetPasswordPage() {
           >
             Pedir um novo link
           </Link>
+        ) : !sessionReady ? (
+          <p className="text-center text-brown-700">Confirmando seu acesso...</p>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input

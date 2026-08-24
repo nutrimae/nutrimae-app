@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,6 +20,35 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  const [expiredLink, setExpiredLink] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Link de convite/recuperação expirado (comum quando o Gmail/Outlook
+    // escaneia o link antes da pessoa clicar de verdade, consumindo o
+    // token de uso único) — Supabase manda pra cá com o erro no #hash.
+    if (window.location.hash.includes("error_code=otp_expired") || window.location.hash.includes("access_denied")) {
+      setExpiredLink(true);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
+
+  async function handleResendInvite(event: React.FormEvent) {
+    event.preventDefault();
+    setResendLoading(true);
+    setResendMessage(null);
+    const res = await fetch("/api/account/resend-invite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: resendEmail }),
+    });
+    const data = await res.json().catch(() => null);
+    setResendLoading(false);
+    setResendMessage(data?.message ?? "Se esse e-mail tiver uma conta, um novo link chega em instantes.");
+  }
 
   function changeTab(next: Tab) {
     setTab(next);
@@ -84,6 +113,30 @@ export default function LoginPage() {
           />
           <p className="mt-1 animate-fade-in-up text-base text-brown-700">Alimentação segura, com carinho.</p>
         </header>
+
+        {expiredLink && (
+          <div className="mb-4 animate-scale-in rounded-2xl bg-amber-50 p-4">
+            <p className="text-sm font-medium text-brown-800">
+              Esse link expirou antes de você clicar (acontece quando o e-mail escaneia o link antes de você abrir).
+              Digite seu e-mail que a gente manda um novo:
+            </p>
+            <form onSubmit={handleResendInvite} className="mt-3 flex flex-col gap-2">
+              <Input
+                id="resend-email"
+                type="email"
+                autoComplete="email"
+                placeholder="voce@exemplo.com"
+                value={resendEmail}
+                onChange={(event) => setResendEmail(event.target.value)}
+                required
+              />
+              <Button type="submit" loading={resendLoading} variant="brand">
+                Reenviar link
+              </Button>
+              {resendMessage && <p className="text-sm font-medium text-sage-700">{resendMessage}</p>}
+            </form>
+          </div>
+        )}
 
         <section className="glass-card animate-fade-in-up rounded-3xl p-6" style={{ animationDelay: "0.1s" }}>
           <div className="mb-5 flex rounded-2xl bg-cream-deep/60 p-1">

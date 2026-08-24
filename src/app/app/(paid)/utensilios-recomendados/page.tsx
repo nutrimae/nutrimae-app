@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { CheckCircle2, Share2, Star } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
@@ -71,7 +72,19 @@ export default function UtensiliosRecomendadosPage() {
               {items.map((u) => (
                 <div key={u.id} className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl">{u.emoji}</span>
+                    {u.imageUrl ? (
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-sage-50">
+                        <Image
+                          src={u.imageUrl}
+                          alt=""
+                          width={56}
+                          height={56}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-2xl">{u.emoji}</span>
+                    )}
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-brown-800">{u.name}</p>

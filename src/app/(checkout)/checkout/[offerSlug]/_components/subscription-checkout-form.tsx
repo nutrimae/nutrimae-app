@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, ShieldCheck } from "lucide-react";
 import { isValidCpf } from "@/lib/utils";
+import { tokenizeCard } from "@/lib/payments/tokenize-card";
+import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 
 /**
  * Checkout de assinatura recorrente (Plano Mensal, NutriBot VIP) — isolado
@@ -12,29 +14,6 @@ import { isValidCpf } from "@/lib/utils";
  * /api/checkout/subscription em vez de /api/checkout. Só fica alcançável
  * quando a oferta correspondente estiver com active=true.
  */
-async function tokenizeCard(card: { number: string; holderName: string; expMonth: string; expYear: string; cvv: string }) {
-  const publicKey = process.env.NEXT_PUBLIC_PAGARME_PUBLIC_KEY;
-  if (!publicKey) throw new Error("NEXT_PUBLIC_PAGARME_PUBLIC_KEY não configurada.");
-
-  const res = await fetch(`https://api.pagar.me/core/v5/tokens?appId=${publicKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      type: "card",
-      card: {
-        number: card.number.replace(/\s/g, ""),
-        holder_name: card.holderName,
-        exp_month: card.expMonth,
-        exp_year: card.expYear,
-        cvv: card.cvv,
-      },
-    }),
-  });
-
-  if (!res.ok) throw new Error("Não foi possível validar o cartão. Confira os dados e tente de novo.");
-  const data: { id: string } = await res.json();
-  return data.id;
-}
 
 export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; name: string } }) {
   const router = useRouter();
@@ -48,6 +27,7 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
   const [cardExpMonth, setCardExpMonth] = useState("");
   const [cardExpYear, setCardExpYear] = useState("");
   const [cardCvv, setCardCvv] = useState("");
+  const [billingAddress, setBillingAddress] = useState<BillingAddressValue>({ line1: "", zipCode: "", city: "", state: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,6 +40,11 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
     if (documentDigits.length !== 11 || !isValidCpf(documentDigits)) {
       setDocumentTouched(true);
       setError("Confira o CPF antes de continuar.");
+      return;
+    }
+
+    if (!billingAddress.line1 || billingAddress.zipCode.replace(/\D/g, "").length !== 8 || !billingAddress.city || !billingAddress.state) {
+      setError("Confira o endereço de cobrança do cartão antes de continuar.");
       return;
     }
 
@@ -79,6 +64,7 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
         body: JSON.stringify({
           offerSlug: offer.slug,
           cardToken,
+          billingAddress,
           customer: { name, email, document, phone },
         }),
       });
@@ -127,6 +113,7 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
           <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
           <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
         </div>
+        <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

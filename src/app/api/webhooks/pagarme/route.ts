@@ -4,6 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { findOrCreateUser, savePhoneNumber } from "@/lib/webhooks/find-or-create-user";
 import { claimWebhookEvent, finalizeWebhookEvent } from "@/lib/webhooks/log-event";
 import { isKnownProductKey } from "@/lib/products";
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- meta-conversion.js é CommonJS solto na raiz do repo (ver MÁQUINA_LOW_TICKET_BR.md).
+const { sendPurchaseEvent } = require("../../../../../meta-conversion.js");
 
 /**
  * Webhook do Pagar.me — única fonte de verdade pra liberar/suspender
@@ -74,12 +76,12 @@ async function markOrderStatus(
   admin: AdminClient,
   params: { pagarmeOrderId?: string; pagarmeChargeId?: string; status: string; rawEvent: unknown },
 ) {
-  let orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null } | null = null;
+  let orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number } | null = null;
 
   if (params.pagarmeOrderId) {
     const { data } = await admin
       .from("orders")
-      .select("id, customer_id, offer_id, user_id")
+      .select("id, customer_id, offer_id, user_id, amount_cents")
       .eq("pagarme_order_id", params.pagarmeOrderId)
       .maybeSingle();
     orderRow = data;
@@ -88,7 +90,7 @@ async function markOrderStatus(
   if (!orderRow && params.pagarmeChargeId) {
     const { data } = await admin
       .from("payments")
-      .select("orders(id, customer_id, offer_id, user_id)")
+      .select("orders(id, customer_id, offer_id, user_id, amount_cents)")
       .eq("pagarme_charge_id", params.pagarmeChargeId)
       .maybeSingle();
     // Supabase retorna o relacionamento como objeto quando a FK é 1:1 pela query acima.
@@ -114,7 +116,7 @@ async function markOrderStatus(
 
 async function grantAccessForOrder(
   admin: AdminClient,
-  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null },
+  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number },
 ) {
   const { data: offer } = await admin.from("offers").select("product_key, name, price_cents").eq("id", orderRow.offer_id).maybeSingle();
   const { data: customer } = await admin.from("customers").select("email, phone_number").eq("id", orderRow.customer_id).maybeSingle();
@@ -197,6 +199,73 @@ async function grantAccessForOrder(
       p_amount_centavos: expansionCreditCentavos,
     });
   }
+
+  await reportPurchaseToMeta(orderRow.id, customer.email, customer.phone_number, orderRow.amount_cents);
+}
+
+/**
+ * Dispara o evento de compra pra API de Conversões do Meta (ver
+ * meta-conversion.js na raiz do repo). Só roda se as variáveis de ambiente
+ * estiverem configuradas — enquanto não estiverem, isto é um no-op
+ * silencioso. Nunca deixa uma falha do Meta derrubar o webhook: a liberação
+ * de acesso (já feita acima) é o que importa de verdade; rastreamento de
+ * anúncio é best-effort.
+ */
+async function reportPurchaseToMeta(orderId: string, email: string, phone: string | null, amountCents: number) {
+  if (!process.env.META_ACCESS_TOKEN || !process.env.META_PIXEL_ID) return;
+  try {
+    await sendPurchaseEvent({
+      email,
+      phone: phone ?? undefined,
+      orderId,
+      amountCents,
+    });
+  } catch (err) {
+    console.error("[pagarme-webhook] falha ao reportar compra pro Meta (acesso já foi liberado normalmente)", err);
+  }
+}
+
+/**
+ * Simétrico a grantAccessForOrder — revoga TUDO que aquele pedido liberou
+ * (oferta principal + cada order_item) e desfaz o crédito de expansão que
+ * ele tinha gerado. Necessário pra reembolso/chargeback não deixar acesso
+ * ativo nem crédito de graça na conta.
+ *
+ * Limitação conhecida: se a mesma pessoa tiver comprado o mesmo produto em
+ * OUTRO pedido válido (recompra depois de um reembolso, por exemplo), esta
+ * função revoga o acesso mesmo assim — não distingue "qual pedido concedeu
+ * o acesso que está ativo agora". Cenário raro; se acontecer, precisa de
+ * conferência manual antes de reativar.
+ */
+async function revokeAccessForOrder(
+  admin: AdminClient,
+  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null },
+) {
+  if (!orderRow.user_id) {
+    // Reembolso de um pedido que nunca chegou a liberar acesso (ex.: pago e
+    // estornado antes do webhook de "paid" rodar) — nada a revogar.
+    return;
+  }
+
+  const { data: offer } = await admin.from("offers").select("product_key").eq("id", orderRow.offer_id).maybeSingle();
+  const { data: items } = await admin.from("order_items").select("offers(product_key)").eq("order_id", orderRow.id);
+
+  const productKeys = new Set<string>();
+  if (offer?.product_key && isKnownProductKey(offer.product_key)) productKeys.add(offer.product_key);
+  for (const item of items ?? []) {
+    const itemOffer = item.offers as unknown as { product_key?: string } | null;
+    if (itemOffer?.product_key && isKnownProductKey(itemOffer.product_key)) productKeys.add(itemOffer.product_key);
+  }
+
+  for (const productKey of productKeys) {
+    await admin
+      .from("user_products")
+      .update({ status: "refunded", canceled_at: new Date().toISOString() })
+      .eq("user_id", orderRow.user_id)
+      .eq("product_id", productKey);
+  }
+
+  await admin.rpc("revoke_expansion_credit", { p_order_id: orderRow.id, p_user_id: orderRow.user_id });
 }
 
 /**
@@ -357,7 +426,8 @@ export async function POST(request: Request) {
 
       case "charge.refunded":
       case "charge.chargedback": {
-        await markOrderStatus(admin, { pagarmeOrderId, pagarmeChargeId, status: "refunded", rawEvent: payload });
+        const orderRow = await markOrderStatus(admin, { pagarmeOrderId, pagarmeChargeId, status: "refunded", rawEvent: payload });
+        if (orderRow) await revokeAccessForOrder(admin, orderRow);
         await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
         break;
       }

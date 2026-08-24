@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Loader2, QrCode, CreditCard, ShieldCheck } from "lucide-react";
 import { isValidCpf } from "@/lib/utils";
+import { tokenizeCard } from "@/lib/payments/tokenize-card";
 import { PixCountdown } from "@/components/pix-countdown";
+import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 
 interface Bump {
   id: string;
@@ -28,40 +30,6 @@ function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-/**
- * Tokenização de cartão acontece 100% no navegador, direto contra o
- * Pagar.me (POST /core/v5/tokens, autenticado só com a public_key) — o
- * número/CVV do cartão nunca passam pelo nosso backend, só o token.
- *
- * ⚠️ Formato exato do corpo desta chamada não foi confirmado contra a doc
- * completa nesta sessão (só os campos individuais do cartão foram
- * confirmados: number, exp_month, exp_year, holder_name, cvv) — testar
- * contra o sandbox antes de considerar isto pronto.
- */
-async function tokenizeCard(card: { number: string; holderName: string; expMonth: string; expYear: string; cvv: string }) {
-  const publicKey = process.env.NEXT_PUBLIC_PAGARME_PUBLIC_KEY;
-  if (!publicKey) throw new Error("NEXT_PUBLIC_PAGARME_PUBLIC_KEY não configurada.");
-
-  const res = await fetch(`https://api.pagar.me/core/v5/tokens?appId=${publicKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      type: "card",
-      card: {
-        number: card.number.replace(/\s/g, ""),
-        holder_name: card.holderName,
-        exp_month: card.expMonth,
-        exp_year: card.expYear,
-        cvv: card.cvv,
-      },
-    }),
-  });
-
-  if (!res.ok) throw new Error("Não foi possível validar o cartão. Confira os dados e tente de novo.");
-  const data: { id: string } = await res.json();
-  return data.id;
-}
-
 export function CheckoutForm({
   offer,
   bumps,
@@ -82,6 +50,7 @@ export function CheckoutForm({
   const [cardExpMonth, setCardExpMonth] = useState("");
   const [cardExpYear, setCardExpYear] = useState("");
   const [cardCvv, setCardCvv] = useState("");
+  const [billingAddress, setBillingAddress] = useState<BillingAddressValue>({ line1: "", zipCode: "", city: "", state: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string; expiresAt: string } | null>(null);
@@ -107,6 +76,11 @@ export function CheckoutForm({
       return;
     }
 
+    if (paymentMethod === "credit_card" && (!billingAddress.line1 || billingAddress.zipCode.replace(/\D/g, "").length !== 8 || !billingAddress.city || !billingAddress.state)) {
+      setError("Confira o endereço de cobrança do cartão antes de continuar.");
+      return;
+    }
+
     setLoading(true);
     try {
       let cardToken: string | undefined;
@@ -128,6 +102,7 @@ export function CheckoutForm({
           bumpSlugs: selectedBumps,
           paymentMethod,
           cardToken,
+          billingAddress: paymentMethod === "credit_card" ? billingAddress : undefined,
           customer: { name, email, document, phone },
         }),
       });
@@ -284,6 +259,7 @@ export function CheckoutForm({
             <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
           </div>
           <p className="text-xs text-gray-400">ou 12x de {formatBRL(Math.round(totalCents / 12))} no cartão</p>
+          <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
         </div>
       )}
 

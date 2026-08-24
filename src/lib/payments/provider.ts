@@ -40,10 +40,27 @@ export interface PixPaymentResult {
   status: "pending";
 }
 
+/**
+ * Endereço de cobrança do cartão. A Pagar.me não tokeniza isso (ver
+ * tokenizeCard() no client) — precisa vir em toda cobrança com card_token,
+ * mesmo que a doc pública liste os campos como opcionais (confirmado contra
+ * o sandbox: os 5 campos são todos obrigatórios de verdade quando se usa
+ * card_token, não card cru).
+ */
+export interface BillingAddress {
+  line1: string;
+  zipCode: string;
+  city: string;
+  state: string;
+  /** Sigla de país (ISO), ex.: "BR". */
+  country: string;
+}
+
 export interface CreateCardPaymentInput extends CreateOneTimeOrderInput {
   /** Token gerado no navegador via tokenizeCard() — o backend nunca vê o cartão. */
   cardToken: string;
   installments?: number;
+  billingAddress: BillingAddress;
 }
 
 export interface CardPaymentResult {
@@ -62,6 +79,8 @@ export interface CreateSubscriptionInput {
   firstCycleAmountCents?: number;
   description: string;
   cardToken: string;
+  /** Ver nota em CreateCardPaymentInput — mesma exigência da Pagar.me. */
+  billingAddress: BillingAddress;
   metadata?: Record<string, string>;
 }
 

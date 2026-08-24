@@ -3,36 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, QrCode, CreditCard, ShieldCheck } from "lucide-react";
+import { tokenizeCard } from "@/lib/payments/tokenize-card";
 import { PixCountdown } from "@/components/pix-countdown";
+import { BillingAddressFields, type BillingAddressValue } from "../../_components/billing-address-fields";
 
 function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-/** Mesma tokenização client-side usada no checkout principal — ver
- * src/app/(checkout)/checkout/[offerSlug]/_components/checkout-form.tsx. */
-async function tokenizeCard(card: { number: string; holderName: string; expMonth: string; expYear: string; cvv: string }) {
-  const publicKey = process.env.NEXT_PUBLIC_PAGARME_PUBLIC_KEY;
-  if (!publicKey) throw new Error("NEXT_PUBLIC_PAGARME_PUBLIC_KEY não configurada.");
-
-  const res = await fetch(`https://api.pagar.me/core/v5/tokens?appId=${publicKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      type: "card",
-      card: {
-        number: card.number.replace(/\s/g, ""),
-        holder_name: card.holderName,
-        exp_month: card.expMonth,
-        exp_year: card.expYear,
-        cvv: card.cvv,
-      },
-    }),
-  });
-
-  if (!res.ok) throw new Error("Não foi possível validar o cartão. Confira os dados e tente de novo.");
-  const data: { id: string } = await res.json();
-  return data.id;
 }
 
 export function UpsellCheckout({
@@ -51,6 +27,7 @@ export function UpsellCheckout({
   const [cardExpMonth, setCardExpMonth] = useState("");
   const [cardExpYear, setCardExpYear] = useState("");
   const [cardCvv, setCardCvv] = useState("");
+  const [billingAddress, setBillingAddress] = useState<BillingAddressValue>({ line1: "", zipCode: "", city: "", state: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string; expiresAt: string } | null>(null);
@@ -77,6 +54,12 @@ export function UpsellCheckout({
 
   async function handleAccept() {
     setError(null);
+
+    if (paymentMethod === "credit_card" && (!billingAddress.line1 || billingAddress.zipCode.replace(/\D/g, "").length !== 8 || !billingAddress.city || !billingAddress.state)) {
+      setError("Confira o endereço de cobrança do cartão antes de continuar.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -94,7 +77,13 @@ export function UpsellCheckout({
       const res = await fetch("/api/checkout/upsell", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ parentOrderId, offerSlug, paymentMethod, cardToken }),
+        body: JSON.stringify({
+          parentOrderId,
+          offerSlug,
+          paymentMethod,
+          cardToken,
+          billingAddress: paymentMethod === "credit_card" ? billingAddress : undefined,
+        }),
       });
 
       const data = await res.json();
@@ -175,6 +164,7 @@ export function UpsellCheckout({
             <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
             <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
           </div>
+          <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
         </div>
       )}
 

@@ -21,6 +21,7 @@ interface CheckoutBody {
   paymentMethod?: unknown;
   cardToken?: unknown;
   installments?: unknown;
+  billingAddress?: { line1?: unknown; zipCode?: unknown; city?: unknown; state?: unknown };
   customer?: { name?: unknown; email?: unknown; document?: unknown; phone?: unknown };
   utm?: unknown;
   quizAnswers?: unknown;
@@ -28,6 +29,16 @@ interface CheckoutBody {
 
 function onlyDigits(value: string): string {
   return value.replace(/\D/g, "");
+}
+
+/** Ver BillingAddress em src/lib/payments/provider.ts — exigido pela Pagar.me pra qualquer cobrança com card_token. */
+function parseBillingAddress(body: CheckoutBody): { line1: string; zipCode: string; city: string; state: string; country: string } | null {
+  const line1 = typeof body.billingAddress?.line1 === "string" ? body.billingAddress.line1.trim() : "";
+  const zipCode = typeof body.billingAddress?.zipCode === "string" ? onlyDigits(body.billingAddress.zipCode) : "";
+  const city = typeof body.billingAddress?.city === "string" ? body.billingAddress.city.trim() : "";
+  const state = typeof body.billingAddress?.state === "string" ? body.billingAddress.state.trim() : "";
+  if (!line1 || zipCode.length !== 8 || !city || !state) return null;
+  return { line1, zipCode, city, state, country: "BR" };
 }
 
 export async function POST(request: Request) {
@@ -51,7 +62,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 
-  if (paymentMethod === "credit_card" && typeof body.cardToken !== "string") {
+  const billingAddress = paymentMethod === "credit_card" ? parseBillingAddress(body) : null;
+
+  if (paymentMethod === "credit_card" && (typeof body.cardToken !== "string" || !billingAddress)) {
     return NextResponse.json({ error: "missing_card_token" }, { status: 400 });
   }
 
@@ -158,6 +171,7 @@ export async function POST(request: Request) {
       description,
       cardToken: body.cardToken as string,
       installments: typeof body.installments === "number" ? body.installments : 1,
+      billingAddress: billingAddress as NonNullable<typeof billingAddress>,
       metadata: { order_id: orderRow.id },
     });
 

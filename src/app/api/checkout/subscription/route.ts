@@ -25,11 +25,22 @@ import { isValidCpf } from "@/lib/utils";
 interface SubscriptionBody {
   offerSlug?: unknown;
   cardToken?: unknown;
+  billingAddress?: { line1?: unknown; zipCode?: unknown; city?: unknown; state?: unknown };
   customer?: { name?: unknown; email?: unknown; document?: unknown; phone?: unknown };
 }
 
 function onlyDigits(value: string): string {
   return value.replace(/\D/g, "");
+}
+
+/** Ver BillingAddress em src/lib/payments/provider.ts — exigido pela Pagar.me pra qualquer cobrança com card_token. */
+function parseBillingAddress(body: SubscriptionBody): { line1: string; zipCode: string; city: string; state: string; country: string } | null {
+  const line1 = typeof body.billingAddress?.line1 === "string" ? body.billingAddress.line1.trim() : "";
+  const zipCode = typeof body.billingAddress?.zipCode === "string" ? onlyDigits(body.billingAddress.zipCode) : "";
+  const city = typeof body.billingAddress?.city === "string" ? body.billingAddress.city.trim() : "";
+  const state = typeof body.billingAddress?.state === "string" ? body.billingAddress.state.trim() : "";
+  if (!line1 || zipCode.length !== 8 || !city || !state) return null;
+  return { line1, zipCode, city, state, country: "BR" };
 }
 
 export async function POST(request: Request) {
@@ -47,7 +58,9 @@ export async function POST(request: Request) {
   const customerDocument = typeof body.customer?.document === "string" ? onlyDigits(body.customer.document) : "";
   const customerPhone = typeof body.customer?.phone === "string" ? onlyDigits(body.customer.phone) : undefined;
 
-  if (!offerSlug || !cardToken || !customerName || !customerEmail || !isValidCpf(customerDocument)) {
+  const billingAddress = parseBillingAddress(body);
+
+  if (!offerSlug || !cardToken || !billingAddress || !customerName || !customerEmail || !isValidCpf(customerDocument)) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 
@@ -83,6 +96,7 @@ export async function POST(request: Request) {
       firstCycleAmountCents: offer.price_cents < offer.recurring_price_cents ? offer.price_cents : undefined,
       description: offer.name,
       cardToken,
+      billingAddress,
       metadata: { offer_id: offer.id },
     });
 

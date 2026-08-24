@@ -9,6 +9,7 @@ import type {
   CreateSubscriptionInput,
   SubscriptionResult,
   PaymentStatusResult,
+  BillingAddress,
 } from "./provider";
 
 /**
@@ -25,13 +26,28 @@ import type {
  * completa de eventos de webhook.
  *
  * ⚠️ NÃO verificado (marcar antes de ativar em produção real):
- * - Formato exato do objeto `phones` no /customers (assumido
- *   `mobile_phone: { country_code, area_code, number }`, padrão comum da
- *   v5, mas não confirmado nesta sessão contra a doc de /customers
- *   especificamente).
  * - Se GET /orders/{id} é de fato o endpoint certo pra polling de status
  *   (usado em getPaymentStatus) — parece óbvio pelo padrão REST, mas não
  *   apareceu explicitamente nas páginas consultadas.
+ *
+ * ✅ Confirmado contra o sandbox real nesta sessão (testes com curl direto,
+ * fora do Next.js):
+ * - `phones` no /customers: `mobile_phone: { country_code, area_code, number }`
+ *   está correto (customer criado com sucesso).
+ * - Todo item de /orders exige `code` — sem ele, a API responde
+ *   "The item Code is required." (não estava na doc consultada antes).
+ * - Cobrança de cartão com `card_token` exige o endereço de cobrança MESMO
+ *   ASSIM (a doc lista os campos de billing_address como opcionais, mas o
+ *   sandbox rejeita com "billing | value is required" sem ele, e depois
+ *   "field is required" um a um pra line_1/zip_code/city/state/country até
+ *   os 5 estarem presentes) — vai aninhado em
+ *   `credit_card.card.billing_address`, não em `credit_card.billing_address`
+ *   direto (o `card` aqui carrega só o billing_address, sem duplicar o
+ *   `card_token`). Ver BillingAddress em ./provider.ts.
+ * - Pix falhou no sandbox desta conta com
+ *   "action_forbidden | Sem ambiente configurado para este tipo de
+ *   transação" — não é bug de código, é configuração pendente no painel do
+ *   Pagar.me (habilitar Pix pra esta conta/ambiente antes de testar de novo).
  *
  * ✅ Confirmado direto no painel do Pagar.me (conta de teste real): a
  * autenticação de webhook é HTTP Basic Auth (usuário/senha escolhidos ao
@@ -73,6 +89,27 @@ async function pagarmeFetch<T>(path: string, init: RequestInit): Promise<T> {
   }
 
   return res.json() as Promise<T>;
+}
+
+/**
+ * A Pagar.me exige `code` em cada item de /orders ("The item Code is
+ * required.", confirmado contra o sandbox — não estava na doc consultada
+ * antes de codar isto). Usa o id do pedido local (metadata.order_id) como
+ * code, já que cada chamada monta um único item agregado (oferta + bumps
+ * somados); sem metadata, cai num valor genérico só pra satisfazer a API.
+ */
+function itemCode(metadata: Record<string, string> | undefined): string {
+  return metadata?.order_id ?? "item-1";
+}
+
+function billingAddressPayload(address: BillingAddress) {
+  return {
+    line_1: address.line1,
+    zip_code: address.zipCode.replace(/\D/g, ""),
+    city: address.city,
+    state: address.state,
+    country: address.country,
+  };
 }
 
 function splitPhone(phone: string | undefined): { area_code: string; number: string } | null {
@@ -143,7 +180,7 @@ export class PagarMeProvider implements PaymentProvider {
       method: "POST",
       body: JSON.stringify({
         customer_id: input.providerCustomerId,
-        items: [{ amount: input.amountCents, description: input.description, quantity: 1 }],
+        items: [{ code: itemCode(input.metadata), amount: input.amountCents, description: input.description, quantity: 1 }],
         payments: [
           {
             payment_method: "pix",
@@ -178,13 +215,17 @@ export class PagarMeProvider implements PaymentProvider {
       method: "POST",
       body: JSON.stringify({
         customer_id: input.providerCustomerId,
-        items: [{ amount: input.amountCents, description: input.description, quantity: 1 }],
+        items: [{ code: itemCode(input.metadata), amount: input.amountCents, description: input.description, quantity: 1 }],
         payments: [
           {
             payment_method: "credit_card",
             credit_card: {
               card_token: input.cardToken,
               installments: input.installments ?? 1,
+              // O endereço de cobrança não é tokenizado (ver BillingAddress em
+              // ./provider.ts) — precisa vir junto, aninhado em `card`, mesmo
+              // usando card_token em vez de dados de cartão cru.
+              card: { billing_address: billingAddressPayload(input.billingAddress) },
             },
           },
         ],
@@ -219,10 +260,16 @@ export class PagarMeProvider implements PaymentProvider {
         customer_id: input.providerCustomerId,
         payment_method: "credit_card",
         card_token: input.cardToken,
+        // ⚠️ Posição de billing_address aqui é por analogia ao /orders
+        // (confirmado contra o sandbox, ver createCardPayment acima) — o
+        // endpoint /subscriptions NÃO foi testado de verdade nesta sessão
+        // (oferta recorrente ainda desativada). Confirmar contra uma
+        // chamada real antes de ativar qualquer offer recorrente.
+        card: { billing_address: billingAddressPayload(input.billingAddress) },
         interval: "month",
         interval_count: 1,
         billing_type: "prepaid",
-        items: [{ description: input.description, pricing_scheme: { price: input.amountCents } }],
+        items: [{ code: itemCode(input.metadata), description: input.description, pricing_scheme: { price: input.amountCents } }],
         // Desconto só no 1º ciclo — é assim que o Pagar.me v5 suporta preço
         // promocional de primeiro ciclo (confirmado na doc de "assinatura
         // avulsa": discounts[].cycles limita a quantos ciclos o desconto vale).

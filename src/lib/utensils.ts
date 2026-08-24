@@ -11,6 +11,7 @@ export interface Utensil {
   id: string;
   name: string;
   emoji: string;
+  imageUrl?: string;
   category: UtensilCategory;
   why: string;
   whatToLookFor: string;
@@ -22,6 +23,7 @@ export const UTENSILS: Utensil[] = [
     id: "cadeirao",
     name: "Cadeirão de alimentação",
     emoji: "🪑",
+    imageUrl: "/images/illustrations/utensil-cadeirao.png",
     category: "hora-de-comer",
     why: "Mantém o bebê sentado ereto e com apoio de 90 graus — postura essencial para a segurança contra engasgo.",
     whatToLookFor: "Cinto de 5 pontos, apoio de pés ajustável (ajuda na estabilidade para mastigar) e bandeja removível para facilitar a limpeza.",
@@ -31,6 +33,7 @@ export const UTENSILS: Utensil[] = [
     id: "babador-silicone",
     name: "Babador de silicone com bolso",
     emoji: "🧑‍🍼",
+    imageUrl: "/images/illustrations/utensil-babador-silicone.png",
     category: "hora-de-comer",
     why: "Captura a comida que cai, reduz desperdício e facilita muito a limpeza depois da refeição.",
     whatToLookFor: "Silicone macio (não irrita o pescoço), fecho ajustável e fácil de lavar na pia.",
@@ -49,6 +52,7 @@ export const UTENSILS: Utensil[] = [
     id: "talheres-treino",
     name: "Talheres de treino",
     emoji: "🥄",
+    imageUrl: "/images/illustrations/utensil-talheres-treino.png",
     category: "hora-de-comer",
     why: "Cabo curto e grosso, fácil para a mãozinha pequena segurar — ajuda a desenvolver a pinça e a autonomia.",
     whatToLookFor: "Ponta arredondada (sem risco de machucar a boca), material atóxico e livre de BPA.",
@@ -58,6 +62,7 @@ export const UTENSILS: Utensil[] = [
     id: "copo-transicao",
     name: "Copo de transição (350°/treino)",
     emoji: "🥤",
+    imageUrl: "/images/illustrations/utensil-copo-transicao.png",
     category: "hora-de-comer",
     why: "Ajuda o bebê a sair da mamadeira/peito para o copo aos poucos, sem depender de bico.",
     whatToLookFor: "Bico de silicone macio no início, depois borda livre de bico para treinar sorver.",
@@ -94,6 +99,7 @@ export const UTENSILS: Utensil[] = [
     id: "forminhas-gelo",
     name: "Forminhas de silicone (tipo gelo)",
     emoji: "🧊",
+    imageUrl: "/images/illustrations/utensil-forminhas-gelo.png",
     category: "preparo",
     why: "Cada cubo é uma porção individual pronta para congelar — praticidade para o dia a dia.",
     whatToLookFor: "Silicone flexível (facilita desenformar), com tampa para evitar contaminação no congelador.",
@@ -103,6 +109,7 @@ export const UTENSILS: Utensil[] = [
     id: "potes-vidro-pequenos",
     name: "Potes pequenos de vidro com tampa",
     emoji: "🫙",
+    imageUrl: "/images/illustrations/utensil-potes-vidro-pequenos.png",
     category: "armazenamento",
     why: "Ideais para guardar porções prontas na geladeira ou congelador, sem reter cheiro ou manchar como o plástico.",
     whatToLookFor: "Vidro temperado próprio para congelamento (não trinca com a variação de temperatura), tampa bem vedada.",

@@ -4,20 +4,27 @@
    ===================================================== */
 :root {
   --color-primary: #FF4D8D;
-  --color-primary-dark: #E63A78;
+  /* Recalibrado pra 4.5:1+ com texto branco (era #E63A78, 4.01:1 — falhava
+     WCAG AA por pouco) e com texto rosa sobre fundo rosa claro. Distinto de
+     --color-primary-deep de propósito (mantém a borda 3D dos botões
+     visível). Confirmado via auditoria de contraste (impeccable audit). */
+  --color-primary-dark: #C02D60;
   --color-secondary: #7FC8F0;
   --color-bg: #FBF6EF;
   --color-text-dark: #2B2A2E;
   --color-text-medium: #6B6A70;
   --color-text-secondary: #57565C;
-  --color-success: #2FB56B;
+  /* Recalibrado pra 4.5:1+ (era #2FB56B, 2.64:1 como texto e 2.6:1 como
+     fundo com texto branco — falhava WCAG AA nos dois usos). */
+  --color-success: #15803D;
   --color-warning: #F5943D;
   --color-white: #FFFFFF;
   --color-bubble-received: #F0EEEC;
   --color-primary-deep: #B82E60;
   --color-primary-abyss: #6B1B3A;
-  --color-cta: #22C55E;
-  --color-cta-dark: #16A34A;
+  /* Recalibrado pra 4.5:1+ com texto branco (era #22C55E, 2.3:1). */
+  --color-cta: #15803D;
+  --color-cta-dark: #14652F;
 
   --font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -151,12 +158,12 @@ section { padding: 40px 0; }
 }
 
 .btn--primary {
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: var(--color-white);
   border-bottom-color: var(--color-primary-deep);
 }
 
-.btn--primary:hover { background: var(--color-primary-dark); }
+.btn--primary:hover { background: var(--color-primary-abyss); }
 
 .btn--large { font-size: 1.05rem; padding: 16px 28px; }
 
@@ -164,7 +171,7 @@ section { padding: 40px 0; }
    o verde fica reservado só para ícones de check, segurança e WhatsApp,
    para não competir visualmente nem parecer um botão de outra página. */
 .btn--checkout {
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: var(--color-white);
   text-shadow: none;
   border-bottom-color: var(--color-primary-abyss);
@@ -172,7 +179,7 @@ section { padding: 40px 0; }
   font-weight: 800;
 }
 
-.btn--checkout:hover { background: var(--color-primary-dark); }
+.btn--checkout:hover { background: var(--color-primary-abyss); }
 
 /* =====================================================
    NAV
@@ -456,7 +463,7 @@ section { padding: 40px 0; }
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: var(--color-white);
   display: flex;
   align-items: center;
@@ -504,7 +511,7 @@ section { padding: 40px 0; }
 .option-btn:focus-visible { outline: 3px solid var(--color-secondary); outline-offset: 2px; }
 
 .option-btn.selected {
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   border-color: var(--color-primary);
   border-bottom-color: var(--color-primary-deep);
   color: var(--color-white);
@@ -841,7 +848,7 @@ section { padding: 40px 0; }
    ATUALIZAÇÕES TODA SEMANA
    ===================================================== */
 .updates-banner {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-abyss) 100%);
   color: var(--color-white);
 }
 
@@ -1020,7 +1027,7 @@ section { padding: 40px 0; }
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: var(--color-white);
 }
 
@@ -1367,7 +1374,7 @@ section { padding: 40px 0; }
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: var(--color-white);
   font-family: var(--font-heading);
   font-weight: 800;
@@ -1706,7 +1713,7 @@ section { padding: 40px 0; }
 .pricing-toggle__btn:active { transform: scale(0.96); }
 
 .pricing-toggle__btn.is-active {
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: var(--color-white);
   box-shadow: 0 3px 0 var(--color-primary-deep);
 }
@@ -1948,7 +1955,7 @@ section { padding: 40px 0; }
    CTA FINAL
    ===================================================== */
 .final-cta {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-abyss) 100%);
   color: var(--color-white);
 }
 
@@ -2175,7 +2182,7 @@ section { padding: 40px 0; }
 
 .rich-footer__instagram:hover,
 .rich-footer__instagram:focus-visible {
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   color: #fff;
 }
 

@@ -44,8 +44,17 @@ export async function findOrCreateUser(
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+  // Este convite é gerado pelo client admin (@supabase/supabase-js puro),
+  // que usa fluxo implicit por padrão (token no #hash da URL) — diferente
+  // do client do navegador (@supabase/ssr, PKCE por padrão, token em
+  // ?code=). Por isso vai direto pro /auth/set-password (página client);
+  // o SDK do navegador lê o #access_token automaticamente ao carregar
+  // (detectSessionInUrl). Mandar pro /auth/callback (rota server, só
+  // entende ?code=) faz o convite falhar sempre — o hash nunca chega no
+  // servidor. Confirmado contra o sandbox: link de convite caía em
+  // /auth/auth-code-error com o access_token intacto no hash.
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${appUrl}/auth/callback?next=/auth/set-password`,
+    redirectTo: `${appUrl}/auth/set-password`,
   });
 
   if (error) {

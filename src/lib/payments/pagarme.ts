@@ -310,9 +310,17 @@ export class PagarMeProvider implements PaymentProvider {
     await pagarmeFetch(`/subscriptions/${providerSubscriptionId}`, { method: "DELETE" });
   }
 
+  /**
+   * ⚠️ Corrigido nesta sessão, confirmado contra o sandbox real: o
+   * endpoint de estorno é `DELETE /charges/{id}` — `POST
+   * /charges/{id}/refund` (o que estava aqui antes, nunca tinha sido
+   * chamado de verdade) retorna 404. A cobrança some estornada volta com
+   * `status: "canceled"` e `canceled_amount` igual ao valor pago; o
+   * webhook `charge.refunded` é quem confirma isso pro resto do sistema.
+   */
   async refundPayment(providerChargeId: string, amountCents?: number): Promise<void> {
-    await pagarmeFetch(`/charges/${providerChargeId}/refund`, {
-      method: "POST",
+    await pagarmeFetch(`/charges/${providerChargeId}`, {
+      method: "DELETE",
       body: JSON.stringify(amountCents != null ? { amount: amountCents } : {}),
     });
   }

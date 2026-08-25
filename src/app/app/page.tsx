@@ -123,15 +123,20 @@ export default function AppHomePage() {
         </div>
       </section>
 
-      <Link href="/app/perfil" className="flex min-h-[76px] touch-manipulation items-center gap-3 rounded-[18px] bg-white px-4 shadow-subtle transition-transform active:scale-[0.985]">
-        {photoUrl ? (
-          <Image src={photoUrl} alt={activeBaby.name} width={48} height={48} unoptimized className="h-12 w-12 shrink-0 rounded-full object-cover shadow-subtle" />
-        ) : (
-          <Image src="/images/illustrations/avatar-baby.webp" alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-full object-cover shadow-subtle" />
-        )}
-        <span className="min-w-0 flex-1"><strong className="block truncate text-[16px] text-brown-900">{firstName}</strong><span className="mt-1 flex items-center gap-1 text-[11px] text-brown-700/80"><CalendarDays className="h-3 w-3" />{months} {months === 1 ? "mês" : "meses"} de vida</span></span>
-        <Chip color="primary"><Heart className="h-3.5 w-3.5" fill="currentColor" />{babyLabel}<ChevronRight className="h-3.5 w-3.5" /></Chip>
-      </Link>
+      <div className="flex min-h-[76px] items-center gap-3 rounded-[18px] bg-white px-4 shadow-subtle">
+        <button type="button" onClick={() => setShowUpload(true)} className="group relative shrink-0 touch-manipulation" aria-label="Alterar foto do bebê">
+          {photoUrl ? (
+            <Image src={photoUrl} alt={activeBaby.name} width={48} height={48} unoptimized className="h-12 w-12 rounded-full object-cover shadow-subtle" />
+          ) : (
+            <Image src="/images/illustrations/avatar-baby.webp" alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover shadow-subtle" />
+          )}
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-white"><Camera className="h-2 w-2" strokeWidth={2.5} /></span>
+        </button>
+        <Link href="/app/perfil" className="flex min-w-0 flex-1 touch-manipulation items-center gap-3 transition-transform active:scale-[0.985]">
+          <span className="min-w-0 flex-1"><strong className="block truncate text-[16px] text-brown-900">{firstName}</strong><span className="mt-1 flex items-center gap-1 text-[11px] text-brown-700/80"><CalendarDays className="h-3 w-3" />{months} {months === 1 ? "mês" : "meses"} de vida</span></span>
+          <Chip color="primary"><Heart className="h-3.5 w-3.5" fill="currentColor" />{babyLabel}<ChevronRight className="h-3.5 w-3.5" /></Chip>
+        </Link>
+      </div>
 
       <section className="grid grid-cols-3 gap-2" aria-label="Atalhos">
         {SHORTCUTS.map(({ image, label, href }) => (

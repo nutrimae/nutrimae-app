@@ -128,7 +128,7 @@ export default function AppHomePage() {
           {photoUrl ? (
             <Image src={photoUrl} alt={activeBaby.name} width={48} height={48} unoptimized className="h-12 w-12 rounded-full object-cover shadow-subtle" />
           ) : (
-            <Image src="/images/illustrations/avatar-baby.webp" alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover shadow-subtle" />
+            <Image src={activeBaby.gender === "male" ? "/images/illustrations/avatar-baby-boy.webp" : "/images/illustrations/avatar-baby.webp"} alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover shadow-subtle" />
           )}
           <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-white"><Camera className="h-2 w-2" strokeWidth={2.5} /></span>
         </button>

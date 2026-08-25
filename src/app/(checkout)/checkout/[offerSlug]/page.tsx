@@ -58,7 +58,7 @@ export default async function CheckoutOfferPage({
           <span className="font-heading text-sm font-bold tracking-tight text-brown-900">NutriMãe</span>
         </div>
 
-        {offerSlug === "nutrimae-anual" && (
+        {(offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-mensal") && (
           <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-[28px] shadow-strong">
             <Image
               src="/images/order-bumps/nutrimae-anual.webp"

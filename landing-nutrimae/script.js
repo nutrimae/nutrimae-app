@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------------------------------------------
      Configuração
      --------------------------------------------------- */
-  // APP_URL: domínio real do app Next.js publicado (nutrimae-app). Troque
-  // aqui se um domínio próprio (ex.: app.nutrimae.com) for configurado no
-  // DNS depois. Usado nos links de checkout (fallback), S.O.S. e privacidade.
-  var APP_URL = 'https://nutrimae-app.vercel.app';
+  // APP_URL: domínio próprio do app Next.js, migrado de nutrimae-app.vercel.app
+  // em 2026-08-24 (ver memória project-dominio-nutrimae-app). Usado nos
+  // links de checkout, S.O.S. e privacidade.
+  var APP_URL = 'https://app.nutrimae.app';
 
   /* ---------------------------------------------------
      Rastreamento de eventos (hooks para Meta Pixel)
@@ -889,19 +889,20 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: 0.3 });
 
   /* ---------------------------------------------------
-     BLOCO 11: Oferta — Plano Anual + Checkout
+     BLOCO 11: Oferta — Plano Anual/Mensal + Checkout
      --------------------------------------------------- */
-  // Só o Anual é vendido de verdade aqui — o toggle Mensal é vitrine
-  // (mostra o card, mas o botão de compra sempre leva pro checkout do
-  // Anual). Ver comentário na seção "OFERTA" do index.html sobre o
-  // Mensal ficar atrás de feature flag até a assinatura recorrente
-  // estar pronta.
+  // Mensal e Anual são ofertas reais desde 2026-08-24 (offers.active=true,
+  // assinatura recorrente validada no sandbox do Pagar.me — ver memória
+  // project-bump-upsell-mensal-swap). O botão de compra agora segue o
+  // toggle de verdade, em vez de sempre levar pro Anual.
   var toggleMensal = document.getElementById('toggle-mensal');
   var toggleAnual = document.getElementById('toggle-anual');
   var planCardMensal = document.getElementById('plan-card-mensal');
   var planCardAnual = document.getElementById('plan-card-anual');
+  var selectedPlan = 'anual';
 
   function selectPlanToggle(plan) {
+    selectedPlan = plan;
     var showMensal = plan === 'mensal';
     if (toggleMensal) {
       toggleMensal.classList.toggle('is-active', showMensal);
@@ -913,6 +914,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (planCardMensal) planCardMensal.hidden = !showMensal;
     if (planCardAnual) planCardAnual.hidden = showMensal;
+    if (ctaCheckoutDynamic) {
+      ctaCheckoutDynamic.textContent = showMensal
+        ? 'Quero começar por R$19,90/mês'
+        : 'Quero o acesso anual por R$97';
+    }
   }
 
   if (toggleMensal) {
@@ -928,8 +934,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function goToCheckout() {
-    trackEvent('InitiateCheckout', { plan: 'anual', age: currentAgeKey });
-    window.location.href = APP_URL + '/checkout/nutrimae-anual';
+    trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
+    window.location.href = APP_URL + '/checkout/nutrimae-' + selectedPlan;
   }
 
   if (ctaCheckoutDynamic) {

@@ -68,7 +68,7 @@ O Plano Mensal recorrente já existe no backend (Pagar.me, ver `src/lib/payments
 
 ## Checkout
 
-`APP_URL` (topo de `script.js`) aponta pro app Next.js publicado (`https://nutrimae-app.vercel.app` hoje — trocar aqui se um domínio próprio for configurado). O botão de oferta (`goToCheckout()` em `script.js`) manda direto pro checkout interno, `APP_URL + '/checkout/nutrimae-anual'` — não é mais CartPanda.
+`APP_URL` (topo de `script.js`) aponta pro app Next.js publicado (`https://app.nutrimae.app`, domínio próprio migrado em 2026-08-24). O botão de oferta (`goToCheckout()` em `script.js`) manda direto pro checkout interno, `APP_URL + '/checkout/nutrimae-' + selectedPlan` (segue o toggle Mensal/Anual) — não é mais CartPanda.
 
 ## Vídeo VSL
 

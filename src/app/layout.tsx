@@ -15,6 +15,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "NutriMãe",
   description: "Apoio calmo e acolhedor para a introdução alimentar do seu bebê.",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },

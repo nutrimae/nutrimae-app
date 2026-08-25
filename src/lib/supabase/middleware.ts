@@ -24,6 +24,11 @@ const PUBLIC_PATHS = [
   "/checkout",
   "/upsell",
   "/downsell",
+  // O navegador busca o manifest (link declarado no <head> pelo layout raiz)
+  // em QUALQUER página, inclusive antes de logar — sem isso aqui, quem nunca
+  // entrou no app recebe o HTML de /login no lugar do JSON, e "Adicionar à
+  // tela de início" nunca vira um app instalável de verdade.
+  "/manifest.json",
 ];
 
 function requiresPurchasedAccess(pathname: string) {

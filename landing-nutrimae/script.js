@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
           heroTitle.focus({ preventScroll: true });
         }
         startHeroTypewriter();
-      }, 720);
+      }, 520);
     }
 
     function finishEntryQuiz() {
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function () {
         entryQuizLoadingFill.style.transition = 'none';
         entryQuizLoadingFill.style.width = '0%';
         void entryQuizLoadingFill.offsetWidth;
-        entryQuizLoadingFill.style.transition = 'width 2.9s linear';
+        entryQuizLoadingFill.style.transition = 'width 1.8s linear';
         window.requestAnimationFrame(function () {
           entryQuizLoadingFill.style.width = '100%';
         });
@@ -386,19 +386,19 @@ document.addEventListener('DOMContentLoaded', function () {
           window.setTimeout(function () {
             entryQuizLoadingText.textContent = message;
             entryQuizLoadingText.classList.remove('is-changing');
-          }, 180);
+          }, 150);
         }
 
-        window.setTimeout(function () { changeLoadingMessage(messages[1]); }, 950);
-        window.setTimeout(function () { changeLoadingMessage(messages[2]); }, 1900);
+        window.setTimeout(function () { changeLoadingMessage(messages[1]); }, 600);
+        window.setTimeout(function () { changeLoadingMessage(messages[2]); }, 1200);
         window.setTimeout(function () {
           entryQuizLoading.setAttribute('aria-busy', 'false');
           finishEntryQuiz();
-        }, 2900);
+        }, 1800);
 
         // Fallback para navegadores in-app que pausam timers em segundo plano.
-        window.setTimeout(finishEntryQuiz, 3600);
-      }, 300);
+        window.setTimeout(finishEntryQuiz, 2500);
+      }, 200);
     }
 
     entryQuizSteps[1].querySelectorAll('[data-entry-age]').forEach(function (button) {

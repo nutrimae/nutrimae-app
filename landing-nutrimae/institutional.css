@@ -43,8 +43,6 @@
 .institutional-nav { display: flex; align-items: center; gap: 10px; }
 .institutional-nav a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 13px; color: #57565c; text-decoration: none; font-weight: 700; }
 .institutional-nav a:hover, .institutional-nav a[aria-current="page"] { color: #C02D60; background: #fff0f5; }
-.institutional-nav__app { color: #fff !important; background: #C02D60 !important; }
-.institutional-nav__app:hover { background: #b82e60 !important; }
 
 .institutional-hero { padding: 92px 0 52px; text-align: center; }
 .institutional-eyebrow { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 16px; border: 1px solid rgba(230,58,120,.22); border-radius: 999px; color: #C02D60; background: #fff3f7; font-size: 0.85rem; font-weight: 800; }
@@ -111,7 +109,6 @@
   .institutional-nav { gap: 2px; }
   .institutional-nav a { padding: 0 10px; font-size: .86rem; }
   .institutional-nav a:not(:first-child) { display: none; }
-  .institutional-nav__app { display: none !important; }
   .institutional-hero { padding: 64px 0 36px; }
   .institutional-hero h1 { font-size: clamp(2.25rem, 12vw, 3.5rem); }
   .faq-categories { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; padding: 2px 1px 10px; scrollbar-width: none; }

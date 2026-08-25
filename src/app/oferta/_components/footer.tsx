@@ -14,7 +14,7 @@ export function OfertaFooter() {
             Política de Privacidade
           </Link>
           <span aria-hidden="true">·</span>
-          <a href="mailto:contato@nutrimae.com" className="inline-flex min-h-11 items-center px-1 underline">
+          <a href="mailto:contato@nutrimae.app" className="inline-flex min-h-11 items-center px-1 underline">
             Contato
           </a>
         </div>

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var SUPPORT_EMAIL = 'contato@nutrimae.com';
+  var SUPPORT_EMAIL = 'contato@nutrimae.app';
   var wrapper = document.createElement('div');
 
   wrapper.innerHTML = [

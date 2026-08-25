@@ -91,3 +91,38 @@ test("landing /oferta tem toggle Mensal/Anual roteando pro checkout certo", asyn
   assert.match(offer, /nutrimae-mensal/);
   assert.match(offer, /nutrimae-anual/);
 });
+
+test("checkout do Mensal tambem recebe order bumps (mesma lista do Anual)", async () => {
+  const page = await read("src/app/(checkout)/checkout/[offerSlug]/page.tsx");
+  assert.match(page, /offerSlug === "nutrimae-anual" \|\| offerSlug === "nutrimae-mensal"/);
+  assert.match(page, /<SubscriptionCheckoutForm[^/]*bumps=\{bumps\}/s);
+});
+
+test("bumps da assinatura sao cobrados a parte (pagamento unico), nunca somados ao valor recorrente", async () => {
+  const route = await read("src/app/api/checkout/subscription/route.ts");
+  const subscriptionCall = route.slice(route.indexOf("provider.createSubscription("), route.indexOf("createSubscription(") + 600);
+  assert.doesNotMatch(subscriptionCall, /bump/i, "bumps nunca podem entrar no payload de createSubscription (cobraria todo mes)");
+  assert.match(route, /async function chargeBumps/);
+  assert.match(route, /if \(!parentSubscriptionId && bumpSlugs\.length > 0\)/, "bump so e cobrado na assinatura nova, nunca no upsell de uma assinatura existente");
+});
+
+test("cobranca de bump da assinatura e best-effort: falha nao desfaz a assinatura ja criada", async () => {
+  const route = await read("src/app/api/checkout/subscription/route.ts");
+  const chargeBumpsFn = route.slice(route.indexOf("async function chargeBumps"));
+  const catchBlock = chargeBumpsFn.slice(chargeBumpsFn.indexOf("} catch (err)"));
+  assert.match(catchBlock, /console\.error/, "catch precisa logar, nao engolir silenciosamente");
+  assert.doesNotMatch(catchBlock, /throw/, "o catch de chargeBumps nunca pode relancar o erro (derrubaria a resposta de sucesso da assinatura)");
+});
+
+test("imagens/descricoes de order bump vem de uma fonte unica, compartilhada entre Anual e Mensal", async () => {
+  const shared = await read("src/lib/checkout/bump-content.ts");
+  assert.match(shared, /BUMP_IMAGES/);
+  assert.match(shared, /BUMP_DESCRIPTIONS/);
+  for (const file of [
+    "src/app/(checkout)/checkout/[offerSlug]/_components/checkout-form.tsx",
+    "src/app/(checkout)/checkout/[offerSlug]/_components/subscription-checkout-form.tsx",
+  ]) {
+    const form = await read(file);
+    assert.match(form, /from "@\/lib\/checkout\/bump-content"/, `${file} deveria importar de bump-content.ts, nao duplicar`);
+  }
+});

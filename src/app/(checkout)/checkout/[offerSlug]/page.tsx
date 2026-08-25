@@ -33,7 +33,7 @@ export default async function CheckoutOfferPage({
   }
 
   let bumps: Array<{ id: string; slug: string; name: string; price_cents: number }> = [];
-  if (offerSlug === "nutrimae-anual") {
+  if (offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-mensal") {
     const { data } = await admin
       .from("offers")
       .select("id, slug, name, price_cents")
@@ -92,7 +92,7 @@ export default async function CheckoutOfferPage({
         </div>
 
         {offer.billing_type === "recurring" ? (
-          <SubscriptionCheckoutForm offer={{ slug: offer.slug, name: offer.name }} />
+          <SubscriptionCheckoutForm offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents }} bumps={bumps} />
         ) : (
           <CheckoutForm offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents }} bumps={bumps} />
         )}

@@ -2,22 +2,46 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard, ShieldCheck, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { CreditCard, ShieldCheck, Loader2, Check } from "lucide-react";
 import { isValidCpf } from "@/lib/utils";
 import { tokenizeCard } from "@/lib/payments/tokenize-card";
+import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
+import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
+
+interface Bump {
+  id: string;
+  slug: string;
+  name: string;
+  price_cents: number;
+}
+
+function formatBRL(cents: number) {
+  return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
 
 /**
  * Checkout de assinatura recorrente (Plano Mensal, NutriBot VIP) — isolado
  * do checkout de pagamento único (checkout-form.tsx) de propósito: só
- * cartão (Pix não garante recorrência), sem order bumps, e chama
- * /api/checkout/subscription em vez de /api/checkout. Só fica alcançável
- * quando a oferta correspondente estiver com active=true.
+ * cartão (Pix não garante recorrência), e chama /api/checkout/subscription
+ * em vez de /api/checkout. Só fica alcançável quando a oferta
+ * correspondente estiver com active=true.
+ *
+ * Order bumps (ativados em 2026-08-24, mesmos do Anual) são pagamento
+ * único — nunca entram no valor recorrente, só no cartão cobrado agora,
+ * junto com o 1º ciclo da assinatura (ver /api/checkout/subscription).
  */
-
-export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; name: string } }) {
+export function SubscriptionCheckoutForm({
+  offer,
+  bumps,
+}: {
+  offer: { slug: string; name: string; priceCents: number };
+  bumps: Bump[];
+}) {
   const router = useRouter();
+  const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [document, setDocument] = useState("");
@@ -32,8 +56,15 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const bumpTotal = bumps.filter((b) => selectedBumps.includes(b.slug)).reduce((sum, b) => sum + b.price_cents, 0);
+  const chargedNowCents = offer.priceCents + bumpTotal;
+
   const documentDigits = document.replace(/\D/g, "");
   const documentError = documentTouched && documentDigits.length === 11 && !isValidCpf(documentDigits) ? "CPF inválido — confira os números." : null;
+
+  function toggleBump(slug: string) {
+    setSelectedBumps((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
+  }
 
   async function handleSubmit() {
     setError(null);
@@ -64,6 +95,7 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           offerSlug: offer.slug,
+          bumpSlugs: selectedBumps,
           cardToken,
           billingAddress,
           customer: { name, email, document, phone },
@@ -86,6 +118,56 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
 
   return (
     <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
+      {bumps.length > 0 && (
+        <div className="flex flex-col gap-2.5 border-b border-sage-100/80 pb-5">
+          <p className="font-heading text-sm font-bold text-brown-900">Aproveite e leve também:</p>
+          {bumps.map((bump) => {
+            const selected = selectedBumps.includes(bump.slug);
+            return (
+              <label
+                key={bump.id}
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 text-left transition-colors ${
+                  selected ? "border-primary-300 bg-primary-50" : "border-sage-100/80 bg-white"
+                }`}
+              >
+                <input type="checkbox" checked={selected} onChange={() => toggleBump(bump.slug)} className="sr-only" />
+                <span
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                    selected ? "border-primary-500 bg-primary-500" : "border-sage-200 bg-white"
+                  }`}
+                >
+                  {selected && <Check className="h-4 w-4 text-white" strokeWidth={3} />}
+                </span>
+                {BUMP_IMAGES[bump.slug] && (
+                  <Image
+                    src={BUMP_IMAGES[bump.slug]}
+                    alt={bump.name}
+                    width={64}
+                    height={64}
+                    className="h-16 w-16 shrink-0 rounded-2xl object-cover shadow-subtle"
+                  />
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5">
+                    <span className="block font-semibold text-brown-900">{bump.name}</span>
+                    <Chip color="sage" className="shrink-0">vitalício</Chip>
+                  </span>
+                  {BUMP_DESCRIPTIONS[bump.slug] && (
+                    <span className="mt-0.5 block text-xs leading-snug text-brown-700/82">{BUMP_DESCRIPTIONS[bump.slug]}</span>
+                  )}
+                </span>
+                <span className="shrink-0 font-heading font-bold text-primary-600">{formatBRL(bump.price_cents)}</span>
+              </label>
+            );
+          })}
+          {selectedBumps.length > 0 && (
+            <p className="text-xs text-brown-700/70">
+              Pagamento único, cobrado uma vez só junto com o 1º ciclo — nunca entra na sua mensalidade.
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-col gap-3">
         <Input placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
         <Input placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -116,6 +198,11 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
 
       {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
 
+      <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
+        <span className="text-sm font-semibold text-brown-700/86">Cobrado agora</span>
+        <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(chargedNowCents)}</span>
+      </div>
+
       <p className="text-center text-xs font-medium text-sage-600">Cancele quando quiser, sem multa.</p>
 
       <button
@@ -124,7 +211,7 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
         disabled={loading}
         className="flex min-h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 text-base font-bold text-white shadow-[0_4px_16px_var(--color-primary-shadow)] transition-transform active:scale-[0.98] disabled:opacity-60"
       >
-        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Assinar agora"}
+        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : `Assinar agora — ${formatBRL(chargedNowCents)}`}
       </button>
 
       <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">

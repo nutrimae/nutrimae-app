@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Chip } from "@/components/ui/chip";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
+import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
 
 interface Bump {
   id: string;
@@ -18,17 +19,6 @@ interface Bump {
   name: string;
   price_cents: number;
 }
-
-const BUMP_IMAGES: Record<string, string> = {
-  "batch-cooking": "/images/order-bumps/batch-cooking-thumb.webp",
-  "protocolo-intestino": "/images/order-bumps/protocolo-intestino-thumb.webp",
-  "sos-desmame": "/images/order-bumps/sos-desmame-thumb.webp",
-  "nutribot-30d": "/images/order-bumps/nutribot-30d-thumb.webp",
-};
-
-const BUMP_DESCRIPTIONS: Record<string, string> = {
-  "batch-cooking": "Cozinhe a semana inteira em uma hora só. Método de porcionamento, tabela de validade e etiquetas pra imprimir.",
-};
 
 function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

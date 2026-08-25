@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { ShieldCheck } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CheckoutForm } from "./_components/checkout-form";
 import { SubscriptionCheckoutForm } from "./_components/subscription-checkout-form";
+import { CheckoutTestimonials } from "@/components/checkout-testimonials";
+import { CheckoutTrustFooter } from "@/components/checkout-trust-footer";
 
 /**
  * Carrega a oferta pelo slug direto do banco — se estiver inativa (ex.:
@@ -44,6 +47,11 @@ export default async function CheckoutOfferPage({
 
   return (
     <main className="min-h-dvh bg-cream pb-10">
+      <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-primary-50 px-4 py-2.5 text-center text-xs font-semibold text-primary-700">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+        Pagamento processado com segurança · acesso liberado assim que a compra é confirmada
+      </div>
+
       <div className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 pt-8">
         <div className="flex items-center justify-center gap-2">
           <Image src="/nutrimae-logo.png" alt="NutriMãe" width={32} height={32} className="h-8 w-8 object-contain" />
@@ -88,6 +96,9 @@ export default async function CheckoutOfferPage({
         ) : (
           <CheckoutForm offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents }} bumps={bumps} />
         )}
+
+        <CheckoutTestimonials />
+        <CheckoutTrustFooter />
       </div>
     </main>
   );

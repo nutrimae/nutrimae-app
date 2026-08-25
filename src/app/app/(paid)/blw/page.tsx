@@ -97,10 +97,10 @@ function FoodsTab() {
                     <span className="text-2xl">{food.emoji}</span>
                     <div className="flex-1">
                       <p className="font-semibold text-brown-800">{food.name}</p>
-                      <p className="text-xs text-brown-700/60">A partir de {food.minAgeMonths} meses</p>
+                      <p className="text-xs text-brown-700/86">A partir de {food.minAgeMonths} meses</p>
                     </div>
                     <ChevronDown
-                      className={`h-5 w-5 shrink-0 text-brown-700/50 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                      className={`h-5 w-5 shrink-0 text-brown-700/82 transition-transform ${isOpen ? "rotate-180" : ""}`}
                       strokeWidth={2}
                     />
                   </button>

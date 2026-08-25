@@ -108,7 +108,7 @@ export default function MaisPage() {
 
       <Link
         href="/politica-privacidade"
-        className="min-h-11 text-center text-xs font-medium text-brown-700/40 transition-colors hover:text-brown-700/60"
+        className="min-h-11 text-center text-xs font-medium text-brown-700/78 transition-colors hover:text-brown-700/86"
       >
         Política de Privacidade
       </Link>

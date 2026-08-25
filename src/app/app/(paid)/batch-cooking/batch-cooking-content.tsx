@@ -60,9 +60,9 @@ const NAO_CONGELA_BEM = [
 function Label({ alimento, data }: { alimento: string; data: string }) {
   return (
     <div className="flex min-h-20 flex-col justify-center rounded-xl border-2 border-dashed border-sage-300 bg-white p-3 text-center">
-      <p className="text-[10px] font-bold uppercase tracking-wide text-sage-600">NutriMãe</p>
+      <p className="text-[11px] font-bold uppercase tracking-wide text-sage-600">NutriMãe</p>
       <p className="mt-1 font-heading text-sm font-bold text-brown-800">{alimento || "Nome do alimento"}</p>
-      <p className="text-xs text-brown-700/60">{data || "Data de preparo"}</p>
+      <p className="text-xs text-brown-700/86">{data || "Data de preparo"}</p>
     </div>
   );
 }
@@ -110,7 +110,7 @@ export function BatchCookingContent() {
           {TABELA_VALIDADE.map((item) => (
             <div key={item.categoria} className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
               <p className="font-semibold text-brown-800">{item.categoria}</p>
-              <p className="text-xs text-brown-700/60">{item.exemplos}</p>
+              <p className="text-xs text-brown-700/86">{item.exemplos}</p>
               <div className="mt-2 flex gap-4 text-sm">
                 <span className="text-brown-700">
                   <strong className="text-brown-800">Geladeira:</strong> {item.geladeira}
@@ -122,7 +122,7 @@ export function BatchCookingContent() {
             </div>
           ))}
         </div>
-        <p className="mt-2 text-xs text-brown-700/50">
+        <p className="mt-2 text-xs text-brown-700/82">
           Prazos gerais e conservadores para uso doméstico. Na dúvida sobre cheiro, cor ou textura, descarte —
           segurança alimentar vem antes de economia.
         </p>

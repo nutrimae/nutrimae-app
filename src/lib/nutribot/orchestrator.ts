@@ -13,6 +13,9 @@ import { MSG_NEED_EMAIL_MEMORY, MSG_INVALID_EMAIL, MSG_WELCOME_NO_SESSION, MSG_T
 import { logInfo, logError } from "./logger";
 import type { createTypebotClient } from "./typebotClient";
 import type { createEvolutionClient } from "./evolutionClient";
+import { resolveBabyContext } from "./babyContext";
+import { answerWithFoodAssistant } from "./foodAssistant";
+import { logConversationTurn } from "./conversationLog";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 type TypebotClient = ReturnType<typeof createTypebotClient>;
@@ -138,6 +141,51 @@ async function startOrRestartConversation(
 }
 
 async function continueConversation(deps: Deps, event: NormalizedEvent, session: SessionRow, now: Date, cooldownMinutes: number) {
+  // Antes de repassar pro fluxo roteirizado do Typebot, tenta responder com
+  // o histórico real do bebê (Diário, alergia conhecida) quando a mensagem
+  // for sobre alimentação — ver src/lib/nutribot/foodAssistant.ts. Se a
+  // pergunta não for sobre isso, ou o telefone não estiver vinculado a
+  // nenhuma conta ainda, cai no Typebot exatamente como antes.
+  const babyContext = await resolveBabyContext(deps.db, event.phone).catch((err) => {
+    logError("baby_context.resolve_failed", { phone: event.phone, error: (err as Error)?.message });
+    return null;
+  });
+
+  await logConversationTurn(deps.db, {
+    phone: event.phone,
+    userId: babyContext?.userId ?? null,
+    babyId: babyContext?.babyId ?? null,
+    direction: "in",
+    message: event.text,
+  });
+
+  if (babyContext) {
+    const assistant = await answerWithFoodAssistant(babyContext, event.text);
+    if (assistant.handled && assistant.reply) {
+      await sendText(deps, event.phone, assistant.reply);
+      await logConversationTurn(deps.db, {
+        phone: event.phone,
+        userId: babyContext.userId,
+        babyId: babyContext.babyId,
+        direction: "out",
+        message: assistant.reply,
+      });
+      // Mantém a sessão do Typebot como está (mesmo session_id) — só
+      // atualiza o "último recado processado", pra essa resposta não
+      // atrapalhar uma continuação normal do fluxo roteirizado depois.
+      await upsertSessionAfterReply(deps.db, {
+        phone: event.phone,
+        sessionId: session.session_id,
+        lastMessageId: event.messageId,
+        emailCliente: session.email_cliente,
+        idadeBebe: session.idade_bebe,
+        keepSession: true,
+        route: "food_assistant",
+      });
+      return { route: "food_assistant", sent: true };
+    }
+  }
+
   try {
     const result = await deps.typebot.continueChat({
       sessionId: session.session_id,
@@ -171,6 +219,13 @@ async function persistTypebotReply(
 
   if (interpreted.hasReply) {
     await sendText(deps, event.phone, interpreted.replyText);
+    await logConversationTurn(deps.db, {
+      phone: event.phone,
+      userId: null,
+      babyId: null,
+      direction: "out",
+      message: interpreted.replyText,
+    });
   }
 
   return { route, sent: interpreted.hasReply, shouldKeepSession: interpreted.shouldKeepSession };

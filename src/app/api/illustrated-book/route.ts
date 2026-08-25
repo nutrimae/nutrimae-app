@@ -39,13 +39,17 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null) as { babyId?: string } | null;
   if (!body?.babyId) return NextResponse.json({ error: "baby_id_required" }, { status: 400 });
 
-  const [{ data: baby }, { data: log }, { data: milestones }] = await Promise.all([
+  const [{ data: baby }, { data: log }, { data: milestones }, { data: entitlement }] = await Promise.all([
     supabase.from("babies").select("*").eq("id", body.babyId).eq("user_id", user.id).maybeSingle(),
     supabase.from("food_log").select("food_key,reaction,tried_at").eq("baby_id", body.babyId).order("tried_at"),
     supabase.from("food_milestones").select("milestone_key,achieved_at").eq("baby_id", body.babyId).order("achieved_at"),
+    supabase.from("user_products").select("status").eq("user_id", user.id).eq("product_id", "livro_ilustrado").eq("status", "active").maybeSingle(),
   ]);
 
   if (!baby) return NextResponse.json({ error: "baby_not_found" }, { status: 404 });
+  // A tela so oferece "Preparar meu roteiro" depois da compra, mas a rota
+  // precisa recusar sozinha (mesma logica das outras rotas deste recurso).
+  if (!entitlement) return NextResponse.json({ error: "purchase_required" }, { status: 403 });
   if ((log?.length ?? 0) < MIN_BOOK_DIARY_ENTRIES) {
     return NextResponse.json({ error: "not_enough_diary_entries", required: MIN_BOOK_DIARY_ENTRIES }, { status: 409 });
   }

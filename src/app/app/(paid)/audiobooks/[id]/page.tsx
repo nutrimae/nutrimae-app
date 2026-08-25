@@ -150,7 +150,7 @@ export default function AudiobookDetailPage() {
                 onChange={handleSeek}
                 className="w-full accent-primary-500"
               />
-              <p className="mt-1 text-xs text-brown-700/60">
+              <p className="mt-1 text-xs text-brown-700/86">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </p>
             </div>

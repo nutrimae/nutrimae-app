@@ -34,7 +34,7 @@ export function BottomNav() {
               href={href}
               prefetch
               aria-current={active ? "page" : undefined}
-              className={`relative flex min-h-[60px] flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${
+              className={`relative flex min-h-[60px] flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors ${
                 active ? "text-primary-500" : "text-gray-400"
               }`}
             >
@@ -57,7 +57,7 @@ export function BottomNav() {
             href="/app/vip"
             prefetch
             aria-current={vipActive ? "page" : undefined}
-            className={`relative flex min-h-[60px] flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-bold transition-colors ${
+            className={`relative flex min-h-[60px] flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-bold transition-colors ${
               vipActive ? "text-amber-600" : "text-amber-500"
             }`}
           >

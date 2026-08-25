@@ -32,7 +32,7 @@ export default function BuscaPage() {
           Buscar corte seguro
         </h1>
         {activeBaby && (
-          <p className="mt-1 text-sm text-brown-700/70">
+          <p className="mt-1 text-sm text-brown-700/90">
             Mostrando cortes para {activeBaby.name} · {AGE_BAND_LABEL[ageBand]}
           </p>
         )}
@@ -53,7 +53,7 @@ export default function BuscaPage() {
             setSelected(null);
           }}
           placeholder="Buscar alimento (ex: uva, cenoura, frango)"
-          className="min-h-16 w-full rounded-2xl border-2 border-sage-100 bg-white pl-12 pr-12 text-lg text-brown-800 placeholder:text-brown-700/40 outline-none focus:border-sage-400"
+          className="min-h-16 w-full rounded-2xl border-2 border-sage-100 bg-white pl-12 pr-12 text-lg text-brown-800 placeholder:text-brown-700/78 outline-none focus:border-sage-400"
         />
         {query && (
           <button
@@ -64,13 +64,18 @@ export default function BuscaPage() {
             }}
             className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-sage-50"
           >
-            <X className="h-5 w-5 text-brown-700/60" strokeWidth={2} />
+            <X className="h-5 w-5 text-brown-700/86" strokeWidth={2} />
           </button>
         )}
       </div>
 
       {selected ? (
-        <FoodDetail food={selected} ageBand={ageBand} onBack={() => setSelected(null)} />
+        <FoodDetail
+          food={selected}
+          ageBand={ageBand}
+          babyAgeMonths={months}
+          onBack={() => setSelected(null)}
+        />
       ) : query ? (
         results.length > 0 ? (
           <div className="flex flex-col gap-2">
@@ -89,13 +94,13 @@ export default function BuscaPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-center text-brown-700/70">
+          <p className="mt-4 text-center text-brown-700/90">
             Não encontramos &ldquo;{query}&rdquo; ainda. Em caso de dúvida sobre um
             alimento novo, converse com o pediatra do seu bebê.
           </p>
         )
       ) : (
-        <p className="mt-4 text-center text-brown-700/70">
+        <p className="mt-4 text-center text-brown-700/90">
           Digite o nome de um alimento para ver o corte recomendado.
         </p>
       )}
@@ -105,15 +110,81 @@ export default function BuscaPage() {
   );
 }
 
+import { FoodVideoPlayer } from "@/components/food-video-player";
+import { CommunityVideoModal } from "@/components/community-video-modal";
+import { Video } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect as useClientEffect } from "react";
+
 function FoodDetail({
   food,
   ageBand,
+  babyAgeMonths,
   onBack,
 }: {
   food: FoodItem;
   ageBand: keyof FoodItem["cuts"];
+  babyAgeMonths?: number;
   onBack: () => void;
 }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [dbVideo, setDbVideo] = useState<{
+    video_url: string;
+    video_tipo: "motion_graphic" | "comunidade";
+    baby_age_months?: number;
+  } | null>(null);
+
+  // Load approved video from database if exists
+  useClientEffect(() => {
+    let cancelled = false;
+    async function loadVideo() {
+      if (food.video_url && food.video_status === "aprovado") {
+        setDbVideo({
+          video_url: food.video_url,
+          video_tipo: food.video_tipo || "motion_graphic",
+          baby_age_months: food.video_baby_age_months,
+        });
+        return;
+      }
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("food_videos")
+          .select("id, video_url, video_tipo, baby_age_months")
+          .eq("food_id", food.id)
+          .eq("video_status", "aprovado")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (cancelled || !data) return;
+
+        // Bucket "food-videos" é privado — o valor salvo no banco pode ser
+        // o caminho interno do arquivo (upload próprio) em vez de uma URL
+        // já reproduzível. /api/videos/[id] devolve a URL assinada quando
+        // for o caso, ou a própria URL externa quando a usuária colou um
+        // link em vez de enviar arquivo.
+        const playbackUrl = /^https?:\/\//i.test(data.video_url)
+          ? data.video_url
+          : await fetch(`/api/videos/${data.id}`).then((r) => (r.ok ? r.json() : null)).then((j) => j?.url ?? null);
+
+        if (!cancelled && playbackUrl) {
+          setDbVideo({
+            video_url: playbackUrl,
+            video_tipo: data.video_tipo as "motion_graphic" | "comunidade",
+            baby_age_months: data.baby_age_months,
+          });
+        }
+      } catch (e) {
+        console.error("Error loading food video", e);
+      }
+    }
+    loadVideo();
+    return () => {
+      cancelled = true;
+    };
+  }, [food.id, food.video_url, food.video_status, food.video_tipo, food.video_baby_age_months]);
+
   return (
     <div className="rounded-3xl bg-white/80 p-6 shadow-sm shadow-brown-900/5">
       <button
@@ -123,6 +194,14 @@ function FoodDetail({
       >
         ← Voltar aos resultados
       </button>
+
+      {/* Video Player at the top before text (Prompt D) */}
+      <FoodVideoPlayer
+        videoUrl={dbVideo?.video_url}
+        videoTipo={dbVideo?.video_tipo}
+        babyAgeMonths={dbVideo?.baby_age_months}
+        foodName={food.name}
+      />
 
       <div className="flex items-center gap-4">
         <span className="text-5xl">{food.emoji}</span>
@@ -146,7 +225,7 @@ function FoodDetail({
         </div>
       )}
 
-      <div className="mt-4">
+      <div className="mt-4 flex flex-col gap-2">
         <ListenButton
           contentType="food"
           contentId={food.id}
@@ -156,9 +235,27 @@ function FoodDetail({
             food.warning ? `Atenção: ${food.warning}` : "",
           ].filter(Boolean).join(" ")}
         />
+
+        {/* Community video contribution trigger */}
+        <button
+          type="button"
+          onClick={() => setModalOpen(true)}
+          className="flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-sage-200 bg-sage-50/60 px-4 text-xs font-semibold text-sage-700 active:bg-sage-100"
+        >
+          <Video className="h-4 w-4 text-sage-600" />
+          <span>Enviar vídeo do seu bebê comendo {food.name}</span>
+        </button>
       </div>
 
       <FoodPrepSection foodId={food.id} />
+
+      <CommunityVideoModal
+        foodId={food.id}
+        foodName={food.name}
+        babyAgeMonths={babyAgeMonths || 12}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }

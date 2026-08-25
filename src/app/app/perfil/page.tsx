@@ -217,7 +217,7 @@ export default function PerfilPage() {
       <div>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Sua região</h2>
         <div className="flex flex-col gap-2 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
-          <p className="text-sm text-brown-700/70">
+          <p className="text-sm text-brown-700/90">
             Usamos para priorizar alimentos e receitas da sua região no cardápio.
           </p>
           <div className="mt-1 flex flex-wrap gap-2">
@@ -240,7 +240,7 @@ export default function PerfilPage() {
             <button
               type="button"
               onClick={() => setRegion(null)}
-              className="mt-1 text-left text-sm font-medium text-brown-700/50"
+              className="mt-1 text-left text-sm font-medium text-brown-700/82"
             >
               Limpar seleção
             </button>
@@ -264,7 +264,7 @@ export default function PerfilPage() {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
-            <p className="mt-1 text-xs text-brown-700/60">
+            <p className="mt-1 text-xs text-brown-700/86">
               Usado pro NutriBot e, se sua conta for admin, pra receber os alertas do painel do negócio.
             </p>
             {phoneError && <p className="mt-1 text-xs font-semibold text-red-600">{phoneError}</p>}
@@ -364,7 +364,7 @@ export default function PerfilPage() {
 
       <Link
         href="/politica-privacidade"
-        className="flex items-center gap-2 text-sm font-semibold text-brown-700/70"
+        className="flex items-center gap-2 text-sm font-semibold text-brown-700/90"
       >
         <ShieldCheck className="h-4 w-4" strokeWidth={2} />
         Política de Privacidade

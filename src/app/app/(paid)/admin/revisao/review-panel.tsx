@@ -7,10 +7,11 @@ import { BackButton } from "@/components/back-button";
 import { Button } from "@/components/ui/button";
 import { getPendingFoods, type FoodItem } from "@/lib/foods";
 import { getPendingRecipes, type Recipe } from "@/lib/recipes";
+import { getPendingLunchboxSafetyClaims } from "@/lib/lunchbox";
 import { REGION_LABEL, type Region } from "@/lib/regions";
 
 type ReviewAction = "aprovado" | "rejeitado";
-type ContentType = "food" | "recipe";
+type ContentType = "food" | "recipe" | "guideline";
 type PriorityFilter = "all" | "alta" | "normal";
 
 interface PendingItem {
@@ -61,7 +62,14 @@ export function ReviewPanel() {
       priority: "normal",
     }));
 
-    const all = [...foods, ...recipes]
+    const guidelines: PendingItem[] = getPendingLunchboxSafetyClaims().map((g) => ({
+      contentType: "guideline" as const,
+      id: g.id,
+      name: g.text,
+      priority: g.prioridadeRevisao,
+    }));
+
+    const all = [...foods, ...recipes, ...guidelines]
       .filter((item) => !reviewedFromDb.has(`${item.contentType}:${item.id}`))
       .filter((item) => !reviewed.has(`${item.contentType}:${item.id}`))
       .sort((a, b) => {
@@ -105,7 +113,7 @@ export function ReviewPanel() {
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Revisão de conteúdo</h1>
-        <p className="mt-1 text-sm text-brown-700/70">
+        <p className="mt-1 text-sm text-brown-700/90">
           {pendingItems.length} {pendingItems.length === 1 ? "item pendente" : "itens pendentes"} de revisão
         </p>
       </div>
@@ -140,7 +148,7 @@ export function ReviewPanel() {
         <div className="mt-8 text-center">
           <CheckCircle className="mx-auto h-12 w-12 text-sage-400" strokeWidth={1.5} />
           <p className="mt-3 font-heading text-lg font-bold text-brown-800">Tudo revisado!</p>
-          <p className="mt-1 text-sm text-brown-700/70">Nenhum item pendente no momento.</p>
+          <p className="mt-1 text-sm text-brown-700/90">Nenhum item pendente no momento.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -163,9 +171,11 @@ export function ReviewPanel() {
                       <span className={`rounded-lg px-2 py-0.5 text-xs font-bold uppercase ${
                         item.contentType === "food"
                           ? "bg-sage-100 text-sage-700"
-                          : "bg-primary-100 text-primary-700"
+                          : item.contentType === "recipe"
+                            ? "bg-primary-100 text-primary-700"
+                            : "bg-amber-100 text-amber-700"
                       }`}>
-                        {item.contentType === "food" ? "Alimento" : "Receita"}
+                        {item.contentType === "food" ? "Alimento" : item.contentType === "recipe" ? "Receita" : "Orientação"}
                       </span>
                       {item.priority === "alta" && (
                         <span className="rounded-lg bg-terracotta-500 px-2 py-0.5 text-xs font-bold text-white">
@@ -175,7 +185,7 @@ export function ReviewPanel() {
                     </div>
                     <p className="mt-1.5 font-heading text-lg font-bold text-brown-800">{item.name}</p>
                     {item.regiao && item.regiao.length > 0 && (
-                      <p className="mt-0.5 text-sm text-brown-700/70">
+                      <p className="mt-0.5 text-sm text-brown-700/90">
                         Região: {item.regiao.map((r) => REGION_LABEL[r]).join(", ")}
                       </p>
                     )}

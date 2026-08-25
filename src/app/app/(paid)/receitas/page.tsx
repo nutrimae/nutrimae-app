@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search, Clock, ChefHat, Heart, Hand } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
+import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { AGE_BAND_LABEL, ageBandForMonths, type AgeBand } from "@/lib/menu";
 import { BackButton } from "@/components/back-button";
@@ -24,6 +25,7 @@ const AGE_BANDS: AgeBand[] = ["6-7", "8-9", "10-12", "13-24"];
 
 export default function ReceitasPage() {
   const { activeBaby } = useActiveBaby();
+  const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const babyBand = useMemo(() => ageBandForMonths(months), [months]);
@@ -35,12 +37,12 @@ export default function ReceitasPage() {
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [blwOnly, setBlwOnly] = useState(searchParams.get("blw") === "1");
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const [excludedAllergens, setExcludedAllergens] = useState<ReturnType<typeof getAllergenChecklist>>([]);
+  const [excludedAllergens, setExcludedAllergens] = useState<Awaited<ReturnType<typeof getAllergenChecklist>>>([]);
 
   useEffect(() => {
     setFavoriteIds(getFavoriteRecipeIds());
-    setExcludedAllergens(getAllergenChecklist());
-  }, []);
+    if (activeBaby) getAllergenChecklist(supabase, activeBaby.id).then(setExcludedAllergens);
+  }, [activeBaby, supabase]);
 
   const results = useMemo(() => {
     const base = searchRecipes({
@@ -60,7 +62,7 @@ export default function ReceitasPage() {
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Receitas</h1>
-        <p className="mt-1 text-sm text-brown-700/70">
+        <p className="mt-1 text-sm text-brown-700/90">
           {TOTAL_RECIPES} receitas para os 6 aos 24 meses, com modo de preparo completo.
         </p>
       </div>
@@ -161,7 +163,7 @@ export default function ReceitasPage() {
       </div>
 
       {results.length === 0 ? (
-        <p className="py-8 text-center text-brown-700/60">
+        <p className="py-8 text-center text-brown-700/86">
           Nenhuma receita encontrada com esses filtros.
         </p>
       ) : (
@@ -174,10 +176,10 @@ export default function ReceitasPage() {
             >
               <div className="flex-1">
                 <p className="font-heading font-bold text-brown-800">{recipe.title}</p>
-                <p className="mt-0.5 text-xs text-brown-700/60">
+                <p className="mt-0.5 text-xs text-brown-700/86">
                   {AGE_BAND_LABEL[recipe.ageBand].split(" · ")[0]} · {RECIPE_MEAL_TYPE_LABEL[recipe.mealType]}
                 </p>
-                <div className="mt-1 flex items-center gap-3 text-xs text-brown-700/60">
+                <div className="mt-1 flex items-center gap-3 text-xs text-brown-700/86">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" strokeWidth={2} />
                     {recipe.prepTimeMinutes} min

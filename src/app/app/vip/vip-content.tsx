@@ -14,7 +14,7 @@ export function VipContent() {
           <Crown className="h-7 w-7 text-white" strokeWidth={2} />
         </div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Área VIP</h1>
-        <p className="max-w-[26ch] text-sm text-brown-700/70">
+        <p className="max-w-[26ch] text-sm text-brown-700/90">
           Seus dois apoios extras, prontos para quando você mais precisar.
         </p>
       </div>
@@ -31,7 +31,7 @@ export function VipContent() {
               <Moon className="h-5 w-5 text-purple-300" strokeWidth={1.75} />
             </div>
             {!loading && !hasWeaning && (
-              <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white/70">
+              <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/70">
                 <Lock className="h-3 w-3" strokeWidth={2} />
                 Ainda não incluso
               </span>
@@ -59,7 +59,7 @@ export function VipContent() {
               <Salad className="h-5 w-5 text-sage-600" strokeWidth={1.75} />
             </div>
             {!loading && !hasIntestino && (
-              <span className="flex items-center gap-1 rounded-full bg-brown-900/5 px-2.5 py-1 text-[10px] font-semibold text-brown-700/60">
+              <span className="flex items-center gap-1 rounded-full bg-brown-900/5 px-2.5 py-1 text-[11px] font-semibold text-brown-700/86">
                 <Lock className="h-3 w-3" strokeWidth={2} />
                 Ainda não incluso
               </span>
@@ -67,7 +67,7 @@ export function VipContent() {
           </div>
           <div>
             <p className="font-heading text-lg font-bold text-brown-800">Protocolo Intestino Livre</p>
-            <p className="mt-1 text-sm text-brown-700/60">
+            <p className="mt-1 text-sm text-brown-700/86">
               Semáforo do cocô e 5 receitas laxativas para alívio rápido e natural.
             </p>
           </div>

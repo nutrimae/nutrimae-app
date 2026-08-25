@@ -1,22 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Check, ChefHat } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
+import { useActiveBaby } from "@/components/active-baby-context";
+import { createClient } from "@/lib/supabase/client";
 import { ALLERGEN_CHECKLIST, ALLERGEN_LABEL, getAllergenChecklist, toggleAllergenChecklist } from "@/lib/allergen-checklist";
 import type { Allergen } from "@/lib/recipes";
 
 export default function AllergenChecklistPage() {
+  const { activeBaby } = useActiveBaby();
+  const supabase = useMemo(() => createClient(), []);
   const [selected, setSelected] = useState<Allergen[]>([]);
 
   useEffect(() => {
-    setSelected(getAllergenChecklist());
-  }, []);
+    if (!activeBaby) return;
+    getAllergenChecklist(supabase, activeBaby.id).then(setSelected);
+  }, [activeBaby, supabase]);
 
-  function handleToggle(id: Allergen) {
-    setSelected(toggleAllergenChecklist(id));
+  async function handleToggle(id: Allergen) {
+    if (!activeBaby) return;
+    setSelected(await toggleAllergenChecklist(supabase, activeBaby.id, id));
   }
 
   return (

@@ -79,6 +79,31 @@ async function collectContent(): Promise<ContentItem[]> {
     });
   }
 
+  // S.O.S. — conteúdo público, offline-first: é aqui que pré-gerar importa
+  // mais (nunca esperar a API do Google TTS numa emergência, e o
+  // service-worker do S.O.S. só serve áudio que já esteja em cache).
+  const sosPage = await import("../src/app/sos/page");
+  const engasgoText = (steps: typeof sosPage.INFANT_STEPS) =>
+    steps.map((s, i) => `Passo ${i + 1}: ${s.title}. ${s.text}`).join(" ");
+
+  items.push(
+    { contentType: "sos", contentId: "engasgo-infant", text: engasgoText(sosPage.INFANT_STEPS) },
+    { contentType: "sos", contentId: "engasgo-child", text: engasgoText(sosPage.CHILD_STEPS) },
+    { contentType: "sos", contentId: "reflex", text: sosPage.REFLEX_TEXT },
+    { contentType: "sos", contentId: "gag-info", text: sosPage.GAG_INFO_TEXT },
+    { contentType: "sos", contentId: "allergy", text: sosPage.ALLERGY_SOS_TEXT },
+    { contentType: "sos", contentId: "gut", text: sosPage.GUT_TEXT },
+    { contentType: "sos", contentId: "fever", text: sosPage.FEVER_TEXT },
+  );
+
+  // Guia de Alergia (paga) — mesmo texto exibido em src/app/app/(paid)/alergia/page.tsx.
+  const alergiaPage = await import("../src/app/app/(paid)/alergia/page");
+  items.push({
+    contentType: "allergy",
+    contentId: "guia-alergia",
+    text: `Sinais de alergia alimentar. Depois de introduzir um alimento novo, observe o bebê por 3 a 5 dias antes de oferecer outro alimento novo. Sinais leves, observar: ${alergiaPage.MILD_SIGNS.join(". ")}. Sinais de alerta grave, atendimento imediato: ${alergiaPage.SEVERE_SIGNS.join(". ")}.`,
+  });
+
   return items;
 }
 

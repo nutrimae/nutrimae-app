@@ -26,7 +26,7 @@ export function BalancedPlate({ triedFoodKeys }: { triedFoodKeys?: Set<string> }
               backgroundColor: group.color,
               ["--glow" as string]: group.color,
             }}
-            className="flex items-center justify-center text-[10px] font-bold transition-[opacity,box-shadow] duration-200 hover:opacity-90 hover:shadow-[0_0_12px_var(--glow)]"
+            className="flex items-center justify-center text-[11px] font-bold transition-[opacity,box-shadow] duration-200 hover:opacity-90 hover:shadow-[0_0_12px_var(--glow)]"
             title={group.label}
           >
             <span style={{ color: group.textColor }}>{group.percent}%</span>
@@ -50,7 +50,7 @@ export function BalancedPlate({ triedFoodKeys }: { triedFoodKeys?: Set<string> }
                 />
                 <span className="flex-1 font-semibold text-brown-800">{group.label}</span>
                 <ChevronDown
-                  className={`h-4 w-4 shrink-0 text-brown-700/60 transition-transform ${
+                  className={`h-4 w-4 shrink-0 text-brown-700/86 transition-transform ${
                     isOpen ? "rotate-180" : ""
                   }`}
                   strokeWidth={2}

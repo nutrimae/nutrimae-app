@@ -115,7 +115,7 @@ export default function DownloadsPage() {
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">📥 Downloads & Recursos Offline</h1>
-        <p className="mt-1 text-sm text-brown-700/70">
+        <p className="mt-1 text-sm text-brown-700/90">
           Guias reais em PDF, gerados a partir do conteúdo do app, prontos para levar com você.
         </p>
       </div>
@@ -182,7 +182,7 @@ export default function DownloadsPage() {
               {loadingId === "zip-audio" ? "Gerando..." : "Só Audiobooks"}
             </button>
           </div>
-          <p className="mt-2 text-xs text-brown-700/60">
+          <p className="mt-2 text-xs text-brown-700/86">
             Funciona em Windows, Mac, iOS e Android (qualquer leitor de PDF). Para Kindle, veja a
             seção de dispositivos abaixo.
           </p>
@@ -204,8 +204,8 @@ export default function DownloadsPage() {
                     <span className="text-2xl">{guide.emoji}</span>
                     <div className="flex-1">
                       <p className="font-semibold text-brown-800">{guide.title}</p>
-                      <p className="mt-0.5 text-sm text-brown-700/70">{guide.description}</p>
-                      <p className="mt-1 text-xs text-brown-700/50">
+                      <p className="mt-0.5 text-sm text-brown-700/90">{guide.description}</p>
+                      <p className="mt-1 text-xs text-brown-700/82">
                         {count > 0 ? `Você baixou ${count}x` : "Ainda não baixado"}
                       </p>
                     </div>
@@ -274,8 +274,8 @@ export default function DownloadsPage() {
               return (
                 <div key={book.id} className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
                   <p className="font-semibold text-brown-800">{book.title}</p>
-                  <p className="mt-0.5 text-sm text-brown-700/70">{book.subtitle}</p>
-                  <p className="mt-1 text-xs text-brown-700/50">
+                  <p className="mt-0.5 text-sm text-brown-700/90">{book.subtitle}</p>
+                  <p className="mt-1 text-xs text-brown-700/82">
                     {count > 0 ? `Você baixou ${count}x` : "Ainda não baixado"}
                   </p>
                   {!book.hasAudio && (
@@ -384,7 +384,7 @@ export default function DownloadsPage() {
         </div>
 
         {history.length === 0 ? (
-          <p className="mt-3 text-center text-sm text-brown-700/60">
+          <p className="mt-3 text-center text-sm text-brown-700/86">
             Nenhum download registrado ainda neste dispositivo.
           </p>
         ) : (
@@ -393,12 +393,12 @@ export default function DownloadsPage() {
               <div key={`${entry.id}-${entry.downloadedAt}`} className="flex items-center justify-between rounded-xl bg-white/80 px-3 py-2 text-sm">
                 <div>
                   <p className="font-semibold text-brown-800">{entry.title}</p>
-                  <p className="text-xs text-brown-700/60">
+                  <p className="text-xs text-brown-700/86">
                     {new Date(entry.downloadedAt).toLocaleDateString("pt-BR")} · {formatBytes(entry.sizeBytes)}
                   </p>
                 </div>
                 <button type="button" onClick={() => setHistory(removeDownloadEntry(i))}>
-                  <Trash2 className="h-4 w-4 text-brown-700/40" strokeWidth={2} />
+                  <Trash2 className="h-4 w-4 text-brown-700/78" strokeWidth={2} />
                 </button>
               </div>
             ))}
@@ -441,7 +441,7 @@ export default function DownloadsPage() {
             </a>
           </div>
           {shareCount > 0 && (
-            <p className="mt-2 text-center text-xs text-brown-700/50">
+            <p className="mt-2 text-center text-xs text-brown-700/82">
               Você compartilhou {shareCount}x neste dispositivo.
             </p>
           )}

@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Loader2, QrCode, CreditCard, ShieldCheck } from "lucide-react";
+import { Loader2, QrCode, CreditCard, ShieldCheck, Check, Copy, Lock } from "lucide-react";
 import { isValidCpf } from "@/lib/utils";
 import { tokenizeCard } from "@/lib/payments/tokenize-card";
 import { PixCountdown } from "@/components/pix-countdown";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Chip } from "@/components/ui/chip";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 
 interface Bump {
@@ -17,13 +20,14 @@ interface Bump {
 }
 
 const BUMP_IMAGES: Record<string, string> = {
-  "protocolo-intestino": "/images/order-bumps/protocolo-intestino.png",
-  "sos-desmame": "/images/order-bumps/sos-desmame.png",
-  "nutribot-30d": "/images/order-bumps/nutribot-30d.png",
+  "batch-cooking": "/images/order-bumps/batch-cooking-thumb.webp",
+  "protocolo-intestino": "/images/order-bumps/protocolo-intestino-thumb.webp",
+  "sos-desmame": "/images/order-bumps/sos-desmame-thumb.webp",
+  "nutribot-30d": "/images/order-bumps/nutribot-30d-thumb.webp",
 };
 
 const BUMP_DESCRIPTIONS: Record<string, string> = {
-  "batch-cooking": "Cozinhe a semana inteira em uma hora só. Método de porcionamento, tabela de validade e etiquetas pra imprimir. Acesso vitalício, não entra na assinatura.",
+  "batch-cooking": "Cozinhe a semana inteira em uma hora só. Método de porcionamento, tabela de validade e etiquetas pra imprimir.",
 };
 
 function formatBRL(cents: number) {
@@ -54,6 +58,7 @@ export function CheckoutForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string; expiresAt: string } | null>(null);
+  const [pixCopied, setPixCopied] = useState(false);
 
   const bumpTotal = bumps
     .filter((b) => selectedBumps.includes(b.slug))
@@ -156,16 +161,45 @@ export function CheckoutForm({
     }, 4000);
   }
 
+  async function copyPixCode() {
+    try {
+      await navigator.clipboard.writeText(pix?.qrCode ?? "");
+      setPixCopied(true);
+      setTimeout(() => setPixCopied(false), 2000);
+    } catch {
+      // Clipboard indisponível (ex.: contexto não seguro) — o campo abaixo
+      // continua selecionável manualmente, então não é um beco sem saída.
+    }
+  }
+
   if (pix) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl bg-white p-6 text-center shadow-sm">
-        <QrCode className="h-8 w-8 text-rose-600" strokeWidth={1.75} />
-        <p className="text-sm text-gray-600">Escaneie o QR Code ou copie o código Pix:</p>
+      <div className="flex flex-col items-center gap-4 rounded-[24px] bg-white p-6 text-center shadow-strong">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sage-50 text-sage-600">
+          <QrCode className="h-7 w-7" strokeWidth={1.75} />
+        </span>
+        <div>
+          <p className="font-heading text-lg font-bold text-brown-900">Escaneie pra pagar</p>
+          <p className="mt-1 text-sm text-brown-700/86">Abra o app do seu banco e escaneie o QR Code, ou copie o código Pix abaixo.</p>
+        </div>
+
         {pix.qrCodeUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={pix.qrCodeUrl} alt="QR Code Pix" className="h-48 w-48" />
+          <div className="rounded-2xl border-2 border-sage-100 bg-white p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={pix.qrCodeUrl} alt="QR Code Pix" className="h-48 w-48" />
+          </div>
         ) : null}
-        <textarea readOnly value={pix.qrCode} className="w-full rounded-lg border border-gray-200 p-2 text-xs text-gray-500" rows={3} />
+
+        <button
+          type="button"
+          onClick={copyPixCode}
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-sage-100/80 bg-sage-50 px-4 text-sm font-semibold text-sage-700 transition-transform active:scale-[0.98]"
+        >
+          {pixCopied ? <Check className="h-4 w-4" strokeWidth={2.5} /> : <Copy className="h-4 w-4" strokeWidth={2} />}
+          {pixCopied ? "Código copiado!" : "Copiar código Pix"}
+        </button>
+        <textarea readOnly value={pix.qrCode} className="w-full resize-none rounded-2xl border-2 border-sage-100/80 bg-white/80 p-3 text-xs text-brown-700/70" rows={2} />
+
         <PixCountdown
           expiresAt={pix.expiresAt}
           onExpire={() => {
@@ -173,77 +207,92 @@ export function CheckoutForm({
             setPix(null);
           }}
         />
-        <p className="flex items-center gap-2 text-xs text-gray-400">
-          <Loader2 className="h-3 w-3 animate-spin" /> Aguardando confirmação do pagamento...
+        <p className="flex items-center gap-2 text-xs text-brown-700/70">
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-500" /> Aguardando confirmação do pagamento...
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl bg-white p-5 shadow-sm">
+    <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
       {bumps.length > 0 && (
-        <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
-          <p className="text-sm font-semibold text-gray-800">Aproveite e leve também:</p>
-          {bumps.map((bump) => (
-            <label
-              key={bump.id}
-              className={`flex items-center gap-3 rounded-xl border p-2 text-sm text-gray-700 transition-colors ${selectedBumps.includes(bump.slug) ? "border-rose-300 bg-rose-50" : "border-gray-100"}`}
-            >
-              <input type="checkbox" checked={selectedBumps.includes(bump.slug)} onChange={() => toggleBump(bump.slug)} />
-              {BUMP_IMAGES[bump.slug] && (
-                <Image
-                  src={BUMP_IMAGES[bump.slug]}
-                  alt={bump.name}
-                  width={56}
-                  height={56}
-                  className="h-14 w-14 shrink-0 rounded-lg object-cover"
-                />
-              )}
-              <span className="flex-1">
-                <span className="block">{bump.name}</span>
-                {BUMP_DESCRIPTIONS[bump.slug] && (
-                  <span className="mt-0.5 block text-xs text-gray-500">{BUMP_DESCRIPTIONS[bump.slug]}</span>
+        <div className="flex flex-col gap-2.5 border-b border-sage-100/80 pb-5">
+          <p className="font-heading text-sm font-bold text-brown-900">Aproveite e leve também:</p>
+          {bumps.map((bump) => {
+            const selected = selectedBumps.includes(bump.slug);
+            return (
+              <label
+                key={bump.id}
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 text-left transition-colors ${
+                  selected ? "border-primary-300 bg-primary-50" : "border-sage-100/80 bg-white"
+                }`}
+              >
+                <input type="checkbox" checked={selected} onChange={() => toggleBump(bump.slug)} className="sr-only" />
+                <span
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                    selected ? "border-primary-500 bg-primary-500" : "border-sage-200 bg-white"
+                  }`}
+                >
+                  {selected && <Check className="h-4 w-4 text-white" strokeWidth={3} />}
+                </span>
+                {BUMP_IMAGES[bump.slug] && (
+                  <Image
+                    src={BUMP_IMAGES[bump.slug]}
+                    alt={bump.name}
+                    width={64}
+                    height={64}
+                    className="h-16 w-16 shrink-0 rounded-2xl object-cover shadow-subtle"
+                  />
                 )}
-              </span>
-              <span className="font-medium">{formatBRL(bump.price_cents)}</span>
-            </label>
-          ))}
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5">
+                    <span className="block font-semibold text-brown-900">{bump.name}</span>
+                    <Chip color="sage" className="shrink-0">vitalício</Chip>
+                  </span>
+                  {BUMP_DESCRIPTIONS[bump.slug] && (
+                    <span className="mt-0.5 block text-xs leading-snug text-brown-700/82">{BUMP_DESCRIPTIONS[bump.slug]}</span>
+                  )}
+                </span>
+                <span className="shrink-0 font-heading font-bold text-primary-600">{formatBRL(bump.price_cents)}</span>
+              </label>
+            );
+          })}
         </div>
       )}
 
       <div className="flex flex-col gap-3">
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <div className="flex flex-col gap-1">
-          <input
-            className={`rounded-lg border p-3 text-sm ${documentError ? "border-red-400" : "border-gray-200"}`}
-            placeholder="CPF (só números)"
-            value={document}
-            onChange={(e) => setDocument(e.target.value)}
-            onBlur={() => setDocumentTouched(true)}
-          />
-          {documentError ? (
-            <p className="text-xs text-red-600">{documentError}</p>
-          ) : (
-            <p className="text-xs text-gray-400">Pedimos o CPF só pra validar o pagamento com segurança, exigência do sistema bancário.</p>
-          )}
-        </div>
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Telefone (com DDD)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Input placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input
+          placeholder="CPF (só números)"
+          value={document}
+          onChange={(e) => setDocument(e.target.value)}
+          onBlur={() => setDocumentTouched(true)}
+          error={documentError ?? undefined}
+        />
+        {!documentError && (
+          <p className="-mt-2 text-xs text-brown-700/70">Pedimos o CPF só pra validar o pagamento com segurança, exigência do sistema bancário.</p>
+        )}
+        <Input placeholder="Telefone (com DDD)" value={phone} onChange={(e) => setPhone(e.target.value)} />
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 rounded-2xl bg-sage-50 p-1.5">
         <button
           type="button"
           onClick={() => setPaymentMethod("pix")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg border p-3 text-sm font-semibold ${paymentMethod === "pix" ? "border-rose-600 bg-rose-50 text-rose-600" : "border-gray-200 text-gray-500"}`}
+          className={`flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all ${
+            paymentMethod === "pix" ? "bg-white text-primary-600 shadow-subtle" : "text-brown-700/70"
+          }`}
         >
           <QrCode className="h-4 w-4" /> Pix
         </button>
         <button
           type="button"
           onClick={() => setPaymentMethod("credit_card")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg border p-3 text-sm font-semibold ${paymentMethod === "credit_card" ? "border-rose-600 bg-rose-50 text-rose-600" : "border-gray-200 text-gray-500"}`}
+          className={`flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all ${
+            paymentMethod === "credit_card" ? "bg-white text-primary-600 shadow-subtle" : "text-brown-700/70"
+          }`}
         >
           <CreditCard className="h-4 w-4" /> Cartão
         </button>
@@ -251,36 +300,36 @@ export function CheckoutForm({
 
       {paymentMethod === "credit_card" && (
         <div className="flex flex-col gap-3">
-          <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Número do cartão" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-          <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Nome impresso no cartão" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
+          <Input placeholder="Número do cartão" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+          <Input placeholder="Nome impresso no cartão" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
           <div className="flex gap-2">
-            <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="MM" value={cardExpMonth} onChange={(e) => setCardExpMonth(e.target.value)} />
-            <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
-            <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
+            <Input className="w-1/3" placeholder="MM" value={cardExpMonth} onChange={(e) => setCardExpMonth(e.target.value)} />
+            <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
+            <Input className="w-1/3" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
           </div>
-          <p className="text-xs text-gray-400">ou 12x de {formatBRL(Math.round(totalCents / 12))} no cartão</p>
+          <p className="text-xs font-medium text-sage-600">ou 12x de {formatBRL(Math.round(totalCents / 12))} no cartão</p>
           <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>
+      )}
 
-      <div className="flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
-        <span className="text-gray-500">Total</span>
-        <span className="text-lg font-bold text-gray-900">{formatBRL(totalCents)}</span>
+      <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
+        <span className="text-sm font-semibold text-brown-700/86">Total</span>
+        <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(totalCents)}</span>
       </div>
 
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={loading}
-        className="min-h-14 w-full rounded-2xl bg-[#25D366] px-6 text-base font-bold text-white shadow-lg transition-colors hover:bg-[#20bd5a] disabled:opacity-60"
-      >
-        {loading ? "Processando..." : `Finalizar compra — ${formatBRL(totalCents)}`}
-      </button>
+      <Button variant="brand" size="lg" onClick={handleSubmit} disabled={loading} loading={loading}>
+        <span className="flex items-center justify-center gap-2">
+          <Lock className="h-4 w-4" strokeWidth={2.5} />
+          {`Finalizar compra — ${formatBRL(totalCents)}`}
+        </span>
+      </Button>
 
-      <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> Pagamento seguro · dados protegidos · 7 dias de garantia
+      <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pagamento seguro · dados protegidos · 7 dias de garantia
       </p>
     </div>
   );

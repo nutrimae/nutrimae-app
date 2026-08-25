@@ -6,6 +6,7 @@ import { useActiveBaby } from "@/components/active-baby-context";
 import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { BackButton } from "@/components/back-button";
+import { Chip } from "@/components/ui/chip";
 import { FIRST_WEEK_DAYS, PROGRESSION_STAGES, SAFETY_RULES } from "@/lib/introduction-guide";
 
 export default function GuiaDefinitivoPage() {
@@ -91,10 +92,7 @@ export default function GuiaDefinitivoPage() {
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-heading text-lg font-bold text-brown-800">{stage.label}</p>
                   {isCurrent && (
-                    <span className="flex items-center gap-1 rounded-full bg-primary-500 px-3 py-1 text-xs font-bold text-white">
-                      <Sparkles className="h-3.5 w-3.5" strokeWidth={2.5} />
-                      Seu bebê está nesta fase!
-                    </span>
+                    <Chip color="primary" variant="solid"><Sparkles className="h-3.5 w-3.5" strokeWidth={2.5} />Seu bebê está nesta fase!</Chip>
                   )}
                 </div>
                 <div className="mt-2 flex flex-col gap-1 text-sm text-brown-700">

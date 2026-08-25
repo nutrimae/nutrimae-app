@@ -891,8 +891,37 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------------------------------------------
      BLOCO 11: Oferta — Plano Anual + Checkout
      --------------------------------------------------- */
-  // Só o Anual é vendido aqui — ver comentário na seção "OFERTA" do
-  // index.html sobre o Mensal ficar atrás de feature flag por enquanto.
+  // Só o Anual é vendido de verdade aqui — o toggle Mensal é vitrine
+  // (mostra o card, mas o botão de compra sempre leva pro checkout do
+  // Anual). Ver comentário na seção "OFERTA" do index.html sobre o
+  // Mensal ficar atrás de feature flag até a assinatura recorrente
+  // estar pronta.
+  var toggleMensal = document.getElementById('toggle-mensal');
+  var toggleAnual = document.getElementById('toggle-anual');
+  var planCardMensal = document.getElementById('plan-card-mensal');
+  var planCardAnual = document.getElementById('plan-card-anual');
+
+  function selectPlanToggle(plan) {
+    var showMensal = plan === 'mensal';
+    if (toggleMensal) {
+      toggleMensal.classList.toggle('is-active', showMensal);
+      toggleMensal.setAttribute('aria-selected', String(showMensal));
+    }
+    if (toggleAnual) {
+      toggleAnual.classList.toggle('is-active', !showMensal);
+      toggleAnual.setAttribute('aria-selected', String(!showMensal));
+    }
+    if (planCardMensal) planCardMensal.hidden = !showMensal;
+    if (planCardAnual) planCardAnual.hidden = showMensal;
+  }
+
+  if (toggleMensal) {
+    toggleMensal.addEventListener('click', function () { selectPlanToggle('mensal'); });
+  }
+  if (toggleAnual) {
+    toggleAnual.addEventListener('click', function () { selectPlanToggle('anual'); });
+  }
+
   var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
   if (ctaCheckoutDynamic) {
     ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$97';
@@ -1033,6 +1062,45 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------------------------------------------------
+     Parallax leve no fundo da demonstração do produto — só transform,
+     só enquanto o elemento está na tela (liga/desliga o listener de
+     scroll via IntersectionObserver pra não gastar CPU à toa no resto
+     da página), com throttle por requestAnimationFrame. Sem libs.
+     --------------------------------------------------- */
+  var parallaxBackdrop = document.querySelector('.product-demo-stage__backdrop');
+  var parallaxReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (parallaxBackdrop && !parallaxReducedMotion && supportsIO) {
+    var parallaxTicking = false;
+    var parallaxActive = false;
+
+    function updateParallax() {
+      parallaxTicking = false;
+      if (!parallaxActive) return;
+      var rect = parallaxBackdrop.parentElement.getBoundingClientRect();
+      var viewportH = window.innerHeight || document.documentElement.clientHeight;
+      var progress = (viewportH - rect.top) / (viewportH + rect.height);
+      var offset = (progress - 0.5) * 24;
+      parallaxBackdrop.style.transform = 'translateY(' + offset.toFixed(1) + 'px)';
+    }
+
+    function requestParallaxTick() {
+      if (!parallaxTicking) {
+        parallaxTicking = true;
+        window.requestAnimationFrame(updateParallax);
+      }
+    }
+
+    safeObserve(parallaxBackdrop.parentElement, function (entries) {
+      entries.forEach(function (entry) {
+        parallaxActive = entry.isIntersecting;
+        if (parallaxActive) requestParallaxTick();
+      });
+    }, { threshold: 0 });
+
+    window.addEventListener('scroll', requestParallaxTick, { passive: true });
+  }
+
+  /* ---------------------------------------------------
      Revelação ao rolar — cards e títulos de seção entram com um
      fade-up sutil ao alcançar a tela (ver CSS: .is-visible). Sem suporte
      a IntersectionObserver, tudo já nasce visível via CSS puro.
@@ -1040,7 +1108,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var revealSelector = [
     '.feature-card', '.audience-card', '.objection-card', '.faq-item',
     '.journey__step', '.comparison__col', '.sos-card', '.chat-window',
-    '.mini-mock', 'section .section-title'
+    '.mini-mock', '.plan-card-single', '.community-spotlight__testimonial',
+    '.app-preview__img', 'section .section-title'
   ].join(', ');
   var revealTargets = document.querySelectorAll(revealSelector);
 

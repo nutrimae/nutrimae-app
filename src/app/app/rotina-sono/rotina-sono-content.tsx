@@ -130,7 +130,7 @@ export function RotinaSonoContent() {
         <div className="flex items-center gap-3 rounded-2xl bg-sage-50 p-4">
           <Clock className="h-6 w-6 shrink-0 text-sage-600" strokeWidth={2} />
           <div>
-            <p className="text-sm text-brown-700/70">Iniciar o ritual às</p>
+            <p className="text-sm text-brown-700/90">Iniciar o ritual às</p>
             <p className="font-heading text-lg font-bold text-brown-800">
               {formatTime(result.ritualStartTime)}
             </p>
@@ -139,7 +139,7 @@ export function RotinaSonoContent() {
         <div className="flex items-center gap-3 rounded-2xl bg-peach-100 p-4">
           <Moon className="h-6 w-6 shrink-0 text-terracotta-600" strokeWidth={2} />
           <div>
-            <p className="text-sm text-brown-700/70">Próxima soneca por volta de</p>
+            <p className="text-sm text-brown-700/90">Próxima soneca por volta de</p>
             <p className="font-heading text-lg font-bold text-brown-800">
               {formatTime(result.napTime)}
             </p>

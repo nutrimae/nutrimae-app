@@ -28,7 +28,7 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
         <h1 className="font-heading text-2xl font-bold text-brown-800">
           Esse conteúdo é exclusivo
         </h1>
-        <p className="mt-2 text-sm text-brown-700/70">
+        <p className="mt-2 text-sm text-brown-700/90">
           Desbloqueie {product.name.replace(" (assinatura)", "")} e tudo que vem junto.
         </p>
       </div>
@@ -43,7 +43,7 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
               {product.name}
             </span>
           </div>
-          <span className="whitespace-nowrap text-sm text-brown-700/70">
+          <span className="whitespace-nowrap text-sm text-brown-700/90">
             {formatPrice(product.regularPrice)}
             {!product.oneTimePayment && "/mês"}
           </span>
@@ -57,7 +57,7 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
               </div>
               <span className="text-sm text-brown-800">{item.label}</span>
             </div>
-            <span className="whitespace-nowrap text-xs text-brown-700/50">
+            <span className="whitespace-nowrap text-xs text-brown-700/82">
               de <span className="line-through">{formatPrice(item.originalPrice)}</span>{" "}
               por <span className="font-bold text-sage-600">GRÁTIS</span>
             </span>
@@ -67,8 +67,8 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
         <div className="my-5 border-t border-dashed border-sage-200/60" />
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-brown-700/60">Total em valor</span>
-          <span className="text-base text-brown-700/60 line-through">{formatPrice(total)}</span>
+          <span className="text-sm text-brown-700/86">Total em valor</span>
+          <span className="text-base text-brown-700/86 line-through">{formatPrice(total)}</span>
         </div>
         <div className="mt-1 flex items-center justify-between">
           <span className="font-heading text-base font-bold text-brown-800">
@@ -78,7 +78,7 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
             {formatPrice(product.price)}
           </span>
         </div>
-        <p className="mt-1 text-right text-xs text-brown-700/50">{product.priceNote}</p>
+        <p className="mt-1 text-right text-xs text-brown-700/82">{product.priceNote}</p>
       </div>
 
       {checkoutHref ? (

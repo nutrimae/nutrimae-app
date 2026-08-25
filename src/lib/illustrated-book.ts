@@ -39,6 +39,22 @@ function foodName(key: string) {
 }
 
 /**
+ * `illustrated_books.script`/`reference_photo_path` sao colunas que a propria
+ * usuaria consegue sobrescrever via RLS (a API precisa disso pra persistir
+ * progresso com o client comum, sem service role). Isso significa que os
+ * caminhos de arquivo dentro desses campos NAO sao confiaveis por si so: uma
+ * usuaria mal-intencionada pode editar o JSON do proprio livro apontando
+ * `imagePath`/`reference_photo_path` pra dentro da pasta de outra usuaria.
+ * Rotas que usam o client admin (que ignora RLS do Storage) pra baixar esses
+ * arquivos SEMPRE precisam confirmar o prefixo antes de usar o caminho.
+ */
+export function assertOwnedStoragePath(path: string, userId: string, bookId: string) {
+  if (!path.startsWith(`${userId}/${bookId}/`)) {
+    throw new Error("Caminho de arquivo fora do escopo da usuaria");
+  }
+}
+
+/**
  * Monta o roteiro apenas com fatos registrados pela responsavel. Nada e
  * inferido como orientacao de saude e recusas aparecem como exploracao.
  */

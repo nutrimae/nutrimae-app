@@ -26,7 +26,7 @@ import { ListenButton } from "@/components/listen-button";
 type View = "identify" | "reflex" | "choking" | "gag_info" | "allergy" | "gut" | "fever";
 type AgeGroup = "infant" | "child";
 
-const INFANT_STEPS = [
+export const INFANT_STEPS = [
   {
     title: "Vire de bruços no seu antebraço",
     text: "Apoie o bebê de bruços sobre seu antebraço, com a cabeça mais baixa que o corpo. Segure o queixo com os dedos, sem apertar o pescoço.",
@@ -49,7 +49,7 @@ const INFANT_STEPS = [
   },
 ];
 
-const CHILD_STEPS = [
+export const CHILD_STEPS = [
   {
     title: "Fique atrás da criança",
     text: "Ajoelhe-se ou abaixe-se atrás dela, na altura do corpo dela.",
@@ -71,6 +71,24 @@ const CHILD_STEPS = [
     text: "Inicie manobras de reanimação se souber como, e mantenha a ligação com o SAMU (192) o tempo todo.",
   },
 ];
+
+// Textos narrados pelo ListenButton — precisam ser EXATAMENTE o texto exibido
+// na tela correspondente (ver regra em src/lib/tts.ts), montados aqui uma vez
+// pra não divergir se o JSX for editado depois.
+export const REFLEX_TEXT =
+  "Isso é bom sinal — não faça manobras. Se está tossindo, chorando ou fazendo barulho, as vias aéreas ainda estão parcialmente livres e o próprio corpo está tentando expulsar o alimento. Intervir agora pode empurrar o objeto mais fundo. O que fazer: Fique calma e por perto, sem tirar os olhos da criança. Incentive a tosse — não bata nas costas nem coloque os dedos na boca dela. Observe: a tosse deve ceder em poucos minutos. Se a tosse parar de fazer ruído, o rosto mudar de cor ou ela parar de respirar, mude imediatamente para a manobra de engasgo abaixo.";
+
+export const GAG_INFO_TEXT =
+  "Reflexo de tosse (gag) vs. engasgo real. Gag reflex — normal e protetor: Tosse forte, rosto pode ficar vermelho, olhos podem lacrimejar, mas o bebê continua respirando e fazendo barulho. É o corpo aprendendo a lidar com texturas novas — comum na introdução alimentar. Engasgo real — emergência: Silêncio (sem tossir, sem chorar), dificuldade visível pra respirar, rosto roxo ou azulado. Aqui não se espera — vá direto pra manobra de desengasgo. Em casa, no gag: Deixe o bebê tossir por conta própria. Não bata nas costas nem coloque os dedos na boca dele. Fique por perto, calma, observando.";
+
+export const ALLERGY_SOS_TEXT =
+  "Reação alérgica — identificar rápido. Sinais leves: Coceira leve na boca, pequenas bolinhas de vermelhidão perto da boca. Sinais moderados: Inchaço nos lábios, vômito, diarreia. Sinais graves: Dificuldade pra respirar, inchaço na garganta ou no rosto. O que fazer: Remova o alimento e observe de perto. Sinais leves/moderados: fale com o pediatra o quanto antes. Sinais graves: ligue 192 imediatamente.";
+
+export const GUT_TEXT =
+  "Constipação vs. diarreia. A frequência das evacuações varia bastante de bebê pra bebê — isso sozinho não é motivo de alarme. Sinais de alerta — constipação: Fezes muito duras, esforço visível, desconforto. Sinais de alerta — diarreia: Mais de 8 evacuações por dia, fezes bem líquidas. Soluções caseiras simples: Ofereça mais água ao longo do dia. Frutas ricas em fibra (ameixa, mamão, pera) ajudam na constipação. Mantenha a hidratação em foco durante episódios de diarreia. Procure o pediatra se durar mais de 2 dias, tiver sangue nas fezes, febre junto, ou sinais de desidratação.";
+
+export const FEVER_TEXT =
+  "Febre depois de uma refeição nova. Alimento, por si só, não causa febre — quem causa febre são infecções (vírus, bactérias). Se a febre apareceu perto de uma refeição nova, provavelmente é coincidência, não alergia. O que fazer: Mantenha o bebê bem hidratado. Ofereça alimentos leves, sem forçar. Febre acima de 38°C, ou muito abatido: procure o pediatra.";
 
 const EXTRA_TOPICS: { view: View; icon: typeof HelpCircle; title: string }[] = [
   { view: "gag_info", icon: HelpCircle, title: "Reflexo de tosse (gag) vs. engasgo real" },
@@ -262,6 +280,8 @@ export default function SosPage() {
               />
             </div>
 
+            <ListenButton contentType="sos" contentId="reflex" text={REFLEX_TEXT} className="w-fit" />
+
             <button
               type="button"
               onClick={() => setView("choking")}
@@ -375,6 +395,8 @@ export default function SosPage() {
               />
             </div>
 
+            <ListenButton contentType="sos" contentId="gag-info" text={GAG_INFO_TEXT} className="w-fit" />
+
             <button
               type="button"
               onClick={() => setView("choking")}
@@ -419,6 +441,8 @@ export default function SosPage() {
                 ]}
               />
             </div>
+
+            <ListenButton contentType="sos" contentId="allergy" text={ALLERGY_SOS_TEXT} className="w-fit" />
           </>
         )}
 
@@ -460,6 +484,8 @@ export default function SosPage() {
               Procure o pediatra se durar mais de 2 dias, tiver sangue nas fezes, febre
               junto, ou sinais de desidratação.
             </p>
+
+            <ListenButton contentType="sos" contentId="gut" text={GUT_TEXT} className="w-fit" />
           </>
         )}
 
@@ -488,6 +514,8 @@ export default function SosPage() {
                 ]}
               />
             </div>
+
+            <ListenButton contentType="sos" contentId="fever" text={FEVER_TEXT} className="w-fit" />
           </>
         )}
       </main>

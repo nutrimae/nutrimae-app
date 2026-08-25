@@ -7,6 +7,7 @@ import { useToast } from "@/components/toast-provider";
 import { ageInMonths } from "@/lib/age";
 import { AGE_BAND_LABEL, ageBandForMonths, type AgeBand } from "@/lib/menu";
 import { BackButton } from "@/components/back-button";
+import { Chip } from "@/components/ui/chip";
 import { PRATINHOS, TOTAL_PRATINHOS, type Pratinho } from "@/lib/pratinhos";
 import {
   addPratinhoToCardapio,
@@ -89,7 +90,7 @@ export default function PratinhosDivertidosPage() {
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Pratinhos Divertidos</h1>
-        <p className="mt-1 text-sm text-brown-700/70">
+        <p className="mt-1 text-sm text-brown-700/90">
           {TOTAL_PRATINHOS} ideias de apresentação colorida para deixar a refeição mais convidativa.
         </p>
       </div>
@@ -147,22 +148,16 @@ export default function PratinhosDivertidosPage() {
               </div>
 
               <div className="flex flex-wrap gap-1">
-                {pratinho.colors.map((c) => (
-                  <span key={c} className="rounded-full bg-sage-50 px-2 py-0.5 text-[10px] font-semibold text-sage-700">
-                    {c}
-                  </span>
-                ))}
+                {pratinho.colors.map((c) => <Chip key={c} color="sage">{c}</Chip>)}
               </div>
 
-              <p className="flex items-center gap-1 text-xs text-brown-700/60">
+              <p className="flex items-center gap-1 text-xs text-brown-700/86">
                 <Clock className="h-3 w-3" strokeWidth={2} />
                 {pratinho.prepTimeMinutes} min
               </p>
 
               {canUseNow && (
-                <span className="w-fit rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-semibold text-primary-600">
-                  Pode usar nessa faixa
-                </span>
+                <Chip color="primary" className="w-fit">Pode usar nessa faixa</Chip>
               )}
 
               {isExpanded && (

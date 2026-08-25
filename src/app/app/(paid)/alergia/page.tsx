@@ -4,7 +4,7 @@ import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer"
 import { BackButton } from "@/components/back-button";
 import { ListenButton } from "@/components/listen-button";
 
-const MILD_SIGNS = [
+export const MILD_SIGNS = [
   "Pequenas manchinhas vermelhas ao redor da boca",
   "Leve vermelhidão na pele em uma pequena área",
   "Coceira leve, localizada",
@@ -12,7 +12,7 @@ const MILD_SIGNS = [
   "Pequeno desconforto ou gases após a refeição",
 ];
 
-const SEVERE_SIGNS = [
+export const SEVERE_SIGNS = [
   "Inchaço no rosto, lábios, língua ou olhos",
   "Dificuldade para respirar ou chiado no peito",
   "Vômitos repetidos, logo após comer",
@@ -97,7 +97,7 @@ export default function AlergiaPage() {
           </ul>
         </div>
 
-        <p className="text-center text-sm text-brown-700/70">
+        <p className="text-center text-sm text-brown-700/90">
           Diante de qualquer sinal de alerta grave, ligue 192 ou vá ao pronto-socorro
           mais próximo imediatamente.
         </p>

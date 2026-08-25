@@ -41,9 +41,9 @@ export function AdminTicketList() {
       </h1>
 
       {loading ? (
-        <p className="text-center text-brown-700/60">Carregando...</p>
+        <p className="text-center text-brown-700/86">Carregando...</p>
       ) : tickets.length === 0 ? (
-        <p className="text-center text-brown-700/60">Nenhum ticket ainda.</p>
+        <p className="text-center text-brown-700/86">Nenhum ticket ainda.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {tickets.map((t) => (
@@ -55,7 +55,7 @@ export function AdminTicketList() {
               <MessageSquare className="h-6 w-6 shrink-0 text-sage-500" strokeWidth={1.75} />
               <div className="flex-1">
                 <p className="font-semibold text-brown-800">{t.subject}</p>
-                <p className="text-xs text-brown-700/60">{t.user_email}</p>
+                <p className="text-xs text-brown-700/86">{t.user_email}</p>
               </div>
               <Badge
                 variant="soft"

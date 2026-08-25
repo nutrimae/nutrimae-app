@@ -43,26 +43,34 @@ export default async function CheckoutOfferPage({
   }
 
   return (
-    <main className="min-h-dvh bg-gray-50 pb-10">
-      <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-8">
+    <main className="min-h-dvh bg-cream pb-10">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 pt-8">
+        <div className="flex items-center justify-center gap-2">
+          <Image src="/nutrimae-logo.png" alt="NutriMãe" width={32} height={32} className="h-8 w-8 object-contain" />
+          <span className="font-heading text-sm font-bold tracking-tight text-brown-900">NutriMãe</span>
+        </div>
+
         {offerSlug === "nutrimae-anual" && (
-          <Image
-            src="/images/order-bumps/nutrimae-anual.png"
-            alt={offer.name}
-            width={600}
-            height={600}
-            priority
-            className="mx-auto w-full max-w-xs rounded-2xl object-cover shadow-sm"
-          />
+          <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-[28px] shadow-strong">
+            <Image
+              src="/images/order-bumps/nutrimae-anual.webp"
+              alt={offer.name}
+              width={600}
+              height={600}
+              priority
+              className="w-full object-cover"
+            />
+          </div>
         )}
 
-        <div className="text-center">
-          <h1 className="text-2xl font-bold leading-tight text-gray-900">{offer.name}</h1>
-          <p className="mt-2 text-3xl font-extrabold text-rose-600">
-            {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+        <div className="rounded-[24px] bg-white p-5 text-center shadow-subtle">
+          <h1 className="font-heading text-xl font-bold leading-tight text-brown-900">{offer.name}</h1>
+          <p className="mt-2 flex items-baseline justify-center gap-1">
+            <span className="text-4xl font-extrabold tracking-tight text-primary-600">
+              {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            </span>
             {offer.billing_type === "recurring" && (
-              <span className="text-base font-semibold text-gray-700">
-                {" "}
+              <span className="text-sm font-semibold text-brown-700/86">
                 no 1º ciclo
                 {offer.recurring_price_cents != null && offer.recurring_price_cents !== offer.price_cents
                   ? `, depois ${(offer.recurring_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mês`
@@ -70,7 +78,9 @@ export default async function CheckoutOfferPage({
               </span>
             )}
           </p>
-          {offerSlug === "nutrimae-anual" && <p className="mt-1 text-sm text-gray-500">ou 12x de R$9,70 no cartão</p>}
+          {offerSlug === "nutrimae-anual" && (
+            <p className="mt-1 text-sm font-medium text-sage-600">ou 12x de R$9,70 no cartão, sem juros</p>
+          )}
         </div>
 
         {offer.billing_type === "recurring" ? (

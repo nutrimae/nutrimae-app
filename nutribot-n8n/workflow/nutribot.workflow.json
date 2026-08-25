@@ -1,0 +1,908 @@
+{
+  "name": "NutriBot — WhatsApp Orchestrator",
+  "nodes": [
+    {
+      "id": "n8n-dtsdbsph",
+      "name": "Webhook: Z-API Inbound",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nutribot/whatsapp",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "n8n-97z3rtor",
+      "name": "Normalize Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Tudo dentro de um try/catch de propósito: se algo aqui lançar, o n8n\n// mostra só um resumo genérico no painel de erro, sem indicar linha nem\n// arquivo. Capturando aqui, o node NUNCA falha \"silenciosamente\" de novo\n// — ele sempre devolve um item, e se algo quebrou, esse item traz\n// debugErrorMessage/debugErrorStack pra gente\n// ver a causa real na aba Output, em vez de adivinhar.\ntry {\n  const RESET_COMMANDS = new Set(['reiniciar', 'reiniciar bot', 'resetar', 'comecar de novo', 'menu']);\n  const EMAIL_REGEX = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\n  function stripAccents(value) {\n    return value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\n  }\n\n  // O node Webhook do n8n embrulha o corpo do POST em { headers, params,\n  // query, body } — sem descer em .body primeiro, todo campo abaixo vem\n  // undefined, não importa o provedor.\n  const envelope = $input.item.json;\n  const rawBody = (envelope && typeof envelope.body === 'object' && envelope.body) ? envelope.body : envelope;\n\n  // Formato da Evolution API (evento messages.upsert): { data: { key, message, pushName } }.\n  // Se não vier nesse formato (ex.: fixture antiga só com phone/text.message),\n  // cai de volta pro formato achatado.\n  const data = (rawBody && typeof rawBody.data === 'object') ? rawBody.data : (rawBody || {});\n  const key = (data && typeof data.key === 'object') ? data.key : {};\n  const message = (data && typeof data.message === 'object') ? data.message : {};\n\n  const remoteJid = typeof key.remoteJid === 'string' ? key.remoteJid : null;\n  const rawPhone = remoteJid ? remoteJid.split('@')[0] : (data.phone ?? '');\n\n  const rawText =\n    message.conversation ??\n    (message.extendedTextMessage && message.extendedTextMessage.text) ??\n    (data.text && data.text.message) ??\n    '';\n\n  const rawMessageId = key.id ?? data.messageId ?? '';\n  const rawSenderName = data.pushName ?? data.senderName ?? '';\n  const rawFromMe = ('fromMe' in key) ? key.fromMe : data.fromMe;\n\n  const phone = String(rawPhone ?? '').trim();\n  const text = String(rawText ?? '').trim();\n  const textLower = text.toLowerCase();\n  const textLowerNoAccents = stripAccents(textLower);\n  const messageId = String(rawMessageId ?? '').trim();\n  const senderName = String(rawSenderName ?? '').trim();\n\n  // fromMe pode vir como boolean ou como string \"true\"/\"false\" dependendo do provedor/evento.\n  const fromMe = rawFromMe === true || rawFromMe === 'true';\n\n  const containsAt = text.includes('@');\n  const isValidEmail = EMAIL_REGEX.test(text);\n  const isInvalidEmail = containsAt && !isValidEmail;\n  const isReset = RESET_COMMANDS.has(textLowerNoAccents);\n  const normalizedEmail = isValidEmail ? text.toLowerCase() : null;\n\n  const isRejected = fromMe || !phone || !text || !messageId;\n\n  return {\n    json: {\n      phone, text, textLower, messageId, senderName, fromMe,\n      containsAt, isValidEmail, isInvalidEmail, isReset, normalizedEmail,\n      isRejected,\n      debugError: false,\n    },\n  };\n} catch (err) {\n  return {\n    json: {\n      isRejected: true,\n      debugError: true,\n      debugErrorMessage: String(err && err.message),\n      debugErrorStack: String(err && err.stack),\n      debugRawInput: $input.item.json,\n    },\n  };\n}"
+      }
+    },
+    {
+      "id": "n8n-47gbtz0a",
+      "name": "Reject? (fromMe / payload inválido)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{$json.isRejected}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n8n-48yon543",
+      "name": "Respond: Rejected",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        780,
+        -120
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, route: \"rejected\" } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "n8n-spfiyi1l",
+      "name": "Claim Message (dedup)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        780,
+        80
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres — NutriBot"
+        }
+      },
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH claim AS (\n  INSERT INTO nutribot_whatsapp_sessions (phone, last_message_id, updated_at, status)\n  VALUES ($1, $2, NOW(), 'active')\n  ON CONFLICT (phone) DO UPDATE SET\n    last_message_id = EXCLUDED.last_message_id\n  WHERE nutribot_whatsapp_sessions.last_message_id IS DISTINCT FROM EXCLUDED.last_message_id\n  RETURNING\n    phone, session_id, email_cliente, idade_bebe, status, updated_at,\n    ended_at, last_message_id, last_error_notified_at,\n    (xmax = 0) AS is_new_row, true AS claimed\n)\nSELECT * FROM claim\nUNION ALL\nSELECT\n  phone, session_id, email_cliente, idade_bebe, status, updated_at,\n  ended_at, last_message_id, last_error_notified_at,\n  false AS is_new_row, false AS claimed\nFROM nutribot_whatsapp_sessions\nWHERE phone = $1 AND NOT EXISTS (SELECT 1 FROM claim);",
+        "options": {
+          "queryReplacement": "={{ [$('Normalize Event').item.json.phone, $('Normalize Event').item.json.messageId] }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-2sx9h3l4",
+      "name": "Decide Route & Build Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -40
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Espelha src/router.js decideRoute() + monta a \"action\" que o node\n// Switch usa a seguir. Roda depois do Postgres \"Claim Message (dedup)\".\nconst event = $('Normalize Event').item.json;\nconst claimRow = $input.item.json;\n\n// \"claimed\" vem da CTE em CLAIM_MESSAGE_SQL: false = este messageId já\n// tinha sido processado antes (dedup) — nem chega a decidir rota de verdade.\nif (claimRow.claimed !== true) {\n  return { json: { route: 'duplicate_ignored', action: 'duplicate', phone: event.phone } };\n}\n\nconst isNewRow = claimRow.is_new_row === true || claimRow.is_new_row === 't';\n\n// Sessão \"para fins de roteamento\": se a linha acabou de ser criada agora\n// pelo claim, semanticamente não existia sessão nenhuma até este instante.\nconst session = isNewRow ? null : claimRow;\n\nconst SESSION_TTL_HOURS = Number($env.SESSION_TTL_HOURS || 24);\nconst now = new Date();\n\nfunction isSessionActive(s) {\n  if (!s) return false;\n  if (!s.session_id || String(s.session_id).trim() === '') return false;\n  if (s.status && s.status !== 'active') return false;\n  if (!s.updated_at) return false;\n  const updatedAt = new Date(s.updated_at);\n  if (Number.isNaN(updatedAt.getTime())) return false;\n  return (now.getTime() - updatedAt.getTime()) < SESSION_TTL_HOURS * 60 * 60 * 1000;\n}\n\nlet route;\nif (event.isReset) {\n  route = 'reset';\n} else if (event.isValidEmail) {\n  route = 'email_valid';\n} else if (event.isInvalidEmail) {\n  route = 'email_invalid';\n} else if (isSessionActive(session)) {\n  route = 'continuation';\n} else if (session) {\n  route = 'fallback_expired_or_invalid';\n} else {\n  route = 'initial_no_session';\n}\n\nconst savedEmail = session ? session.email_cliente : null;\nconst savedIdade = session ? session.idade_bebe : null;\nconst hasEmail = Boolean(savedEmail);\n\nlet action;\nlet staticMessage = null;\nlet typebotMode = null;\nlet prefilledVariables = null;\nlet sessionIdForContinue = null;\n\nconst MSG_NEED_EMAIL_MEMORY = 'Mamãe, para eu continuar te ajudando, preciso confirmar seu e-mail de compra. 💛';\nconst MSG_INVALID_EMAIL = 'Ops, mamãe! Esse e-mail parece incompleto. 💛 Confira e envie novamente o mesmo e-mail usado na compra. Exemplo: seumail@gmail.com';\nconst MSG_WELCOME_NO_SESSION = 'Oi, mamãe! 🥰 Seja muito bem-vinda ao NutriBot.\\n\\nPara localizar sua assinatura e liberar seu acesso, digite aqui o mesmo e-mail que você utilizou no momento da compra.\\n\\nExemplo: seumail@gmail.com';\n\nswitch (route) {\n  case 'email_invalid':\n    action = 'send_static';\n    staticMessage = MSG_INVALID_EMAIL;\n    break;\n\n  case 'initial_no_session':\n    action = 'send_static';\n    staticMessage = MSG_WELCOME_NO_SESSION;\n    break;\n\n  case 'reset':\n  case 'fallback_expired_or_invalid':\n    if (!hasEmail) {\n      action = 'send_static';\n      staticMessage = MSG_NEED_EMAIL_MEMORY;\n    } else {\n      action = 'start_chat';\n      typebotMode = 'start';\n      prefilledVariables = savedIdade\n        ? { email_cliente: savedEmail, telefone: event.phone, idade_bebe: savedIdade }\n        : { email_cliente: savedEmail, telefone: event.phone };\n    }\n    break;\n\n  case 'email_valid':\n    action = 'start_chat';\n    typebotMode = 'start';\n    prefilledVariables = savedIdade\n      ? { email_cliente: event.normalizedEmail, telefone: event.phone, idade_bebe: savedIdade }\n      : { email_cliente: event.normalizedEmail, telefone: event.phone };\n    break;\n\n  case 'continuation':\n    action = 'continue_chat';\n    typebotMode = 'continue';\n    sessionIdForContinue = session.session_id;\n    break;\n\n  default:\n    action = 'send_static';\n    staticMessage = MSG_NEED_EMAIL_MEMORY;\n}\n\nreturn {\n  json: {\n    route,\n    action,\n    staticMessage,\n    typebotMode,\n    prefilledVariables,\n    sessionIdForContinue,\n    phone: event.phone,\n    text: event.text,\n    messageId: event.messageId,\n    emailForSave: route === 'email_valid' ? event.normalizedEmail : savedEmail,\n    idadeForSave: savedIdade,\n    lastErrorNotifiedAt: session ? session.last_error_notified_at : null,\n  },\n};"
+      }
+    },
+    {
+      "id": "n8n-a76hu3sa",
+      "name": "Respond: Duplicate Ignored",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        220
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, route: $json.route ?? null } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "n8n-qtl7lww0",
+      "name": "Action Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1300,
+        -40
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.action}}",
+                    "rightValue": "duplicate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "duplicate"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.action}}",
+                    "rightValue": "send_static",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "send_static"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.action}}",
+                    "rightValue": "start_chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "start_chat"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.action}}",
+                    "rightValue": "continue_chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "continue_chat"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      }
+    },
+    {
+      "id": "n8n-lk8mjdxb",
+      "name": "Evolution API: Send Static Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1820,
+        -260
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ `http://evolution-api:8080/message/sendText/Nutribot` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "EA70D372080B-4533-BECA-63D23F1EB3F3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { number: $json.phone, text: $json.staticMessage } }}",
+        "options": {
+          "timeout": "={{ Number($env.WHATSAPP_SEND_TIMEOUT_MS || 10000) }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-ulwdvk1x",
+      "name": "Respond: Static Sent",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2080,
+        -260
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, route: $('Decide Route & Build Action').item.json.route } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "n8n-bbn7vnb4",
+      "name": "Typebot: startChat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1820,
+        -40
+      ],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ `${$env.TYPEBOT_BASE_URL}/api/v1/typebots/${$env.TYPEBOT_PUBLIC_ID}/startChat` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $env.TYPEBOT_API_TOKEN ? `Bearer ${$env.TYPEBOT_API_TOKEN}` : undefined }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { prefilledVariables: $json.prefilledVariables, textBubbleContentFormat: 'markdown' } }}",
+        "options": {
+          "timeout": "={{ Number($env.TYPEBOT_TIMEOUT_MS || 15000) }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-rqc2cr6f",
+      "name": "Typebot: continueChat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1820,
+        180
+      ],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ (() => { if (!$json.sessionIdForContinue) throw new Error('session_id ausente — bloqueado antes de chamar continueChat.'); return `${$env.TYPEBOT_BASE_URL}/api/v1/sessions/${$json.sessionIdForContinue}/continueChat`; })() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $env.TYPEBOT_API_TOKEN ? `Bearer ${$env.TYPEBOT_API_TOKEN}` : undefined }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { message: $json.text, textBubbleContentFormat: 'markdown' } }}",
+        "options": {
+          "timeout": "={{ Number($env.TYPEBOT_TIMEOUT_MS || 15000) }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-r4owq3lc",
+      "name": "Interpret Typebot Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        60
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Espelha src/typebotResponse.js interpretTypebotResult().\nconst decision = $('Decide Route & Build Action').item.json;\nconst result = $input.item.json;\n\nfunction flattenRichTextNode(node) {\n  if (!node) return '';\n  if (typeof node.text === 'string') return node.text;\n  if (Array.isArray(node.children)) return node.children.map(flattenRichTextNode).join('');\n  return '';\n}\nfunction richTextToString(rt) {\n  if (!Array.isArray(rt)) return '';\n  return rt.map(flattenRichTextNode).filter(Boolean).join('\\n');\n}\nfunction extractMessageText(message) {\n  if (!message || message.type !== 'text') return '';\n  const content = message.content || {};\n  const raw = content.markdown ?? content.richText ?? '';\n  if (raw == null) return '';\n  const text = typeof raw === 'string' ? raw : richTextToString(raw);\n  return text.trim();\n}\n\nconst messages = Array.isArray(result.messages) ? result.messages : [];\nconst hasInput = Boolean(result.input);\nconst replyText = messages.map(extractMessageText).map((t) => t.trim()).filter((t) => t.length > 0).join('\\n');\n\nreturn {\n  json: {\n    phone: decision.phone,\n    messageId: decision.messageId,\n    route: decision.route,\n    emailForSave: decision.emailForSave,\n    idadeForSave: decision.idadeForSave,\n    sessionId: result.sessionId ?? null,\n    replyText,\n    hasReply: replyText.length > 0,\n    shouldKeepSession: hasInput,\n  },\n};"
+      }
+    },
+    {
+      "id": "n8n-hxjfhz67",
+      "name": "Upsert Session After Reply",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2340,
+        60
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres — NutriBot"
+        }
+      },
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO nutribot_whatsapp_sessions (\n  phone, session_id, updated_at, last_message_id, email_cliente, idade_bebe, status, ended_at, last_route\n)\nVALUES ($1, $2, NOW(), $3, $4, $5, $6, $7, $8)\nON CONFLICT (phone) DO UPDATE SET\n  session_id      = COALESCE(NULLIF(EXCLUDED.session_id, ''), nutribot_whatsapp_sessions.session_id),\n  updated_at       = NOW(),\n  last_message_id  = COALESCE(NULLIF(EXCLUDED.last_message_id, ''), nutribot_whatsapp_sessions.last_message_id),\n  email_cliente    = COALESCE(NULLIF(EXCLUDED.email_cliente, ''), nutribot_whatsapp_sessions.email_cliente),\n  idade_bebe       = COALESCE(NULLIF(EXCLUDED.idade_bebe, ''), nutribot_whatsapp_sessions.idade_bebe),\n  status           = EXCLUDED.status,\n  ended_at         = EXCLUDED.ended_at,\n  last_route       = EXCLUDED.last_route\nRETURNING *;",
+        "options": {
+          "queryReplacement": "={{ [$json.phone, $json.sessionId || '', $json.messageId, $json.emailForSave || '', $json.idadeForSave || '', $json.shouldKeepSession ? 'active' : 'ended', $json.shouldKeepSession ? null : new Date().toISOString(), $json.route] }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-k3sb0mxp",
+      "name": "Has Reply Text?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2600,
+        60
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{$('Interpret Typebot Reply').item.json.hasReply}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n8n-o4xjevbi",
+      "name": "Evolution API: Send Typebot Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        -60
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ `http://evolution-api:8080/message/sendText/Nutribot` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "EA70D372080B-4533-BECA-63D23F1EB3F3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { number: $('Interpret Typebot Reply').item.json.phone, text: $('Interpret Typebot Reply').item.json.replyText } }}",
+        "options": {
+          "timeout": "={{ Number($env.WHATSAPP_SEND_TIMEOUT_MS || 10000) }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-3i90lbb5",
+      "name": "Respond: Reply Sent",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        3120,
+        -60
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, route: $('Interpret Typebot Reply').item.json.route } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "n8n-km45eayo",
+      "name": "Respond: No Reply Needed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2860,
+        180
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, route: $('Interpret Typebot Reply').item.json.route, note: 'typebot sem mensagens para enviar' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "n8n-0vskzeru",
+      "name": "Handle Typebot Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Espelha src/sessionStore.js shouldNotifyError() — cooldown do aviso de erro.\nconst decision = $('Decide Route & Build Action').item.json;\nconst cooldownMinutes = Number($env.ERROR_MESSAGE_COOLDOWN_MINUTES || 10);\nconst now = new Date();\n\nlet shouldNotify = true;\nif (decision.lastErrorNotifiedAt) {\n  const last = new Date(decision.lastErrorNotifiedAt);\n  if (!Number.isNaN(last.getTime())) {\n    shouldNotify = (now.getTime() - last.getTime()) >= cooldownMinutes * 60 * 1000;\n  }\n}\n\nconst MSG_TEMPORARY_ERROR = 'Não consegui continuar sua conversa neste momento. Por favor, aguarde alguns instantes e envie sua mensagem novamente.\\n\\nSe precisar reiniciar, digite \"reiniciar\" para eu continuar te ajudando. 💛';\n\nreturn {\n  json: {\n    phone: decision.phone,\n    shouldNotify,\n    message: MSG_TEMPORARY_ERROR,\n  },\n};"
+      }
+    },
+    {
+      "id": "n8n-u4eer173",
+      "name": "Should Notify Error? (cooldown)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2340,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{$json.shouldNotify}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "n8n-3afu2yv0",
+      "name": "Mark Error Notified",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2600,
+        460
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres — NutriBot"
+        }
+      },
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE nutribot_whatsapp_sessions SET last_error_notified_at = NOW() WHERE phone = $1;",
+        "options": {
+          "queryReplacement": "={{ [$json.phone] }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-gps0zaa5",
+      "name": "Evolution API: Send Temporary Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2600,
+        320
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ `http://evolution-api:8080/message/sendText/Nutribot` }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "EA70D372080B-4533-BECA-63D23F1EB3F3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { number: $json.phone, text: $json.message } }}",
+        "options": {
+          "timeout": "={{ Number($env.WHATSAPP_SEND_TIMEOUT_MS || 10000) }}"
+        }
+      }
+    },
+    {
+      "id": "n8n-vqkd0qpx",
+      "name": "Respond: Error Message Sent",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2860,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, route: \"error_temporary\" } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "n8n-trdiba4j",
+      "name": "Respond: Error Cooldown (silent)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2600,
+        520
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, route: \"error_temporary_cooldown\" } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook: Z-API Inbound": {
+      "main": [
+        [
+          {
+            "node": "Normalize Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Event": {
+      "main": [
+        [
+          {
+            "node": "Reject? (fromMe / payload inválido)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reject? (fromMe / payload inválido)": {
+      "main": [
+        [
+          {
+            "node": "Respond: Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Claim Message (dedup)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond: Rejected": {
+      "main": []
+    },
+    "Claim Message (dedup)": {
+      "main": [
+        [
+          {
+            "node": "Decide Route & Build Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide Route & Build Action": {
+      "main": [
+        [
+          {
+            "node": "Action Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond: Duplicate Ignored": {
+      "main": []
+    },
+    "Action Switch": {
+      "main": [
+        [
+          {
+            "node": "Respond: Duplicate Ignored",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evolution API: Send Static Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Typebot: startChat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Typebot: continueChat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution API: Send Static Message": {
+      "main": [
+        [
+          {
+            "node": "Respond: Static Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond: Static Sent": {
+      "main": []
+    },
+    "Typebot: startChat": {
+      "main": [
+        [
+          {
+            "node": "Interpret Typebot Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Typebot Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Typebot: continueChat": {
+      "main": [
+        [
+          {
+            "node": "Interpret Typebot Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Typebot Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interpret Typebot Reply": {
+      "main": [
+        [
+          {
+            "node": "Upsert Session After Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Session After Reply": {
+      "main": [
+        [
+          {
+            "node": "Has Reply Text?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Reply Text?": {
+      "main": [
+        [
+          {
+            "node": "Evolution API: Send Typebot Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond: No Reply Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution API: Send Typebot Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond: Reply Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond: Reply Sent": {
+      "main": []
+    },
+    "Respond: No Reply Needed": {
+      "main": []
+    },
+    "Handle Typebot Error": {
+      "main": [
+        [
+          {
+            "node": "Should Notify Error? (cooldown)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Notify Error? (cooldown)": {
+      "main": [
+        [
+          {
+            "node": "Mark Error Notified",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Evolution API: Send Temporary Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond: Error Cooldown (silent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Error Notified": {
+      "main": []
+    },
+    "Evolution API: Send Temporary Error": {
+      "main": [
+        [
+          {
+            "node": "Respond: Error Message Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond: Error Message Sent": {
+      "main": []
+    },
+    "Respond: Error Cooldown (silent)": {
+      "main": []
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "errorWorkflow": "NUTRIBOT_ERROR_WORKFLOW_ID"
+  },
+  "pinData": {},
+  "versionId": "n8n-s98d432w"
+}

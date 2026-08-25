@@ -3,7 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { IllustratedBookPdf } from "@/lib/pdf/IllustratedBookPdf";
-import type { BookPageScript } from "@/lib/illustrated-book";
+import { assertOwnedStoragePath, type BookPageScript } from "@/lib/illustrated-book";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -23,6 +23,14 @@ export async function GET(_request: Request, context: RouteContext<"/api/illustr
   const pages: Array<BookPageScript & { imageData: string }> = [];
   for (const page of (book.script ?? []) as BookPageScript[]) {
     if (!page.imagePath) return NextResponse.json({ error: "page_missing" }, { status: 409 });
+    // `script` e uma coluna que a propria usuaria pode editar via RLS — nunca
+    // confiar no imagePath sem confirmar que ele pertence a esta usuaria e a
+    // este livro antes de usar o client admin (que ignora RLS do Storage).
+    try {
+      assertOwnedStoragePath(page.imagePath, user.id, id);
+    } catch {
+      return NextResponse.json({ error: "page_unavailable" }, { status: 500 });
+    }
     const { data, error } = await admin.storage.from("illustrated-books").download(page.imagePath);
     if (error || !data) return NextResponse.json({ error: "page_unavailable" }, { status: 500 });
     pages.push({ ...page, imageData: `data:${data.type || "image/webp"};base64,${Buffer.from(await data.arrayBuffer()).toString("base64")}` });
@@ -31,8 +39,14 @@ export async function GET(_request: Request, context: RouteContext<"/api/illustr
   const document = IllustratedBookPdf({ babyName: baby.name, pages });
   const buffer = await renderToBuffer(document as Parameters<typeof renderToBuffer>[0]);
   const pdfPath = `${user.id}/${id}/livro-${id}.pdf`;
-  await admin.storage.from("illustrated-books").upload(pdfPath, buffer, { upsert: true, contentType: "application/pdf" });
-  await supabase.from("illustrated_books").update({ pdf_path: pdfPath }).eq("id", id).eq("user_id", user.id);
+  const { error: uploadError } = await admin.storage.from("illustrated-books").upload(pdfPath, buffer, { upsert: true, contentType: "application/pdf" });
+  // So grava pdf_path se o arquivo realmente foi salvo — do contrario o
+  // registro fica apontando pra um caminho que nunca existiu no Storage.
+  if (!uploadError) {
+    await supabase.from("illustrated_books").update({ pdf_path: pdfPath }).eq("id", id).eq("user_id", user.id);
+  } else {
+    console.error("[illustrated-book/pdf] falha ao salvar PDF no storage", uploadError);
+  }
 
   return new NextResponse(buffer as unknown as BodyInit, {
     headers: {

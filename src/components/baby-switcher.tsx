@@ -57,7 +57,7 @@ export function BabySwitcher() {
             <p className="font-heading text-sm font-bold leading-tight text-brown-800">
               {activeBaby.name}
             </p>
-            <p className="text-[11px] leading-tight text-brown-700/50">
+            <p className="text-[11px] leading-tight text-brown-700/82">
               {formatAge(activeBaby.birth_date)}
             </p>
           </div>
@@ -115,7 +115,7 @@ export function BabySwitcher() {
                     <p className="font-heading text-lg font-bold text-brown-800">
                       {baby.name}
                     </p>
-                    <p className="text-sm text-brown-700/60">{formatAge(baby.birth_date)}</p>
+                    <p className="text-sm text-brown-700/86">{formatAge(baby.birth_date)}</p>
                   </div>
                 </button>
               ))}

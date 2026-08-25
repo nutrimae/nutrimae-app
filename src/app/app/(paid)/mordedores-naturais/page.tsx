@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Share2, ShieldAlert, Thermometer } from "lucide-react";
 import { BackButton } from "@/components/back-button";
+import { Chip } from "@/components/ui/chip";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import {
   TEETHER_CATEGORY_LABEL,
@@ -77,24 +78,20 @@ export default function MordedoresNaturaisPage() {
                 <span className="text-2xl">{teether.emoji}</span>
                 <div className="flex-1">
                   <p className="font-semibold text-brown-800">{teether.name}</p>
-                  <p className="text-xs text-brown-700/60">
+                  <p className="text-xs text-brown-700/86">
                     {TEETHER_CATEGORY_LABEL[teether.category]} · a partir de {teether.minAgeMonths}m
                   </p>
                 </div>
                 <ChevronDown
-                  className={`h-5 w-5 shrink-0 text-brown-700/50 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                  className={`h-5 w-5 shrink-0 text-brown-700/82 transition-transform ${isOpen ? "rotate-180" : ""}`}
                   strokeWidth={2}
                 />
               </button>
               {isOpen && (
                 <div className="flex flex-col gap-3 px-4 pb-4">
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full bg-sage-50 px-2 py-1 font-semibold text-sage-700">
-                      🌡️ {teether.temperature}
-                    </span>
-                    <span className="rounded-full bg-sage-50 px-2 py-1 font-semibold text-sage-700">
-                      ⏱️ até {teether.maxDurationMinutes} min por vez
-                    </span>
+                  <div className="flex flex-wrap gap-2">
+                    <Chip color="sage">🌡️ {teether.temperature}</Chip>
+                    <Chip color="sage">⏱️ até {teether.maxDurationMinutes} min por vez</Chip>
                   </div>
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wide text-sage-600">Preparo</p>
@@ -139,7 +136,7 @@ export default function MordedoresNaturaisPage() {
         <div className="overflow-x-auto rounded-2xl bg-white/80 p-3 shadow-sm shadow-brown-900/5">
           <table className="w-full min-w-[480px] text-left text-xs">
             <thead>
-              <tr className="text-brown-700/60">
+              <tr className="text-brown-700/86">
                 <th className="p-2">Mordedor</th>
                 <th className="p-2">Categoria</th>
                 <th className="p-2">Idade mín.</th>

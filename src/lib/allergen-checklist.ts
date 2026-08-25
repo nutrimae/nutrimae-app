@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { ALLERGEN_LABEL, type Allergen } from "@/lib/recipes";
 
 export interface AllergenInfo {
@@ -26,21 +27,25 @@ export const ALLERGEN_CHECKLIST: AllergenInfo[] = [
 
 export { ALLERGEN_LABEL };
 
-const CHECKLIST_KEY = "nutrimae:alergia:checklist";
-
-export function getAllergenChecklist(): Allergen[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(CHECKLIST_KEY);
-    return raw ? (JSON.parse(raw) as Allergen[]) : [];
-  } catch {
-    return [];
-  }
+/**
+ * Checklist de alergênicos por bebê, na tabela `baby_allergens` — não é
+ * mais localStorage (o NutriBot, rodando no servidor via WhatsApp, precisa
+ * ler esse dado, e localStorage é invisível fora do navegador da mãe).
+ */
+export async function getAllergenChecklist(supabase: SupabaseClient, babyId: string): Promise<Allergen[]> {
+  const { data } = await supabase.from("baby_allergens").select("allergen").eq("baby_id", babyId);
+  return (data ?? []).map((row) => row.allergen as Allergen);
 }
 
-export function toggleAllergenChecklist(id: Allergen): Allergen[] {
-  const current = getAllergenChecklist();
-  const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
-  window.localStorage.setItem(CHECKLIST_KEY, JSON.stringify(next));
-  return next;
+export async function toggleAllergenChecklist(supabase: SupabaseClient, babyId: string, id: Allergen): Promise<Allergen[]> {
+  const current = await getAllergenChecklist(supabase, babyId);
+  if (current.includes(id)) {
+    await supabase.from("baby_allergens").delete().eq("baby_id", babyId).eq("allergen", id);
+  } else {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("baby_allergens").insert({ baby_id: babyId, user_id: user.id, allergen: id });
+    }
+  }
+  return getAllergenChecklist(supabase, babyId);
 }

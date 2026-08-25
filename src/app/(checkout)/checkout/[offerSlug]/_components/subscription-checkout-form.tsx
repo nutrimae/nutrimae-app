@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard, ShieldCheck } from "lucide-react";
+import { CreditCard, ShieldCheck, Loader2 } from "lucide-react";
 import { isValidCpf } from "@/lib/utils";
 import { tokenizeCard } from "@/lib/payments/tokenize-card";
+import { Input } from "@/components/ui/input";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 
 /**
@@ -84,53 +85,50 @@ export function SubscriptionCheckoutForm({ offer }: { offer: { slug: string; nam
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl bg-white p-5 shadow-sm">
+    <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
       <div className="flex flex-col gap-3">
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <div className="flex flex-col gap-1">
-          <input
-            className={`rounded-lg border p-3 text-sm ${documentError ? "border-red-400" : "border-gray-200"}`}
-            placeholder="CPF (só números)"
-            value={document}
-            onChange={(e) => setDocument(e.target.value)}
-            onBlur={() => setDocumentTouched(true)}
-          />
-          {documentError && <p className="text-xs text-red-600">{documentError}</p>}
-        </div>
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Telefone (com DDD)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Input placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input
+          placeholder="CPF (só números)"
+          value={document}
+          onChange={(e) => setDocument(e.target.value)}
+          onBlur={() => setDocumentTouched(true)}
+          error={documentError ?? undefined}
+        />
+        <Input placeholder="Telefone (com DDD)" value={phone} onChange={(e) => setPhone(e.target.value)} />
       </div>
 
-      <div className="flex items-center gap-2 rounded-lg border border-rose-600 bg-rose-50 p-3 text-sm font-semibold text-rose-600">
+      <div className="flex items-center gap-2 rounded-2xl bg-primary-50 p-3 text-sm font-semibold text-primary-600">
         <CreditCard className="h-4 w-4" /> Cartão de crédito (obrigatório para assinatura)
       </div>
 
       <div className="flex flex-col gap-3">
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Número do cartão" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-        <input className="rounded-lg border border-gray-200 p-3 text-sm" placeholder="Nome impresso no cartão" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
+        <Input placeholder="Número do cartão" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+        <Input placeholder="Nome impresso no cartão" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
         <div className="flex gap-2">
-          <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="MM" value={cardExpMonth} onChange={(e) => setCardExpMonth(e.target.value)} />
-          <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
-          <input className="w-1/3 rounded-lg border border-gray-200 p-3 text-sm" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
+          <Input className="w-1/3" placeholder="MM" value={cardExpMonth} onChange={(e) => setCardExpMonth(e.target.value)} />
+          <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
+          <Input className="w-1/3" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
         </div>
         <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
 
-      <p className="text-center text-xs text-gray-500">Cancele quando quiser, sem multa.</p>
+      <p className="text-center text-xs font-medium text-sage-600">Cancele quando quiser, sem multa.</p>
 
       <button
         type="button"
         onClick={handleSubmit}
         disabled={loading}
-        className="min-h-14 w-full rounded-2xl bg-[#25D366] px-6 text-base font-bold text-white shadow-lg transition-colors hover:bg-[#20bd5a] disabled:opacity-60"
+        className="flex min-h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 text-base font-bold text-white shadow-[0_4px_16px_var(--color-primary-shadow)] transition-transform active:scale-[0.98] disabled:opacity-60"
       >
-        {loading ? "Processando..." : "Assinar agora"}
+        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Assinar agora"}
       </button>
 
-      <p className="flex items-center justify-center gap-2 text-xs text-gray-400">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> Pagamento seguro · dados protegidos
+      <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pagamento seguro · dados protegidos
       </p>
     </div>
   );

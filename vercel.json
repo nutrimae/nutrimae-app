@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/abandoned-checkout",
       "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/admin/metrics/refresh",
+      "schedule": "0 6 * * *"
     }
   ]
 }

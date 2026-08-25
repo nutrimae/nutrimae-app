@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Clock, ChefHat, Heart, Share2, Star, AlertTriangle } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { ListenButton } from "@/components/listen-button";
+import { useActiveBaby } from "@/components/active-baby-context";
+import { createClient } from "@/lib/supabase/client";
 import { AGE_BAND_LABEL } from "@/lib/menu";
 import { ALLERGEN_LABEL, RECIPE_MEAL_TYPE_LABEL, RECIPES } from "@/lib/recipes";
 import {
@@ -18,17 +20,19 @@ import { getAllergenChecklist } from "@/lib/allergen-checklist";
 export default function RecipeDetailPage() {
   const params = useParams<{ id: string }>();
   const recipe = RECIPES.find((r) => r.id === params.id);
+  const { activeBaby } = useActiveBaby();
+  const supabase = useMemo(() => createClient(), []);
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [rating, setRating] = useState(0);
-  const [checklistAllergens, setChecklistAllergens] = useState<ReturnType<typeof getAllergenChecklist>>([]);
+  const [checklistAllergens, setChecklistAllergens] = useState<Awaited<ReturnType<typeof getAllergenChecklist>>>([]);
 
   useEffect(() => {
     if (!recipe) return;
     setIsFavorite(getFavoriteRecipeIds().includes(recipe.id));
     setRating(getRecipeRatings()[recipe.id] ?? 0);
-    setChecklistAllergens(getAllergenChecklist());
-  }, [recipe]);
+    if (activeBaby) getAllergenChecklist(supabase, activeBaby.id).then(setChecklistAllergens);
+  }, [recipe, activeBaby, supabase]);
 
   if (!recipe) {
     return (
@@ -77,7 +81,7 @@ export default function RecipeDetailPage() {
           {AGE_BAND_LABEL[recipe.ageBand].split(" · ")[0]} · {RECIPE_MEAL_TYPE_LABEL[recipe.mealType]}
         </p>
         <h1 className="mt-1 font-heading text-2xl font-bold text-brown-800">{recipe.title}</h1>
-        <div className="mt-2 flex items-center gap-4 text-sm text-brown-700/70">
+        <div className="mt-2 flex items-center gap-4 text-sm text-brown-700/90">
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4" strokeWidth={2} />
             {recipe.prepTimeMinutes} min

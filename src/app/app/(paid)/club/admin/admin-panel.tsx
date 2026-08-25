@@ -192,7 +192,7 @@ function FaqEditor({ faqs, onChange }: { faqs: CommunityFaq[]; onChange: () => v
           <div key={faq.id} className="flex items-start justify-between gap-2 rounded-2xl bg-white/80 p-3">
             <div>
               <p className="text-sm font-semibold text-brown-800">{faq.question}</p>
-              <p className="text-xs text-brown-700/70">{faq.answer}</p>
+              <p className="text-xs text-brown-700/90">{faq.answer}</p>
             </div>
             <button
               type="button"

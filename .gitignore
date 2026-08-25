@@ -40,3 +40,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# relatório gerado a cada rodada de autonomous-growth.js — nunca commitar
+autonomous-growth-report.json
+
+# configs/caches locais de ferramentas de agente (contêm chaves de API e
+# variam por máquina) — nunca commitar
+/.codex/
+/.agents/
+/agent/
+/.claude/skills/
+/.impeccable/hook.cache.json
+/supabase/.temp/
+skills-lock.json

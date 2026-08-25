@@ -1,0 +1,32 @@
+{
+  "buildPath": "comp",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [
+      "landing-nutrimae/**",
+      "src/lib/pdf/**"
+    ],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font-size",
+        "value": "20px",
+        "createdAt": "2026-08-24T23:02:31.499Z"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "13px",
+        "createdAt": "2026-08-24T23:02:31.565Z"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "14px",
+        "createdAt": "2026-08-24T23:02:31.647Z"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "11px",
+        "createdAt": "2026-08-24T23:02:31.719Z"
+      }
+    ]
+  }
+}

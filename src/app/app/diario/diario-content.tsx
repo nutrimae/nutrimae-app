@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { X, Check, Sparkles, BookHeart } from "lucide-react";
+import { X, Check, Sparkles, BookHeart, ClipboardList } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/toast-provider";
 import { BackButton } from "@/components/back-button";
+import { getAllergenChecklist } from "@/lib/allergen-checklist";
 import {
   DIARY_FOODS,
   FOOD_CATEGORY_LABEL,
@@ -39,6 +40,7 @@ export function DiarioContent() {
   const [registering, setRegistering] = useState<DiaryFood | null>(null);
   const [justUpdated, setJustUpdated] = useState(false);
   const [bookInviteAvailable, setBookInviteAvailable] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
 
   useEffect(() => {
     if (!activeBaby) return;
@@ -154,6 +156,36 @@ export function DiarioContent() {
     }
   }
 
+  async function generateReport() {
+    if (!activeBaby || generatingReport) return;
+    setGeneratingReport(true);
+    try {
+      const res = await fetch("/api/pdf/relatorio-pediatra", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          babyId: activeBaby.id,
+          periodDays: 30,
+          allergenIds: await getAllergenChecklist(supabase, activeBaby.id),
+        }),
+      });
+      if (!res.ok) {
+        showToast("Não deu para gerar o relatório agora. Tenta de novo em instantes.");
+        return;
+      }
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = `relatorio-pediatra-${activeBaby.name.split(" ")[0].toLowerCase()}.pdf`;
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } finally {
+      setGeneratingReport(false);
+    }
+  }
+
   const triedCount = Object.keys(log).length;
 
   const achievedMilestones = MILESTONES.filter((m) => milestones[m.key]).sort(
@@ -199,6 +231,23 @@ export function DiarioContent() {
         </div>
       </div>
 
+      <button
+        type="button"
+        onClick={generateReport}
+        disabled={generatingReport}
+        className="flex min-h-14 touch-manipulation items-center gap-3 rounded-2xl bg-white/80 px-4 text-left shadow-sm shadow-brown-900/5 transition-transform active:scale-[0.98] disabled:opacity-60"
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage-50 text-sage-600">
+          <ClipboardList className="h-5 w-5" strokeWidth={2} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <strong className="block text-sm font-semibold text-brown-800">
+            {generatingReport ? "Gerando relatório..." : "Gerar relatório para o pediatra"}
+          </strong>
+          <span className="mt-0.5 block text-xs text-brown-700/86">Resumo em PDF dos últimos 30 dias, pronto pra levar à consulta.</span>
+        </span>
+      </button>
+
       {triedCount >= 10 && bookInviteAvailable && (
         <Link
           href="/app/livro-ilustrado"
@@ -212,7 +261,7 @@ export function DiarioContent() {
             <div>
               <p className="type-tiny font-semibold uppercase tracking-wider text-primary-600">Seu diario ja conta uma historia</p>
               <h2 className="mt-1 font-heading text-lg font-bold leading-tight text-brown-800">Transforme os momentos de {activeBaby.name.split(" ")[0]} em um livro ilustrado</h2>
-              <p className="mt-1 text-xs text-brown-700/60">Veja uma previa personalizada</p>
+              <p className="mt-1 text-xs text-brown-700/86">Veja uma previa personalizada</p>
             </div>
           </div>
         </Link>
@@ -257,7 +306,7 @@ export function DiarioContent() {
             {achievedMilestones.map((m) => (
               <li key={m.key}>
                 <p className="font-heading font-bold text-brown-800">{m.title}</p>
-                <p className="text-sm text-brown-700/70">
+                <p className="text-sm text-brown-700/90">
                   {new Date(milestones[m.key] + "T00:00:00").toLocaleDateString("pt-BR")}
                 </p>
               </li>
@@ -275,7 +324,7 @@ export function DiarioContent() {
             >
               <div>
                 <p className="font-semibold text-brown-800">{m.title}</p>
-                <p className="text-xs text-brown-700/60">{m.description}</p>
+                <p className="text-xs text-brown-700/86">{m.description}</p>
               </div>
               <span className="shrink-0 text-sm font-semibold text-sage-600">Marcar</span>
             </button>

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { ageBandForMonths, allergenForDietFilter, buildShoppingList, type DietFilter } from "@/lib/menu";
+import { getWeeklyLunchboxShoppingItems } from "@/lib/lunchbox";
 
 type ExtraCategory = "feira" | "mercado" | "outros";
 
@@ -39,6 +40,7 @@ export default function ListaComprasPage() {
   const [newItemCategory, setNewItemCategory] = useState<ExtraCategory>("outros");
 
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
+  const isPost24Months = months >= 24;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
   const dietFilter = (activeBaby?.diet_filter as DietFilter) ?? "padrao";
   const avoidAllergen = hasRestricao ? allergenForDietFilter(dietFilter) : null;
@@ -47,9 +49,28 @@ export default function ListaComprasPage() {
     [ageBand, avoidAllergen],
   );
 
+  const lunchboxItems = useMemo(() => {
+    if (!activeBaby || !isPost24Months) return [];
+    return getWeeklyLunchboxShoppingItems(activeBaby.id);
+  }, [activeBaby, isPost24Months]);
+
   const displayGroups = useMemo(() => {
     const labels: Record<ExtraCategory, string> = { feira: "Feira", mercado: "Supermercado", outros: "Outros" };
     const result = groups.map((group) => ({ ...group, items: [...group.items] }));
+
+    // Merge lunchbox items
+    for (const lbItem of lunchboxItems) {
+      let group = result.find((item) => item.category === lbItem.category);
+      if (!group) {
+        group = { category: lbItem.category, label: labels[lbItem.category], items: [] };
+        result.push(group);
+      }
+      if (!group.items.some((i) => i.key === lbItem.key)) {
+        group.items.push(lbItem);
+      }
+    }
+
+    // Merge manual extras
     for (const extra of extras) {
       let group = result.find((item) => item.category === extra.category);
       if (!group) {
@@ -59,7 +80,7 @@ export default function ListaComprasPage() {
       group.items.push(extra);
     }
     return result;
-  }, [extras, groups]);
+  }, [extras, groups, lunchboxItems]);
 
   const visibleKeys = useMemo(() => new Set(displayGroups.flatMap((group) => group.items.map((item) => item.key))), [displayGroups]);
   const totalItems = visibleKeys.size;
@@ -208,7 +229,7 @@ export default function ListaComprasPage() {
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Lista de compras</h1>
-        <p className="mt-1 text-sm text-brown-700/70">
+        <p className="mt-1 text-sm text-brown-700/90">
           Gerada a partir do cardápio da semana de {activeBaby.name}.
           {!loading && totalItems > 0 && ` ${checkedCount} de ${totalItems} já pegos.`}
         </p>
@@ -235,7 +256,7 @@ export default function ListaComprasPage() {
           </span>
           <span>
             <strong className="block text-sm text-brown-800">Faltou alguma coisinha?</strong>
-            <span className="text-xs text-brown-700/55">Adicione à lista em poucos segundos</span>
+            <span className="text-xs text-brown-700/84">Adicione à lista em poucos segundos</span>
           </span>
         </span>
         <Sparkles className="h-5 w-5 text-primary-400" />
@@ -263,7 +284,7 @@ export default function ListaComprasPage() {
                   </span>
                   <span
                     className={`text-lg transition-[color,opacity] duration-200 ${
-                      isChecked ? "text-brown-700/40 line-through" : "text-brown-800"
+                      isChecked ? "text-brown-700/78 line-through" : "text-brown-800"
                     }`}
                   >
                     {item.name}
@@ -290,21 +311,21 @@ export default function ListaComprasPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 id="extra-item-title" className="text-xl font-bold text-brown-800">O que ficou faltando?</h2>
-                <p className="mt-1 text-sm text-brown-700/55">Pode ser da feira, do mercado ou algo só seu.</p>
+                <p className="mt-1 text-sm text-brown-700/84">Pode ser da feira, do mercado ou algo só seu.</p>
               </div>
-              <button type="button" onClick={() => setShowAddItem(false)} className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 text-brown-700/60" aria-label="Fechar"><X className="h-5 w-5" /></button>
+              <button type="button" onClick={() => setShowAddItem(false)} className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 text-brown-700/86" aria-label="Fechar"><X className="h-5 w-5" /></button>
             </div>
 
-            <label htmlFor="extra-item-name" className="mt-5 block text-xs font-semibold uppercase tracking-wide text-brown-700/55">Nome do item</label>
+            <label htmlFor="extra-item-name" className="mt-5 block text-xs font-semibold uppercase tracking-wide text-brown-700/84">Nome do item</label>
             <input id="extra-item-name" autoFocus value={newItemName} onChange={(event) => setNewItemName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addExtraItem(); }} placeholder="Ex.: sabonete do bebê" className="mt-2 min-h-14 w-full rounded-2xl border border-primary-100 bg-primary-50/40 px-4 text-base text-brown-800 outline-none transition-shadow placeholder:text-brown-700/35 focus:border-primary-500 focus:shadow-[0_0_0_4px_var(--color-primary-glow)]" />
 
             <div className="mt-3 flex flex-wrap gap-2">
               {QUICK_SUGGESTIONS.map((suggestion) => <button key={suggestion} type="button" onClick={() => setNewItemName(suggestion)} className="min-h-9 rounded-full bg-gray-50 px-3 text-xs font-medium text-brown-700 active:bg-primary-50 active:text-primary-600">+ {suggestion}</button>)}
             </div>
 
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-brown-700/55">Onde encontrar?</p>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-brown-700/84">Onde encontrar?</p>
             <div className="mt-2 grid grid-cols-3 gap-2">
-              {CATEGORY_OPTIONS.map((category) => <button key={category.key} type="button" onClick={() => setNewItemCategory(category.key)} className={`min-h-14 rounded-2xl border px-2 text-xs font-semibold transition-colors ${newItemCategory === category.key ? "border-primary-500 bg-primary-50 text-primary-600" : "border-gray-100 text-brown-700/60"}`}><span className="mr-1" aria-hidden="true">{category.emoji}</span>{category.label}</button>)}
+              {CATEGORY_OPTIONS.map((category) => <button key={category.key} type="button" onClick={() => setNewItemCategory(category.key)} className={`min-h-14 rounded-2xl border px-2 text-xs font-semibold transition-colors ${newItemCategory === category.key ? "border-primary-500 bg-primary-50 text-primary-600" : "border-gray-100 text-brown-700/86"}`}><span className="mr-1" aria-hidden="true">{category.emoji}</span>{category.label}</button>)}
             </div>
 
             <button type="button" onClick={addExtraItem} disabled={!newItemName.trim()} className="mt-5 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-500 to-[#ff2974] text-base font-bold text-white shadow-[0_8px_20px_var(--color-primary-glow)] disabled:opacity-40"><Plus className="h-5 w-5" />Adicionar à minha lista</button>

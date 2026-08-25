@@ -16,6 +16,20 @@ export interface FoodItem {
   prioridadeRevisao?: "normal" | "alta";
   /** Idade mínima em meses (quando diferente do padrão de 6m). */
   minAgeMonths?: number;
+  /** Adequado para marmitas/lancheiras de creche/escola (não vaza, aguenta algumas horas, sem necessidade de talher complexo). */
+  adequado_lancheira?: boolean;
+  /** Alergênicos de declaração para cuidados escolares. */
+  alergenico_declarado?: string[];
+  /** URL do vídeo explicativo ou da comunidade */
+  video_url?: string;
+  /** Tipo de vídeo: animação ilustrada 2D ou vídeo real da comunidade */
+  video_tipo?: "motion_graphic" | "comunidade" | null;
+  /** Status de moderação do vídeo */
+  video_status?: "nenhum" | "pendente_moderacao" | "aprovado" | "rejeitado";
+  /** ID da usuária autora (para vídeos da comunidade) */
+  video_autor_user_id?: string | null;
+  /** Idade do bebê no momento do vídeo */
+  video_baby_age_months?: number;
 }
 
 export const FOODS: FoodItem[] = [
@@ -30,6 +44,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Cortada em rodelas ou cubos pequenos.",
       "13-24": "Cortada em pedaços pequenos, como o resto da família.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "maca",
@@ -43,6 +58,7 @@ export const FOODS: FoodItem[] = [
       "13-24": "Crua, ralada ou em fatias bem finas. Evite pedaços grandes e duros.",
     },
     warning: "Maçã crua em pedaços grandes é risco de engasgo em qualquer idade nesta fase — rale ou cozinhe.",
+    adequado_lancheira: true,
   },
   {
     id: "pera",
@@ -55,6 +71,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Madura, em pedaços pequenos, crua ou cozida.",
       "13-24": "Madura, em pedaços pequenos.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "mamao",
@@ -67,6 +84,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Em cubos pequenos.",
       "13-24": "Em cubos pequenos.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "manga",
@@ -79,6 +97,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Em cubos pequenos.",
       "13-24": "Em cubos pequenos.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "uva",
@@ -92,6 +111,7 @@ export const FOODS: FoodItem[] = [
       "13-24": "Cortada ao menos ao meio (idealmente em quartos), sem casca. Nunca inteira.",
     },
     warning: "Uva inteira é uma das principais causas de engasgo grave em crianças pequenas — corte sempre, em qualquer idade.",
+    adequado_lancheira: true,
   },
   {
     id: "morango",
@@ -104,6 +124,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Cortado em pedaços pequenos ou fatias.",
       "13-24": "Cortado ao meio ou em fatias.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "tomate",
@@ -117,6 +138,7 @@ export const FOODS: FoodItem[] = [
       "13-24": "Em pedaços. Se for tomate-cereja, corte sempre ao meio ou em quartos.",
     },
     warning: "Tomate-cereja ou uva inteiros são risco de engasgo — corte sempre em quartos.",
+    adequado_lancheira: true,
   },
   {
     id: "cenoura",
@@ -130,6 +152,7 @@ export const FOODS: FoodItem[] = [
       "13-24": "Cozida, em pedaços. Evite crua e crocante nesta fase.",
     },
     warning: "Cenoura crua e dura é risco de engasgo — sempre cozinhe até ficar macia.",
+    adequado_lancheira: true,
   },
   {
     id: "batata-doce",
@@ -142,6 +165,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Cozida, em cubos pequenos.",
       "13-24": "Cozida, em pedaços ou cubos.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "batata",
@@ -154,6 +178,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Cozida, em cubos pequenos.",
       "13-24": "Cozida, em pedaços ou cubos.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "abobrinha",
@@ -166,6 +191,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Cozida, em pedaços pequenos.",
       "13-24": "Cozida, em pedaços.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "brocolis",
@@ -178,6 +204,7 @@ export const FOODS: FoodItem[] = [
       "10-12": "Cozido, em pedaços pequenos.",
       "13-24": "Cozido, em pedaços pequenos.",
     },
+    adequado_lancheira: true,
   },
   {
     id: "frango",
@@ -191,6 +218,7 @@ export const FOODS: FoodItem[] = [
       "13-24": "Em pedaços pequenos, sempre bem cozido.",
     },
     warning: "Verifique sempre que não há ossos ou cartilagens antes de servir.",
+    adequado_lancheira: true,
   },
   {
     id: "carne-moida",
@@ -216,6 +244,7 @@ export const FOODS: FoodItem[] = [
       "13-24": "Em pedaços, sem espinhas.",
     },
     warning: "Confira com cuidado se não há nenhuma espinha antes de servir, em qualquer idade.",
+    alergenico_declarado: ["peixe"],
   },
   {
     id: "ovo",
@@ -229,6 +258,8 @@ export const FOODS: FoodItem[] = [
       "13-24": "Bem cozido, em pedaços.",
     },
     warning: "Sempre sirva totalmente cozido, nunca cru ou mole, para evitar risco de contaminação.",
+    adequado_lancheira: true,
+    alergenico_declarado: ["ovo"],
   },
   {
     id: "queijo",
@@ -242,6 +273,8 @@ export const FOODS: FoodItem[] = [
       "13-24": "Em cubos ou fatias finas.",
     },
     warning: "Evite queijos duros ou em cubos grandes, que podem ser risco de engasgo.",
+    adequado_lancheira: true,
+    alergenico_declarado: ["leite"],
   },
   {
     id: "pao",
@@ -254,6 +287,8 @@ export const FOODS: FoodItem[] = [
       "10-12": "Em pedaços pequenos.",
       "13-24": "Em pedaços.",
     },
+    adequado_lancheira: true,
+    alergenico_declarado: ["gluten"],
   },
   {
     id: "amendoim",

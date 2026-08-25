@@ -27,7 +27,7 @@ export function PixCountdown({ expiresAt, onExpire }: { expiresAt: string; onExp
   const seconds = secondsLeft % 60;
 
   return (
-    <p className="text-sm font-semibold text-rose-600">
+    <p className="text-sm font-semibold text-primary-600">
       Expira em {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
     </p>
   );

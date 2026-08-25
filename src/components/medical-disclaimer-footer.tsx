@@ -10,7 +10,7 @@ export function MedicalDisclaimerFooter() {
         height={32}
         className="h-6 w-6 object-contain opacity-40"
       />
-      <p className="text-center text-[11px] leading-relaxed text-brown-700/40">
+      <p className="text-center text-[11px] leading-relaxed text-brown-700/78">
         Este conteúdo é um apoio ao dia a dia e não substitui orientação médica ou
         nutricional profissional.
       </p>

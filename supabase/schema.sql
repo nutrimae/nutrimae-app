@@ -983,6 +983,47 @@ $$;
 revoke all on function public.grant_expansion_credit(uuid, uuid, integer) from public, anon, authenticated;
 grant execute on function public.grant_expansion_credit(uuid, uuid, integer) to service_role;
 
+-- Simetrico ao grant: usado quando um pedido que ja tinha gerado credito de
+-- expansao e reembolsado/chargeback. Idempotente (so desfaz se o credito
+-- daquele pedido especifico ainda estava de pe) e recalcula o valor a partir
+-- de order_items — nunca confia em um total guardado a parte.
+create or replace function public.revoke_expansion_credit(
+  p_order_id uuid,
+  p_user_id uuid
+)
+returns boolean
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_amount integer;
+begin
+  select coalesce(sum(oi.total_amount_cents), 0)
+  into v_amount
+  from public.order_items oi
+  join public.offers o on o.id = oi.offer_id
+  where oi.order_id = p_order_id and o.product_key <> 'nutrimae_assinatura';
+
+  update public.orders
+  set expansion_credit_granted_at = null
+  where id = p_order_id
+    and expansion_credit_granted_at is not null;
+
+  if not found then
+    return false;
+  end if;
+
+  update public.profiles
+  set credito_expansao_centavos = greatest(credito_expansao_centavos - v_amount, 0)
+  where user_id = p_user_id;
+
+  return true;
+end;
+$$;
+
+revoke all on function public.revoke_expansion_credit(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.revoke_expansion_credit(uuid, uuid) to service_role;
+
 create index if not exists illustrated_books_user_baby_idx
   on public.illustrated_books (user_id, baby_id, created_at desc);
 
@@ -1077,7 +1118,7 @@ alter table public.profiles
 -- Painel de revisão de conteúdo (alimentos e receitas regionais)
 create table if not exists public.content_reviews (
   id uuid primary key default gen_random_uuid(),
-  content_type text not null check (content_type in ('food', 'recipe', 'menu_suggestion')),
+  content_type text not null check (content_type in ('food', 'recipe', 'menu_suggestion', 'guideline')),
   content_id text not null,
   status text not null default 'pendente' check (status in ('pendente', 'aprovado', 'rejeitado')),
   priority text not null default 'normal' check (priority in ('normal', 'alta')),
@@ -1087,6 +1128,12 @@ create table if not exists public.content_reviews (
   reviewed_at timestamptz,
   unique (content_type, content_id)
 );
+
+-- "guideline" adicionado depois — em banco que já tinha a tabela, o
+-- `create table if not exists` acima não altera a constraint existente.
+alter table public.content_reviews drop constraint if exists content_reviews_content_type_check;
+alter table public.content_reviews add constraint content_reviews_content_type_check
+  check (content_type in ('food', 'recipe', 'menu_suggestion', 'guideline'));
 
 create index if not exists content_reviews_status_idx on public.content_reviews (status);
 alter table public.content_reviews enable row level security;
@@ -1128,3 +1175,248 @@ create policy "Service role gerencia cache TTS"
 insert into storage.buckets (id, name, public)
 values ('tts-audio', 'tts-audio', true)
 on conflict (id) do update set public = true;
+
+-- ═══════════════════════════════════════════════════════════════
+-- Fichas de Corte com Vídeo & Lanchinho de Creche (Prompt B & D)
+-- ═══════════════════════════════════════════════════════════════
+
+-- 1. Vídeos das fichas de alimento (Motion graphics e Comunidade)
+create table if not exists public.food_videos (
+  id uuid primary key default gen_random_uuid(),
+  food_id text not null,
+  baby_age_months integer,
+  video_url text not null,
+  video_tipo text not null check (video_tipo in ('motion_graphic', 'comunidade')),
+  video_status text not null default 'pendente_moderacao' check (video_status in ('nenhum', 'pendente_moderacao', 'aprovado', 'rejeitado')),
+  user_id uuid references auth.users (id) on delete set null,
+  terms_accepted boolean not null default false,
+  terms_accepted_at timestamptz,
+  rejection_reason text,
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid references auth.users (id)
+);
+
+create index if not exists food_videos_food_id_idx on public.food_videos (food_id);
+create index if not exists food_videos_status_idx on public.food_videos (video_status);
+
+alter table public.food_videos enable row level security;
+
+drop policy if exists "Qualquer usuário autenticado visualiza vídeos aprovados" on public.food_videos;
+create policy "Qualquer usuário autenticado visualiza vídeos aprovados"
+  on public.food_videos for select
+  using (video_status = 'aprovado' or auth.uid() = user_id or exists (
+    select 1 from public.profiles where user_id = auth.uid() and is_admin = true
+  ));
+
+drop policy if exists "Usuárias enviam vídeos da comunidade" on public.food_videos;
+create policy "Usuárias enviam vídeos da comunidade"
+  on public.food_videos for insert
+  with check (auth.uid() = user_id and terms_accepted = true);
+
+drop policy if exists "Usuárias solicitam remoção do próprio vídeo" on public.food_videos;
+create policy "Usuárias solicitam remoção do próprio vídeo"
+  on public.food_videos for delete
+  using (auth.uid() = user_id);
+
+drop policy if exists "Admins gerenciam todos os vídeos" on public.food_videos;
+create policy "Admins gerenciam todos os vídeos"
+  on public.food_videos for all
+  using (
+    exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true)
+  );
+
+-- Bucket para vídeos de corte de alimentos — PRIVADO. Um vídeo "comunidade"
+-- mostra o rosto/mão de uma criança real; status "pendente_moderacao" na
+-- tabela não vale nada se o arquivo em si estiver acessível por URL pública
+-- direta (foi exatamente esse o buraco encontrado na auditoria: bucket
+-- público expunha todo vídeo, aprovado ou não, pra qualquer pessoa na
+-- internet). Reprodução pra quem não é dona/admin passa OBRIGATORIAMENTE
+-- por uma URL assinada de curta duração, emitida só depois de checar
+-- video_status = 'aprovado' — ver src/app/api/videos/[id]/route.ts.
+insert into storage.buckets (id, name, public)
+values ('food-videos', 'food-videos', false)
+on conflict (id) do update set public = false;
+
+drop policy if exists "Leitura pública de vídeos de alimentos" on storage.objects;
+
+drop policy if exists "Responsavel le os proprios videos" on storage.objects;
+create policy "Responsavel le os proprios videos"
+  on storage.objects for select
+  using (bucket_id = 'food-videos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "Admins leem qualquer video pra moderar" on storage.objects;
+create policy "Admins leem qualquer video pra moderar"
+  on storage.objects for select
+  using (
+    bucket_id = 'food-videos'
+    and exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true)
+  );
+
+drop policy if exists "Usuárias autenticadas enviam vídeos de alimentos" on storage.objects;
+create policy "Usuárias autenticadas enviam vídeos de alimentos"
+  on storage.objects for insert
+  with check (bucket_id = 'food-videos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+drop policy if exists "Usuárias apagam seus próprios vídeos do bucket" on storage.objects;
+create policy "Usuárias apagam seus próprios vídeos do bucket"
+  on storage.objects for delete
+  using (bucket_id = 'food-videos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ═══════════════════════════════════════════════════════════════
+-- Dashboard Administrativo (Prompt I)
+-- ═══════════════════════════════════════════════════════════════
+-- Fonte única de verdade: o painel em /admin/metricas NUNCA recalcula
+-- métrica sozinho, só lê "admin_metrics_cache". Um futuro assistente de voz
+-- (Prompt F, ainda não construído) deve ler exatamente esta mesma tabela —
+-- nunca duplicar a lógica de cálculo em outro lugar.
+
+-- Um snapshot por dia, usado só para calcular média de 7/30 dias nas
+-- sugestões — não é a fonte que o painel lê pra mostrar o número "de agora".
+create table if not exists public.admin_metrics_daily (
+  id uuid primary key default gen_random_uuid(),
+  metric_date date not null unique,
+  mrr_cents integer not null default 0,
+  one_time_revenue_cents integer not null default 0,
+  active_subscribers integer not null default 0,
+  new_subscribers integer not null default 0,
+  cancellations integer not null default 0,
+  bump_adoption_rate numeric(5,2),
+  oto1_adoption_rate numeric(5,2),
+  oto2_adoption_rate numeric(5,2),
+  mensal_mix_percent numeric(5,2),
+  anual_mix_percent numeric(5,2),
+  retention_d30_percent numeric(5,2),
+  refunds_count integer not null default 0,
+  refunds_amount_cents integer not null default 0,
+  chargebacks_count integer not null default 0,
+  chargebacks_amount_cents integer not null default 0,
+  pending_payments_count integer not null default 0,
+  pending_payments_amount_cents integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.admin_metrics_daily enable row level security;
+drop policy if exists "Admins leem historico de metricas" on public.admin_metrics_daily;
+create policy "Admins leem historico de metricas"
+  on public.admin_metrics_daily for all
+  using (exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true));
+
+-- Cada refresh insere uma linha nova (nunca faz update) — dá histórico de
+-- auditoria de graça e "pega a mais recente" é sempre
+-- "order by computed_at desc limit 1".
+create table if not exists public.admin_metrics_cache (
+  id uuid primary key default gen_random_uuid(),
+  metrics jsonb not null,
+  suggestions jsonb not null default '[]'::jsonb,
+  computed_at timestamptz not null default now()
+);
+
+create index if not exists admin_metrics_cache_computed_at_idx
+  on public.admin_metrics_cache (computed_at desc);
+
+alter table public.admin_metrics_cache enable row level security;
+drop policy if exists "Admins leem cache de metricas" on public.admin_metrics_cache;
+create policy "Admins leem cache de metricas"
+  on public.admin_metrics_cache for all
+  using (exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true));
+
+create table if not exists public.admin_alert_thresholds (
+  id uuid primary key default gen_random_uuid(),
+  metric_key text not null unique,
+  label text not null,
+  comparison text not null check (comparison in ('above', 'below')),
+  threshold_value numeric not null,
+  enabled boolean not null default true,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.admin_alert_thresholds enable row level security;
+drop policy if exists "Admins gerenciam limites de alerta" on public.admin_alert_thresholds;
+create policy "Admins gerenciam limites de alerta"
+  on public.admin_alert_thresholds for all
+  using (exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true));
+
+insert into public.admin_alert_thresholds (metric_key, label, comparison, threshold_value)
+values
+  ('refund_rate_percent', 'Taxa de reembolso/chargeback (%)', 'above', 8),
+  ('bump_adoption_rate', 'Adesão do order bump (%)', 'below', 15),
+  ('oto1_adoption_rate', 'Adesão do OTO1 (%)', 'below', 6),
+  ('cancellations', 'Cancelamentos no dia', 'above', 5),
+  ('pending_payments_count', 'Pagamentos pendentes acumulados', 'above', 20)
+on conflict (metric_key) do nothing;
+
+-- Um alerta por métrica por dia, no máximo — sem isso, um limite cruzado de
+-- manhã dispararia WhatsApp de novo a cada refresh do dia inteiro.
+create table if not exists public.admin_alert_log (
+  id uuid primary key default gen_random_uuid(),
+  metric_key text not null,
+  alert_date date not null default current_date,
+  message text not null,
+  sent_at timestamptz not null default now(),
+  unique (metric_key, alert_date)
+);
+
+alter table public.admin_alert_log enable row level security;
+drop policy if exists "Admins leem log de alertas" on public.admin_alert_log;
+create policy "Admins leem log de alertas"
+  on public.admin_alert_log for all
+  using (exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true));
+
+-- ═══════════════════════════════════════════════════════════════
+-- NutriBot com memória (Prompt A)
+-- ═══════════════════════════════════════════════════════════════
+
+-- Migra o checklist de alergênicos de localStorage (só no navegador, por
+-- isso invisível pro NutriBot rodando no servidor) para uma tabela real,
+-- por bebê — mesmo padrão de RLS/cascade de food_log.
+create table if not exists public.baby_allergens (
+  id uuid primary key default gen_random_uuid(),
+  baby_id uuid not null references public.babies (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  allergen text not null,
+  created_at timestamptz not null default now(),
+  unique (baby_id, allergen)
+);
+
+create index if not exists baby_allergens_baby_id_idx on public.baby_allergens (baby_id);
+
+alter table public.baby_allergens enable row level security;
+
+drop policy if exists "Usuárias veem os alergênicos dos seus bebês" on public.baby_allergens;
+create policy "Usuárias veem os alergênicos dos seus bebês"
+  on public.baby_allergens for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Usuárias marcam alergênicos dos seus bebês" on public.baby_allergens;
+create policy "Usuárias marcam alergênicos dos seus bebês"
+  on public.baby_allergens for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Usuárias desmarcam alergênicos dos seus bebês" on public.baby_allergens;
+create policy "Usuárias desmarcam alergênicos dos seus bebês"
+  on public.baby_allergens for delete
+  using (auth.uid() = user_id);
+
+-- Log de conversas do NutriBot — mesmo padrão de retenção/exclusão dos
+-- outros dados do bebê (cascade em auth.users), nunca usado pra nenhuma
+-- outra finalidade além de responder a própria conversa.
+create table if not exists public.nutribot_conversation_log (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users (id) on delete cascade,
+  baby_id uuid references public.babies (id) on delete cascade,
+  phone text not null,
+  direction text not null check (direction in ('in', 'out')),
+  message text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists nutribot_conversation_log_user_id_idx on public.nutribot_conversation_log (user_id);
+
+alter table public.nutribot_conversation_log enable row level security;
+
+drop policy if exists "Service role gerencia log do NutriBot" on public.nutribot_conversation_log;
+create policy "Service role gerencia log do NutriBot"
+  on public.nutribot_conversation_log for all
+  using (exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true));
+

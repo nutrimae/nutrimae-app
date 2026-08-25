@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-24T22:00:00.000Z",
+  "title": "Design System: NutriMãe",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Rosa NutriMãe",
+        "canonical": "#ff6b9d",
+        "tonalRamp": [
+          "#fff0f3",
+          "#ffe4e9",
+          "#f5a6c1",
+          "#ff6b9d",
+          "#e0538a",
+          "#c23e73",
+          "#8f2c55",
+          "#5c1a35"
+        ]
+      },
+      "sage": {
+        "role": "secondary",
+        "displayName": "Sálvia",
+        "canonical": "#758f56",
+        "tonalRamp": [
+          "#f2f5ee",
+          "#e3ebd9",
+          "#c9d9b6",
+          "#93ab73",
+          "#758f56",
+          "#5c7241",
+          "#47582f",
+          "#2e3820"
+        ]
+      },
+      "peach": {
+        "role": "tertiary",
+        "displayName": "Pêssego / Terracota",
+        "canonical": "#e8874b",
+        "tonalRamp": [
+          "#fdeadb",
+          "#fad4b3",
+          "#f6ba85",
+          "#f0a066",
+          "#e8874b",
+          "#c47a52",
+          "#a75f3b",
+          "#6e3f27"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Creme Amanteigado",
+        "canonical": "#fdf9f3",
+        "tonalRamp": [
+          "#ffffff",
+          "#fdf9f3",
+          "#f6ecdf",
+          "#e8dbc8",
+          "#c9b89e",
+          "#5b4636",
+          "#453529",
+          "#33271e"
+        ]
+      },
+      "midnight": {
+        "role": "neutral-dark",
+        "displayName": "Azul-Tinta Madrugada",
+        "canonical": "#121a2f",
+        "tonalRamp": [
+          "#e2e8f0",
+          "#c7d2e0",
+          "#8a9ab5",
+          "#4a5a80",
+          "#1a2440",
+          "#121a2f",
+          "#0b1120",
+          "#05070d"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Título de tela cheia — raro, reservado a onboarding/conquista."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Título de seção grande."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Título de card, nome de receita."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Parágrafo padrão, formulários."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Badge, timestamp, legenda, item de navegação."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Piso do sistema — chip, item de navegação, badge minúsculo. Nunca menor que isto para texto funcional."
+      }
+    },
+    "shadows": [
+      {
+        "name": "subtle",
+        "value": "0 1px 4px rgba(69, 53, 41, 0.05)",
+        "purpose": "Repouso — todo card branco sobre o fundo creme."
+      },
+      {
+        "name": "medium",
+        "value": "0 4px 16px rgba(69, 53, 41, 0.08)",
+        "purpose": "Hover/lift de cards e botões."
+      },
+      {
+        "name": "strong",
+        "value": "0 8px 32px rgba(69, 53, 41, 0.12)",
+        "purpose": "Modais, folhas flutuantes, shell do app."
+      },
+      {
+        "name": "glow",
+        "value": "0 4px 20px rgba(255, 107, 157, 0.2)",
+        "purpose": "Exclusivo de elementos de conversão/destaque (CTA, foco de input)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-bounce",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Assinatura de movimento do produto — todo toque responde com mola, nunca linear."
+      },
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Entradas de conteúdo (fade-in-up, slide-in, scale-in)."
+      },
+      {
+        "name": "duration-tap",
+        "value": "200ms",
+        "purpose": "Resposta de escala em botões/cards ao toque."
+      },
+      {
+        "name": "duration-enter",
+        "value": "350-400ms",
+        "purpose": "Animações de entrada de conteúdo."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "shell-max",
+        "value": "28rem (max-w-md)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button — Brand",
+      "kind": "button",
+      "refersTo": "button-brand",
+      "description": "CTA de conversão/destaque — gradiente rosa com sombra-glow.",
+      "html": "<button class=\"ds-btn-brand\">Quero conhecer os planos</button>",
+      "css": ".ds-btn-brand { background: linear-gradient(90deg, #ff6b9d, #e0538a); color: #fff; padding: 16px 32px; border-radius: 16px; border: none; font-family: Poppins, sans-serif; font-weight: 600; font-size: 16px; box-shadow: 0 4px 16px rgba(255,107,157,0.12); transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease; } .ds-btn-brand:hover { box-shadow: 0 6px 24px rgba(255,107,157,0.2); transform: scale(1.02); } .ds-btn-brand:active { transform: scale(0.98); } .ds-btn-brand:focus-visible { outline: 3px solid rgba(255,107,157,0.4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Button — Primary (Sage)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação primária de formulários e fluxos internos — verde-sálvia sólido.",
+      "html": "<button class=\"ds-btn-primary\">Salvar e continuar</button>",
+      "css": ".ds-btn-primary { background: #758f56; color: #fff; padding: 12px 24px; border-radius: 12px; border: none; font-family: Poppins, sans-serif; font-weight: 600; font-size: 16px; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease; } .ds-btn-primary:hover { background: #5c7241; transform: scale(1.02); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 3px solid rgba(117,143,86,0.4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Input — Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Campo de texto padrão — borda dupla sálvia, foco em rosa-glow.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Ex.: sabonete do bebê\" />",
+      "css": ".ds-input { min-height: 52px; width: 100%; border-radius: 16px; border: 2px solid rgba(201,217,182,0.8); background: rgba(255,255,255,0.8); padding: 0 16px; font-family: Poppins, sans-serif; font-size: 16px; color: #453529; outline: none; transition: all 0.2s ease; } .ds-input::placeholder { color: rgba(91,70,54,0.3); } .ds-input:focus { border-color: #ff6b9d; background: #fff; box-shadow: 0 0 0 4px rgba(255,107,157,0.2); }"
+    },
+    {
+      "name": "Card — Content",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Card branco flutuante sobre o fundo creme — a unidade básica de conteúdo do app.",
+      "html": "<div class=\"ds-card\"><strong>Sopa de legumes com frango da família</strong><p>Sopa encorpada, porção reservada antes do sal extra.</p></div>",
+      "css": ".ds-card { background: #fff; border-radius: 20px; padding: 16px; box-shadow: 0 1px 4px rgba(69,53,41,0.05); font-family: Poppins, sans-serif; color: #33271e; transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1); } .ds-card:hover { box-shadow: 0 4px 16px rgba(69,53,41,0.08); } .ds-card:active { transform: scale(0.99); } .ds-card strong { display: block; font-size: 18px; font-weight: 700; margin-bottom: 4px; } .ds-card p { font-size: 14px; color: rgba(91,70,54,0.82); line-height: 1.5; }"
+    },
+    {
+      "name": "Chip / Badge",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Selo de fase/destaque — pílula com ícone, sempre com texto acompanhando a cor.",
+      "html": "<span class=\"ds-chip\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z\"/></svg>Fase: 13 meses</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 4px; background: #f2f5ee; color: #5c7241; padding: 6px 10px; border-radius: 999px; font-family: Poppins, sans-serif; font-size: 11px; font-weight: 600; }"
+    },
+    {
+      "name": "Signature Icon — 3D Toy Render",
+      "kind": "custom",
+      "refersTo": "icon-3d",
+      "description": "Ícone autoral em render 3D fosco-brilhante (coração/folha/estrela/gota) — o elemento mais distintivo do sistema, sempre circular e ≥40px.",
+      "html": "<div class=\"ds-icon-3d\"><img src=\"/images/illustrations/icon-heart.webp\" alt=\"\" /></div>",
+      "css": ".ds-icon-3d { width: 44px; height: 44px; border-radius: 999px; overflow: hidden; box-shadow: 0 1px 4px rgba(69,53,41,0.05); } .ds-icon-3d img { width: 100%; height: 100%; object-fit: cover; display: block; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Plush Nursery Console",
+    "overview": "NutriMãe não se parece com um site que vende assinatura — parece um objeto físico que alguém desenhou com carinho pra ficar no criado-mudo do quarto do bebê. Cada superfície é macia, arredondada, levemente insuflada; cada ícone recente é um render 3D com o acabamento fosco-brilhante de brinquedo de pelúcia ou cerâmica de bebê, não um pictograma plano. A app inteira se comporta como um console instalado — nunca como uma página que rola: densidade alta, navegação inferior fixa, cards que respondem ao toque com uma mola suave, nunca um ease-linear seco.\n\nO sistema já rejeita, na prática, dois caminhos que combinariam mal com o produto: cantos retos/duros e paletas neutras cinza-frias. A app também já demonstra adaptação de identidade sem perder a alma: o tema muda de rosa pra azul conforme o gênero do bebê, e vira um 'Modo Madrugada' quase preto-arroxeado às 3h da manhã — mas a mola no toque e o arredondamento generoso atravessam todos os três.",
+    "keyCharacteristics": [
+      "Superfícies brancas ou creme flutuando sobre um fundo creme quente, nunca cinza.",
+      "Ícones autorais em render 3D fosco-brilhante, tratados como 'bichinhos de pelúcia', não como iconografia de sistema.",
+      "Toque = mola. Todo elemento interativo escala com easing bounce, nunca linear.",
+      "Identidade que se adapta (rosa/azul por gênero, escuro-arroxeado à noite) sem trocar de personalidade."
+    ],
+    "rules": [
+      {
+        "name": "The No-Gray Rule",
+        "body": "Nenhum neutro do sistema é cinza puro. Todo 'cinza' visual do app é, na verdade, marrom quente com opacidade reduzida — mesmo à meia-noite.",
+        "section": "colors"
+      },
+      {
+        "name": "The Legible-Quiet Rule",
+        "body": "Texto secundário em marrom com opacidade nunca fica abaixo de 78% sobre fundo claro — o piso empírico pra 4.5:1 de contraste.",
+        "section": "colors"
+      },
+      {
+        "name": "The 11px Floor Rule",
+        "body": "Nenhum texto funcional fica abaixo de 11px, mesmo em telas muito pequenas.",
+        "section": "typography"
+      },
+      {
+        "name": "The Warm Shadow Rule",
+        "body": "Toda sombra do sistema carrega tingimento marrom ou rosa — rgba(0,0,0,...) neutro nunca aparece.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No-Sharp-Corner Rule",
+        "body": "Todo elemento tocável tem no mínimo 12px de raio; elementos decorativos são sempre pílula ou círculo perfeito.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do usar creme (#fdf9f3) como fundo padrão — nunca branco ou cinza puro.",
+      "Do dar a todo elemento tocável no mínimo 12px de raio.",
+      "Do responder a todo toque com uma mola (scale + easing bounce), não só mudança de cor.",
+      "Do manter texto funcional em 11px ou mais.",
+      "Do reservar o rosa-glow só pra elementos de conversão/destaque.",
+      "Do usar os renders 3D autorais em ≥40px, sempre em círculo."
+    ],
+    "donts": [
+      "Don't usar gray-*/slate-* — todo neutro é marrom quente, mesmo no Modo Madrugada.",
+      "Don't usar sombra cinza-fria neutra.",
+      "Don't deixar texto secundário abaixo de 78% de opacidade de marrom sobre fundo claro.",
+      "Don't usar os ícones 3D autorais abaixo de ~40px.",
+      "Don't misturar ease-linear em elementos tocáveis."
+    ]
+  }
+}

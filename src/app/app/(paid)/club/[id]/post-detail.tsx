@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Flag, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import {
   categoryFromTitle,
   formatRelativeDate,
@@ -142,17 +143,17 @@ export function PostDetail({ postId }: { postId: string }) {
 
       <div className="rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
         {categoryFromTitle(post.title) !== "geral" && (
-          <span className="mb-1 inline-block rounded-full bg-sage-50 px-2 py-0.5 text-xs font-semibold text-sage-700">
+          <Chip color="sage" className="mb-1">
             {POST_CATEGORY_INFO[categoryFromTitle(post.title)].emoji}{" "}
             {POST_CATEGORY_INFO[categoryFromTitle(post.title)].label}
-          </span>
+          </Chip>
         )}
         <p className="font-heading text-xl font-bold text-brown-800">
           {titleWithoutCategoryPrefix(post.title)}
         </p>
         <p className="mt-2 whitespace-pre-wrap text-brown-800">{post.body}</p>
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-xs text-brown-700/60">{formatRelativeDate(post.created_at)}</span>
+          <span className="text-xs text-brown-700/86">{formatRelativeDate(post.created_at)}</span>
           <ReportButton
             reported={reported.has(post.id)}
             onReport={() => handleReport("post", post.id)}
@@ -176,7 +177,7 @@ export function PostDetail({ postId }: { postId: string }) {
             )}
             <p className="text-brown-800">{reply.body}</p>
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-brown-700/60">{formatRelativeDate(reply.created_at)}</span>
+              <span className="text-xs text-brown-700/86">{formatRelativeDate(reply.created_at)}</span>
               <ReportButton
                 reported={reported.has(reply.id)}
                 onReport={() => handleReport("reply", reply.id)}
@@ -219,7 +220,7 @@ function ReportButton({ reported, onReport }: { reported: boolean; onReport: () 
       type="button"
       onClick={onReport}
       disabled={reported}
-      className="flex items-center gap-1 text-xs font-semibold text-brown-700/60 disabled:text-terracotta-500"
+      className="flex items-center gap-1 text-xs font-semibold text-brown-700/86 disabled:text-terracotta-500"
     >
       <Flag className="h-3.5 w-3.5" strokeWidth={2} />
       {reported ? "Reportado" : "Reportar"}

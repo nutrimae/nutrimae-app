@@ -30,7 +30,7 @@ export default function AudiobooksPage() {
             <div>
               <p className="font-heading font-bold text-brown-800">{book.title}</p>
               <p className="mt-0.5 text-sm text-brown-700">{book.subtitle}</p>
-              <p className="mt-1 flex items-center gap-1 text-xs text-brown-700/60">
+              <p className="mt-1 flex items-center gap-1 text-xs text-brown-700/86">
                 <Clock className="h-3.5 w-3.5" strokeWidth={2} />
                 {book.estimatedMinutes} min
                 {!book.hasAudio && " · só leitura por enquanto"}

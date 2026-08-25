@@ -18,7 +18,11 @@ export function sanitizePhoneNumber(phone: string | undefined): string | null {
     return digits;
   }
 
-  return digits;
+  // Nem 10/11 dígitos (local) nem 12/13 com "55" — não é um telefone
+  // brasileiro reconhecível. Devolver os dígitos crus aqui (como o código
+  // fazia antes) guardava lixo tipo "123" como se fosse um número válido,
+  // e isso falhava calado só na hora de mandar mensagem de verdade.
+  return null;
 }
 
 /**

@@ -693,7 +693,12 @@
   <div class="container">
     <h2 class="offer__title">Comece a organizar a alimentação do seu bebê hoje</h2>
 
-    <div class="plan-card-single" id="plan-card-mensal">
+    <div class="pricing-toggle" role="tablist">
+      <button type="button" class="pricing-toggle__btn" id="toggle-mensal" data-plan-toggle="mensal" role="tab" aria-selected="false">Mensal</button>
+      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$251,80</span></button>
+    </div>
+
+    <div class="plan-card-single" id="plan-card-mensal" hidden>
       <p class="plan-card__label">Plano Mensal</p>
       <p class="plan-card__price">R$ 19,90<span>no primeiro mês</span></p>
       <p class="plan-card__note">depois R$29,90/mês — cancele quando quiser</p>

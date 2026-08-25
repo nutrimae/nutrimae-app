@@ -12,8 +12,15 @@ export async function POST(request: Request, context: RouteContext<"/api/illustr
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { data: book } = await supabase.from("illustrated_books").select("id,user_id").eq("id", id).eq("user_id", user.id).maybeSingle();
+  const [{ data: book }, { data: entitlement }] = await Promise.all([
+    supabase.from("illustrated_books").select("id,user_id").eq("id", id).eq("user_id", user.id).maybeSingle(),
+    supabase.from("user_products").select("status").eq("user_id", user.id).eq("product_id", "livro_ilustrado").eq("status", "active").maybeSingle(),
+  ]);
   if (!book) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  // A tela so mostra o upload depois da compra, mas a rota precisa recusar
+  // sozinha — sem isso, dava pra guardar a foto real de uma crianca no
+  // Storage sem nunca ter pago pelo produto.
+  if (!entitlement) return NextResponse.json({ error: "purchase_required" }, { status: 403 });
 
   const form = await request.formData();
   const file = form.get("photo");

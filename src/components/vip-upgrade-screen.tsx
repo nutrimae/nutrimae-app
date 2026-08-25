@@ -30,7 +30,7 @@ export function VipUpgradeScreen() {
           <span className="text-xs font-semibold text-amber-700">Área VIP</span>
         </div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Os dois apoios extras para os momentos mais difíceis</h1>
-        <p className="mt-2 text-sm text-brown-700/70">
+        <p className="mt-2 text-sm text-brown-700/90">
           Desbloqueie a Área VIP e tenha os dois módulos completos.
         </p>
       </div>
@@ -42,9 +42,9 @@ export function VipUpgradeScreen() {
           </div>
           <div className="flex-1">
             <p className="font-heading text-base font-bold text-brown-800">{weaning.name}</p>
-            <p className="mt-0.5 text-xs text-brown-700/60">Playlist de áudio e rastreador para as madrugadas de desmame</p>
+            <p className="mt-0.5 text-xs text-brown-700/86">Playlist de áudio e rastreador para as madrugadas de desmame</p>
           </div>
-          <span className="shrink-0 whitespace-nowrap text-sm text-brown-700/70">{formatPrice(weaning.regularPrice)}</span>
+          <span className="shrink-0 whitespace-nowrap text-sm text-brown-700/90">{formatPrice(weaning.regularPrice)}</span>
         </div>
 
         <div className="my-4 border-t border-dashed border-sage-200/60" />
@@ -55,22 +55,22 @@ export function VipUpgradeScreen() {
           </div>
           <div className="flex-1">
             <p className="font-heading text-base font-bold text-brown-800">{intestino.name}</p>
-            <p className="mt-0.5 text-xs text-brown-700/60">Semáforo do cocô e receitas para o intestino preso</p>
+            <p className="mt-0.5 text-xs text-brown-700/86">Semáforo do cocô e receitas para o intestino preso</p>
           </div>
-          <span className="shrink-0 whitespace-nowrap text-sm text-brown-700/70">{formatPrice(intestino.regularPrice)}</span>
+          <span className="shrink-0 whitespace-nowrap text-sm text-brown-700/90">{formatPrice(intestino.regularPrice)}</span>
         </div>
 
         <div className="my-5 border-t border-dashed border-sage-200/60" />
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-brown-700/60">Total em valor</span>
-          <span className="text-base text-brown-700/60 line-through">{formatPrice(totalRegular)}</span>
+          <span className="text-sm text-brown-700/86">Total em valor</span>
+          <span className="text-base text-brown-700/86 line-through">{formatPrice(totalRegular)}</span>
         </div>
         <div className="mt-1 flex items-center justify-between">
           <span className="font-heading text-base font-bold text-brown-800">Área VIP completa por</span>
           <span className="font-heading text-2xl font-bold text-amber-600">{formatPrice(totalPromo)}</span>
         </div>
-        <p className="mt-1 text-right text-xs text-brown-700/50">pagamento único, acesso vitalício</p>
+        <p className="mt-1 text-right text-xs text-brown-700/82">pagamento único, acesso vitalício</p>
 
         <div className="mt-4 flex items-center gap-2 text-xs text-sage-600">
           <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />

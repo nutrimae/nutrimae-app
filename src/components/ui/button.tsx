@@ -8,9 +8,9 @@ const variantClasses: Record<Variant, string> = {
   primary:
     "bg-sage-500 text-white hover:bg-sage-600 active:bg-sage-700 disabled:bg-sage-200 disabled:text-sage-50",
   secondary:
-    "bg-transparent text-brown-800 border-2 border-primary-300/50 hover:bg-primary-50 active:bg-primary-100 disabled:border-primary-100 disabled:text-brown-700/50",
+    "bg-transparent text-brown-800 border-2 border-primary-300/50 hover:bg-primary-50 active:bg-primary-100 disabled:border-primary-100 disabled:text-brown-700/82",
   ghost:
-    "bg-transparent text-brown-700 hover:bg-sage-50 active:bg-sage-100 disabled:text-brown-700/40",
+    "bg-transparent text-brown-700 hover:bg-sage-50 active:bg-sage-100 disabled:text-brown-700/78",
   brand:
     "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-[0_4px_16px_var(--color-primary-shadow)] hover:shadow-[0_6px_24px_var(--color-primary-glow)] active:shadow-sm disabled:from-primary-100 disabled:to-primary-100 disabled:text-white/70 disabled:shadow-none",
   danger:

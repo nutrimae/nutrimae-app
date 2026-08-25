@@ -1,7 +1,10 @@
 import { buildIllustrationPrompt, type BookPageScript } from "@/lib/illustrated-book";
 import type { Baby } from "@/lib/types";
 
-const ALLOWED_IMAGE_MODELS = new Set(["gpt-image-1", "gpt-image-1-mini", "gpt-image-1.5"]);
+// "gpt-image-1.5" fica de fora de proposito: a documentacao de retencao zero
+// (ZDR) da OpenAI so confirma "gpt-image-1"/"gpt-image-1-mini" nos endpoints
+// de imagem — adicionar de volta so depois de confirmar ZDR pra esse modelo.
+const ALLOWED_IMAGE_MODELS = new Set(["gpt-image-1", "gpt-image-1-mini"]);
 
 function configuration() {
   const apiKey = process.env.OPENAI_API_KEY;

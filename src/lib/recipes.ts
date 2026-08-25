@@ -59,6 +59,8 @@ export interface Recipe {
   regiao?: Region[];
   /** Status de revisão para receitas novas. Receitas sem esse campo são consideradas aprovadas. */
   revisao?: "pendente" | "aprovado";
+  /** Adequado para marmitas/lancheiras de creche/escola */
+  adequado_lancheira?: boolean;
 }
 
 export const RECIPES: Recipe[] = [
@@ -441,6 +443,7 @@ export const RECIPES: Recipe[] = [
       "Deixe esfriar um pouco e corte em tiras macias, do tamanho de um dedo.",
     ],
     allergens: ["ovo", "gluten"],
+    adequado_lancheira: true,
   },
   {
     id: "omelete-fatiado-legumes",
@@ -456,6 +459,7 @@ export const RECIPES: Recipe[] = [
       "Deixe esfriar e corte em tiras ou pedaços pequenos e macios.",
     ],
     allergens: ["ovo"],
+    adequado_lancheira: true,
   },
   {
     id: "pao-abacate-cubos",
@@ -471,6 +475,7 @@ export const RECIPES: Recipe[] = [
       "Corte em cubos pequenos e macios, do tamanho seguro para pegar com a mão.",
     ],
     allergens: ["gluten"],
+    adequado_lancheira: true,
   },
   {
     id: "arroz-feijao-frango-pedacos",
@@ -531,6 +536,7 @@ export const RECIPES: Recipe[] = [
       "Sirva os dois juntos em um pratinho.",
     ],
     allergens: ["leite"],
+    adequado_lancheira: true,
   },
   {
     id: "iogurte-granola-morango",
@@ -546,6 +552,7 @@ export const RECIPES: Recipe[] = [
       "Adicione os morangos picados por cima.",
     ],
     allergens: ["leite", "gluten"],
+    adequado_lancheira: true,
   },
   {
     id: "bolinho-banana-assado",
@@ -561,6 +568,7 @@ export const RECIPES: Recipe[] = [
       "Asse em forno preaquecido a 180°C por cerca de 20 minutos, até dourar levemente.",
     ],
     allergens: ["ovo", "gluten"],
+    adequado_lancheira: true,
   },
   {
     id: "sopa-legumes-frango-pedacinhos",
@@ -591,6 +599,7 @@ export const RECIPES: Recipe[] = [
       "Corte em tiras ou pedaços pequenos antes de servir.",
     ],
     allergens: ["ovo"],
+    adequado_lancheira: true,
   },
   {
     id: "pure-batata-peixe-desfiado",
@@ -623,6 +632,7 @@ export const RECIPES: Recipe[] = [
       "Sirva com fatias de banana e um fio bem pequeno de mel por cima (permitido a partir de 1 ano).",
     ],
     allergens: ["gluten", "ovo", "leite", "mel"],
+    adequado_lancheira: true,
   },
   {
     id: "sanduiche-peru-queijo",
@@ -638,6 +648,7 @@ export const RECIPES: Recipe[] = [
       "Sirva em temperatura ambiente.",
     ],
     allergens: ["gluten", "leite"],
+    adequado_lancheira: true,
   },
   {
     id: "vitamina-frutas-aveia",
@@ -713,6 +724,7 @@ export const RECIPES: Recipe[] = [
       "Asse a 180°C por cerca de 20 minutos, até dourar.",
     ],
     allergens: ["gluten", "ovo", "leite"],
+    adequado_lancheira: true,
   },
   {
     id: "mix-frutas-iogurte",
@@ -728,6 +740,7 @@ export const RECIPES: Recipe[] = [
       "Adicione o iogurte por cima e sirva.",
     ],
     allergens: ["leite"],
+    adequado_lancheira: true,
   },
   {
     id: "torrada-homus-pepino",
@@ -743,6 +756,7 @@ export const RECIPES: Recipe[] = [
       "Corte em pedaços pequenos antes de servir.",
     ],
     allergens: ["gluten"],
+    adequado_lancheira: true,
   },
   {
     id: "sopa-macarrao-frango-familia",

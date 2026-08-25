@@ -133,20 +133,20 @@ export function DevelopmentTimeline() {
                   <Clock className="h-5 w-5 shrink-0 text-primary-600" strokeWidth={2} />
                 )}
                 {status === "locked" && (
-                  <Lock className="h-5 w-5 shrink-0 text-brown-700/40" strokeWidth={2} />
+                  <Lock className="h-5 w-5 shrink-0 text-brown-700/78" strokeWidth={2} />
                 )}
-                <span className="text-xs font-bold uppercase tracking-wide text-brown-700/60">
+                <span className="text-xs font-bold uppercase tracking-wide text-brown-700/86">
                   {label}
                 </span>
               </div>
               <p
                 className={`mt-1 font-heading text-lg font-bold ${
-                  status === "locked" ? "text-brown-700/50" : "text-brown-800"
+                  status === "locked" ? "text-brown-700/82" : "text-brown-800"
                 }`}
               >
                 {stage.title}
               </p>
-              <p className={`mt-0.5 text-sm ${status === "locked" ? "text-brown-700/40" : "text-brown-700"}`}>
+              <p className={`mt-0.5 text-sm ${status === "locked" ? "text-brown-700/78" : "text-brown-700"}`}>
                 {stage.description}
               </p>
               {stage.showFoodCounter && status !== "locked" && (

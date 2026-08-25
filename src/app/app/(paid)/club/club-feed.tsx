@@ -156,7 +156,7 @@ export function ClubFeed() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold text-brown-800">Comunidade das Mães</h1>
-          <p className="mt-0.5 text-sm text-brown-700/70">Bem-vinda à comunidade de mães 💛</p>
+          <p className="mt-0.5 text-sm text-brown-700/90">Bem-vinda à comunidade de mães 💛</p>
         </div>
         {isAdmin && (
           <Link
@@ -176,7 +176,7 @@ export function ClubFeed() {
             <p className="font-semibold text-brown-800">
               Você é {COMMUNITY_BADGE_INFO[myBadge].label} na comunidade!
             </p>
-            <p className="text-xs text-brown-700/70">
+            <p className="text-xs text-brown-700/90">
               {myPostCount} {myPostCount === 1 ? "post" : "posts"} · {myReplyCount}{" "}
               {myReplyCount === 1 ? "resposta" : "respostas"}
             </p>
@@ -198,7 +198,7 @@ export function ClubFeed() {
                 NutriMãe
               </p>
               <p className="mt-0.5 text-sm font-semibold text-brown-800">{a.title}</p>
-              <p className="mt-0.5 text-xs text-brown-700/70">{a.text}</p>
+              <p className="mt-0.5 text-xs text-brown-700/90">{a.text}</p>
             </div>
           </div>
         ))}
@@ -282,7 +282,7 @@ export function ClubFeed() {
       </Button>
 
       {loading ? (
-        <p className="text-center text-brown-700/60">Carregando...</p>
+        <p className="text-center text-brown-700/86">Carregando...</p>
       ) : filteredPosts.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100">
@@ -318,7 +318,7 @@ export function ClubFeed() {
                   )}
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-brown-700">{post.body}</p>
-                <div className="mt-2 flex items-center gap-2 text-xs text-brown-700/60">
+                <div className="mt-2 flex items-center gap-2 text-xs text-brown-700/86">
                   {category !== "geral" && (
                     <Badge variant="soft">
                       {POST_CATEGORY_INFO[category].emoji} {POST_CATEGORY_INFO[category].label}

@@ -108,9 +108,9 @@ export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAd
       <div>
         <h1 className="font-heading text-xl font-bold text-brown-800">{ticket?.subject}</h1>
         {isAdminView && ticket?.user_email && (
-          <p className="text-sm text-brown-700/70">{ticket.user_email}</p>
+          <p className="text-sm text-brown-700/90">{ticket.user_email}</p>
         )}
-        <p className="text-xs text-brown-700/60">
+        <p className="text-xs text-brown-700/86">
           {ticket?.status === "open" ? "Em aberto" : "Encerrado"}
         </p>
       </div>

@@ -144,7 +144,7 @@ export function CalculadoraFraldasContent() {
                           </span>
                         )}
                       </p>
-                      <span className={`text-sm ${isHighlight ? "text-white/80" : "text-brown-700/60"}`}>
+                      <span className={`text-sm ${isHighlight ? "text-white/80" : "text-brown-700/86"}`}>
                         {row.weightRange}
                       </span>
                     </div>
@@ -223,25 +223,25 @@ export function CalculadoraFraldasContent() {
             <div className="rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-brown-700/60">Preço por fralda</p>
+                  <p className="text-xs text-brown-700/86">Preço por fralda</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
                     R$ {pricePerDiaper.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-brown-700/60">Um pacote dura</p>
+                  <p className="text-xs text-brown-700/86">Um pacote dura</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
                     {Math.round(daysPerPack)} dias
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-brown-700/60">Custo mensal</p>
+                  <p className="text-xs text-brown-700/86">Custo mensal</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
                     R$ {monthlyCost.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-brown-700/60">Custo no 1º ano</p>
+                  <p className="text-xs text-brown-700/86">Custo no 1º ano</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
                     R$ {yearlyCost.toFixed(2)}
                   </p>

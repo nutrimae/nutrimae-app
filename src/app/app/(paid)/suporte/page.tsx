@@ -110,9 +110,9 @@ export default function SuportePage() {
       </Button>
 
       {loading ? (
-        <p className="text-center text-brown-700/60">Carregando...</p>
+        <p className="text-center text-brown-700/86">Carregando...</p>
       ) : tickets.length === 0 ? (
-        <p className="text-center text-brown-700/60">Você ainda não abriu nenhum ticket.</p>
+        <p className="text-center text-brown-700/86">Você ainda não abriu nenhum ticket.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {tickets.map((t) => (
@@ -124,7 +124,7 @@ export default function SuportePage() {
               <MessageSquare className="h-6 w-6 shrink-0 text-sage-500" strokeWidth={1.75} />
               <div className="flex-1">
                 <p className="font-semibold text-brown-800">{t.subject}</p>
-                <p className="text-xs text-brown-700/60">
+                <p className="text-xs text-brown-700/86">
                   {t.status === "open" ? "Em aberto" : "Encerrado"}
                 </p>
               </div>

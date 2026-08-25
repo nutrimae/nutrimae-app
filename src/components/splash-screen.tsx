@@ -62,7 +62,7 @@ export function SplashScreen() {
             className="h-52 w-52 object-contain drop-shadow-[0_16px_40px_rgba(255,107,157,0.3)]"
           />
         </div>
-        <p className="animate-splash-text mt-2 text-sm font-medium tracking-wide text-brown-700/70">
+        <p className="animate-splash-text mt-2 text-sm font-medium tracking-wide text-brown-700/90">
           Alimentação segura, com carinho
         </p>
       </div>

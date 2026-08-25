@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateBookIllustration, reviewBookIllustration } from "@/lib/ai/illustrated-book-provider";
-import type { BookPageScript } from "@/lib/illustrated-book";
+import { assertOwnedStoragePath, type BookPageScript } from "@/lib/illustrated-book";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -19,6 +19,9 @@ export async function POST(_request: Request, context: RouteContext<"/api/illust
   ]);
   if (!book) return NextResponse.json({ error: "not_found" }, { status: 404 });
   if (!entitlement) return NextResponse.json({ error: "purchase_required" }, { status: 403 });
+  // Duas chamadas concorrentes (duplo clique, retry do cliente) gerariam a
+  // mesma pagina duas vezes, cobrando do provedor duas vezes por nada.
+  if (book.status === "generating") return NextResponse.json({ error: "already_generating" }, { status: 409 });
 
   const { data: baby } = await supabase.from("babies").select("*").eq("id", book.baby_id).eq("user_id", user.id).maybeSingle();
   if (!baby) return NextResponse.json({ error: "baby_not_found" }, { status: 404 });
@@ -31,19 +34,28 @@ export async function POST(_request: Request, context: RouteContext<"/api/illust
   }
 
   let reference: { bytes: Uint8Array; type: string; kind: "real" | "generated" } | undefined;
-  if (book.use_reference_photo && book.reference_photo_path) {
-    const admin = createAdminClient();
-    const { data, error } = await admin.storage.from("illustrated-books").download(book.reference_photo_path);
-    if (error || !data) return NextResponse.json({ error: "reference_unavailable" }, { status: 409 });
-    reference = { bytes: new Uint8Array(await data.arrayBuffer()), type: data.type || "image/jpeg", kind: "real" };
-  } else if (nextIndex > 0 && script[0]?.imagePath) {
-    // A primeira pagina vira referencia visual das seguintes, mantendo
-    // personagem, roupa e paleta consistentes mesmo sem foto real.
-    const admin = createAdminClient();
-    const { data, error } = await admin.storage.from("illustrated-books").download(script[0].imagePath);
-    if (!error && data) {
-      reference = { bytes: new Uint8Array(await data.arrayBuffer()), type: data.type || "image/webp", kind: "generated" };
+  try {
+    if (book.use_reference_photo && book.reference_photo_path) {
+      assertOwnedStoragePath(book.reference_photo_path, user.id, id);
+      const admin = createAdminClient();
+      const { data, error } = await admin.storage.from("illustrated-books").download(book.reference_photo_path);
+      if (error || !data) return NextResponse.json({ error: "reference_unavailable" }, { status: 409 });
+      reference = { bytes: new Uint8Array(await data.arrayBuffer()), type: data.type || "image/jpeg", kind: "real" };
+    } else if (nextIndex > 0 && script[0]?.imagePath) {
+      // A primeira pagina vira referencia visual das seguintes, mantendo
+      // personagem, roupa e paleta consistentes mesmo sem foto real.
+      assertOwnedStoragePath(script[0].imagePath, user.id, id);
+      const admin = createAdminClient();
+      const { data, error } = await admin.storage.from("illustrated-books").download(script[0].imagePath);
+      if (!error && data) {
+        reference = { bytes: new Uint8Array(await data.arrayBuffer()), type: data.type || "image/webp", kind: "generated" };
+      }
     }
+  } catch {
+    // O proprio registro do livro (script/reference_photo_path) foi
+    // adulterado pra apontar fora da pasta da usuaria — nunca revelar isso
+    // como erro tecnico, so recusar como se o arquivo nao existisse.
+    return NextResponse.json({ error: "reference_unavailable" }, { status: 409 });
   }
 
   try {
@@ -62,6 +74,15 @@ export async function POST(_request: Request, context: RouteContext<"/api/illust
 
     script[nextIndex] = { ...script[nextIndex], imagePath: path, review: { approved: true } };
     const done = script.every((page) => page.imagePath);
+
+    // A foto real so serve pra manter a semelhanca durante a geracao. Livro
+    // pronto, a foto original nao tem mais motivo pra continuar guardada —
+    // minimiza o tempo que o dado (foto de crianca) fica retido.
+    const shouldPurgeReferencePhoto = done && book.use_reference_photo && book.reference_photo_path;
+    if (shouldPurgeReferencePhoto) {
+      await admin.storage.from("illustrated-books").remove([book.reference_photo_path]);
+    }
+
     await supabase.from("illustrated_books").update({
       script,
       pages: script.filter((page) => page.imagePath),
@@ -71,6 +92,7 @@ export async function POST(_request: Request, context: RouteContext<"/api/illust
       automated_review: { approved: true, reviewedPages: script.filter((page) => page.review?.approved).length },
       generated_at: done ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
+      ...(shouldPurgeReferencePhoto ? { reference_photo_path: null } : {}),
     }).eq("id", id);
 
     return NextResponse.json({ done, progress: Math.round(((nextIndex + 1) / script.length) * 100) });

@@ -42,16 +42,16 @@
 .institutional-brand img { width: 48px; height: 48px; object-fit: contain; }
 .institutional-nav { display: flex; align-items: center; gap: 10px; }
 .institutional-nav a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 13px; color: #57565c; text-decoration: none; font-weight: 700; }
-.institutional-nav a:hover, .institutional-nav a[aria-current="page"] { color: #e63a78; background: #fff0f5; }
-.institutional-nav__app { color: #fff !important; background: #e63a78 !important; }
+.institutional-nav a:hover, .institutional-nav a[aria-current="page"] { color: #C02D60; background: #fff0f5; }
+.institutional-nav__app { color: #fff !important; background: #C02D60 !important; }
 .institutional-nav__app:hover { background: #b82e60 !important; }
 
 .institutional-hero { padding: 92px 0 52px; text-align: center; }
-.institutional-eyebrow { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 16px; border: 1px solid rgba(230,58,120,.22); border-radius: 999px; color: #e63a78; background: #fff3f7; font-size: 0.85rem; font-weight: 800; }
+.institutional-eyebrow { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 16px; border: 1px solid rgba(230,58,120,.22); border-radius: 999px; color: #C02D60; background: #fff3f7; font-size: 0.85rem; font-weight: 800; }
 .institutional-hero h1 { max-width: 850px; margin: 22px auto 0; color: #302e35; font-size: clamp(2.3rem, 6vw, 4.4rem); line-height: 1.04; letter-spacing: -0.045em; font-weight: 900; }
 .institutional-hero h1,
 .about-title { overflow-wrap: anywhere; }
-.institutional-hero h1 span { color: #e63a78; }
+.institutional-hero h1 span { color: #C02D60; }
 .institutional-hero__lead { max-width: 760px; margin: 22px auto 0; color: #6b6a70; font-size: clamp(1rem, 2.3vw, 1.22rem); line-height: 1.7; }
 
 .faq-search { position: relative; max-width: 680px; margin: 34px auto 0; }
@@ -61,8 +61,8 @@
 
 .faq-categories { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 28px auto 0; }
 .faq-category { min-height: 44px; padding: 0 17px; border: 1px solid transparent; border-radius: 999px; color: #6b6a70; background: #f3eff3; font-weight: 750; cursor: pointer; }
-.faq-category:hover { color: #e63a78; background: #fff0f5; }
-.faq-category.is-active { color: #fff; background: #e63a78; box-shadow: 0 8px 20px rgba(230,58,120,.2); }
+.faq-category:hover { color: #C02D60; background: #fff0f5; }
+.faq-category.is-active { color: #fff; background: #C02D60; box-shadow: 0 8px 20px rgba(230,58,120,.2); }
 
 .faq-content { padding: 22px 0 84px; }
 .faq-list-page { max-width: 850px; margin: 0 auto; display: grid; gap: 13px; }
@@ -70,12 +70,12 @@
 .faq-entry[hidden] { display: none; }
 .faq-entry summary { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 22px; list-style: none; color: #38363e; font-weight: 800; cursor: pointer; }
 .faq-entry summary::-webkit-details-marker { display: none; }
-.faq-entry summary::after { content: "+"; flex: 0 0 32px; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; color: #e63a78; background: #fff0f5; font-size: 1.3rem; transition: transform .25s ease; }
+.faq-entry summary::after { content: "+"; flex: 0 0 32px; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; color: #C02D60; background: #fff0f5; font-size: 1.3rem; transition: transform .25s ease; }
 .faq-entry[open] summary::after { transform: rotate(45deg); }
 .faq-entry__answer { padding: 0 22px 22px; color: #6b6a70; line-height: 1.72; }
 .faq-empty { max-width: 650px; margin: 24px auto; padding: 28px; border-radius: 20px; color: #6b6a70; text-align: center; background: #fff; }
 
-.institutional-cta { margin: 4px auto 90px; padding: 42px 28px; border-radius: 28px; color: #fff; text-align: center; background: linear-gradient(135deg, #e63a78, #b82e60); box-shadow: 0 22px 55px rgba(184,46,96,.22); }
+.institutional-cta { margin: 4px auto 90px; padding: 42px 28px; border-radius: 28px; color: #fff; text-align: center; background: linear-gradient(135deg, #C02D60, #b82e60); box-shadow: 0 22px 55px rgba(184,46,96,.22); }
 .institutional-cta h2 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 900; }
 .institutional-cta p { max-width: 610px; margin: 10px auto 22px; color: rgba(255,255,255,.88); }
 .institutional-cta a { min-height: 54px; display: inline-flex; align-items: center; justify-content: center; padding: 0 24px; border-radius: 16px; color: #b82e60; text-decoration: none; background: #fff; font-weight: 850; box-shadow: 0 8px 24px rgba(107,27,58,.18); }
@@ -86,8 +86,8 @@
 .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .about-grid--two { grid-template-columns: repeat(2, 1fr); }
 .about-card { padding: 26px; border: 1px solid rgba(43,42,46,.08); border-radius: 22px; background: #fff; box-shadow: 0 9px 28px rgba(43,42,46,.05); }
-.about-card__tag { display: inline-flex; min-height: 30px; align-items: center; padding: 0 11px; border-radius: 999px; color: #e63a78; background: #fff0f5; font-size: .74rem; font-weight: 850; }
-.about-card__icon { width: 46px; height: 46px; display: grid; place-items: center; margin-bottom: 18px; border-radius: 15px; color: #e63a78; background: #fff0f5; font-size: 1.35rem; }
+.about-card__tag { display: inline-flex; min-height: 30px; align-items: center; padding: 0 11px; border-radius: 999px; color: #C02D60; background: #fff0f5; font-size: .74rem; font-weight: 850; }
+.about-card__icon { width: 46px; height: 46px; display: grid; place-items: center; margin-bottom: 18px; border-radius: 15px; color: #C02D60; background: #fff0f5; font-size: 1.35rem; }
 .about-card h3 { margin-top: 14px; font-size: 1.18rem; font-weight: 850; }
 .about-card p { margin-top: 10px; color: #6b6a70; line-height: 1.7; }
 
@@ -101,7 +101,7 @@
 .institutional-footer__brand p { max-width: 430px; margin-top: 12px; color: #6b6a70; line-height: 1.6; }
 .institutional-footer__links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px 20px; }
 .institutional-footer__links a { min-height: 44px; display: inline-flex; align-items: center; color: #57565c; text-decoration: none; font-weight: 700; }
-.institutional-footer__links a:hover { color: #e63a78; }
+.institutional-footer__links a:hover { color: #C02D60; }
 .institutional-footer__legal { margin-top: 25px; padding-top: 22px; border-top: 1px solid rgba(43,42,46,.07); color: #7a787e; font-size: .82rem; line-height: 1.6; }
 
 @media (max-width: 760px) {

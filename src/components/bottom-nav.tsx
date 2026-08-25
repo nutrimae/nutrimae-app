@@ -12,7 +12,7 @@ const ITEMS = [
   { href: "/app/mais", label: "Mais", icon: LayoutGrid },
 ];
 
-const VIP_PATHS = ["/app/vip", "/app/sos-desmame", "/app/protocolo-intestino"];
+const VIP_PATHS = ["/app/vip", "/app/sos-desmame", "/app/protocolo-intestino", "/app/batch-cooking"];
 
 export function BottomNav() {
   const pathname = usePathname();

@@ -7,20 +7,22 @@ import { getEntitlementStatus } from "@/lib/entitlements";
 export interface VipAccessState {
   /** null = ainda carregando. */
   loading: boolean;
-  /** `has_vip_access`: true se a usuária comprou pelo menos um dos dois módulos VIP. */
+  /** `has_vip_access`: true se a usuária comprou pelo menos um dos três módulos VIP. */
   hasAny: boolean;
   hasWeaning: boolean;
   hasIntestino: boolean;
+  hasBatchCooking: boolean;
 }
 
-const LOADING_STATE: VipAccessState = { loading: true, hasAny: false, hasWeaning: false, hasIntestino: false };
+const LOADING_STATE: VipAccessState = { loading: true, hasAny: false, hasWeaning: false, hasIntestino: false, hasBatchCooking: false };
 
 /**
  * `has_vip_access`: destrava o botão VIP na navegação principal. É `true`
- * assim que a usuária tem QUALQUER UM dos dois módulos da Área VIP ativo
- * (SOS Desmame Noturno e/ou Protocolo Intestino Livre) — cada sub-tela ainda
- * faz seu próprio gate individual (ver ModuleGate), então quem comprou só um
- * dos dois vê a Área VIP, mas o card do outro módulo mostra o paywall dele.
+ * assim que a usuária tem QUALQUER UM dos três módulos da Área VIP ativo
+ * (SOS Desmame Noturno, Protocolo Intestino Livre e/ou Batch Cooking &
+ * Congelamento) — cada sub-tela ainda faz seu próprio gate individual (ver
+ * ModuleGate), então quem comprou só um dos três vê a Área VIP, mas o card
+ * dos outros dois mostra o paywall deles.
  */
 export function useVipAccess(): VipAccessState {
   const [state, setState] = useState<VipAccessState>(LOADING_STATE);
@@ -34,7 +36,7 @@ export function useVipAccess(): VipAccessState {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        if (!cancelled) setState({ loading: false, hasAny: false, hasWeaning: false, hasIntestino: false });
+        if (!cancelled) setState({ loading: false, hasAny: false, hasWeaning: false, hasIntestino: false, hasBatchCooking: false });
         return;
       }
 
@@ -45,19 +47,21 @@ export function useVipAccess(): VipAccessState {
         .maybeSingle();
 
       if (profile?.is_admin) {
-        if (!cancelled) setState({ loading: false, hasAny: true, hasWeaning: true, hasIntestino: true });
+        if (!cancelled) setState({ loading: false, hasAny: true, hasWeaning: true, hasIntestino: true, hasBatchCooking: true });
         return;
       }
 
-      const [weaningStatus, intestinoStatus] = await Promise.all([
+      const [weaningStatus, intestinoStatus, batchCookingStatus] = await Promise.all([
         getEntitlementStatus(supabase, user.id, "sos_desmame_noturno"),
         getEntitlementStatus(supabase, user.id, "protocolo_intestino_livre"),
+        getEntitlementStatus(supabase, user.id, "batch_cooking"),
       ]);
 
       const hasWeaning = weaningStatus === "active";
       const hasIntestino = intestinoStatus === "active";
+      const hasBatchCooking = batchCookingStatus === "active";
       if (!cancelled) {
-        setState({ loading: false, hasAny: hasWeaning || hasIntestino, hasWeaning, hasIntestino });
+        setState({ loading: false, hasAny: hasWeaning || hasIntestino || hasBatchCooking, hasWeaning, hasIntestino, hasBatchCooking });
       }
     }
 

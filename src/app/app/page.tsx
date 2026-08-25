@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Bell, CalendarDays, Camera, ChevronRight, Droplet, Heart, Leaf, Search, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { Bell, CalendarDays, Camera, ChevronRight, Droplet, Heart, Leaf, Sparkles, Star } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { BabyPhotoUploadModal } from "@/components/baby-photo-upload-modal";
 import { Chip } from "@/components/ui/chip";
@@ -17,29 +17,30 @@ const ICON_HEART = "/images/illustrations/icon-heart.webp";
 const ICON_LEAF = "/images/illustrations/icon-leaf.webp";
 const ICON_STAR = "/images/illustrations/icon-star.webp";
 const ICON_DROPLET = "/images/illustrations/icon-droplet.webp";
+const MEAL_BOWL = "/images/illustrations/meal-bowl-3d.webp";
 
-const BENEFITS = [
-  { image: ICON_HEART, label: "Mais saúde" },
-  { image: ICON_LEAF, label: "Menos preocupação" },
-  { image: ICON_STAR, label: "Crescimento feliz" },
+const SHORTCUTS = [
+  { image: ICON_LEAF, label: "Cardápio da semana", href: "/app/cardapio" },
+  { image: ICON_HEART, label: "Buscar corte seguro", href: "/app/busca" },
+  { image: ICON_STAR, label: "Lista de compras", href: "/app/lista-compras" },
 ];
 
 const MEAL_BENEFITS = [
-  { icon: Droplet, text: "Hidrata e refresca", color: "text-sky-500" },
+  { icon: Droplet, text: "Hidrata e refresca", color: "text-primary-500" },
   { icon: Leaf, text: "Fonte natural de nutrientes", color: "text-sage-500" },
-  { icon: Sparkles, text: "Ideal para a fase atual", color: "text-orange-500" },
+  { icon: Sparkles, text: "Ideal para a fase atual", color: "text-amber-500" },
 ];
 
 const TIPS = [
-  { image: ICON_DROPLET, title: "Hidratação é tudo!", text: "Ofereça água ao longo do dia, mesmo fora das refeições.", styles: "bg-rose-50" },
-  { image: ICON_LEAF, title: "Pequenas quantidades?", text: "O começo da alimentação é leve, seguro e gradual.", styles: "bg-emerald-50" },
-  { image: ICON_STAR, title: "Você está no caminho certo!", text: "Cada escolha faz diferença no futuro do seu bebê.", styles: "bg-orange-50" },
+  { image: ICON_DROPLET, title: "Hidratação é tudo!", text: "Ofereça água ao longo do dia, mesmo fora das refeições.", styles: "bg-primary-50" },
+  { image: ICON_LEAF, title: "Pequenas quantidades?", text: "O começo da alimentação é leve, seguro e gradual.", styles: "bg-sage-50" },
+  { image: ICON_STAR, title: "Você está no caminho certo!", text: "Cada escolha faz diferença no futuro do seu bebê.", styles: "bg-amber-50" },
 ];
 
-function MangoBowl() {
+function MealBowl() {
   return (
-    <div className="relative h-[116px] w-[116px] shrink-0 overflow-hidden rounded-[22px]" aria-hidden="true">
-      <Image src="/images/illustrations/mango-3d.webp" alt="" fill sizes="116px" className="object-cover" />
+    <div className="relative h-[132px] w-[132px] shrink-0 overflow-hidden rounded-[24px] shadow-subtle" aria-hidden="true">
+      <Image src={MEAL_BOWL} alt="" fill sizes="132px" className="object-cover" />
     </div>
   );
 }
@@ -115,12 +116,16 @@ export default function AppHomePage() {
         <Chip color="primary"><Heart className="h-3.5 w-3.5" fill="currentColor" />{babyLabel}<ChevronRight className="h-3.5 w-3.5" /></Chip>
       </Link>
 
-      <section className="grid grid-cols-3 gap-2" aria-label="Benefícios">
-        {BENEFITS.map(({ image, label }) => (
-          <div key={label} className="flex min-h-[92px] flex-col items-center justify-center gap-1.5 rounded-[16px] bg-white px-2 py-3 shadow-subtle">
+      <section className="grid grid-cols-3 gap-2" aria-label="Atalhos">
+        {SHORTCUTS.map(({ image, label, href }) => (
+          <Link
+            key={label}
+            href={href}
+            className="flex min-h-[92px] touch-manipulation flex-col items-center justify-center gap-1.5 rounded-[16px] bg-white px-2 py-3 shadow-subtle transition-transform active:scale-[0.97]"
+          >
             <IconAvatar3D src={image} />
             <span className="text-center text-[11px] font-semibold leading-tight text-brown-900">{label}</span>
-          </div>
+          </Link>
         ))}
       </section>
 
@@ -129,15 +134,17 @@ export default function AppHomePage() {
           <h2 className="flex min-w-0 items-center gap-1.5 text-[13px] font-bold text-brown-900"><Heart className="h-4 w-4 shrink-0 text-primary-500" fill="currentColor" />Sugestão para agora: {today.mealLabel}</h2>
           <Chip color="sage"><Leaf className="h-3 w-3" />Fase: {months} meses</Chip>
         </div>
-        <Link href="/app/cardapio" className="block touch-manipulation rounded-[20px] bg-white p-3 shadow-subtle transition-transform active:scale-[0.99]">
+        <Link href="/app/cardapio" className="block touch-manipulation rounded-[20px] bg-white p-3 shadow-strong transition-transform active:scale-[0.99]">
           <Chip color="amber"><Star className="h-3 w-3" fill="currentColor" />Mais escolhido</Chip>
           <h3 className="mt-2 text-[18px] font-bold leading-tight text-brown-900">{today.suggestion.title}</h3>
           <p className="mt-1 text-[11px] text-brown-700/82">{today.suggestion.description}</p>
           <div className="mt-3 flex items-center gap-3">
-            <MangoBowl />
             <div className="min-w-0 flex-1 space-y-3">{MEAL_BENEFITS.map(({ icon: Icon, text, color }) => <div key={text} className="flex items-center gap-2"><Icon className={`h-4 w-4 shrink-0 ${color}`} strokeWidth={2} /><span className="text-[11px] leading-tight text-brown-800">{text}</span></div>)}</div>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white shadow-sm"><ChevronRight className="h-5 w-5" strokeWidth={2.5} /></span>
+            <MealBowl />
           </div>
+          <span className="mt-3 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-[13px] font-bold text-white shadow-[0_4px_16px_var(--color-primary-shadow)]">
+            Ver cardápio completo da semana<ChevronRight className="h-4 w-4" strokeWidth={2.5} />
+          </span>
         </Link>
       </section>
 
@@ -150,9 +157,6 @@ export default function AppHomePage() {
           </article>
         ))}
       </section>
-
-      <Link href="/app/busca" className="flex min-h-[52px] touch-manipulation items-center justify-between rounded-[14px] bg-gradient-to-r from-primary-500 to-[#ff2974] px-5 text-white shadow-[0_8px_20px_var(--color-primary-glow)] transition-transform active:scale-[0.98]"><span className="flex items-center gap-2 text-[14px] font-semibold"><Search className="h-5 w-5" />Buscar corte seguro</span><ChevronRight className="h-5 w-5" /></Link>
-      <Link href="/app/cardapio" className="flex min-h-11 touch-manipulation items-center justify-center gap-2 text-[11px] font-medium text-brown-700/86 active:text-primary-500"><ShieldCheck className="h-4 w-4" />Ver cardápio completo da semana<ChevronRight className="h-4 w-4" /></Link>
 
       {showUpload && <BabyPhotoUploadModal babyId={activeBaby.id} onClose={() => setShowUpload(false)} onUploaded={(url) => setUploadedPhoto({ babyId: activeBaby.id, url })} />}
     </main>

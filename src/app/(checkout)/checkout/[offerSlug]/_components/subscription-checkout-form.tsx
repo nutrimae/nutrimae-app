@@ -148,15 +148,15 @@ export function SubscriptionCheckoutForm({
                   />
                 )}
                 <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1.5">
-                    <span className="block font-semibold text-brown-900">{bump.name}</span>
-                    <Chip color="sage" className="shrink-0">vitalício</Chip>
-                  </span>
+                  <span className="block font-semibold text-brown-900">{bump.name}</span>
                   {BUMP_DESCRIPTIONS[bump.slug] && (
                     <span className="mt-0.5 block text-xs leading-snug text-brown-700/82">{BUMP_DESCRIPTIONS[bump.slug]}</span>
                   )}
                 </span>
-                <span className="shrink-0 font-heading font-bold text-primary-600">{formatBRL(bump.price_cents)}</span>
+                <span className="flex shrink-0 flex-col items-end gap-1">
+                  <Chip color="sage">vitalício</Chip>
+                  <span className="font-heading font-bold text-primary-600">{formatBRL(bump.price_cents)}</span>
+                </span>
               </label>
             );
           })}

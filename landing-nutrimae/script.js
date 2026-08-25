@@ -244,8 +244,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
+    // O percentual reflete perguntas RESPONDIDAS até chegar nesta etapa
+    // (stepNumber - 1 de 3), não a etapa atual — por isso a etapa 1 começa
+    // em 0%, não 33%. Só depois de responder a 3ª pergunta a barra é levada
+    // a 100% (ver runEntryQuizLoading).
     function updateEntryQuizProgress(stepNumber) {
-      var percent = Math.round((stepNumber / 3) * 100);
+      var percent = Math.round(((stepNumber - 1) / 3) * 100);
       entryQuizProgressFill.style.width = percent + '%';
       entryQuizProgressLabel.textContent = 'Etapa ' + stepNumber + ' de 3';
       entryQuizProgressPercent.textContent = percent + '%';

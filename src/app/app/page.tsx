@@ -40,10 +40,20 @@ const TIPS = [
   { image: ICON_STAR, title: "Você está no caminho certo!", text: "Cada escolha faz diferença no futuro do seu bebê.", styles: "bg-amber-50" },
 ];
 
-function MealBowl() {
+/**
+ * Cada sugestão do cardápio (src/lib/menu.ts) tem sua própria foto real em
+ * /public/images/meals/{suggestion.id}.webp — gerada por IA (gpt-image-2)
+ * pra bater com o prato de verdade, não uma tigela genérica. Se algum
+ * item novo do cardápio ainda não tiver imagem própria (esquecimento ao
+ * adicionar receita nova), cai de volta na tigela genérica em vez de
+ * quebrar a tela.
+ */
+function MealBowl({ suggestionId }: { suggestionId: string }) {
+  const [failed, setFailed] = useState(false);
+  const src = failed ? MEAL_BOWL : `/images/meals/${suggestionId}.webp`;
   return (
     <div className="relative h-[132px] w-[132px] shrink-0 overflow-hidden rounded-[24px] shadow-subtle" aria-hidden="true">
-      <Image src={MEAL_BOWL} alt="" fill sizes="132px" className="object-cover" />
+      <Image src={src} alt="" fill sizes="132px" className="object-cover" onError={() => setFailed(true)} />
     </div>
   );
 }
@@ -143,7 +153,7 @@ export default function AppHomePage() {
           <p className="mt-1 text-[11px] text-brown-700/82">{today.suggestion.description}</p>
           <div className="mt-3 flex items-center gap-3">
             <div className="min-w-0 flex-1 space-y-3">{MEAL_BENEFITS.map(({ icon: Icon, text, color }) => <div key={text} className="flex items-center gap-2"><Icon className={`h-4 w-4 shrink-0 ${color}`} strokeWidth={2} /><span className="text-[11px] leading-tight text-brown-800">{text}</span></div>)}</div>
-            <MealBowl />
+            <MealBowl suggestionId={today.suggestion.id} />
           </div>
           <span className="mt-3 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-[13px] font-bold text-white shadow-[0_4px_16px_var(--color-primary-shadow)]">
             Ver cardápio completo da semana<ChevronRight className="h-4 w-4" strokeWidth={2.5} />

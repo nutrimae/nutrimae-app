@@ -60,11 +60,10 @@ function MealBowl({ suggestionId }: { suggestionId: string }) {
 
 export default function AppHomePage() {
   const router = useRouter();
-  const { activeBaby } = useActiveBaby();
+  const { activeBaby, updateBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const [triedFoodKeys, setTriedFoodKeys] = useState<Set<string> | undefined>();
   const [avoidAllergen, setAvoidAllergen] = useState<ReturnType<typeof allergenForDietFilter>>(null);
-  const [uploadedPhoto, setUploadedPhoto] = useState<{ babyId: string; url: string } | null>(null);
   const [showUpload, setShowUpload] = useState(false);
 
   useEffect(() => {
@@ -95,7 +94,7 @@ export default function AppHomePage() {
   }
 
   const months = ageInMonths(activeBaby.birth_date);
-  const photoUrl = uploadedPhoto?.babyId === activeBaby.id ? uploadedPhoto.url : activeBaby.photo_url;
+  const photoUrl = activeBaby.photo_url;
   const today = getTodaySuggestion(ageBandForMonths(months), new Date(), { triedFoodKeys, avoidAllergen });
   const firstName = activeBaby.name.split(" ")[0];
   const babyLabel = activeBaby.gender === "male" ? "Meu bebê" : "Minha bebê";
@@ -180,7 +179,7 @@ export default function AppHomePage() {
         ))}
       </section>
 
-      {showUpload && <BabyPhotoUploadModal babyId={activeBaby.id} onClose={() => setShowUpload(false)} onUploaded={(url) => setUploadedPhoto({ babyId: activeBaby.id, url })} />}
+      {showUpload && <BabyPhotoUploadModal babyId={activeBaby.id} onClose={() => setShowUpload(false)} onUploaded={(url) => updateBaby(activeBaby.id, { photo_url: url })} />}
     </main>
   );
 }

@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Plus, X } from "lucide-react";
+import { ChevronDown, Plus, X, Camera } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { formatAge } from "@/lib/age";
+import { BabyPhotoUploadModal } from "@/components/baby-photo-upload-modal";
 
 function BabyAvatar({ name, photoUrl, size = 40 }: { name: string; photoUrl: string | null; size?: number }) {
   if (photoUrl) {
@@ -33,8 +34,9 @@ function BabyAvatar({ name, photoUrl, size = 40 }: { name: string; photoUrl: str
 }
 
 export function BabySwitcher() {
-  const { babies, activeBaby, setActiveBabyId } = useActiveBaby();
+  const { babies, activeBaby, setActiveBabyId, updateBaby } = useActiveBaby();
   const [open, setOpen] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
   const pathname = usePathname();
 
   if (!activeBaby) return null;
@@ -47,24 +49,36 @@ export function BabySwitcher() {
   return (
     <>
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-2">
-        <button
-          type="button"
-          onClick={() => babies.length > 1 && setOpen(true)}
-          className="flex min-h-11 items-center gap-2.5 rounded-2xl px-1 py-1 transition-colors active:bg-gray-50"
-        >
-          <BabyAvatar name={activeBaby.name} photoUrl={activeBaby.photo_url} size={36} />
-          <div className="text-left">
-            <p className="font-heading text-sm font-bold leading-tight text-brown-800">
-              {activeBaby.name}
-            </p>
-            <p className="text-[11px] leading-tight text-brown-700/82">
-              {formatAge(activeBaby.birth_date)}
-            </p>
-          </div>
-          {babies.length > 1 && (
-            <ChevronDown className="ml-0.5 h-3.5 w-3.5 text-brown-700/30" strokeWidth={2} />
-          )}
-        </button>
+        <div className="flex min-h-11 items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setShowUpload(true)}
+            className="group relative shrink-0 touch-manipulation"
+            aria-label="Alterar foto do bebê"
+          >
+            <BabyAvatar name={activeBaby.name} photoUrl={activeBaby.photo_url} size={36} />
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-white">
+              <Camera className="h-2 w-2" strokeWidth={2.5} />
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => babies.length > 1 && setOpen(true)}
+            className="flex items-center gap-1 rounded-2xl px-1 py-1 text-left transition-colors active:bg-gray-50"
+          >
+            <div>
+              <p className="font-heading text-sm font-bold leading-tight text-brown-800">
+                {activeBaby.name}
+              </p>
+              <p className="text-[11px] leading-tight text-brown-700/82">
+                {formatAge(activeBaby.birth_date)}
+              </p>
+            </div>
+            {babies.length > 1 && (
+              <ChevronDown className="ml-0.5 h-3.5 w-3.5 text-brown-700/30" strokeWidth={2} />
+            )}
+          </button>
+        </div>
 
         <Link href="/app" className="shrink-0">
           <Image
@@ -130,6 +144,14 @@ export function BabySwitcher() {
             </Link>
           </div>
         </div>
+      )}
+
+      {showUpload && (
+        <BabyPhotoUploadModal
+          babyId={activeBaby.id}
+          onClose={() => setShowUpload(false)}
+          onUploaded={(url) => updateBaby(activeBaby.id, { photo_url: url })}
+        />
       )}
     </>
   );

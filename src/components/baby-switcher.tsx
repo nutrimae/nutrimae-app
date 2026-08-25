@@ -9,27 +9,20 @@ import { useActiveBaby } from "@/components/active-baby-context";
 import { formatAge } from "@/lib/age";
 import { BabyPhotoUploadModal } from "@/components/baby-photo-upload-modal";
 
-function BabyAvatar({ name, photoUrl, size = 40 }: { name: string; photoUrl: string | null; size?: number }) {
-  if (photoUrl) {
-    return (
-      <Image
-        src={photoUrl}
-        alt={name}
-        width={size}
-        height={size}
-        className="rounded-full object-cover ring-2 ring-primary-200"
-        style={{ width: size, height: size }}
-        unoptimized
-      />
-    );
-  }
+function BabyAvatar({ name, photoUrl, gender, size = 40 }: { name: string; photoUrl: string | null; gender?: string | null; size?: number }) {
+  const [failed, setFailed] = useState(false);
+  const src = photoUrl && !failed ? photoUrl : gender === "male" ? "/images/illustrations/avatar-baby-boy.webp" : "/images/illustrations/avatar-baby.webp";
   return (
-    <div
-      className="flex items-center justify-center rounded-full bg-primary-50 font-heading font-bold text-primary-500 ring-2 ring-primary-200"
-      style={{ width: size, height: size, fontSize: size / 2.2 }}
-    >
-      {name.charAt(0).toUpperCase()}
-    </div>
+    <Image
+      src={src}
+      alt={name}
+      width={size}
+      height={size}
+      className="rounded-full object-cover ring-2 ring-primary-200"
+      style={{ width: size, height: size }}
+      unoptimized={Boolean(photoUrl && !failed)}
+      onError={() => setFailed(true)}
+    />
   );
 }
 
@@ -56,7 +49,7 @@ export function BabySwitcher() {
             className="group relative shrink-0 touch-manipulation"
             aria-label="Alterar foto do bebê"
           >
-            <BabyAvatar name={activeBaby.name} photoUrl={activeBaby.photo_url} size={36} />
+            <BabyAvatar name={activeBaby.name} photoUrl={activeBaby.photo_url} gender={activeBaby.gender} size={36} />
             <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-white">
               <Camera className="h-2 w-2" strokeWidth={2.5} />
             </span>
@@ -124,7 +117,7 @@ export function BabySwitcher() {
                       : "hover:bg-gray-50"
                   }`}
                 >
-                  <BabyAvatar name={baby.name} photoUrl={baby.photo_url} size={48} />
+                  <BabyAvatar name={baby.name} photoUrl={baby.photo_url} gender={baby.gender} size={48} />
                   <div className="text-left">
                     <p className="font-heading text-lg font-bold text-brown-800">
                       {baby.name}

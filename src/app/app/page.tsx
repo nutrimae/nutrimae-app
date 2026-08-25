@@ -65,6 +65,7 @@ export default function AppHomePage() {
   const [triedFoodKeys, setTriedFoodKeys] = useState<Set<string> | undefined>();
   const [avoidAllergen, setAvoidAllergen] = useState<ReturnType<typeof allergenForDietFilter>>(null);
   const [showUpload, setShowUpload] = useState(false);
+  const [photoFailed, setPhotoFailed] = useState(false);
 
   useEffect(() => {
     ["/app/busca", "/app/cardapio", "/app/lista-compras", "/app/mais"].forEach((route) => router.prefetch(route));
@@ -104,8 +105,8 @@ export default function AppHomePage() {
       <section className="flex items-center justify-between" aria-label="Boas-vindas">
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => setShowUpload(true)} className="group relative h-14 w-14 shrink-0 touch-manipulation" aria-label="Alterar foto do bebê">
-            {photoUrl ? (
-              <Image src={photoUrl} alt={activeBaby.name} width={56} height={56} priority unoptimized className="h-14 w-14 rounded-full border-2 border-primary-500 object-cover shadow-sm" />
+            {photoUrl && !photoFailed ? (
+              <Image src={photoUrl} alt={activeBaby.name} width={56} height={56} priority unoptimized className="h-14 w-14 rounded-full border-2 border-primary-500 object-cover shadow-sm" onError={() => setPhotoFailed(true)} />
             ) : (
               <Image src="/images/illustrations/avatar-mom.webp" alt="" width={56} height={56} priority className="h-14 w-14 rounded-full border-2 border-primary-500 object-cover shadow-sm" />
             )}
@@ -124,8 +125,8 @@ export default function AppHomePage() {
 
       <div className="flex min-h-[76px] items-center gap-3 rounded-[18px] bg-white px-4 shadow-subtle">
         <button type="button" onClick={() => setShowUpload(true)} className="group relative shrink-0 touch-manipulation" aria-label="Alterar foto do bebê">
-          {photoUrl ? (
-            <Image src={photoUrl} alt={activeBaby.name} width={48} height={48} unoptimized className="h-12 w-12 rounded-full object-cover shadow-subtle" />
+          {photoUrl && !photoFailed ? (
+            <Image src={photoUrl} alt={activeBaby.name} width={48} height={48} unoptimized className="h-12 w-12 rounded-full object-cover shadow-subtle" onError={() => setPhotoFailed(true)} />
           ) : (
             <Image src={activeBaby.gender === "male" ? "/images/illustrations/avatar-baby-boy.webp" : "/images/illustrations/avatar-baby.webp"} alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover shadow-subtle" />
           )}

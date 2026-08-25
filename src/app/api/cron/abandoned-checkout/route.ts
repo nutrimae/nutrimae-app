@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createEvolutionClient } from "@/lib/nutribot/evolutionClient";
+import { getSession } from "@/lib/nutribot/sessionStore";
 import { sanitizePhoneNumber } from "@/lib/utils";
 
 /**
@@ -87,11 +88,19 @@ export async function GET(request: Request) {
       const phone = sanitizePhoneNumber(customer?.phone_number ?? undefined);
       if (!customer || !phone) continue;
 
+      // Nunca manda mensagem pra quem nunca falou com o NutriBot primeiro —
+      // só existe linha em nutribot_whatsapp_sessions depois de uma mensagem
+      // INBOUND real (ver claimMessage em orchestrator.ts). Mandar cold outbound
+      // pra número que nunca iniciou conversa foi o que já levou a um
+      // banimento do número no WhatsApp antes — sem sessão, sem envio.
+      const existingSession = await getSession(admin, phone);
+      if (!existingSession) continue;
+
       const offer = order.offers as unknown as { name?: string; slug?: string } | null;
       const firstName = customer.name?.split(" ")[0] ?? "";
       const offerName = offer?.name ?? "seu plano";
       const amount = (order.amount_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-      const checkoutUrl = `https://nutrimae-app.vercel.app/checkout/${offer?.slug ?? "nutrimae-anual"}`;
+      const checkoutUrl = `https://app.nutrimae.app/checkout/${offer?.slug ?? "nutrimae-anual"}`;
 
       const message =
         `Oi${firstName ? `, ${firstName}` : ""}! 💛 Vi que você começou a garantir o ${offerName} (${amount}) ` +

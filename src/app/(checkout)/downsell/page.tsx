@@ -10,9 +10,12 @@ import { DownsellCheckout } from "./_components/downsell-checkout";
  * order bump no checkout do Plano Anual — preço lido do banco (offers),
  * nunca hardcoded aqui, pra não divergir.
  *
+ * Aceita `orderId` (recusou/pulou o Batch Cooking) OU `subscriptionId`
+ * (recusou o upsell do NutriBot VIP) — mutuamente exclusivos, mesmo padrão
+ * de checkout/obrigado/page.tsx e upsell/page.tsx.
+ *
  * Cobra de verdade (reaproveita o caminho one-time via
- * /api/checkout/downsell) — diferente do upsell (NutriBot VIP, recorrente),
- * que ainda não tem cobrança real habilitada.
+ * /api/checkout/downsell) em ambos os casos.
  *
  * Ajuste em relação ao pedido original: troquei "Última chance antes de
  * liberar seu acesso ao App" pelo texto abaixo. O original insinuava que o
@@ -24,14 +27,24 @@ import { DownsellCheckout } from "./_components/downsell-checkout";
 export default async function DownsellPage({
   searchParams,
 }: {
-  searchParams: Promise<{ orderId?: string }>;
+  searchParams: Promise<{ orderId?: string; subscriptionId?: string }>;
 }) {
-  const { orderId } = await searchParams;
-  if (!orderId) redirect("/app");
+  const { orderId, subscriptionId } = await searchParams;
+  if (!orderId && !subscriptionId) redirect("/app");
 
   const admin = createAdminClient();
-  const { data: order } = await admin.from("orders").select("id, status").eq("id", orderId).maybeSingle();
-  if (!order || order.status !== "paid") redirect("/app");
+
+  if (subscriptionId) {
+    const { data: subscription } = await admin
+      .from("subscriptions")
+      .select("id, status")
+      .eq("id", subscriptionId)
+      .maybeSingle();
+    if (!subscription || subscription.status !== "active") redirect("/app");
+  } else {
+    const { data: order } = await admin.from("orders").select("id, status").eq("id", orderId!).maybeSingle();
+    if (!order || order.status !== "paid") redirect("/app");
+  }
 
   const { data: offer } = await admin
     .from("offers")
@@ -85,7 +98,7 @@ export default async function DownsellPage({
           <p className="mt-2 text-xs text-brown-700/70">Pagamento único, 30 dias de acesso ao NutriBot.</p>
         </div>
 
-        <DownsellCheckout parentOrderId={order.id} priceCents={offer.price_cents} />
+        <DownsellCheckout parentOrderId={orderId} parentSubscriptionId={subscriptionId} priceCents={offer.price_cents} />
       </div>
     </main>
   );

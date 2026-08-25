@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments";
 import { findOrCreateLocalCustomer } from "@/lib/payments/find-or-create-customer";
+import { resolveParentCustomer } from "@/lib/payments/resolve-parent-customer";
 import { isValidCpf } from "@/lib/utils";
 
 /**
@@ -15,10 +16,13 @@ import { isValidCpf } from "@/lib/utils";
  * ser promocional, ex.: Mensal R$19,90 → R$29,90). Quando os dois são
  * iguais (ex.: NutriBot VIP), não há desconto de 1º ciclo.
  *
- * Esta rota só responde de verdade quando a oferta está com active=true —
- * hoje (Mensal e NutriBot VIP) isso está desligado por feature flag até
- * passar por sandbox e produção controlada (ver supabase/schema.sql seção
- * 12). Confirmação de acesso nunca vem daqui: só do webhook, no evento de
+ * Dois pontos de entrada: assinatura nova (envia `customer` completo, ex.:
+ * checkout do Plano Mensal) ou upsell de uma assinatura já paga (envia
+ * `parentSubscriptionId`, ex.: NutriBot VIP oferecido a quem acabou de
+ * assinar o Mensal — reaproveita o cliente já cadastrado, sem redigitar
+ * nome/e-mail/CPF). Mutuamente exclusivos.
+ *
+ * Confirmação de acesso nunca vem daqui: só do webhook, no evento de
  * fatura paga (ver src/app/api/webhooks/pagarme/route.ts).
  */
 
@@ -27,6 +31,7 @@ interface SubscriptionBody {
   cardToken?: unknown;
   billingAddress?: { line1?: unknown; zipCode?: unknown; city?: unknown; state?: unknown };
   customer?: { name?: unknown; email?: unknown; document?: unknown; phone?: unknown };
+  parentSubscriptionId?: unknown;
 }
 
 function onlyDigits(value: string): string {
@@ -53,6 +58,7 @@ export async function POST(request: Request) {
 
   const offerSlug = typeof body.offerSlug === "string" ? body.offerSlug : null;
   const cardToken = typeof body.cardToken === "string" ? body.cardToken : null;
+  const parentSubscriptionId = typeof body.parentSubscriptionId === "string" ? body.parentSubscriptionId : null;
   const customerName = typeof body.customer?.name === "string" ? body.customer.name.trim() : "";
   const customerEmail = typeof body.customer?.email === "string" ? body.customer.email.trim().toLowerCase() : "";
   const customerDocument = typeof body.customer?.document === "string" ? onlyDigits(body.customer.document) : "";
@@ -60,7 +66,11 @@ export async function POST(request: Request) {
 
   const billingAddress = parseBillingAddress(body);
 
-  if (!offerSlug || !cardToken || !billingAddress || !customerName || !customerEmail || !isValidCpf(customerDocument)) {
+  if (!offerSlug || !cardToken || !billingAddress) {
+    return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
+  }
+
+  if (!parentSubscriptionId && (!customerName || !customerEmail || !isValidCpf(customerDocument))) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 
@@ -83,12 +93,20 @@ export async function POST(request: Request) {
   try {
     const provider = getPaymentProvider();
 
-    const { customerId, providerCustomerId } = await findOrCreateLocalCustomer(admin, provider, {
-      name: customerName,
-      email: customerEmail,
-      document: customerDocument,
-      phone: customerPhone,
-    });
+    const resolved = parentSubscriptionId
+      ? await resolveParentCustomer(admin, { parentSubscriptionId })
+      : await findOrCreateLocalCustomer(admin, provider, {
+          name: customerName,
+          email: customerEmail,
+          document: customerDocument,
+          phone: customerPhone,
+        });
+
+    if (!resolved) {
+      return NextResponse.json({ error: "parent_subscription_not_active" }, { status: 403 });
+    }
+
+    const { customerId, providerCustomerId } = resolved;
 
     const subscription = await provider.createSubscription({
       providerCustomerId,
@@ -105,6 +123,7 @@ export async function POST(request: Request) {
       .insert({
         customer_id: customerId,
         offer_id: offer.id,
+        parent_subscription_id: parentSubscriptionId,
         pagarme_subscription_id: subscription.providerSubscriptionId,
         status: subscription.status,
         next_billing_at: subscription.nextBillingAt,

@@ -56,7 +56,7 @@ export default async function ObrigadoPage({
           <p className="mt-2 text-sm text-brown-700/86">Seu acesso já foi liberado. Confira seu e-mail para os próximos passos.</p>
         </div>
         <Link
-          href="/app"
+          href={`/upsell?subscriptionId=${subscription.id}`}
           className="flex min-h-14 w-full max-w-xs items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 text-base font-bold text-white shadow-[0_4px_16px_var(--color-primary-shadow)] transition-transform active:scale-[0.98]"
         >
           Continuar

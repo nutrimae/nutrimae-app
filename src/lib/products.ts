@@ -158,10 +158,8 @@ export const PRODUCTS: Record<ProductKey, Product> = {
   // Acesso à NutriBot (assistente via WhatsApp) — não é um módulo do app
   // (por isso "modules: []"), só é concedido pelo webhook de compra e
   // consultado pelo webhook do WhatsApp (ver src/app/api/whatsapp/webhook).
-  // Preço sincronizado com a oferta "nutribot-vip-mensal" em supabase/schema.sql
-  // — essa oferta fica com active=false até a assinatura recorrente do
-  // Pagar.me estar validada (é o upsell recorrente, atrás da mesma trava do
-  // Plano Mensal).
+  // Preço sincronizado com a oferta "nutribot-vip-mensal" em
+  // supabase/schema.sql — ativada em 2026-08-24 junto com o Plano Mensal.
   nutribot_vip: {
     key: "nutribot_vip",
     name: "NutriBot VIP (WhatsApp)",

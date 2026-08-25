@@ -705,6 +705,15 @@ create table if not exists public.subscriptions (
 
 create index if not exists subscriptions_customer_id_idx on public.subscriptions (customer_id);
 
+-- Ativado em 2026-08-24 junto com o Plano Mensal/NutriBot VIP — funil de
+-- upsell/downsell agora também nasce de uma assinatura, não só de um order
+-- (ver resolveParentCustomer em src/lib/payments/resolve-parent-customer.ts).
+alter table public.subscriptions
+  add column if not exists parent_subscription_id uuid references subscriptions (id);
+
+alter table public.orders
+  add column if not exists parent_subscription_id uuid references subscriptions (id);
+
 -- Idempotência de webhook: cada evento (de qualquer provedor) só pode ser
 -- processado uma vez. O handler insere a linha ANTES de processar; se
 -- provider_event_id já existir para o mesmo provider, o índice único
@@ -771,19 +780,27 @@ create policy "Usuárias veem suas próprias assinaturas"
 -- webhook do Pagar.me e da rota /api/checkout. Ver
 -- src/app/api/webhooks/pagarme/route.ts e src/app/api/checkout/route.ts.
 
--- Sementes das ofertas ativas no lançamento. As ofertas de assinatura
--- (Mensal, NutriBot VIP) já existem aqui mas com active=false — ligar só
--- depois de validar em sandbox e produção controlada (ver plano de
--- implementação).
+-- Sementes das ofertas ativas no lançamento. Mensal e NutriBot VIP foram
+-- ativados em 2026-08-24 (assinatura recorrente já validada no sandbox do
+-- Pagar.me — ver testes de createSubscription em
+-- tests/pagarme-checkout.test.mjs). "on conflict do update" (não "do
+-- nothing") pra que reativar/desativar aqui e rodar o arquivo de novo
+-- realmente sincronize o campo active em produção.
 insert into public.offers (slug, product_key, name, billing_type, price_cents, recurring_price_cents, active)
 values
   ('nutrimae-anual', 'nutrimae_assinatura', 'NutriMãe — Plano Anual', 'one_time', 9700, null, true),
   ('sos-desmame', 'sos_desmame_noturno', 'SOS Desmame Noturno', 'one_time', 2700, null, true),
   ('protocolo-intestino', 'protocolo_intestino_livre', 'Protocolo Intestino Livre', 'one_time', 1700, null, true),
   ('nutribot-30d', 'nutribot_30d', 'NutriBot — 30 Dias', 'one_time', 2790, null, true),
-  ('nutrimae-mensal', 'nutrimae_assinatura', 'NutriMãe — Plano Mensal', 'recurring', 1990, 2990, false),
-  ('nutribot-vip-mensal', 'nutribot_vip', 'NutriBot VIP', 'recurring', 3700, 3700, false)
-on conflict (slug) do nothing;
+  ('nutrimae-mensal', 'nutrimae_assinatura', 'NutriMãe — Plano Mensal', 'recurring', 1990, 2990, true),
+  ('nutribot-vip-mensal', 'nutribot_vip', 'NutriBot VIP', 'recurring', 3700, 3700, true)
+on conflict (slug) do update set
+  product_key = excluded.product_key,
+  name = excluded.name,
+  billing_type = excluded.billing_type,
+  price_cents = excluded.price_cents,
+  recurring_price_cents = excluded.recurring_price_cents,
+  active = excluded.active;
 
 -- 13. NutriBot — sessões de conversa do WhatsApp (migrado do Postgres próprio
 -- do n8n — ver nutribot-n8n/migrations/001 e 002, e nutribot-n8n/src/sql.js).

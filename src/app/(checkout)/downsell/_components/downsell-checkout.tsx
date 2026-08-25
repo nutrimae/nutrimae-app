@@ -13,7 +13,15 @@ function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export function DownsellCheckout({ parentOrderId, priceCents }: { parentOrderId: string; priceCents: number }) {
+export function DownsellCheckout({
+  parentOrderId,
+  parentSubscriptionId,
+  priceCents,
+}: {
+  parentOrderId?: string;
+  parentSubscriptionId?: string;
+  priceCents: number;
+}) {
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card">("pix");
   const [cardNumber, setCardNumber] = useState("");
@@ -75,6 +83,7 @@ export function DownsellCheckout({ parentOrderId, priceCents }: { parentOrderId:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           parentOrderId,
+          parentSubscriptionId,
           paymentMethod,
           cardToken,
           billingAddress: paymentMethod === "credit_card" ? billingAddress : undefined,

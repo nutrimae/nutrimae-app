@@ -53,3 +53,4 @@ autonomous-growth-report.json
 /.impeccable/hook.cache.json
 /supabase/.temp/
 skills-lock.json
+/graphify-out/

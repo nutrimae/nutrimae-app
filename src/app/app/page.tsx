@@ -17,12 +17,15 @@ const ICON_HEART = "/images/illustrations/icon-heart.webp";
 const ICON_LEAF = "/images/illustrations/icon-leaf.webp";
 const ICON_STAR = "/images/illustrations/icon-star.webp";
 const ICON_DROPLET = "/images/illustrations/icon-droplet.webp";
+const ICON_CARDAPIO = "/images/illustrations/icon-cardapio.webp";
+const ICON_BUSCA = "/images/illustrations/icon-busca.webp";
+const ICON_LISTA = "/images/illustrations/icon-lista.webp";
 const MEAL_BOWL = "/images/illustrations/meal-bowl-3d.webp";
 
 const SHORTCUTS = [
-  { image: ICON_LEAF, label: "Cardápio da semana", href: "/app/cardapio" },
-  { image: ICON_HEART, label: "Buscar corte seguro", href: "/app/busca" },
-  { image: ICON_STAR, label: "Lista de compras", href: "/app/lista-compras" },
+  { image: ICON_CARDAPIO, label: "Cardápio da semana", href: "/app/cardapio" },
+  { image: ICON_BUSCA, label: "Buscar corte seguro", href: "/app/busca" },
+  { image: ICON_LISTA, label: "Lista de compras", href: "/app/lista-compras" },
 ];
 
 const MEAL_BENEFITS = [

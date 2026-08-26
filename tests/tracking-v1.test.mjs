@@ -44,8 +44,11 @@ test("purchase continua server-authoritative e usa outbox", async () => {
 
 test("tráfego interno é marcado e excluível das métricas", async () => {
   const client = await read("src/lib/tracking/client.ts");
+  const endpoint = await read("src/app/api/tracking/events/route.ts");
   const sql = await read("supabase/migrations/202608260001_tracking_v1_foundation.sql");
-  assert.match(client, /tracking_test/);
+  assert.doesNotMatch(client, /tracking_test/);
+  assert.match(endpoint, /isTrustedInternalRequest/);
+  assert.match(endpoint, /TRACKING_E2E_SECRET/);
   assert.match(sql, /is_internal boolean not null default false/);
   assert.match(sql, /where is_internal = false/);
 });

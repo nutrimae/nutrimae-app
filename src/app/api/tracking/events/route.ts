@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TrackingBatchSchema, hasForbiddenProperties, type TrackingEventPayload, type TrackingAttribution } from "@/lib/tracking/contracts";
 
@@ -22,6 +23,19 @@ function rateLimited(key: string): boolean {
   }
   current.count += 1;
   return current.count > MAX_REQUESTS_PER_WINDOW;
+}
+
+function isTrustedInternalRequest(request: Request): boolean {
+  const host = request.headers.get("host")?.split(":")[0];
+  if (host === "localhost" || host === "127.0.0.1") return true;
+
+  const expected = process.env.TRACKING_E2E_SECRET;
+  const received = request.headers.get("x-nutrimae-tracking-e2e");
+  if (!expected || !received) return false;
+
+  const expectedBuffer = Buffer.from(expected);
+  const receivedBuffer = Buffer.from(received);
+  return expectedBuffer.length === receivedBuffer.length && timingSafeEqual(expectedBuffer, receivedBuffer);
 }
 
 function attributionRow(event: TrackingEventPayload, touch: TrackingAttribution, type: "first" | "session") {
@@ -61,13 +75,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "forbidden_properties" }, { status: 400 });
   }
 
+  // O cliente não pode se auto-classificar como interno em produção.
+  const isInternal = isTrustedInternalRequest(request);
+
   try {
     const admin = createAdminClient();
     for (const event of parsed.data.events) {
     const { error: visitorInsertError } = await admin.from("analytics_visitors").insert({
       id: event.visitorId,
       consent_status: event.consentStatus,
-      is_internal: event.isInternal,
+      is_internal: isInternal,
       first_seen_at: event.occurredAt,
       last_seen_at: event.occurredAt,
     });
@@ -79,7 +96,7 @@ export async function POST(request: Request) {
       visitor_id: event.visitorId,
       landing_path: event.landingPath,
       referrer: event.referrer,
-      is_internal: event.isInternal,
+      is_internal: isInternal,
       started_at: event.occurredAt,
       last_seen_at: event.occurredAt,
     });
@@ -113,7 +130,7 @@ export async function POST(request: Request) {
       session_id: event.sessionId,
       attribution_id: sessionAttributionId ?? firstAttributionId,
       properties: event.properties,
-      is_internal: event.isInternal,
+      is_internal: isInternal,
       occurred_at: event.occurredAt,
     });
     if (eventError && eventError.code !== "23505") throw eventError;

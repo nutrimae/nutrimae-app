@@ -143,7 +143,9 @@ export function getTrackingContext() {
     consentStatus: consent,
     firstTouch,
     sessionTouch,
-    isInternal: window.location.hostname === "localhost" || new URLSearchParams(window.location.search).get("tracking_test") === "1",
+    // O navegador só sinaliza contexto local. A decisão final e soberana
+    // sobre tráfego interno é feita pela API, nunca por query string.
+    isInternal: window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1",
   } as const;
 }
 

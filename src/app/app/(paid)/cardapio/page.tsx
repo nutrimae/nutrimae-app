@@ -12,6 +12,7 @@ import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer"
 import { BalancedPlate } from "@/components/balanced-plate";
 import { useRegion } from "@/lib/use-region";
 import { LunchboxPlanner } from "@/components/lunchbox/lunchbox-planner";
+import { useToast } from "@/components/toast-provider";
 import {
   AGE_BAND_LABEL,
   ageBandForMonths,
@@ -30,6 +31,7 @@ import {
 export default function CardapioPage() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
+  const { showToast } = useToast();
 
   const [dayIndex, setDayIndex] = useState(() => todayDayIndex());
   const [expanded, setExpanded] = useState<MealType | null>(null);
@@ -48,6 +50,7 @@ export default function CardapioPage() {
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChosenPratinhoIds(getChosenPratinhoIds());
   }, []);
 
@@ -97,6 +100,7 @@ export default function CardapioPage() {
     setOverrides({});
     if (activeBaby) {
       await supabase.from("babies").update({ diet_filter: filter }).eq("id", activeBaby.id);
+      showToast("Filtro atualizado");
     }
   }
 
@@ -124,6 +128,7 @@ export default function CardapioPage() {
     const size = poolSize(ageBand, mealType);
     const current = overrides[key] ?? dayIndex % size;
     setOverrides((prev) => ({ ...prev, [key]: (current + 1) % size }));
+    showToast("Sugestão trocada");
   }
 
   return (
@@ -214,7 +219,10 @@ export default function CardapioPage() {
                     <span className="text-sm font-semibold text-brown-800">{p.title}</span>
                     <button
                       type="button"
-                      onClick={() => setChosenPratinhoIds(removePratinhoFromCardapio(p.id))}
+                      onClick={() => {
+                        setChosenPratinhoIds(removePratinhoFromCardapio(p.id));
+                        showToast("Pratinho removido");
+                      }}
                       className="shrink-0"
                     >
                       <X className="h-4 w-4 text-brown-700/82" strokeWidth={2} />
@@ -228,7 +236,10 @@ export default function CardapioPage() {
             </div>
           )}
 
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div 
+            className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory pr-8"
+            style={{ WebkitMaskImage: "linear-gradient(to right, black 90%, transparent)", maskImage: "linear-gradient(to right, black 90%, transparent)" }}
+          >
             {DAYS.map((day, i) => (
               <button
                 key={day.key}
@@ -237,7 +248,7 @@ export default function CardapioPage() {
                   setDayIndex(i);
                   setExpanded(null);
                 }}
-                className={`min-h-12 shrink-0 rounded-2xl px-4 text-base font-semibold transition-colors ${
+                className={`min-h-12 shrink-0 snap-start rounded-2xl px-4 text-base font-semibold transition-colors ${
                   i === dayIndex
                     ? "bg-sage-500 text-white"
                     : "bg-sage-50 text-brown-700/90 active:bg-sage-100"

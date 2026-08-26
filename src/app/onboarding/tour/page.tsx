@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { CalendarDays, Search, PhoneCall } from "lucide-react";
@@ -34,6 +34,21 @@ const slides = [
 export default function TourPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
+  const [babyName, setBabyName] = useState("");
+
+  useEffect(() => {
+    const fetchBaby = async () => {
+      const babyId = sessionStorage.getItem("nutrimae_onboarding_baby_id");
+      if (!babyId) return;
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const { data } = await supabase.from("babies").select("name").eq("id", babyId).single();
+      if (data?.name) {
+        setBabyName(data.name.split(" ")[0]);
+      }
+    };
+    fetchBaby();
+  }, []);
 
   function finish() {
     router.push("/app/cardapio");
@@ -48,6 +63,14 @@ export default function TourPage() {
   }
 
   const slide = slides[step];
+  let currentTitle = slide.title;
+  let currentText = slide.text;
+  
+  if (step === slides.length - 1 && babyName) {
+    currentTitle = "Tudo pronto!";
+    currentText = `A rotina e o cardápio de ${babyName} já estão organizados.`;
+  }
+
   const Icon = slide.icon;
 
   return (
@@ -77,8 +100,8 @@ export default function TourPage() {
         <div className={`animate-scale-in mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br ${slide.gradient} shadow-subtle`} key={step}>
           <Icon className={`h-9 w-9 ${slide.iconColor}`} strokeWidth={1.5} />
         </div>
-        <h1 className="animate-fade-in-up font-heading text-2xl font-bold text-brown-800" key={`t-${step}`}>{slide.title}</h1>
-        <p className="animate-fade-in-up mt-3 max-w-xs text-base leading-relaxed text-brown-700/70" key={`d-${step}`} style={{ animationDelay: "0.05s" }}>{slide.text}</p>
+        <h1 className="animate-fade-in-up font-heading text-2xl font-bold text-brown-800" key={`t-${step}`}>{currentTitle}</h1>
+        <p className="animate-fade-in-up mt-3 max-w-xs text-base leading-relaxed text-brown-700/70" key={`d-${step}`} style={{ animationDelay: "0.05s" }}>{currentText}</p>
       </div>
 
       <div className="mx-auto w-full max-w-sm">

@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { ageBandForMonths, allergenForDietFilter, getTodaySuggestion, type DietFilter } from "@/lib/menu";
 
-const ICON_HEART = "/images/illustrations/icon-heart.webp";
+
 const ICON_LEAF = "/images/illustrations/icon-leaf.webp";
 const ICON_STAR = "/images/illustrations/icon-star.webp";
 const ICON_DROPLET = "/images/illustrations/icon-droplet.webp";
@@ -91,7 +91,59 @@ export default function AppHomePage() {
   }, [activeBaby, supabase]);
 
   if (!activeBaby) {
-    return <main className="flex min-h-[70dvh] items-center justify-center"><div className="h-12 w-12 animate-pulse rounded-full bg-primary-100" aria-label="Carregando dados do bebê" /></main>;
+    return (
+      <main className="flex w-full flex-col gap-3.5 px-5 pb-5 pt-4 animate-pulse" aria-label="Carregando dados do bebê">
+        <section className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-14 w-14 rounded-full bg-primary-100" />
+            <div className="space-y-2">
+              <div className="h-5 w-24 rounded-full bg-primary-100" />
+              <div className="h-3 w-16 rounded-full bg-primary-50" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-11 w-11 rounded-full bg-primary-50" />
+            <div className="h-10 w-10 rounded-full bg-primary-50" />
+          </div>
+        </section>
+
+        <div className="flex min-h-[76px] items-center gap-3 rounded-[18px] bg-white px-4 shadow-subtle">
+          <div className="h-12 w-12 rounded-full bg-primary-100" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 w-20 rounded-full bg-primary-100" />
+            <div className="h-3 w-28 rounded-full bg-primary-50" />
+          </div>
+        </div>
+
+        <section className="grid grid-cols-3 gap-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex min-h-[92px] flex-col items-center justify-center gap-1.5 rounded-[16px] bg-white px-2 py-3 shadow-subtle">
+              <div className="h-10 w-10 rounded-full bg-primary-100" />
+              <div className="h-3 w-16 rounded-full bg-primary-50" />
+            </div>
+          ))}
+        </section>
+        
+        <section className="mt-1">
+          <div className="mb-2.5 flex items-center justify-between gap-2">
+            <div className="h-4 w-32 rounded-full bg-primary-100" />
+            <div className="h-6 w-16 rounded-full bg-primary-100" />
+          </div>
+          <div className="block rounded-[20px] bg-white p-3 shadow-strong">
+            <div className="h-5 w-24 rounded-full bg-primary-100 mb-2" />
+            <div className="h-6 w-3/4 rounded-full bg-primary-50" />
+            <div className="mt-3 flex items-center gap-3">
+              <div className="flex-1 space-y-3">
+                 <div className="h-4 w-full rounded-full bg-primary-50" />
+                 <div className="h-4 w-5/6 rounded-full bg-primary-50" />
+              </div>
+              <div className="h-[132px] w-[132px] shrink-0 rounded-[24px] bg-primary-100" />
+            </div>
+            <div className="mt-3 h-11 w-full rounded-2xl bg-primary-100" />
+          </div>
+        </section>
+      </main>
+    );
   }
 
   const months = ageInMonths(activeBaby.birth_date);

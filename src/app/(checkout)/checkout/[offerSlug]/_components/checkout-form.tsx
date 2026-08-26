@@ -111,7 +111,7 @@ export function CheckoutForm({
 
       if (paymentMethod === "pix") {
         setPix({ orderId: data.orderId, qrCode: data.pix.qrCode, qrCodeUrl: data.pix.qrCodeUrl, expiresAt: data.pix.expiresAt });
-        pollPixStatus(data.orderId);
+        pollPixStatus(data.orderId, data.statusToken);
         return;
       }
 
@@ -135,9 +135,9 @@ export function CheckoutForm({
     }
   }
 
-  function pollPixStatus(orderId: string) {
+  function pollPixStatus(orderId: string, statusToken: string) {
     const interval = setInterval(async () => {
-      const res = await fetch(`/api/checkout/status?orderId=${orderId}`);
+      const res = await fetch(`/api/checkout/status?token=${encodeURIComponent(statusToken)}`);
       const data = await res.json();
       if (data.status === "paid") {
         clearInterval(interval);
@@ -157,8 +157,7 @@ export function CheckoutForm({
       setPixCopied(true);
       setTimeout(() => setPixCopied(false), 2000);
     } catch {
-      // Clipboard indisponível (ex.: contexto não seguro) — o campo abaixo
-      // continua selecionável manualmente, então não é um beco sem saída.
+      setError("Não foi possível copiar automaticamente. Selecione e copie o código abaixo.");
     }
   }
 

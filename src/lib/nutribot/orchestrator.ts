@@ -1,5 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase/admin";
-import { normalizeEvent, type NormalizedEvent } from "./normalize";
+import type { NormalizedEvent } from "./normalize";
 import { decideRoute, ROUTES, type SessionRow as RouterSessionRow } from "./router";
 import {
   claimMessage,
@@ -12,19 +12,22 @@ import { interpretTypebotResult } from "./typebotResponse";
 import { MSG_NEED_EMAIL_MEMORY, MSG_INVALID_EMAIL, MSG_WELCOME_NO_SESSION, MSG_TEMPORARY_ERROR } from "./messages";
 import { logInfo, logError } from "./logger";
 import type { createTypebotClient } from "./typebotClient";
-import type { createEvolutionClient } from "./evolutionClient";
 import { resolveBabyContext } from "./babyContext";
 import { answerWithFoodAssistant } from "./foodAssistant";
 import { logConversationTurn } from "./conversationLog";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 type TypebotClient = ReturnType<typeof createTypebotClient>;
-type EvolutionClient = ReturnType<typeof createEvolutionClient>;
+
+/** Qualquer provedor de envio (Evolution API, WhatsApp Cloud API, ...) — só precisa saber mandar texto. */
+export interface WhatsAppSendClient {
+  sendText(args: { to: string; message: string }): Promise<unknown>;
+}
 
 interface Deps {
   db: AdminClient;
   typebot: TypebotClient;
-  evolution: EvolutionClient;
+  evolution: WhatsAppSendClient;
   now?: Date;
   sessionTtlHours?: number;
   errorCooldownMinutes?: number;
@@ -39,12 +42,10 @@ interface Deps {
  * testada e validada em produção rodando via n8n; só a "cola" de
  * infraestrutura (banco, cliente de envio) mudou.
  */
-export async function handleWhatsAppEvent(rawEvent: unknown, deps: Deps) {
+export async function handleWhatsAppEvent(event: NormalizedEvent, deps: Deps) {
   const now = deps.now ?? new Date();
   const sessionTtlHours = deps.sessionTtlHours ?? 24;
   const errorCooldownMinutes = deps.errorCooldownMinutes ?? 10;
-
-  const event = normalizeEvent(rawEvent);
 
   if (event.fromMe || !event.phone || !event.text || !event.messageId) {
     logInfo("route.rejected", { phone: event.phone, messageId: event.messageId });

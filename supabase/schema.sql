@@ -37,10 +37,13 @@ create policy "Usuárias apagam seus próprios bebês"
   on public.babies for delete
   using (auth.uid() = user_id);
 
--- 2. Bucket de fotos dos bebês (Storage) — privado; acesso via URL assinada
-insert into storage.buckets (id, name, public)
-values ('baby-photos', 'baby-photos', false)
-on conflict (id) do update set public = false;
+-- 2. Bucket de fotos dos bebês (Storage) — privado; acesso via URL assinada.
+-- Limite de 5MB e só imagens: sem isso, qualquer usuária autenticada podia
+-- enviar arquivo de qualquer tipo/tamanho pra própria pasta (a RLS abaixo só
+-- restringe QUEM envia, não O QUE é enviado).
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('baby-photos', 'baby-photos', false, 5242880, array['image/jpeg', 'image/png', 'image/webp', 'image/heic'])
+on conflict (id) do update set public = false, file_size_limit = 5242880, allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
 
 -- Cada usuária só pode ler/gerenciar arquivos dentro de uma pasta com o seu próprio user_id:
 -- caminho esperado: <user_id>/<arquivo>

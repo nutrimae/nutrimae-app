@@ -61,8 +61,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "forbidden_properties" }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-  for (const event of parsed.data.events) {
+  try {
+    const admin = createAdminClient();
+    for (const event of parsed.data.events) {
     const { error: visitorInsertError } = await admin.from("analytics_visitors").insert({
       id: event.visitorId,
       consent_status: event.consentStatus,
@@ -116,7 +117,13 @@ export async function POST(request: Request) {
       occurred_at: event.occurredAt,
     });
     if (eventError && eventError.code !== "23505") throw eventError;
-  }
+    }
 
-  return NextResponse.json({ accepted: parsed.data.events.length });
+    return NextResponse.json({ accepted: parsed.data.events.length });
+  } catch (error) {
+    // Tracking jamais deve derrubar a conversão. Mantemos um erro genérico
+    // para o navegador e registramos somente o diagnóstico técnico no servidor.
+    console.error("[tracking] event persistence failed", error);
+    return NextResponse.json({ error: "tracking_unavailable" }, { status: 503 });
+  }
 }

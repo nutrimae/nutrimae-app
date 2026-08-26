@@ -15,6 +15,8 @@ import {
 import { BackButton } from "@/components/back-button";
 import type { AdminMetrics } from "@/lib/admin/metrics";
 import type { Suggestion } from "@/lib/admin/suggestions";
+import type { TrackingMetrics } from "@/lib/admin/tracking-metrics";
+import Link from "next/link";
 
 interface Threshold {
   id: string;
@@ -64,6 +66,8 @@ export function MetricsDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [thresholds, setThresholds] = useState<Threshold[]>([]);
+  const [tracking, setTracking] = useState<TrackingMetrics | null>(null);
+  const [trackingUnavailable, setTrackingUnavailable] = useState(false);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/admin/metrics", { cache: "no-store" });
@@ -88,6 +92,11 @@ export function MetricsDashboard() {
   useEffect(() => {
     void load();
     void loadThresholds();
+    void fetch("/api/admin/tracking", { cache: "no-store" }).then(async (res) => {
+      if (!res.ok) { setTrackingUnavailable(true); return; }
+      const data = await res.json();
+      setTracking(data.metrics);
+    }).catch(() => setTrackingUnavailable(true));
   }, [load, loadThresholds]);
 
   async function handleManualRefresh() {
@@ -147,7 +156,7 @@ export function MetricsDashboard() {
             <div key={s.metricKey} className="flex items-start gap-2.5 rounded-2xl border border-amber-300 bg-amber-50 p-3.5">
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700">Sugestão da IA — vale checar, não é uma decisão tomada</p>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-amber-700">Alerta de variação — vale checar, não é uma decisão tomada</p>
                 <p className="mt-0.5 text-sm text-brown-800">{s.text}</p>
               </div>
             </div>
@@ -169,6 +178,42 @@ export function MetricsDashboard() {
         <MetricCard icon={<AlertTriangle className="h-4 w-4" />} label="Reembolsos" value={String(metrics.refunds.count)} sub={brl(metrics.refunds.amountCents)} />
         <MetricCard icon={<AlertTriangle className="h-4 w-4" />} label="Chargebacks" value={String(metrics.chargebacks.count)} sub={brl(metrics.chargebacks.amountCents)} />
         <MetricCard icon={<CreditCard className="h-4 w-4" />} label="Pendentes" value={String(metrics.pendingPayments.count)} sub={brl(metrics.pendingPayments.amountCents)} />
+      </section>
+
+      <section className="rounded-3xl bg-white/90 p-4 shadow-sm border border-brown-900/5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-heading text-base font-bold text-brown-800">Tracking V1 · últimos 30 dias</h2>
+            <p className="mt-1 text-xs text-brown-700/70">Somente tráfego externo e compras confirmadas.</p>
+          </div>
+          <Link href="/app/admin/criativos" className="rounded-xl bg-primary-50 px-3 py-2 text-xs font-bold text-primary-600">Creative Lab</Link>
+        </div>
+        {trackingUnavailable ? (
+          <p className="mt-4 rounded-2xl bg-amber-50 p-3 text-sm text-amber-800">Tracking indisponível. As métricas financeiras acima continuam válidas.</p>
+        ) : tracking ? (
+          <>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <MetricCard icon={<Users className="h-4 w-4" />} label="Landing" value={String(tracking.funnel.landing_viewed ?? 0)} />
+              <MetricCard icon={<TrendingUp className="h-4 w-4" />} label="Quiz completo" value={String(tracking.funnel.quiz_completed ?? 0)} />
+              <MetricCard icon={<CreditCard className="h-4 w-4" />} label="Checkout" value={String(tracking.funnel.checkout_viewed ?? 0)} />
+              <MetricCard icon={<Wallet className="h-4 w-4" />} label="Compras" value={String(tracking.funnel.purchase_confirmed ?? 0)} />
+              <MetricCard icon={<BadgePercent className="h-4 w-4" />} label="CPA" value={tracking.cpaCents === null ? "Indisponível" : brl(tracking.cpaCents)} sub={tracking.spendCents === null ? "gasto não importado" : undefined} />
+              <MetricCard icon={<TrendingUp className="h-4 w-4" />} label="ROAS" value={tracking.roas === null ? "Indisponível" : `${tracking.roas.toFixed(2)}x`} sub={tracking.spendCents === null ? "gasto não importado" : undefined} />
+            </div>
+            <div className={`mt-3 rounded-2xl p-3 text-sm ${tracking.health.outboxErrors || tracking.health.purchasesMissingEvent ? "bg-amber-50 text-amber-800" : "bg-green-50 text-green-800"}`}>
+              <p className="font-bold">Saúde do tracking</p>
+              <p className="mt-1 text-xs">Cobertura: {tracking.health.attributionCoveragePercent === null ? "sem compras" : `${tracking.health.attributionCoveragePercent}%`} · Sem atribuição: {tracking.health.unattributedPurchases} · Compra sem evento: {tracking.health.purchasesMissingEvent} · Outbox com erro: {tracking.health.outboxErrors}</p>
+            </div>
+            {tracking.attribution.length > 0 ? (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[520px] text-left text-xs">
+                  <thead><tr className="text-brown-700/70"><th className="pb-2">Origem</th><th>Campanha</th><th>Criativo</th><th>Compras</th><th>Receita</th></tr></thead>
+                  <tbody>{tracking.attribution.map((row) => <tr key={`${row.source}-${row.campaign}-${row.creative}`} className="border-t border-gray-100"><td className="py-2 font-semibold">{row.source}</td><td>{row.campaign}</td><td>{row.creative}</td><td>{row.purchases}</td><td>{brl(row.revenueCents)}</td></tr>)}</tbody>
+                </table>
+              </div>
+            ) : <p className="mt-4 text-sm text-brown-700/70">Ainda não há compras externas atribuídas neste período.</p>}
+          </>
+        ) : <p className="mt-4 text-sm text-brown-700/70">Carregando dados do funil...</p>}
       </section>
 
       <section className="rounded-3xl bg-white/90 p-4 shadow-sm border border-brown-900/5">

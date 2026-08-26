@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Bot } from "lucide-react";
 import { trackEvent } from "./track";
 import { scrollToSection } from "./scroll";
+import { saveQuizAnswer, track } from "@/lib/tracking/client";
 
 type Method = "papinha" | "blw" | "misto" | "nao-decidi";
 type Allergen = "nao" | "ovo" | "leite" | "outro";
@@ -58,12 +59,15 @@ export function AssistantChat() {
   }
 
   function selectMethod(key: Method) {
+    if (!method) track("quiz_started", { quiz_version: "offer-v1" });
     setMethod(key);
+    saveQuizAnswer("method", key);
     trackEvent("AssistantAnswer", { question: "method", answer: key });
   }
 
   function selectAllergen(key: Allergen) {
     setAllergen(key);
+    saveQuizAnswer("allergen", key);
     trackEvent("AssistantAnswer", { question: "allergen", answer: key });
     trackEvent("AssistantComplete");
   }

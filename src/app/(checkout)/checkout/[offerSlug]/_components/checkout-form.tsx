@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Loader2, QrCode, CreditCard, ShieldCheck, Check, Copy, Lock } from "lucide-react";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Chip } from "@/components/ui/chip";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
+import { getCheckoutTrackingContext, getQuizAnswers, track } from "@/lib/tracking/client";
 
 interface Bump {
   id: string;
@@ -50,6 +51,8 @@ export function CheckoutForm({
   const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string; expiresAt: string } | null>(null);
   const [pixCopied, setPixCopied] = useState(false);
 
+  useEffect(() => { track("checkout_viewed", { offer_slug: offer.slug }); }, [offer.slug]);
+
   const bumpTotal = bumps
     .filter((b) => selectedBumps.includes(b.slug))
     .reduce((sum, b) => sum + b.price_cents, 0);
@@ -60,6 +63,7 @@ export function CheckoutForm({
 
   function toggleBump(slug: string) {
     setSelectedBumps((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
+    track("bump_toggled", { bump_slug: slug, selected: !selectedBumps.includes(slug) });
   }
 
   async function handleSubmit() {
@@ -77,6 +81,7 @@ export function CheckoutForm({
     }
 
     setLoading(true);
+    track("checkout_submitted", { offer_slug: offer.slug, payment_method: paymentMethod, bump_slugs: selectedBumps });
     try {
       let cardToken: string | undefined;
       if (paymentMethod === "credit_card") {
@@ -99,6 +104,8 @@ export function CheckoutForm({
           cardToken,
           billingAddress: paymentMethod === "credit_card" ? billingAddress : undefined,
           customer: { name, email, document, phone },
+          tracking: getCheckoutTrackingContext(),
+          quizAnswers: getQuizAnswers(),
         }),
       });
 

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Poppins } from "next/font/google";
 import { SplashScreen } from "@/components/splash-screen";
-import { FacebookPixel } from "@/components/FacebookPixel";
+import { TrackingConsentManager } from "@/components/tracking-consent";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -42,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="pt-BR" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-cream text-brown-800">
         <Suspense fallback={null}>
-          <FacebookPixel />
+          <TrackingConsentManager />
         </Suspense>
         <SplashScreen />
         {children}

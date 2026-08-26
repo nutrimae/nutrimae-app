@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { findOrCreateUser, savePhoneNumber } from "@/lib/webhooks/find-or-create-user";
 import { claimWebhookEvent, finalizeWebhookEvent } from "@/lib/webhooks/log-event";
 import { isKnownProductKey } from "@/lib/products";
+import { emitFinancialTrackingEvent } from "@/lib/tracking/financial";
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- meta-conversion.js é CommonJS solto na raiz do repo (ver MÁQUINA_LOW_TICKET_BR.md).
 const { sendPurchaseEvent } = require("../../../../../meta-conversion.js");
 
@@ -61,12 +62,13 @@ interface PagarmeWebhookPayload {
   data?: {
     id?: unknown;
     order_id?: unknown;
-    order?: { id?: unknown };
     status?: unknown;
     charges?: Array<{ id?: unknown; status?: unknown }>;
     subscription?: { id?: unknown };
     subscription_id?: unknown;
     next_billing_at?: unknown;
+    metadata?: { order_id?: unknown };
+    order?: { id?: unknown; metadata?: { order_id?: unknown } };
   };
 }
 
@@ -74,14 +76,19 @@ type AdminClient = ReturnType<typeof createAdminClient>;
 
 async function markOrderStatus(
   admin: AdminClient,
-  params: { pagarmeOrderId?: string; pagarmeChargeId?: string; status: string; rawEvent: unknown },
+  params: { localOrderId?: string; pagarmeOrderId?: string; pagarmeChargeId?: string; status: string; rawEvent: unknown },
 ) {
-  let orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number } | null = null;
+  let orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number; metadata: Record<string, unknown> | null; status: string } | null = null;
 
-  if (params.pagarmeOrderId) {
+  if (params.localOrderId) {
+    const { data } = await admin.from("orders").select("id, customer_id, offer_id, user_id, amount_cents, metadata, status").eq("id", params.localOrderId).maybeSingle();
+    orderRow = data;
+  }
+
+  if (!orderRow && params.pagarmeOrderId) {
     const { data } = await admin
       .from("orders")
-      .select("id, customer_id, offer_id, user_id, amount_cents")
+      .select("id, customer_id, offer_id, user_id, amount_cents, metadata, status")
       .eq("pagarme_order_id", params.pagarmeOrderId)
       .maybeSingle();
     orderRow = data;
@@ -90,7 +97,7 @@ async function markOrderStatus(
   if (!orderRow && params.pagarmeChargeId) {
     const { data } = await admin
       .from("payments")
-      .select("orders(id, customer_id, offer_id, user_id, amount_cents)")
+      .select("orders(id, customer_id, offer_id, user_id, amount_cents, metadata, status)")
       .eq("pagarme_charge_id", params.pagarmeChargeId)
       .maybeSingle();
     // Supabase retorna o relacionamento como objeto quando a FK é 1:1 pela query acima.
@@ -101,6 +108,11 @@ async function markOrderStatus(
     console.error("[pagarme-webhook] pedido não encontrado localmente", params);
     return null;
   }
+
+  // Estado terminal nunca volta para pago/recusado por evento atrasado.
+  if (orderRow.status === "refunded" && params.status !== "refunded") return null;
+  // Uma falha atrasada não desfaz pagamento já confirmado.
+  if (orderRow.status === "paid" && params.status === "refused") return null;
 
   await admin.from("orders").update({ status: params.status, updated_at: new Date().toISOString() }).eq("id", orderRow.id);
 
@@ -116,7 +128,7 @@ async function markOrderStatus(
 
 async function grantAccessForOrder(
   admin: AdminClient,
-  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number },
+  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number; metadata: Record<string, unknown> | null; status: string },
 ) {
   const { data: offer } = await admin.from("offers").select("product_key, name, price_cents").eq("id", orderRow.offer_id).maybeSingle();
   const { data: customer } = await admin.from("customers").select("email, phone_number").eq("id", orderRow.customer_id).maybeSingle();
@@ -200,7 +212,14 @@ async function grantAccessForOrder(
     });
   }
 
-  await reportPurchaseToMeta(orderRow.id, customer.email, customer.phone_number, orderRow.amount_cents);
+  const isInternal = Boolean(orderRow.metadata?.tracking_internal);
+  if (!isInternal) await reportPurchaseToMeta(orderRow.id, customer.email, customer.phone_number, orderRow.amount_cents);
+  await emitFinancialTrackingEvent(admin, {
+    eventName: "purchase_confirmed",
+    aggregateId: orderRow.id,
+    orderId: orderRow.id,
+    payload: { amount_cents: orderRow.amount_cents, currency: "BRL", product_keys: [...new Set((items ?? []).map((item) => (item.offers as unknown as { product_key?: string } | null)?.product_key).filter(Boolean))] },
+  });
 }
 
 /**
@@ -239,7 +258,7 @@ async function reportPurchaseToMeta(orderId: string, email: string, phone: strin
  */
 async function revokeAccessForOrder(
   admin: AdminClient,
-  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null },
+  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents?: number; metadata?: Record<string, unknown> | null },
 ) {
   if (!orderRow.user_id) {
     // Reembolso de um pedido que nunca chegou a liberar acesso (ex.: pago e
@@ -399,6 +418,12 @@ export async function POST(request: Request) {
             : undefined;
     const pagarmeChargeId =
       typeof data.id === "string" && eventType.startsWith("charge.") ? data.id : undefined;
+    const localOrderId =
+      typeof data.metadata?.order_id === "string"
+        ? data.metadata.order_id
+        : typeof data.order?.metadata?.order_id === "string"
+          ? data.order.metadata.order_id
+          : undefined;
 
     switch (eventType) {
       case "order.paid":
@@ -406,6 +431,7 @@ export async function POST(request: Request) {
         const orderRow = await markOrderStatus(admin, {
           pagarmeOrderId,
           pagarmeChargeId,
+          localOrderId,
           status: "paid",
           rawEvent: payload,
         });
@@ -419,15 +445,23 @@ export async function POST(request: Request) {
         // Cobre tanto cartão recusado quanto Pix não pago dentro do prazo —
         // o evento confirmado na doc não distingue os dois; nunca escreve
         // em user_products aqui (acesso nunca foi concedido, nada a revogar).
-        await markOrderStatus(admin, { pagarmeOrderId, pagarmeChargeId, status: "refused", rawEvent: payload });
+        await markOrderStatus(admin, { localOrderId, pagarmeOrderId, pagarmeChargeId, status: "refused", rawEvent: payload });
         await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
         break;
       }
 
       case "charge.refunded":
       case "charge.chargedback": {
-        const orderRow = await markOrderStatus(admin, { pagarmeOrderId, pagarmeChargeId, status: "refunded", rawEvent: payload });
-        if (orderRow) await revokeAccessForOrder(admin, orderRow);
+        const orderRow = await markOrderStatus(admin, { localOrderId, pagarmeOrderId, pagarmeChargeId, status: "refunded", rawEvent: payload });
+        if (orderRow) {
+          await revokeAccessForOrder(admin, orderRow);
+          await emitFinancialTrackingEvent(admin, {
+            eventName: eventType === "charge.chargedback" ? "chargeback_confirmed" : "refund_confirmed",
+            aggregateId: orderRow.id,
+            orderId: orderRow.id,
+            payload: { amount_cents: orderRow.amount_cents, currency: "BRL" },
+          });
+        }
         await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
         break;
       }
@@ -454,6 +488,12 @@ export async function POST(request: Request) {
             .update({ status: "canceled", canceled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
             .eq("id", subscriptionRow.id);
           await revokeAccessForSubscription(admin, subscriptionRow);
+          await emitFinancialTrackingEvent(admin, {
+            eventName: "subscription_canceled",
+            aggregateId: subscriptionRow.id,
+            subscriptionId: subscriptionRow.id,
+            payload: { provider_subscription_id: pagarmeSubscriptionId },
+          });
         }
         await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
         break;
@@ -479,6 +519,12 @@ export async function POST(request: Request) {
             })
             .eq("id", subscriptionRow.id);
           await grantAccessForSubscription(admin, subscriptionRow);
+          await emitFinancialTrackingEvent(admin, {
+            eventName: "subscription_activated",
+            aggregateId: subscriptionRow.id,
+            subscriptionId: subscriptionRow.id,
+            payload: { provider_subscription_id: pagarmeSubscriptionId },
+          });
         } else {
           console.error("[pagarme-webhook] assinatura não encontrada localmente para invoice.paid", { pagarmeSubscriptionId });
         }

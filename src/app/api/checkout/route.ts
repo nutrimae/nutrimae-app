@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments";
 import { findOrCreateLocalCustomer } from "@/lib/payments/find-or-create-customer";
 import { isValidCpf } from "@/lib/utils";
+import { resolveCheckoutTracking, type CheckoutTrackingInput } from "@/lib/tracking/server";
 
 /**
  * Único lugar que calcula preço. O corpo da requisição só carrega
@@ -25,6 +26,7 @@ interface CheckoutBody {
   customer?: { name?: unknown; email?: unknown; document?: unknown; phone?: unknown };
   utm?: unknown;
   quizAnswers?: unknown;
+  tracking?: CheckoutTrackingInput;
 }
 
 function onlyDigits(value: string): string {
@@ -69,6 +71,7 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
+  const tracking = await resolveCheckoutTracking(admin, body.tracking);
 
   const { data: offer } = await admin
     .from("offers")
@@ -120,6 +123,11 @@ export async function POST(request: Request) {
         amount_cents: amountCents,
         utm: body.utm ?? null,
         quiz_answers: body.quizAnswers ?? null,
+        visitor_id: tracking?.visitorId ?? null,
+        session_id: tracking?.sessionId ?? null,
+        first_attribution_id: tracking?.firstAttributionId ?? null,
+        last_attribution_id: tracking?.lastAttributionId ?? null,
+        metadata: tracking?.isInternal ? { tracking_internal: true } : {},
       })
       .select("id")
       .single();

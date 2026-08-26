@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { CreditCard, ShieldCheck, Loader2, Check } from "lucide-react";
@@ -10,6 +10,7 @@ import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
+import { getCheckoutTrackingContext, getQuizAnswers, track } from "@/lib/tracking/client";
 
 interface Bump {
   id: string;
@@ -56,6 +57,8 @@ export function SubscriptionCheckoutForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => { track("checkout_viewed", { offer_slug: offer.slug }); }, [offer.slug]);
+
   const bumpTotal = bumps.filter((b) => selectedBumps.includes(b.slug)).reduce((sum, b) => sum + b.price_cents, 0);
   const chargedNowCents = offer.priceCents + bumpTotal;
 
@@ -64,6 +67,7 @@ export function SubscriptionCheckoutForm({
 
   function toggleBump(slug: string) {
     setSelectedBumps((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
+    track("bump_toggled", { bump_slug: slug, selected: !selectedBumps.includes(slug) });
   }
 
   async function handleSubmit() {
@@ -81,6 +85,7 @@ export function SubscriptionCheckoutForm({
     }
 
     setLoading(true);
+    track("checkout_submitted", { offer_slug: offer.slug, payment_method: "credit_card", bump_slugs: selectedBumps });
     try {
       const cardToken = await tokenizeCard({
         number: cardNumber,
@@ -99,6 +104,8 @@ export function SubscriptionCheckoutForm({
           cardToken,
           billingAddress,
           customer: { name, email, document, phone },
+          tracking: getCheckoutTrackingContext(),
+          quizAnswers: getQuizAnswers(),
         }),
       });
 

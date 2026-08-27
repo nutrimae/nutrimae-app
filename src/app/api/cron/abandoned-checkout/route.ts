@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createEvolutionClient } from "@/lib/nutribot/evolutionClient";
+import { createWhatsAppCloudClient } from "@/lib/nutribot/whatsappCloudClient";
 import { getSession } from "@/lib/nutribot/sessionStore";
 import { sanitizePhoneNumber } from "@/lib/utils";
 
@@ -20,14 +20,11 @@ import { sanitizePhoneNumber } from "@/lib/utils";
  * Urgência real, não fabricada: a pessoa de fato gerou um Pix de verdade e
  * não pagou — isso não é reengajamento genérico, é "você começou algo e
  * não terminou".
- *
- * Reaproveita o cliente da Evolution API já usado pelo NutriBot
- * (src/lib/nutribot/evolutionClient.ts) — mesma instância de WhatsApp.
  */
 
 function verifyCronAuth(request: Request): boolean {
   const expected = process.env.CRON_SECRET;
-  if (!expected) return false; // sem segredo configurado: nunca roda (fail-closed)
+  if (!expected) return false;
   return request.headers.get("authorization") === `Bearer ${expected}`;
 }
 
@@ -36,12 +33,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const evolutionApiUrl = process.env.EVOLUTION_API_URL;
-  const evolutionApiKey = process.env.EVOLUTION_API_KEY;
-  const evolutionInstanceName = process.env.EVOLUTION_INSTANCE_NAME;
+  const metaAccessToken = process.env.META_WHATSAPP_ACCESS_TOKEN;
+  const metaPhoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID;
 
-  if (!evolutionApiUrl || !evolutionApiKey || !evolutionInstanceName) {
-    console.error("[cron/abandoned-checkout] Evolution API não configurada");
+  if (!metaAccessToken || !metaPhoneNumberId) {
+    console.error("[cron/abandoned-checkout] Meta API não configurada");
     return NextResponse.json({ error: "missing_configuration" }, { status: 500 });
   }
 
@@ -69,10 +65,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, reminded: 0 });
   }
 
-  const evolution = createEvolutionClient({
-    baseUrl: evolutionApiUrl,
-    instanceName: evolutionInstanceName,
-    apiKey: evolutionApiKey,
+  const meta = createWhatsAppCloudClient({
+    accessToken: metaAccessToken,
+    phoneNumberId: metaPhoneNumberId,
   });
 
   let reminded = 0;
@@ -106,7 +101,7 @@ export async function GET(request: Request) {
         `Oi${firstName ? `, ${firstName}` : ""}! 💛 Vi que você começou a garantir o ${offerName} (${amount}) ` +
         `mas o Pix não foi finalizado. Ainda dá tempo — é só gerar um novo Pix aqui: ${checkoutUrl}`;
 
-      await evolution.sendText({ to: phone, message });
+      await meta.sendText({ to: phone, message });
 
       await admin.from("orders").update({ abandoned_reminder_sent_at: new Date().toISOString() }).eq("id", order.id);
       reminded += 1;

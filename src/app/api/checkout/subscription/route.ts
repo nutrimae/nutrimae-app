@@ -5,6 +5,8 @@ import { findOrCreateLocalCustomer } from "@/lib/payments/find-or-create-custome
 import { resolveParentCustomer } from "@/lib/payments/resolve-parent-customer";
 import { isValidCpf } from "@/lib/utils";
 import type { PaymentProvider, BillingAddress } from "@/lib/payments/provider";
+import { resolveCheckoutTracking, type CheckoutTrackingInput, type ResolvedCheckoutTracking } from "@/lib/tracking/server";
+import { isCheckoutRateLimited } from "@/lib/checkout/rate-limit";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -43,6 +45,8 @@ interface SubscriptionBody {
   customer?: { name?: unknown; email?: unknown; document?: unknown; phone?: unknown };
   parentSubscriptionId?: unknown;
   bumpSlugs?: unknown;
+  tracking?: CheckoutTrackingInput;
+  quizAnswers?: unknown;
 }
 
 function onlyDigits(value: string): string {
@@ -60,6 +64,10 @@ function parseBillingAddress(body: SubscriptionBody): { line1: string; zipCode: 
 }
 
 export async function POST(request: Request) {
+  if (await isCheckoutRateLimited(request)) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
   let body: SubscriptionBody;
   try {
     body = await request.json();
@@ -86,7 +94,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 
+  if (customerEmail && await isCheckoutRateLimited(request, customerEmail)) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
   const admin = createAdminClient();
+  const tracking = await resolveCheckoutTracking(admin, body.tracking);
 
   const { data: offer } = await admin
     .from("offers")
@@ -139,6 +152,10 @@ export async function POST(request: Request) {
         pagarme_subscription_id: subscription.providerSubscriptionId,
         status: subscription.status,
         next_billing_at: subscription.nextBillingAt,
+        visitor_id: tracking?.visitorId ?? null,
+        session_id: tracking?.sessionId ?? null,
+        first_attribution_id: tracking?.firstAttributionId ?? null,
+        last_attribution_id: tracking?.lastAttributionId ?? null,
       })
       .select("id")
       .single();
@@ -153,6 +170,8 @@ export async function POST(request: Request) {
         parentSubscriptionId: subscriptionRow.id,
         cardToken,
         billingAddress,
+        tracking,
+        quizAnswers: body.quizAnswers,
       });
     }
 
@@ -179,6 +198,8 @@ async function chargeBumps(
     parentSubscriptionId: string;
     cardToken: string;
     billingAddress: BillingAddress;
+    tracking: ResolvedCheckoutTracking | null;
+    quizAnswers: unknown;
   },
 ): Promise<void> {
   try {
@@ -202,6 +223,12 @@ async function chargeBumps(
         status: "pending",
         payment_method: "credit_card",
         amount_cents: amountCents,
+        visitor_id: input.tracking?.visitorId ?? null,
+        session_id: input.tracking?.sessionId ?? null,
+        first_attribution_id: input.tracking?.firstAttributionId ?? null,
+        last_attribution_id: input.tracking?.lastAttributionId ?? null,
+        quiz_answers: input.quizAnswers ?? null,
+        metadata: input.tracking?.isInternal ? { tracking_internal: true } : {},
       })
       .select("id")
       .single();

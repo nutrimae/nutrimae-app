@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments";
 import { resolveParentCustomer } from "@/lib/payments/resolve-parent-customer";
+import { generateStatusToken } from "@/lib/checkout/status-token";
+import { isCheckoutRateLimited } from "@/lib/checkout/rate-limit";
+
 
 /**
  * Cobrança do downsell (NutriBot — 30 Dias, pagamento único, oferta
@@ -34,6 +37,10 @@ function parseBillingAddress(body: DownsellBody): { line1: string; zipCode: stri
 }
 
 export async function POST(request: Request) {
+  if (await isCheckoutRateLimited(request)) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
   let body: DownsellBody;
   try {
     body = await request.json();
@@ -124,6 +131,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         orderId: orderRow.id,
         status: "pending",
+        statusToken: generateStatusToken(orderRow.id),
         pix: { qrCode: pix.qrCode, qrCodeUrl: pix.qrCodeUrl, expiresAt: pix.expiresAt },
       });
     }
@@ -148,7 +156,7 @@ export async function POST(request: Request) {
       card_last4: card.cardLast4,
     });
 
-    return NextResponse.json({ orderId: orderRow.id, status: card.status });
+    return NextResponse.json({ orderId: orderRow.id, status: card.status, statusToken: generateStatusToken(orderRow.id) });
   } catch (err) {
     console.error("[checkout/downsell] falha ao processar pedido", err);
     return NextResponse.json({ error: "payment_processing_failed" }, { status: 502 });

@@ -3,6 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments";
 import { findOrCreateLocalCustomer } from "@/lib/payments/find-or-create-customer";
 import { isValidCpf } from "@/lib/utils";
+import { resolveCheckoutTracking, type CheckoutTrackingInput } from "@/lib/tracking/server";
+import { generateStatusToken } from "@/lib/checkout/status-token";
+import { isCheckoutRateLimited } from "@/lib/checkout/rate-limit";
 
 /**
  * Único lugar que calcula preço. O corpo da requisição só carrega
@@ -25,6 +28,7 @@ interface CheckoutBody {
   customer?: { name?: unknown; email?: unknown; document?: unknown; phone?: unknown };
   utm?: unknown;
   quizAnswers?: unknown;
+  tracking?: CheckoutTrackingInput;
 }
 
 function onlyDigits(value: string): string {
@@ -42,6 +46,13 @@ function parseBillingAddress(body: CheckoutBody): { line1: string; zipCode: stri
 }
 
 export async function POST(request: Request) {
+  // SEC-005: rate limit ANTES de qualquer IO — defesa contra card testing.
+  // Verificação de IP apenas (sem email ainda, pois o body ainda não foi lido).
+  // O check de email acontece logo abaixo, após parsear o body.
+  if (await isCheckoutRateLimited(request)) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
   let body: CheckoutBody;
   try {
     body = await request.json();
@@ -62,6 +73,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 
+  // SEC-005: rate limit por e-mail (agora que lemos o body).
+  // `isCheckoutRateLimited` incrementa o contador apenas para a chave informada.
+  if (await isCheckoutRateLimited(request, customerEmail)) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
+
   const billingAddress = paymentMethod === "credit_card" ? parseBillingAddress(body) : null;
 
   if (paymentMethod === "credit_card" && (typeof body.cardToken !== "string" || !billingAddress)) {
@@ -69,6 +87,7 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
+  const tracking = await resolveCheckoutTracking(admin, body.tracking);
 
   const { data: offer } = await admin
     .from("offers")
@@ -120,6 +139,11 @@ export async function POST(request: Request) {
         amount_cents: amountCents,
         utm: body.utm ?? null,
         quiz_answers: body.quizAnswers ?? null,
+        visitor_id: tracking?.visitorId ?? null,
+        session_id: tracking?.sessionId ?? null,
+        first_attribution_id: tracking?.firstAttributionId ?? null,
+        last_attribution_id: tracking?.lastAttributionId ?? null,
+        metadata: tracking?.isInternal ? { tracking_internal: true } : {},
       })
       .select("id")
       .single();
@@ -161,6 +185,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         orderId: orderRow.id,
         status: "pending",
+        statusToken: generateStatusToken(orderRow.id),
         pix: { qrCode: pix.qrCode, qrCodeUrl: pix.qrCodeUrl, expiresAt: pix.expiresAt },
       });
     }
@@ -189,7 +214,7 @@ export async function POST(request: Request) {
     // Nota: mesmo que o Pagar.me responda "paid" síncrono aqui, "orders.status"
     // só é considerado fonte de verdade quando o webhook confirmar — a
     // página de obrigado revalida no servidor antes de mostrar sucesso.
-    return NextResponse.json({ orderId: orderRow.id, status: card.status });
+    return NextResponse.json({ orderId: orderRow.id, status: card.status, statusToken: generateStatusToken(orderRow.id) });
   } catch (err) {
     console.error("[checkout] falha ao processar pedido", err);
     return NextResponse.json({ error: "payment_processing_failed" }, { status: 502 });

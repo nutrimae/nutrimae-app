@@ -1,8 +1,8 @@
 "use client";
 
-import { Play } from "lucide-react";
 import { trackEvent } from "./track";
 import { scrollToSection } from "./scroll";
+import { TrackedVsl } from "./tracked-vsl";
 
 export function Hero() {
   return (
@@ -16,16 +16,7 @@ export function Hero() {
           no seu celular.
         </p>
 
-        <button
-          type="button"
-          onClick={() => trackEvent("VideoPlay")}
-          aria-label="Reproduzir vídeo de apresentação"
-          className="relative flex aspect-video w-full items-center justify-center rounded-3xl bg-gradient-to-br from-brown-900 to-brown-700 shadow-lg transition-transform active:scale-[0.98]"
-        >
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg">
-            <Play className="ml-1 h-7 w-7 fill-current" strokeWidth={0} />
-          </span>
-        </button>
+        <TrackedVsl />
 
         <button
           type="button"

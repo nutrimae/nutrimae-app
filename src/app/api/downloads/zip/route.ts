@@ -53,6 +53,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  // SEC-009: autenticação sozinha NÃO autoriza download — é preciso
+  // entitlement ativo (nutrimae_assinatura) ou flag de admin.
+  const { hasPurchasedAppAccess } = await import("@/lib/entitlements");
+  if (!(await hasPurchasedAppAccess(supabase, user.id))) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
   const zip = new JSZip();
 
   if (only !== "audiobooks") {

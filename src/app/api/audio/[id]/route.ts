@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAudiobook } from "@/lib/audiobooks";
 import { staticAudioPath } from "@/lib/audio/static-audio";
+import { hasPurchasedAppAccess } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 
@@ -12,6 +13,10 @@ export const runtime = "nodejs";
 // player poder buscar/adiantar sem baixar o arquivo inteiro de novo.
 // ?download=1 força o download (Content-Disposition attachment) em vez de
 // tocar inline — usado pela tela de Downloads.
+//
+// SEC-008: autenticação sozinha NÃO autoriza acesso — é preciso entitlement
+// ativo (nutrimae_assinatura) ou flag de admin. Padrão idêntico ao
+// /api/audio/desmame/[id]/route.ts, que já estava correto.
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -21,6 +26,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  if (!(await hasPurchasedAppAccess(supabase, user.id))) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   const book = getAudiobook(id);

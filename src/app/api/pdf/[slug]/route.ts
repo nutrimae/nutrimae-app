@@ -37,10 +37,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  // SEC-009: autenticação sozinha NÃO autoriza download de PDF premium —
+  // é preciso entitlement ativo (nutrimae_assinatura) ou flag de admin.
+  const { hasPurchasedAppAccess } = await import("@/lib/entitlements");
+  if (!(await hasPurchasedAppAccess(supabase, user.id))) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
   const guide = getPdfGuide(slug);
   if (!guide) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
+
 
   const staticBuffer = await readStaticPdf(slug);
   const buffer = staticBuffer ?? (DOCUMENTS[slug]

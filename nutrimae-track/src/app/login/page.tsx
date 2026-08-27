@@ -22,8 +22,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="login-wrap">
       <form className="login-card" action={login}>
-        <h1>NutriMãe Track</h1>
-        <p className="muted">Painel de tracking e atribuição — acesso restrito.</p>
+        <div className="login-brand">
+          <span className="mark" aria-hidden="true" />
+          NutriMãe Track
+        </div>
+        <p className="muted">Painel de vendas e atribuição — acesso restrito.</p>
         {errorMessage ? <p className="login-error">{errorMessage}</p> : null}
         <label htmlFor="password">Senha</label>
         <input id="password" name="password" type="password" autoComplete="current-password" required autoFocus />

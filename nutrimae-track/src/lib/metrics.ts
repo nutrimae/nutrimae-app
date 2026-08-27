@@ -1,11 +1,10 @@
 import { createTrackingClient } from "./supabase";
 
 /**
- * Métricas do painel — lê as mesmas tabelas analytics_* que o app principal
- * grava (ver supabase/migrations/202608260001_tracking_v1_foundation.sql).
- * Adaptação de src/lib/admin/tracking-metrics.ts (repo raiz), com período
- * parametrizado e agregação de gasto por campanha.
- *
+ * Métricas do painel — conjunto de informações estilo Utmify:
+ * dinheiro primeiro (faturamento, vendas, investimento, lucro, ROAS),
+ * ritmo diário e ROI por campanha. Lê as mesmas tabelas analytics_* que o
+ * app principal grava (supabase/migrations/202608260001_tracking_v1_foundation.sql).
  * Tráfego interno (is_internal) é sempre excluído.
  */
 
@@ -16,8 +15,17 @@ export interface CampaignRow {
   purchases: number;
   revenueCents: number;
   spendCents: number;
+  lucroCents: number;
   clicks: number;
-  impressions: number;
+}
+
+export interface DayPoint {
+  /** YYYY-MM-DD (America/Sao_Paulo) */
+  date: string;
+  /** DD/MM */
+  label: string;
+  revenueCents: number;
+  spendCents: number;
 }
 
 export interface DashboardMetrics {
@@ -28,38 +36,30 @@ export interface DashboardMetrics {
   revenueCents: number;
   /** null = nenhum gasto importado no período ("gasto ainda não importado") */
   spendCents: number | null;
+  lucroCents: number;
   roas: number | null;
+  ticketMedioCents: number | null;
   cpaCents: number | null;
-  funnel: Array<{ name: string; label: string; count: number }>;
+  /** compras / sessões, em % */
+  conversionRate: number | null;
+  daily: DayPoint[];
   campaigns: CampaignRow[];
-  health: {
-    lastEventAt: string | null;
-    events24h: number;
-    outboxPending: number;
-    outboxErrors: number;
-    unattributedPurchases: number;
-    attributionCoveragePercent: number | null;
-  };
+  /** período anterior de mesma duração, para deltas */
+  prev: { revenueCents: number; purchases: number; spendCents: number | null; lucroCents: number };
+  health: { lastEventAt: string | null; outboxPending: number; outboxErrors: number };
 }
-
-const FUNNEL_STEPS = [
-  { name: "landing_viewed", label: "Landing" },
-  { name: "quiz_started", label: "Quiz iniciado" },
-  { name: "quiz_completed", label: "Quiz completo" },
-  { name: "vsl_started", label: "VSL iniciada" },
-  { name: "vsl_completed", label: "VSL completa" },
-  { name: "checkout_viewed", label: "Checkout visto" },
-  { name: "checkout_submitted", label: "Checkout enviado" },
-  { name: "purchase_confirmed", label: "Compra confirmada" },
-] as const;
 
 const UNATTRIBUTED_KEY = "não atribuído";
 
-type EventRow = { event_name: string; visitor_id: string | null; session_id: string | null; order_id: string | null; received_at: string };
-type OrderRow = { id: string; amount_cents: number; last_attribution_id: string | null; metadata: { tracking_internal?: boolean } | null };
+type OrderRow = { id: string; amount_cents: number; created_at: string; last_attribution_id: string | null; metadata: { tracking_internal?: boolean } | null };
 type AttributionRow = { id: string; source: string | null; campaign: string | null; campaign_id: string | null };
 type SessionAttributionRow = { session_id: string | null; source: string | null; campaign: string | null; campaign_id: string | null };
-type SpendRow = { campaign_id: string; spend_cents: number; clicks: number | null; impressions: number | null };
+type SpendRow = { spend_date: string; campaign_id: string; spend_cents: number; clicks: number | null };
+
+/** Dia (YYYY-MM-DD) de um instante, no fuso de Brasília — os gráficos seguem o dia do dono, não o UTC. */
+function dayKey(instant: Date): string {
+  return instant.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+}
 
 function campaignKey(input: { campaign_id?: string | null; campaign?: string | null }): string {
   if (input.campaign_id) return `id:${input.campaign_id}`;
@@ -69,45 +69,73 @@ function campaignKey(input: { campaign_id?: string | null; campaign?: string | n
 
 export async function getDashboardMetrics(periodDays: number): Promise<DashboardMetrics> {
   const admin = createTrackingClient();
-  const since = new Date(Date.now() - periodDays * 86_400_000).toISOString();
-  const since24h = new Date(Date.now() - 86_400_000).toISOString();
+  const now = Date.now();
+  const since = new Date(now - periodDays * 86_400_000).toISOString();
+  const prevSince = new Date(now - 2 * periodDays * 86_400_000).toISOString();
+  const startDate = since.slice(0, 10);
+  const prevStartDate = prevSince.slice(0, 10);
 
-  const [visitorsRes, sessionsRes, eventsRes, ordersRes, sessionAttrsRes, spendRes, pendingRes, errorsRes] = await Promise.all([
+  const [visitorsRes, sessionsRes, ordersRes, prevOrdersRes, sessionAttrsRes, spendRes, prevSpendRes, pendingRes, errorsRes] = await Promise.all([
     admin.from("analytics_visitors").select("id", { count: "exact", head: true }).eq("is_internal", false).gte("first_seen_at", since),
     admin.from("analytics_sessions").select("id", { count: "exact", head: true }).eq("is_internal", false).gte("started_at", since),
-    // TODO(escala): paginar quando o volume de eventos crescer — hoje (V1) o volume é baixo.
-    admin.from("analytics_events").select("event_name, visitor_id, session_id, order_id, received_at").eq("is_internal", false).gte("received_at", since).order("received_at", { ascending: false }).limit(10000),
-    admin.from("orders").select("id, amount_cents, last_attribution_id, metadata").eq("status", "paid").gte("created_at", since),
-    // 1 atribuição do tipo "session" por sessão (índice único) — contar linhas = contar sessões atribuídas.
+    admin.from("orders").select("id, amount_cents, created_at, last_attribution_id, metadata").eq("status", "paid").gte("created_at", since),
+    admin.from("orders").select("id, amount_cents").eq("status", "paid").gte("created_at", prevSince).lt("created_at", since),
+    // 1 atribuição do tipo "session" por sessão (índice único) — linhas = sessões atribuídas.
     admin.from("analytics_attributions").select("session_id, source, campaign, campaign_id").eq("attribution_type", "session").gte("captured_at", since),
-    admin.from("ad_spend_daily").select("campaign_id, spend_cents, clicks, impressions").gte("spend_date", since.slice(0, 10)),
+    admin.from("ad_spend_daily").select("spend_date, campaign_id, spend_cents, clicks").gte("spend_date", startDate),
+    admin.from("ad_spend_daily").select("spend_cents").gte("spend_date", prevStartDate).lt("spend_date", startDate),
     admin.from("analytics_outbox").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("analytics_outbox").select("id", { count: "exact", head: true }).eq("status", "error"),
   ]);
 
-  const eventRows = (eventsRes.data ?? []) as EventRow[];
-  const paidOrders = ((ordersRes.data ?? []) as OrderRow[]).filter((order) => !order.metadata?.tracking_internal);
+  const paidOrders = (ordersRes.data ?? []) as OrderRow[];
+  const externalOrders = paidOrders.filter((order) => !order.metadata?.tracking_internal);
+  const spendRows = (spendRes.data ?? []) as SpendRow[];
 
-  // Atribuições das compras (para receita por campanha)
-  const attributionIds = [...new Set(paidOrders.map((o) => o.last_attribution_id).filter(Boolean))] as string[];
+  // ── Série diária (zero-fill no fuso de Brasília) ───────────────────────
+  const revenueByDay = new Map<string, number>();
+  for (const order of externalOrders) {
+    const key = dayKey(new Date(order.created_at));
+    revenueByDay.set(key, (revenueByDay.get(key) ?? 0) + order.amount_cents);
+  }
+  const spendByDay = new Map<string, number>();
+  for (const row of spendRows) {
+    spendByDay.set(row.spend_date, (spendByDay.get(row.spend_date) ?? 0) + row.spend_cents);
+  }
+  const daily: DayPoint[] = [];
+  for (let i = periodDays - 1; i >= 0; i -= 1) {
+    const instant = new Date(now - i * 86_400_000);
+    const date = dayKey(instant);
+    daily.push({
+      date,
+      label: instant.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo" }),
+      revenueCents: revenueByDay.get(date) ?? 0,
+      spendCents: spendByDay.get(date) ?? 0,
+    });
+  }
+
+  // ── Período anterior (deltas) ──────────────────────────────────────────
+  const prevRevenueCents = ((prevOrdersRes.data ?? []) as Array<{ amount_cents: number }>).reduce((sum, order) => sum + order.amount_cents, 0);
+  const prevPurchases = ((prevOrdersRes.data ?? []) as unknown[]).length;
+  const prevSpendRows = (prevSpendRes.data ?? []) as Array<{ spend_cents: number }>;
+  const prevSpendCents = prevSpendRows.length ? prevSpendRows.reduce((sum, row) => sum + row.spend_cents, 0) : null;
+
+  // ── Agregação por campanha ─────────────────────────────────────────────
+  const attributionIds = [...new Set(externalOrders.map((o) => o.last_attribution_id).filter(Boolean))] as string[];
   const { data: attributionsData } = attributionIds.length
     ? await admin.from("analytics_attributions").select("id, source, campaign, campaign_id").in("id", attributionIds)
     : { data: [] as AttributionRow[] };
   const attributionById = new Map(((attributionsData ?? []) as AttributionRow[]).map((row) => [row.id, row]));
 
-  // ── Agregação por campanha ─────────────────────────────────────────────
-  // Chave: campaign_id da plataforma quando existe (casa gasto × receita),
-  // senão o nome da campanha, senão "não atribuído".
   const buckets = new Map<string, CampaignRow>();
   function bucketFor(key: string, label: { campaign: string; source: string }): CampaignRow {
     const existing = buckets.get(key);
     if (existing) {
-      // Upgrade de rótulo: prefere nome de campanha real a id cru.
       if (existing.campaign.startsWith("id:") && label.campaign !== existing.campaign) existing.campaign = label.campaign;
       if (existing.source === "—" && label.source !== "—") existing.source = label.source;
       return existing;
     }
-    const created: CampaignRow = { campaign: label.campaign, source: label.source, sessions: 0, purchases: 0, revenueCents: 0, spendCents: 0, clicks: 0, impressions: 0 };
+    const created: CampaignRow = { campaign: label.campaign, source: label.source, sessions: 0, purchases: 0, revenueCents: 0, spendCents: 0, lucroCents: 0, clicks: 0 };
     buckets.set(key, created);
     return created;
   }
@@ -116,58 +144,60 @@ export async function getDashboardMetrics(periodDays: number): Promise<Dashboard
     const key = campaignKey(attr);
     bucketFor(key, { campaign: attr.campaign ?? attr.campaign_id ?? UNATTRIBUTED_KEY, source: attr.source ?? "—" }).sessions += 1;
   }
-
-  for (const order of paidOrders) {
+  for (const order of externalOrders) {
     const attr = order.last_attribution_id ? attributionById.get(order.last_attribution_id) : undefined;
     const key = attr ? campaignKey(attr) : UNATTRIBUTED_KEY;
     const bucket = bucketFor(key, { campaign: attr?.campaign ?? attr?.campaign_id ?? UNATTRIBUTED_KEY, source: attr?.source ?? "—" });
     bucket.purchases += 1;
     bucket.revenueCents += order.amount_cents;
   }
-
-  for (const spend of (spendRes.data ?? []) as SpendRow[]) {
+  for (const spend of spendRows) {
     const key = spend.campaign_id ? `id:${spend.campaign_id}` : "sem-campanha";
     const bucket = bucketFor(key, { campaign: spend.campaign_id || "(gasto sem campanha)", source: "—" });
     bucket.spendCents += spend.spend_cents;
     bucket.clicks += spend.clicks ?? 0;
-    bucket.impressions += spend.impressions ?? 0;
+  }
+  for (const bucket of buckets.values()) {
+    bucket.lucroCents = bucket.revenueCents - bucket.spendCents;
   }
 
-  // ── Funil (dedup por order > sessão > visitante, como o painel principal) ──
-  const funnel = FUNNEL_STEPS.map(({ name, label }) => {
-    const keys = new Set(
-      eventRows
-        .filter((event) => event.event_name === name)
-        .map((event) => event.order_id ?? event.session_id ?? event.visitor_id)
-        .filter(Boolean),
-    );
-    return { name, label, count: keys.size };
-  });
-
-  // ── Totais ──────────────────────────────────────────────────────────────
-  const revenueCents = paidOrders.reduce((sum, order) => sum + order.amount_cents, 0);
-  const spendRows = (spendRes.data ?? []) as SpendRow[];
+  // ── Totais ─────────────────────────────────────────────────────────────
+  const revenueCents = externalOrders.reduce((sum, order) => sum + order.amount_cents, 0);
   const spendCents = spendRows.length ? spendRows.reduce((sum, row) => sum + row.spend_cents, 0) : null;
-  const attributedCount = paidOrders.filter((order) => order.last_attribution_id).length;
+  const lucroCents = revenueCents - (spendCents ?? 0);
+  const purchases = externalOrders.length;
+  const sessions = sessionsRes.count ?? 0;
+  const lastEvent = await admin
+    .from("analytics_events")
+    .select("received_at")
+    .eq("is_internal", false)
+    .order("received_at", { ascending: false })
+    .limit(1);
 
   return {
     periodDays,
     visitors: visitorsRes.count ?? 0,
-    sessions: sessionsRes.count ?? 0,
-    purchases: paidOrders.length,
+    sessions,
+    purchases,
     revenueCents,
     spendCents,
+    lucroCents,
     roas: spendCents ? Math.round((revenueCents / spendCents) * 100) / 100 : null,
-    cpaCents: spendCents !== null && paidOrders.length > 0 ? Math.round(spendCents / paidOrders.length) : null,
-    funnel,
+    ticketMedioCents: purchases > 0 ? Math.round(revenueCents / purchases) : null,
+    cpaCents: spendCents !== null && purchases > 0 ? Math.round(spendCents / purchases) : null,
+    conversionRate: sessions > 0 ? Math.round((purchases / sessions) * 1000) / 10 : null,
+    daily,
     campaigns: [...buckets.values()].sort((a, b) => b.revenueCents - a.revenueCents || b.sessions - a.sessions),
+    prev: {
+      revenueCents: prevRevenueCents,
+      purchases: prevPurchases,
+      spendCents: prevSpendCents,
+      lucroCents: prevRevenueCents - (prevSpendCents ?? 0),
+    },
     health: {
-      lastEventAt: eventRows[0]?.received_at ?? null,
-      events24h: eventRows.filter((event) => event.received_at >= since24h).length,
+      lastEventAt: (lastEvent.data?.[0] as { received_at: string } | undefined)?.received_at ?? null,
       outboxPending: pendingRes.count ?? 0,
       outboxErrors: errorsRes.count ?? 0,
-      unattributedPurchases: paidOrders.length - attributedCount,
-      attributionCoveragePercent: paidOrders.length > 0 ? Math.round((attributedCount / paidOrders.length) * 1000) / 10 : null,
     },
   };
 }

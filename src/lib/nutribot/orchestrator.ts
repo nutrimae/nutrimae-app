@@ -19,7 +19,7 @@ import { logConversationTurn } from "./conversationLog";
 type AdminClient = ReturnType<typeof createAdminClient>;
 type TypebotClient = ReturnType<typeof createTypebotClient>;
 
-/** Qualquer provedor de envio (Evolution API, WhatsApp Cloud API, ...) — só precisa saber mandar texto. */
+/** Cliente de envio de WhatsApp (Cloud API oficial da Meta) — só precisa saber mandar texto. */
 export interface WhatsAppSendClient {
   sendText(args: { to: string; message: string }): Promise<unknown>;
 }
@@ -27,7 +27,7 @@ export interface WhatsAppSendClient {
 interface Deps {
   db: AdminClient;
   typebot: TypebotClient;
-  evolution: WhatsAppSendClient;
+  whatsapp: WhatsAppSendClient;
   now?: Date;
   sessionTtlHours?: number;
   errorCooldownMinutes?: number;
@@ -36,7 +36,7 @@ interface Deps {
 /**
  * Orquestra UM evento de webhook de ponta a ponta: normalização -> claim
  * (dedup) -> decisão de rota -> chamada ao Typebot quando aplicável ->
- * persistência -> envio via Evolution API.
+ * persistência -> envio via WhatsApp Cloud API.
  *
  * Portado de nutribot-n8n/src/orchestrator.js — mesma lógica de negócio,
  * testada e validada em produção rodando via n8n; só a "cola" de
@@ -258,5 +258,5 @@ async function handleTypebotError(
 }
 
 async function sendText(deps: Deps, phone: string, message: string) {
-  await deps.evolution.sendText({ to: phone, message });
+  await deps.whatsapp.sendText({ to: phone, message });
 }

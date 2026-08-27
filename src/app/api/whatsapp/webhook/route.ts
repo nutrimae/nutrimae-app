@@ -1,43 +1,22 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createTypebotClient } from "@/lib/nutribot/typebotClient";
-import { createEvolutionClient } from "@/lib/nutribot/evolutionClient";
 import { createWhatsAppCloudClient } from "@/lib/nutribot/whatsappCloudClient";
-import { normalizeEvent, normalizeMetaEvent } from "@/lib/nutribot/normalize";
+import { normalizeMetaEvent } from "@/lib/nutribot/normalize";
 import { handleWhatsAppEvent, type WhatsAppSendClient } from "@/lib/nutribot/orchestrator";
 import { logError, logInfo } from "@/lib/nutribot/logger";
+import { verifyMetaSignature } from "@/lib/nutribot/webhook-auth";
 
 /**
- * Webhook do NutriBot. Aceita dois provedores em paralelo durante a
- * migração da Evolution API (self-hosted, biblioteca não-oficial — fica
- * sujeita a bloqueio de envio quando o WhatsApp detecta automação) pra
- * WhatsApp Cloud API (Meta, oficial). Qual provedor processa a mensagem é
- * decidido pelo FORMATO do payload recebido, não por configuração manual:
- * a Cloud API sempre manda `{"object": "whatsapp_business_account", ...}`
- * no nível raiz; a Evolution API nunca manda esse campo.
+ * Webhook do NutriBot. Apenas WhatsApp Cloud API (Meta, oficial).
  *
- * Depois que a migração terminar de verdade (número da Cloud API
- * registrado, testado, e o webhook da Evolution API desativado no
- * servidor), dá pra remover o branch antigo — mantido por enquanto pra não
- * derrubar o bot em produção enquanto a Cloud API ainda está em teste.
- *
- * Segurança:
- * - Evolution API: token compartilhado na query string (?token=...),
- *   verificado contra WHATSAPP_WEBHOOK_TOKEN — ela não assina o payload.
- * - Cloud API: a Meta faz um handshake de verificação via GET na primeira
- *   configuração (hub.mode/hub.verify_token/hub.challenge), verificado
- *   contra META_WHATSAPP_VERIFY_TOKEN. Os POSTs em si também exigem o
- *   mesmo ?token=... na URL, pelo mesmo motivo — mais simples que validar
- *   a assinatura X-Hub-Signature-256 por enquanto.
+ * SEC-003 Segurança (Camada de Transporte e Autenticidade):
+ * - HTTPS/TLS garantem a segurança em trânsito (não é e2ee do app WhatsApp).
+ * - Cloud API: handshake inicial GET usa hub.verify_token.
+ * - POST assegura autenticidade e integridade via HMAC-SHA256 do raw body
+ *   no header X-Hub-Signature-256.
+ * - Fail-closed estrito caso META_WHATSAPP_APP_SECRET esteja ausente.
  */
-
-function verifyWebhookToken(request: Request): boolean {
-  const expected = process.env.WHATSAPP_WEBHOOK_TOKEN;
-  if (!expected) return false; // sem token configurado: nunca aceita (fail-closed)
-
-  const { searchParams } = new URL(request.url);
-  return searchParams.get("token") === expected;
-}
 
 /** Handshake de verificação do webhook da Meta — chamado uma vez quando você registra a URL no painel. */
 export async function GET(request: Request) {
@@ -54,19 +33,31 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!verifyWebhookToken(request)) {
-    return NextResponse.json({ error: "invalid_token" }, { status: 401 });
+  let rawBody: string;
+  try {
+    rawBody = await request.text();
+  } catch {
+    return NextResponse.json({ error: "missing_body" }, { status: 400 });
+  }
+
+  const signature = request.headers.get("x-hub-signature-256");
+  if (!verifyMetaSignature(rawBody, signature)) {
+    return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
   }
 
   let payload: unknown;
   try {
-    payload = await request.json();
+    payload = JSON.parse(rawBody);
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
   const isMetaPayload =
     typeof payload === "object" && payload !== null && (payload as { object?: unknown }).object === "whatsapp_business_account";
+
+  if (!isMetaPayload) {
+    return NextResponse.json({ error: "invalid_payload_format" }, { status: 400 });
+  }
 
   const admin = createAdminClient();
 
@@ -83,65 +74,37 @@ export async function POST(request: Request) {
     timeoutMs: Number(process.env.TYPEBOT_TIMEOUT_MS ?? 15_000),
   });
 
-  let event;
-  let sendClient: WhatsAppSendClient;
-
-  if (isMetaPayload) {
-    const metaAccessToken = process.env.META_WHATSAPP_ACCESS_TOKEN;
-    const metaPhoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID;
-    if (!metaAccessToken || !metaPhoneNumberId) {
-      logError("whatsapp-webhook.missing_meta_env", {});
-      return NextResponse.json({ error: "missing_configuration" }, { status: 500 });
-    }
-
-    const normalized = normalizeMetaEvent(payload);
-    if (!normalized) {
-      // Webhook de status (entregue/lido) ou payload sem mensagem — nada a processar, mas confirma recebimento.
-      return NextResponse.json({ ok: true, ignored: "no_message" });
-    }
-    event = normalized;
-    sendClient = createWhatsAppCloudClient({
-      phoneNumberId: metaPhoneNumberId,
-      accessToken: metaAccessToken,
-      timeoutMs: Number(process.env.WHATSAPP_SEND_TIMEOUT_MS ?? 10_000),
-    });
-  } else {
-    // Evolution API pode mandar vários tipos de evento (conexão, presença, etc.) — só messages.upsert interessa.
-    const evolutionPayload = payload as { event?: string };
-    if (evolutionPayload.event && evolutionPayload.event !== "messages.upsert") {
-      return NextResponse.json({ ok: true, ignored: evolutionPayload.event });
-    }
-
-    const evolutionApiUrl = process.env.EVOLUTION_API_URL;
-    const evolutionApiKey = process.env.EVOLUTION_API_KEY;
-    const evolutionInstanceName = process.env.EVOLUTION_INSTANCE_NAME;
-    if (!evolutionApiUrl || !evolutionApiKey || !evolutionInstanceName) {
-      logError("whatsapp-webhook.missing_env", {});
-      return NextResponse.json({ error: "missing_configuration" }, { status: 500 });
-    }
-
-    event = normalizeEvent(payload);
-    sendClient = createEvolutionClient({
-      baseUrl: evolutionApiUrl,
-      instanceName: evolutionInstanceName,
-      apiKey: evolutionApiKey,
-      timeoutMs: Number(process.env.WHATSAPP_SEND_TIMEOUT_MS ?? 10_000),
-    });
+  const metaAccessToken = process.env.META_WHATSAPP_ACCESS_TOKEN;
+  const metaPhoneNumberId = process.env.META_WHATSAPP_PHONE_NUMBER_ID;
+  if (!metaAccessToken || !metaPhoneNumberId) {
+    logError("whatsapp-webhook.missing_meta_env", {});
+    return NextResponse.json({ error: "missing_configuration" }, { status: 500 });
   }
 
+  const normalized = normalizeMetaEvent(payload);
+  if (!normalized) {
+    // Webhook de status (entregue/lido) ou payload sem mensagem — nada a processar, mas confirma recebimento.
+    return NextResponse.json({ ok: true, ignored: "no_message" });
+  }
+
+  const sendClient = createWhatsAppCloudClient({
+    phoneNumberId: metaPhoneNumberId,
+    accessToken: metaAccessToken,
+    timeoutMs: Number(process.env.WHATSAPP_SEND_TIMEOUT_MS ?? 10_000),
+  });
+
   try {
-    const result = await handleWhatsAppEvent(event, {
+    const result = await handleWhatsAppEvent(normalized, {
       db: admin,
       typebot,
-      evolution: sendClient,
+      whatsapp: sendClient,
       sessionTtlHours: Number(process.env.SESSION_TTL_HOURS ?? 24),
       errorCooldownMinutes: Number(process.env.ERROR_MESSAGE_COOLDOWN_MINUTES ?? 10),
     });
-    logInfo("whatsapp-webhook.processed", { route: result.route, sent: result.sent, provider: isMetaPayload ? "meta" : "evolution" });
+    logInfo("whatsapp-webhook.processed", { route: result.route, sent: result.sent, provider: "meta" });
   } catch (err) {
     logError("whatsapp-webhook.failed", { errorMessage: err instanceof Error ? err.message : String(err) });
   }
 
-  // Ambos os provedores esperam 200 rapidamente — não reenviar em loop.
   return NextResponse.json({ ok: true });
 }

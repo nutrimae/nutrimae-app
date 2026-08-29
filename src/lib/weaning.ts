@@ -34,8 +34,8 @@ export const WEANING_TRACKS: WeaningTrack[] = [
     id: "acalmar-sem-peito",
     title: "Como acalmar sem o peito",
     subtitle: "Alternativas de colo, embalo e voz para substituir a mamada",
-    durationLabel: "7 min",
-    hasAudio: false,
+    durationLabel: "3 min",
+    hasAudio: true,
   },
   {
     id: "recaidas-de-madrugada",

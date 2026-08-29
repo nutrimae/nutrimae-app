@@ -21,14 +21,14 @@ export const WEANING_TRACKS: WeaningTrack[] = [
     title: "Respire — o passo a passo de agora",
     subtitle: "2 minutos de instrução direta para o choro desta madrugada",
     durationLabel: "2 min",
-    hasAudio: false,
+    hasAudio: true,
   },
   {
     id: "tecnica-da-reducao",
     title: "A técnica da redução gradual",
     subtitle: "Como diminuir o tempo de mamada aos poucos, sem trauma",
-    durationLabel: "8 min",
-    hasAudio: false,
+    durationLabel: "4 min",
+    hasAudio: true,
   },
   {
     id: "acalmar-sem-peito",
@@ -41,15 +41,15 @@ export const WEANING_TRACKS: WeaningTrack[] = [
     id: "recaidas-de-madrugada",
     title: "Recaídas de madrugada são normais",
     subtitle: "O que fazer quando uma noite foge do plano",
-    durationLabel: "6 min",
-    hasAudio: false,
+    durationLabel: "3 min",
+    hasAudio: true,
   },
   {
     id: "papel-do-parceiro",
     title: "O papel do parceiro nessa fase",
     subtitle: "Como dividir a madrugada sem depender só de você",
-    durationLabel: "5 min",
-    hasAudio: false,
+    durationLabel: "2 min",
+    hasAudio: true,
   },
 ];
 

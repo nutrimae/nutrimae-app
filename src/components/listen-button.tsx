@@ -1,7 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Volume2, Pause, Loader2 } from "lucide-react";
+
+// Compartilhado entre TODAS as instâncias de ListenButton na página — garante
+// que só um áudio toca por vez (clicar em "Ouvir" num outro cartão pausa o
+// anterior) e serve de referência única pra saber qual instância parar.
+let currentlyPlaying: HTMLAudioElement | null = null;
 
 interface ListenButtonProps {
   /** Tipo de conteúdo (food, recipe, sos, allergy). */
@@ -26,6 +31,18 @@ export function ListenButton({ contentType, contentId, text, className = "" }: L
   const [state, setState] = useState<PlayState>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Ao desmontar (ex.: usuária clica em "voltar" e a tela muda), para o
+  // áudio em vez de deixá-lo tocando "fantasma" em segundo plano — era isso
+  // que causava duas vozes sobrepostas ao clicar em "Ouvir" de novo depois.
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      if (currentlyPlaying === audioRef.current) {
+        currentlyPlaying = null;
+      }
+    };
+  }, []);
+
   const handleClick = useCallback(async () => {
     if (state === "playing") {
       audioRef.current?.pause();
@@ -34,7 +51,9 @@ export function ListenButton({ contentType, contentId, text, className = "" }: L
     }
 
     if (state === "paused" && audioRef.current) {
+      if (currentlyPlaying && currentlyPlaying !== audioRef.current) currentlyPlaying.pause();
       await audioRef.current.play();
+      currentlyPlaying = audioRef.current;
       setState("playing");
       return;
     }
@@ -47,12 +66,21 @@ export function ListenButton({ contentType, contentId, text, className = "" }: L
 
       if (!audioRef.current) {
         audioRef.current = new Audio();
-        audioRef.current.addEventListener("ended", () => setState("idle"));
-        audioRef.current.addEventListener("error", () => setState("idle"));
+        audioRef.current.addEventListener("ended", () => {
+          setState("idle");
+          if (currentlyPlaying === audioRef.current) currentlyPlaying = null;
+        });
+        audioRef.current.addEventListener("error", () => {
+          setState("idle");
+          if (currentlyPlaying === audioRef.current) currentlyPlaying = null;
+        });
       }
+
+      if (currentlyPlaying && currentlyPlaying !== audioRef.current) currentlyPlaying.pause();
 
       audioRef.current.src = url;
       await audioRef.current.play();
+      currentlyPlaying = audioRef.current;
       setState("playing");
     } catch {
       setState("idle");

@@ -5,7 +5,8 @@ import { findOrCreateLocalCustomer } from "@/lib/payments/find-or-create-custome
 import { isValidCpf } from "@/lib/utils";
 import { resolveCheckoutTracking, type CheckoutTrackingInput } from "@/lib/tracking/server";
 import { generateStatusToken } from "@/lib/checkout/status-token";
-import { isCheckoutRateLimited } from "@/lib/checkout/rate-limit";
+import { isCheckoutRateLimited, extractClientIp } from "@/lib/checkout/rate-limit";
+import { verifyTurnstileToken } from "@/lib/checkout/turnstile";
 
 /**
  * Único lugar que calcula preço. O corpo da requisição só carrega
@@ -29,6 +30,7 @@ interface CheckoutBody {
   utm?: unknown;
   quizAnswers?: unknown;
   tracking?: CheckoutTrackingInput;
+  turnstileToken?: unknown;
 }
 
 function onlyDigits(value: string): string {
@@ -71,6 +73,13 @@ export async function POST(request: Request) {
 
   if (!offerSlug || !paymentMethod || !customerName || !customerEmail || !isValidCpf(customerDocument)) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
+  }
+
+  // SEC-012: proteção contra bot (Cloudflare Turnstile). Fica pulada
+  // enquanto TURNSTILE_SECRET_KEY não existir — ver src/lib/checkout/turnstile.ts.
+  const turnstileToken = typeof body.turnstileToken === "string" ? body.turnstileToken : null;
+  if (!(await verifyTurnstileToken(turnstileToken, extractClientIp(request)))) {
+    return NextResponse.json({ error: "bot_verification_failed" }, { status: 403 });
   }
 
   // SEC-005: rate limit por e-mail (agora que lemos o body).

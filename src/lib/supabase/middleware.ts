@@ -46,6 +46,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // Toda rota pública, exceto "/login", já está liberada independente de
+  // `user` — nenhuma delas usa `requiresPurchasedAccess` nem a lógica de
+  // redirecionar quem já está logado (isso é exclusivo de "/login"). Pular
+  // a checagem aqui evita uma volta de rede inteira até o Auth do Supabase
+  // (supabase.auth.getUser()) em toda visita ao checkout/upsell/downsell —
+  // exatamente onde a demora de carregamento mais incomoda.
+  if (isPublicPath(pathname) && pathname !== "/login") {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

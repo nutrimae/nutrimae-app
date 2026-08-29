@@ -202,6 +202,17 @@ export default function ListaComprasPage() {
     }
   }
 
+  async function clearList() {
+    if (!activeBaby) return;
+    if (!window.confirm("Limpar toda a lista? Isso desmarca os itens pegos e remove os itens que você adicionou.")) return;
+
+    setChecked(new Set());
+    setExtras([]);
+    window.localStorage.removeItem(`nutrimae:shopping-extras:${activeBaby.id}`);
+    await supabase.from("shopping_list_checks").delete().eq("baby_id", activeBaby.id);
+    showToast("Lista limpa!");
+  }
+
   function handleShareWhatsApp() {
     if (!activeBaby) return;
     const lines = [`🛒 Lista de compras de ${activeBaby.name}`, ""];
@@ -227,12 +238,22 @@ export default function ListaComprasPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Lista de compras</h1>
-        <p className="mt-1 text-sm text-brown-700/90">
-          Gerada a partir do cardápio da semana de {activeBaby.name}.
-          {!loading && totalItems > 0 && ` ${checkedCount} de ${totalItems} já pegos.`}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-2xl font-bold text-brown-800">Lista de compras</h1>
+          <p className="mt-1 text-sm text-brown-700/90">
+            Gerada a partir do cardápio da semana de {activeBaby.name}.
+            {!loading && totalItems > 0 && ` ${checkedCount} de ${totalItems} já pegos.`}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={clearList}
+          disabled={loading || (checkedCount === 0 && extras.length === 0)}
+          className="shrink-0 whitespace-nowrap pt-1 text-xs font-semibold text-brown-700/60 underline-offset-2 active:text-red-500 active:underline disabled:opacity-40"
+        >
+          Limpar lista
+        </button>
       </div>
 
       <button

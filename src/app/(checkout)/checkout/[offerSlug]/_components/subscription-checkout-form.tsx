@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
 import { getCheckoutTrackingContext, getQuizAnswers, track } from "@/lib/tracking/client";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 interface Bump {
   id: string;
@@ -56,6 +57,7 @@ export function SubscriptionCheckoutForm({
   const [billingAddress, setBillingAddress] = useState<BillingAddressValue>({ line1: "", zipCode: "", city: "", state: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   useEffect(() => { track("checkout_viewed", { offer_slug: offer.slug }); }, [offer.slug]);
 
@@ -84,6 +86,11 @@ export function SubscriptionCheckoutForm({
       return;
     }
 
+    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError("Confirme que você não é um robô antes de continuar.");
+      return;
+    }
+
     setLoading(true);
     track("checkout_submitted", { offer_slug: offer.slug, payment_method: "credit_card", bump_slugs: selectedBumps });
     try {
@@ -106,12 +113,17 @@ export function SubscriptionCheckoutForm({
           customer: { name, email, document, phone },
           tracking: getCheckoutTrackingContext(),
           quizAnswers: getQuizAnswers(),
+          turnstileToken,
         }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        setError("Não conseguimos processar sua assinatura agora. Tente de novo em instantes.");
+        setError(
+          data.error === "bot_verification_failed"
+            ? "Não conseguimos confirmar que você não é um robô. Atualize a página e tente de novo."
+            : "Não conseguimos processar sua assinatura agora. Tente de novo em instantes.",
+        );
         setLoading(false);
         return;
       }
@@ -202,6 +214,8 @@ export function SubscriptionCheckoutForm({
         </div>
         <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
       </div>
+
+      <TurnstileWidget onToken={setTurnstileToken} />
 
       {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
 

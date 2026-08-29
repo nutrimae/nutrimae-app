@@ -13,6 +13,7 @@ import { Chip } from "@/components/ui/chip";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
 import { getCheckoutTrackingContext, getQuizAnswers, track } from "@/lib/tracking/client";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 interface Bump {
   id: string;
@@ -50,6 +51,7 @@ export function CheckoutForm({
   const [error, setError] = useState<string | null>(null);
   const [pix, setPix] = useState<{ orderId: string; qrCode: string; qrCodeUrl: string; expiresAt: string } | null>(null);
   const [pixCopied, setPixCopied] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   useEffect(() => { track("checkout_viewed", { offer_slug: offer.slug }); }, [offer.slug]);
 
@@ -80,6 +82,11 @@ export function CheckoutForm({
       return;
     }
 
+    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError("Confirme que você não é um robô antes de continuar.");
+      return;
+    }
+
     setLoading(true);
     track("checkout_submitted", { offer_slug: offer.slug, payment_method: paymentMethod, bump_slugs: selectedBumps });
     try {
@@ -106,12 +113,19 @@ export function CheckoutForm({
           customer: { name, email, document, phone },
           tracking: getCheckoutTrackingContext(),
           quizAnswers: getQuizAnswers(),
+          turnstileToken,
         }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error === "payment_processing_failed" ? "Não conseguimos processar o pagamento agora. Tente de novo em instantes." : "Confira os dados e tente de novo.");
+        setError(
+          data.error === "bot_verification_failed"
+            ? "Não conseguimos confirmar que você não é um robô. Atualize a página e tente de novo."
+            : data.error === "payment_processing_failed"
+              ? "Não conseguimos processar o pagamento agora. Tente de novo em instantes."
+              : "Confira os dados e tente de novo.",
+        );
         setLoading(false);
         return;
       }
@@ -307,6 +321,8 @@ export function CheckoutForm({
           <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
         </div>
       )}
+
+      <TurnstileWidget onToken={setTurnstileToken} />
 
       {error && (
         <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>

@@ -22,28 +22,35 @@ export default async function CheckoutOfferPage({
   const { offerSlug } = await params;
   const admin = createAdminClient();
 
-  const { data: offer } = await admin
-    .from("offers")
-    .select("id, slug, name, price_cents, recurring_price_cents, billing_type, active")
-    .eq("slug", offerSlug)
-    .maybeSingle();
+  // As duas consultas não dependem uma da outra (a lista de bumps é fixa por
+  // slug, não pelo resultado da oferta) — rodam em paralelo pra cortar uma
+  // volta inteira de rede no carregamento do checkout.
+  const wantsBumps = offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-mensal";
+  const [{ data: offer }, { data: bumpsData }] = await Promise.all([
+    admin
+      .from("offers")
+      .select("id, slug, name, price_cents, recurring_price_cents, billing_type, active")
+      .eq("slug", offerSlug)
+      .maybeSingle(),
+    wantsBumps
+      ? admin
+          .from("offers")
+          .select("id, slug, name, price_cents")
+          .in("slug", ["batch-cooking", "sos-desmame", "protocolo-intestino", "nutribot-30d"])
+          .eq("active", true)
+      : Promise.resolve({ data: null }),
+  ]);
 
   if (!offer || !offer.active) {
     notFound();
   }
 
-  let bumps: Array<{ id: string; slug: string; name: string; price_cents: number }> = [];
-  if (offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-mensal") {
-    const { data } = await admin
-      .from("offers")
-      .select("id, slug, name, price_cents")
-      .in("slug", ["batch-cooking", "sos-desmame", "protocolo-intestino", "nutribot-30d"])
-      .eq("active", true);
-    // Batch Cooking primeiro de propósito: resolve a dor que a compra
-    // principal acabou de criar ("o que eu dou" -> "quando eu cozinho isso").
-    const priority = ["batch-cooking", "sos-desmame", "protocolo-intestino", "nutribot-30d"];
-    bumps = (data ?? []).sort((a, b) => priority.indexOf(a.slug) - priority.indexOf(b.slug));
-  }
+  // Batch Cooking primeiro de propósito: resolve a dor que a compra
+  // principal acabou de criar ("o que eu dou" -> "quando eu cozinho isso").
+  const priority = ["batch-cooking", "sos-desmame", "protocolo-intestino", "nutribot-30d"];
+  const bumps: Array<{ id: string; slug: string; name: string; price_cents: number }> = (bumpsData ?? []).sort(
+    (a, b) => priority.indexOf(a.slug) - priority.indexOf(b.slug),
+  );
 
   return (
     <main className="min-h-dvh bg-cream pb-10">

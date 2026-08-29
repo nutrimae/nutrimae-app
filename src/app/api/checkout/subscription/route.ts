@@ -6,7 +6,8 @@ import { resolveParentCustomer } from "@/lib/payments/resolve-parent-customer";
 import { isValidCpf } from "@/lib/utils";
 import type { PaymentProvider, BillingAddress } from "@/lib/payments/provider";
 import { resolveCheckoutTracking, type CheckoutTrackingInput, type ResolvedCheckoutTracking } from "@/lib/tracking/server";
-import { isCheckoutRateLimited } from "@/lib/checkout/rate-limit";
+import { isCheckoutRateLimited, extractClientIp } from "@/lib/checkout/rate-limit";
+import { verifyTurnstileToken } from "@/lib/checkout/turnstile";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -47,6 +48,7 @@ interface SubscriptionBody {
   bumpSlugs?: unknown;
   tracking?: CheckoutTrackingInput;
   quizAnswers?: unknown;
+  turnstileToken?: unknown;
 }
 
 function onlyDigits(value: string): string {
@@ -92,6 +94,17 @@ export async function POST(request: Request) {
 
   if (!parentSubscriptionId && (!customerName || !customerEmail || !isValidCpf(customerDocument))) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
+  }
+
+  // SEC-012: proteção contra bot (Cloudflare Turnstile) — mesma trava do
+  // checkout principal. Só assinatura NOVA passa por aqui: upsell de
+  // assinatura já paga (parentSubscriptionId) reaproveita um cliente que já
+  // passou pela verificação no checkout original.
+  if (!parentSubscriptionId) {
+    const turnstileToken = typeof body.turnstileToken === "string" ? body.turnstileToken : null;
+    if (!(await verifyTurnstileToken(turnstileToken, extractClientIp(request)))) {
+      return NextResponse.json({ error: "bot_verification_failed" }, { status: 403 });
+    }
   }
 
   if (customerEmail && await isCheckoutRateLimited(request, customerEmail)) {

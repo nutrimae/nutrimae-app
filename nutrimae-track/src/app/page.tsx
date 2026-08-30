@@ -35,6 +35,10 @@ function Delta({ current, previous, tone }: { current: number; previous: number 
   );
 }
 
+function LowSampleBadge() {
+  return <span className="badge-sample" title={`Menos de 30 vendas — ROAS ainda pode mudar bastante com poucos dados a mais.`}>amostra baixa</span>;
+}
+
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAuth();
 
@@ -47,6 +51,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const maxDaily = Math.max(1, ...m.daily.map((d) => Math.max(d.revenueCents, d.spendCents)));
   const hasMoney = m.revenueCents > 0 || (m.spendCents ?? 0) > 0;
   const axisStep = Math.ceil(m.daily.length / 6);
+  const funnelMax = Math.max(1, m.funnel.sessions, m.funnel.checkoutViewed, m.funnel.checkoutSubmitted, m.funnel.purchases);
 
   return (
     <main className="page">
@@ -71,6 +76,31 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       <p className="stamp muted">
         Últimos {m.periodDays} dias · atualizado {now}
       </p>
+
+      {m.alerts.length > 0 ? (
+        <section className="alerts" aria-label="Alertas">
+          {m.alerts.map((alert, i) => (
+            <div key={i} className={`alert alert-${alert.level}`}>
+              <span className="alert-icon" aria-hidden="true">{alert.level === "critical" ? "!" : "•"}</span>
+              {alert.message}
+            </div>
+          ))}
+        </section>
+      ) : null}
+
+      {m.suggestions.length > 0 ? (
+        <section className="panel suggestions-panel" aria-label="Sugestões">
+          <div className="panel-head">
+            <h2>Próxima ação sugerida</h2>
+            <span className="sub muted" style={{ fontSize: "0.72rem" }}>regras automáticas, não é achismo</span>
+          </div>
+          <ul className="suggestions-list">
+            {m.suggestions.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="band" aria-label="Resumo do período">
         <div className="band-hero">
@@ -97,7 +127,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div className="band-cell">
             <span className="metric-label">ROAS</span>
             <strong className="num">{m.roas === null ? "—" : `${m.roas.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}×`}</strong>
-            {m.roas !== null ? <span className="sub">{m.roas >= 1 ? "pagando o investimento" : "abaixo do investimento"}</span> : <span className="sub">importe o gasto diário</span>}
+            {m.roas !== null ? (
+              <span className="sub">ponto de equilíbrio: {m.breakEvenRoas}× — {m.roas >= m.breakEvenRoas ? "acima" : "abaixo"}</span>
+            ) : (
+              <span className="sub">importe o gasto diário</span>
+            )}
           </div>
         </div>
       </section>
@@ -145,6 +179,31 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         )}
       </section>
 
+      <section className="panel" aria-label="Funil de conversão">
+        <div className="panel-head">
+          <h2>Funil</h2>
+        </div>
+        <div className="funnel">
+          {[
+            { label: "Sessões", value: m.funnel.sessions, pct: null },
+            { label: "Viu o checkout", value: m.funnel.checkoutViewed, pct: m.funnel.sessionToViewedPct },
+            { label: "Enviou o formulário", value: m.funnel.checkoutSubmitted, pct: m.funnel.viewedToSubmittedPct },
+            { label: "Comprou", value: m.funnel.purchases, pct: m.funnel.submittedToPurchasePct },
+          ].map((step) => (
+            <div className="funnel-step" key={step.label}>
+              <div className="funnel-bar-track">
+                <div className="funnel-bar" style={{ width: `${Math.max(2, (step.value / funnelMax) * 100)}%` }} />
+              </div>
+              <div className="funnel-info">
+                <span className="funnel-label">{step.label}</span>
+                <span className="funnel-value num">{int(step.value)}</span>
+                {step.pct !== null ? <span className="funnel-pct num">{step.pct}%</span> : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="panel" aria-label="Campanhas">
         <div className="panel-head">
           <h2>Campanhas</h2>
@@ -178,12 +237,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     </td>
                     <td className="num">
                       {row.spendCents > 0 ? (
-                        <span className={`roas-chip ${row.revenueCents >= row.spendCents ? "roas-good" : "roas-bad"}`}>
+                        <span className={`roas-chip ${row.revenueCents / row.spendCents >= m.breakEvenRoas ? "roas-good" : "roas-bad"}`}>
                           {(row.revenueCents / row.spendCents).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}×
                         </span>
                       ) : (
                         "—"
                       )}
+                      {row.purchases > 0 && row.lowSample ? <LowSampleBadge /> : null}
                     </td>
                   </tr>
                 ))}
@@ -196,6 +256,133 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             Instale o padrão UTM nos links dos anúncios (<code>?utm_source=meta&amp;utm_campaign=nome</code>) para ver vendas, lucro e ROI por campanha.
           </div>
         )}
+      </section>
+
+      {m.creatives.length > 0 ? (
+        <section className="panel" aria-label="Criativos">
+          <div className="panel-head">
+            <h2>Criativos</h2>
+            <span className="sub muted" style={{ fontSize: "0.72rem" }}>qual peça específica converte — não só qual campanha</span>
+          </div>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Criativo</th>
+                  <th>Ângulo</th>
+                  <th className="num">Vendas</th>
+                  <th className="num">Receita</th>
+                  <th className="num">Investimento</th>
+                  <th className="num">ROAS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.creatives.map((row) => (
+                  <tr key={row.creativeId}>
+                    <td>
+                      <span className="campaign-name">{row.name}</span>
+                      {row.format ? <span className="campaign-source">{row.format}</span> : null}
+                    </td>
+                    <td className="muted">{row.angle ?? row.hook ?? "—"}</td>
+                    <td className="num">{int(row.purchases)}</td>
+                    <td className="num">{brl(row.revenueCents)}</td>
+                    <td className="num">{row.spendCents > 0 ? brl(row.spendCents) : "—"}</td>
+                    <td className="num">
+                      {row.roas !== null ? (
+                        <span className={`roas-chip ${row.roas >= m.breakEvenRoas ? "roas-good" : "roas-bad"}`}>
+                          {row.roas.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}×
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                      {row.purchases > 0 && row.lowSample ? <LowSampleBadge /> : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="panel" aria-label="Ofertas">
+        <div className="panel-head">
+          <h2>Ofertas</h2>
+          <span className="sub muted" style={{ fontSize: "0.72rem" }}>plano principal, bumps, upsells e downsells — todos os produtos deste painel</span>
+        </div>
+        {m.offers.length > 0 ? (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Oferta</th>
+                  <th className="num">Vendas</th>
+                  <th className="num">Receita</th>
+                  <th className="num">Ticket médio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.offers.map((row) => (
+                  <tr key={row.offerId}>
+                    <td>
+                      <span className="campaign-name">{row.offerName}</span>
+                      {row.isAddon ? <span className="campaign-source">bump/upsell/downsell</span> : null}
+                    </td>
+                    <td className="num">{int(row.purchases)}</td>
+                    <td className="num">{brl(row.revenueCents)}</td>
+                    <td className="num">{row.ticketMedioCents !== null ? brl(row.ticketMedioCents) : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty">
+            <span className="empty-title">Nenhuma venda no período</span>
+          </div>
+        )}
+      </section>
+
+      <section className="split-row">
+        <div className="panel" aria-label="Forma de pagamento">
+          <div className="panel-head"><h2>Forma de pagamento</h2></div>
+          {m.paymentMethods.length > 0 ? (
+            <div className="mini-table">
+              {m.paymentMethods.map((row) => (
+                <div className="mini-row" key={row.method}>
+                  <span className="mini-label">{row.method === "pix" ? "Pix" : row.method === "credit_card" ? "Cartão" : row.method}</span>
+                  <span className="num">{int(row.purchases)} vendas</span>
+                  <span className="num mini-strong">{brl(row.revenueCents)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty"><span className="empty-title">Sem vendas no período</span></div>
+          )}
+        </div>
+
+        <div className="panel" aria-label="Reembolsos e chargebacks">
+          <div className="panel-head"><h2>Reembolsos &amp; chargebacks</h2></div>
+          <div className="mini-table">
+            <div className="mini-row">
+              <span className="mini-label">Reembolsado</span>
+              <span className="num">{int(m.refunds.refundCount)}×</span>
+              <span className="num mini-strong">{brl(m.refunds.refundedCents)}</span>
+            </div>
+            <div className="mini-row">
+              <span className="mini-label">Chargeback</span>
+              <span className="num">{int(m.refunds.chargebackCount)}×</span>
+              <span className="num mini-strong">{brl(m.refunds.chargebackCents)}</span>
+            </div>
+            <div className="mini-row">
+              <span className="mini-label">Taxa de perda</span>
+              <span />
+              <span className={`num mini-strong ${m.refunds.lossRatePct !== null && m.refunds.lossRatePct > 10 ? "lucro-neg" : ""}`}>
+                {m.refunds.lossRatePct !== null ? `${m.refunds.lossRatePct}%` : "—"}
+              </span>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="traffic" aria-label="Tráfego">

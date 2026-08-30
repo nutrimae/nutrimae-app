@@ -1,6 +1,10 @@
 /* =====================================================
    NutriMãe — Landing Page (/oferta, versão estática)
    Interatividade (JavaScript vanilla, sem dependências)
+
+   ATENÇÃO: index.html carrega script.min.js (minificado), não este
+   arquivo direto. Depois de editar aqui, rode:
+     npx terser script.js -c -m -o script.min.js
    ===================================================== */
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -1,3 +1,6 @@
+/* ATENÇÃO: index.html carrega support-widget.min.css, não este arquivo
+   direto. Depois de editar aqui, rode:
+     npx clean-css-cli -o support-widget.min.css support-widget.css */
 .support-launcher {
   position: fixed;
   z-index: 1200;

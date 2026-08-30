@@ -1,6 +1,10 @@
 /* =====================================================
    NutriMäe — Landing Page
    Variáveis globais
+
+   ATENÇÃO: index.html carrega styles.min.css (minificado), não este
+   arquivo direto. Depois de editar aqui, rode:
+     npx clean-css-cli -o styles.min.css styles.css
    ===================================================== */
 :root {
   --color-primary: #FF4D8D;

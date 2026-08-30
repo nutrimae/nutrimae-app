@@ -1,3 +1,6 @@
+/* ATENÇÃO: index.html carrega support-widget.min.js, não este arquivo
+   direto. Depois de editar aqui, rode:
+     npx terser support-widget.js -c -m -o support-widget.min.js */
 (function () {
   'use strict';
 

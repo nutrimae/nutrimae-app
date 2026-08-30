@@ -943,7 +943,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function goToCheckout() {
     trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
-    window.location.href = APP_URL + '/checkout/nutrimae-' + selectedPlan;
+    // SEC/TRACKING: repassa utm_*/fbclid/gclid/etc. da URL da landing pro
+    // checkout — sem isso, a mudança de domínio (nutrimae.app ->
+    // app.nutrimae.app) perde toda a atribuição de campanha, e o
+    // src/lib/tracking/client.ts do app só enxerga um referrer genérico.
+    window.location.href = APP_URL + '/checkout/nutrimae-' + selectedPlan + window.location.search;
   }
 
   if (ctaCheckoutDynamic) {

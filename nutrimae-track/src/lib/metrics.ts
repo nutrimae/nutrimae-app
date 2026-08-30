@@ -200,7 +200,12 @@ export async function getDashboardMetrics(periodDays: number): Promise<Dashboard
       .gte("created_at", since),
     admin.from("orders").select("id, amount_cents").eq("status", "paid").gte("created_at", prevSince).lt("created_at", since),
     // 1 atribuição do tipo "session" por sessão (índice único) — linhas = sessões atribuídas.
-    admin.from("analytics_attributions").select("session_id, source, campaign, campaign_id").eq("attribution_type", "session").gte("captured_at", since),
+    admin
+      .from("analytics_attributions")
+      .select("session_id, source, campaign, campaign_id, analytics_sessions!inner(is_internal)")
+      .eq("attribution_type", "session")
+      .eq("analytics_sessions.is_internal", false)
+      .gte("captured_at", since),
     admin.from("ad_spend_daily").select("spend_date, campaign_id, creative_id, spend_cents, clicks").gte("spend_date", startDate),
     admin.from("ad_spend_daily").select("spend_cents").gte("spend_date", prevStartDate).lt("spend_date", startDate),
     admin.from("analytics_outbox").select("id", { count: "exact", head: true }).eq("status", "pending"),

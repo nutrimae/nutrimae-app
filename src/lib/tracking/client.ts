@@ -155,6 +155,21 @@ export function getCheckoutTrackingContext() {
   return { visitorId: context.visitorId, sessionId: context.sessionId };
 }
 
+/**
+ * Cookies que o próprio Pixel do Meta grava no navegador (_fbc = clique de
+ * anúncio, _fbp = navegador) — maior sinal de correspondência que existe
+ * pra API de Conversões, melhor até que e-mail/telefone hasheado sozinho.
+ * Lidos direto do documento porque não fazem parte do nosso storage.
+ */
+export function getFacebookMatchCookies(): { fbc: string | null; fbp: string | null } {
+  if (typeof document === "undefined") return { fbc: null, fbp: null };
+  const read = (name: string) => {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return match ? decodeURIComponent(match[1]) : null;
+  };
+  return { fbc: read("_fbc"), fbp: read("_fbp") };
+}
+
 export function saveQuizAnswer(question: string, answer: string) {
   if (typeof window === "undefined") return;
   const current = parseStored<Record<string, string>>(QUIZ_KEY) ?? {};

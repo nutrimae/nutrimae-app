@@ -78,17 +78,17 @@ async function markOrderStatus(
   admin: AdminClient,
   params: { localOrderId?: string; pagarmeOrderId?: string; pagarmeChargeId?: string; status: string; rawEvent: unknown },
 ) {
-  let orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number; metadata: Record<string, unknown> | null; status: string } | null = null;
+  let orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number; metadata: Record<string, unknown> | null; status: string; fbc: string | null; fbp: string | null; client_ip: string | null; client_user_agent: string | null } | null = null;
 
   if (params.localOrderId) {
-    const { data } = await admin.from("orders").select("id, customer_id, offer_id, user_id, amount_cents, metadata, status").eq("id", params.localOrderId).maybeSingle();
+    const { data } = await admin.from("orders").select("id, customer_id, offer_id, user_id, amount_cents, metadata, status, fbc, fbp, client_ip, client_user_agent").eq("id", params.localOrderId).maybeSingle();
     orderRow = data;
   }
 
   if (!orderRow && params.pagarmeOrderId) {
     const { data } = await admin
       .from("orders")
-      .select("id, customer_id, offer_id, user_id, amount_cents, metadata, status")
+      .select("id, customer_id, offer_id, user_id, amount_cents, metadata, status, fbc, fbp, client_ip, client_user_agent")
       .eq("pagarme_order_id", params.pagarmeOrderId)
       .maybeSingle();
     orderRow = data;
@@ -97,7 +97,7 @@ async function markOrderStatus(
   if (!orderRow && params.pagarmeChargeId) {
     const { data } = await admin
       .from("payments")
-      .select("orders(id, customer_id, offer_id, user_id, amount_cents, metadata, status)")
+      .select("orders(id, customer_id, offer_id, user_id, amount_cents, metadata, status, fbc, fbp, client_ip, client_user_agent)")
       .eq("pagarme_charge_id", params.pagarmeChargeId)
       .maybeSingle();
     // Supabase retorna o relacionamento como objeto quando a FK é 1:1 pela query acima.
@@ -128,7 +128,7 @@ async function markOrderStatus(
 
 async function grantAccessForOrder(
   admin: AdminClient,
-  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number; metadata: Record<string, unknown> | null; status: string },
+  orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number; metadata: Record<string, unknown> | null; status: string; fbc: string | null; fbp: string | null; client_ip: string | null; client_user_agent: string | null },
 ) {
   const { data: offer } = await admin.from("offers").select("product_key, name, price_cents").eq("id", orderRow.offer_id).maybeSingle();
   const { data: customer } = await admin.from("customers").select("email, phone_number").eq("id", orderRow.customer_id).maybeSingle();
@@ -213,7 +213,18 @@ async function grantAccessForOrder(
   }
 
   const isInternal = Boolean(orderRow.metadata?.tracking_internal);
-  if (!isInternal) await reportPurchaseToMeta(orderRow.id, customer.email, customer.phone_number, orderRow.amount_cents);
+  if (!isInternal) {
+    await reportPurchaseToMeta({
+      orderId: orderRow.id,
+      email: customer.email,
+      phone: customer.phone_number,
+      amountCents: orderRow.amount_cents,
+      clientIp: orderRow.client_ip,
+      userAgent: orderRow.client_user_agent,
+      fbc: orderRow.fbc,
+      fbp: orderRow.fbp,
+    });
+  }
   await emitFinancialTrackingEvent(admin, {
     eventName: "purchase_confirmed",
     aggregateId: orderRow.id,
@@ -230,14 +241,27 @@ async function grantAccessForOrder(
  * de acesso (já feita acima) é o que importa de verdade; rastreamento de
  * anúncio é best-effort.
  */
-async function reportPurchaseToMeta(orderId: string, email: string, phone: string | null, amountCents: number) {
+async function reportPurchaseToMeta(params: {
+  orderId: string;
+  email: string;
+  phone: string | null;
+  amountCents: number;
+  clientIp: string | null;
+  userAgent: string | null;
+  fbc: string | null;
+  fbp: string | null;
+}) {
   if (!process.env.META_ACCESS_TOKEN || !process.env.META_PIXEL_ID) return;
   try {
     await sendPurchaseEvent({
-      email,
-      phone: phone ?? undefined,
-      orderId,
-      amountCents,
+      email: params.email,
+      phone: params.phone ?? undefined,
+      orderId: params.orderId,
+      amountCents: params.amountCents,
+      clientIp: params.clientIp ?? undefined,
+      userAgent: params.userAgent ?? undefined,
+      fbc: params.fbc ?? undefined,
+      fbp: params.fbp ?? undefined,
     });
   } catch (err) {
     console.error("[pagarme-webhook] falha ao reportar compra pro Meta (acesso já foi liberado normalmente)", err);

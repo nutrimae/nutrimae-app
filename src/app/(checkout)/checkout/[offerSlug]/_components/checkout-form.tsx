@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Chip } from "@/components/ui/chip";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
-import { getCheckoutTrackingContext, getQuizAnswers, track } from "@/lib/tracking/client";
+import { getCheckoutTrackingContext, getFacebookMatchCookies, getQuizAnswers, track } from "@/lib/tracking/client";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 
 interface Bump {
@@ -114,6 +114,7 @@ export function CheckoutForm({
           tracking: getCheckoutTrackingContext(),
           quizAnswers: getQuizAnswers(),
           turnstileToken,
+          ...getFacebookMatchCookies(),
         }),
       });
 

@@ -7,6 +7,8 @@ import { resolveCheckoutTracking, type CheckoutTrackingInput } from "@/lib/track
 import { generateStatusToken } from "@/lib/checkout/status-token";
 import { isCheckoutRateLimited, extractClientIp } from "@/lib/checkout/rate-limit";
 import { verifyTurnstileToken } from "@/lib/checkout/turnstile";
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- meta-conversion.js é CommonJS solto na raiz do repo (ver MÁQUINA_LOW_TICKET_BR.md).
+const { sendInitiateCheckoutEvent } = require("../../../../meta-conversion.js");
 
 /**
  * Único lugar que calcula preço. O corpo da requisição só carrega
@@ -31,6 +33,8 @@ interface CheckoutBody {
   quizAnswers?: unknown;
   tracking?: CheckoutTrackingInput;
   turnstileToken?: unknown;
+  fbc?: unknown;
+  fbp?: unknown;
 }
 
 function onlyDigits(value: string): string {
@@ -126,6 +130,14 @@ export async function POST(request: Request) {
 
   const amountCents = offer.price_cents + bumpOffers.reduce((sum, b) => sum + b.price_cents, 0);
 
+  // Sinais de correspondência pro Meta Conversions API — só existem aqui
+  // (checkout tem acesso ao navegador); o webhook de pagamento não tem.
+  // Guardados no pedido pra serem reaproveitados no evento de Purchase.
+  const clientIp = extractClientIp(request);
+  const clientUserAgent = request.headers.get("user-agent") ?? undefined;
+  const fbc = typeof body.fbc === "string" ? body.fbc : undefined;
+  const fbp = typeof body.fbp === "string" ? body.fbp : undefined;
+
   try {
     const provider = getPaymentProvider();
 
@@ -153,11 +165,33 @@ export async function POST(request: Request) {
         first_attribution_id: tracking?.firstAttributionId ?? null,
         last_attribution_id: tracking?.lastAttributionId ?? null,
         metadata: tracking?.isInternal ? { tracking_internal: true } : {},
+        fbc: fbc ?? null,
+        fbp: fbp ?? null,
+        client_ip: clientIp,
+        client_user_agent: clientUserAgent ?? null,
       })
       .select("id")
       .single();
 
     if (orderError || !orderRow) throw orderError ?? new Error("Falha ao criar order local.");
+
+    // Best-effort, nunca derruba o checkout: rastreamento de anúncio não pode
+    // atrapalhar a cobrança. Não dispara pra tráfego interno (mesmo motivo
+    // do Purchase — ver reportPurchaseToMeta no webhook do Pagar.me).
+    if (!tracking?.isInternal) {
+      sendInitiateCheckoutEvent({
+        email: customerEmail,
+        phone: customerPhone,
+        orderId: orderRow.id,
+        amountCents,
+        clientIp,
+        userAgent: clientUserAgent,
+        fbc,
+        fbp,
+      }).catch((err: unknown) => {
+        console.error("[checkout] falha ao reportar InitiateCheckout pro Meta (pedido segue normalmente)", err);
+      });
+    }
 
     await admin.from("order_items").insert([
       { order_id: orderRow.id, offer_id: offer.id, description: offer.name, quantity: 1, unit_amount_cents: offer.price_cents, total_amount_cents: offer.price_cents },

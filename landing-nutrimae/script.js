@@ -947,7 +947,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // checkout — sem isso, a mudança de domínio (nutrimae.app ->
     // app.nutrimae.app) perde toda a atribuição de campanha, e o
     // src/lib/tracking/client.ts do app só enxerga um referrer genérico.
-    window.location.href = APP_URL + '/checkout/nutrimae-' + selectedPlan + window.location.search;
+    var params = new URLSearchParams(window.location.search);
+    // Repassa também a escolha de consentimento já feita na landing — sem
+    // isso, o checkout (origem diferente, localStorage não compartilha)
+    // reexibe o banner do zero, e quem não reage a ele fica sem nenhuma
+    // sessão registrada mesmo já tendo aceitado na landing.
+    try {
+      var consent = window.localStorage.getItem('nutrimae:tracking-consent:v1');
+      if (consent === 'analytics' || consent === 'marketing' || consent === 'denied') {
+        params.set('consent', consent);
+      }
+    } catch (e) {}
+    var query = params.toString();
+    window.location.href = APP_URL + '/checkout/nutrimae-' + selectedPlan + (query ? '?' + query : '');
   }
 
   if (ctaCheckoutDynamic) {

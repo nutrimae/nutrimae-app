@@ -24,15 +24,25 @@ const root = path.join(__dirname, "..", "landing-nutrimae");
 const src = readFileSync(path.join(root, "script.js"), "utf8");
 const minified = readFileSync(path.join(root, "script.min.js"), "utf8");
 
-test("landing: goToCheckout repassa window.location.search pra URL do app", () => {
+test("landing: goToCheckout repassa window.location.search (via URLSearchParams) pra URL do app", () => {
   const fnMatch = src.match(/function goToCheckout\(\) \{[\s\S]*?\n  \}/);
   assert.ok(fnMatch, "função goToCheckout não encontrada em script.js");
-  assert.match(fnMatch[0], /APP_URL \+ '\/checkout\/nutrimae-' \+ selectedPlan \+ window\.location\.search/);
+  assert.match(fnMatch[0], /new URLSearchParams\(window\.location\.search\)/);
+  assert.match(fnMatch[0], /APP_URL \+ '\/checkout\/nutrimae-' \+ selectedPlan \+ \(query \? '\?' \+ query : ''\)/);
+});
+
+test("landing: goToCheckout também repassa a escolha de consentimento já feita (cookie cross-domain não existe)", () => {
+  const fnMatch = src.match(/function goToCheckout\(\) \{[\s\S]*?\n  \}/);
+  assert.ok(fnMatch, "função goToCheckout não encontrada em script.js");
+  assert.match(fnMatch[0], /localStorage\.getItem\('nutrimae:tracking-consent:v1'\)/);
+  assert.match(fnMatch[0], /params\.set\('consent', consent\)/);
 });
 
 test("landing: a correção está presente no script.min.js publicado (não só no source)", () => {
   // index.html carrega script.min.js, não script.js — checa o arquivo real servido.
-  assert.match(minified, /\/checkout\/nutrimae-["']?\s*\+\s*\w+\s*\+\s*window\.location\.search/);
+  assert.match(minified, /URLSearchParams/);
+  assert.match(minified, /nutrimae:tracking-consent:v1/);
+  assert.match(minified, /\/checkout\/nutrimae-["']?\s*\+\s*\w+\s*\+\s*\(/);
 });
 
 test("landing: index.html referencia script.min.js (garante que o teste acima cobre o arquivo certo)", () => {

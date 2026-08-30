@@ -12,10 +12,24 @@ export function TrackingConsentManager() {
   const [consent, setConsent] = useState<TrackingConsent>("unknown");
 
   useEffect(() => {
-    setConsent(getTrackingConsent());
+    const current = getTrackingConsent();
+    // A landing (nutrimae.app) e o checkout (app.nutrimae.app) são origens
+    // diferentes — localStorage não atravessa esse limite. Sem isto, quem já
+    // decidiu na landing via um ?consent= repassado pelo redirecionamento
+    // (ver goToCheckout em landing-nutrimae/script.js) reviria o banner do
+    // zero aqui, e boa parte simplesmente ignora e segue pro formulário sem
+    // clicar — perdendo toda sessão/atribuição no lado do checkout.
+    const forwarded = current === "unknown" ? searchParams.get("consent") : null;
+    if (forwarded === "denied" || forwarded === "analytics" || forwarded === "marketing") {
+      setTrackingConsent(forwarded);
+      setConsent(forwarded);
+    } else {
+      setConsent(current);
+    }
     const listener = (event: Event) => setConsent((event as CustomEvent<TrackingConsent>).detail);
     window.addEventListener("nutrimae:tracking-consent", listener);
     return () => window.removeEventListener("nutrimae:tracking-consent", listener);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

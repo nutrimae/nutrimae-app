@@ -2282,6 +2282,38 @@ body.entry-quiz-active {
   width: 100%;
 }
 
+.entry-quiz__skip {
+  display: inline-block;
+  margin: 0 auto 10px;
+  background: transparent;
+  border: none;
+  color: #E07A5F;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: opacity 0.2s ease;
+}
+
+.entry-quiz__skip:hover {
+  opacity: 0.8;
+}
+
+.hero__price-badge {
+  display: inline-block;
+  margin-top: 6px;
+  margin-bottom: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #FFF0F0;
+  color: #C85A32;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 .entry-quiz__logo {
   display: block;
   width: 60px;

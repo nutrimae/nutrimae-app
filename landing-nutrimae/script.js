@@ -456,6 +456,17 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
+    var entryQuizSkip = document.getElementById('entry-quiz-skip');
+    if (entryQuizSkip) {
+      entryQuizSkip.addEventListener('click', function () {
+        trackEvent('QuizSkipped');
+        try {
+          window.sessionStorage.setItem('nutrimae_entry_quiz_completed', 'true');
+        } catch (e) {}
+        revealLandingFromQuiz();
+      });
+    }
+
     entryQuiz.addEventListener('keydown', function (event) {
       if (event.key !== 'Tab') return;
 
@@ -925,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ctaCheckoutDynamic) {
       ctaCheckoutDynamic.textContent = showMensal
         ? 'Quero começar por R$19,90/mês'
-        : 'Quero o acesso anual por R$97';
+        : 'Quero o acesso anual por R$47';
     }
   }
 
@@ -938,7 +949,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
   if (ctaCheckoutDynamic) {
-    ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$97';
+    ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$47';
   }
 
   function goToCheckout() {

@@ -39,94 +39,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 <!-- UTMify: captura e preserva UTMs até o checkout próprio. -->
 <script async defer src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids></script>
 </head>
-<body class="entry-quiz-active">
-
-<!-- ===================== ABERTURA INTERATIVA ===================== -->
-<div class="entry-quiz" id="entry-quiz" role="dialog" aria-modal="true" aria-labelledby="entry-quiz-title">
-  <div class="entry-quiz__shell">
-    <header class="entry-quiz__header">
-      <picture>
-        <source type="image/webp" srcset="assets/logo-192.webp 192w, assets/logo-384.webp 384w" sizes="64px">
-        <img src="assets/logo.png" alt="NutriMãe" class="entry-quiz__logo" width="1239" height="1270" decoding="async" fetchpriority="high">
-      </picture>
-      <div class="entry-quiz__trustline" aria-label="Informações do quiz">
-        <span>3 escolhas rápidas</span>
-        <span aria-hidden="true">•</span>
-        <span>sem cadastro</span>
-      </div>
-      <div class="entry-quiz__progress-copy">
-        <span id="entry-quiz-progress-label">Etapa 1 de 3</span>
-        <span id="entry-quiz-progress-percent">33%</span>
-      </div>
-      <div class="entry-quiz__progress-track" role="progressbar" aria-label="Progresso do quiz" aria-valuemin="0" aria-valuemax="100" aria-valuenow="33" id="entry-quiz-progress">
-        <div class="entry-quiz__progress-fill" id="entry-quiz-progress-fill"></div>
-      </div>
-    </header>
-
-    <main class="entry-quiz__main">
-      <div class="entry-quiz__card">
-        <div class="entry-quiz__preview entry-quiz__preview--empty" id="entry-quiz-preview" aria-live="polite">
-          <span class="entry-quiz__preview-icon" aria-hidden="true">🍼</span>
-          <span class="entry-quiz__preview-text" id="entry-quiz-preview-text"></span>
-        </div>
-        <section class="quiz-step" id="entry-quiz-step-1" data-entry-step="1">
-          <p class="entry-quiz__eyebrow">Comece pela fase</p>
-          <h1 class="quiz-headline" id="entry-quiz-title" tabindex="-1">Qual é a fase atual do bebê?</h1>
-          <p class="entry-quiz__support">A próxima tela mostrará exemplos e recursos mais próximos desse momento.</p>
-          <div class="quiz-options">
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="vai-comecar" aria-pressed="false"><span class="entry-quiz__option-label">Ainda vai começar<small>por volta dos 6 meses</small></span><span aria-hidden="true">›</span></button>
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="6-meses" aria-pressed="false">6 meses<span aria-hidden="true">›</span></button>
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="7-9-meses" aria-pressed="false">7 a 9 meses<span aria-hidden="true">›</span></button>
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-age="10-12-meses" aria-pressed="false">10 a 12+ meses<span aria-hidden="true">›</span></button>
-          </div>
-          <p class="entry-quiz__tap-hint">Toque em uma opção para continuar</p>
-        </section>
-
-        <section class="quiz-step quiz-step--hidden" id="entry-quiz-step-2" data-entry-step="2">
-          <p class="entry-quiz__eyebrow">Agora, a prioridade</p>
-          <h2 class="quiz-headline" tabindex="-1">O que seria mais útil encontrar primeiro?</h2>
-          <p class="entry-quiz__support">Escolha o recurso que mais combina com a rotina alimentar da casa.</p>
-          <div class="quiz-options">
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-priority="cortes" aria-pressed="false">Guia visual de cortes e texturas<span aria-hidden="true">›</span></button>
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-priority="variedade" aria-pressed="false">Receitas práticas para variar as refeições<span aria-hidden="true">›</span></button>
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-priority="rotina" aria-pressed="false">Cardápio semanal com lista de compras<span aria-hidden="true">›</span></button>
-          </div>
-          <button type="button" class="entry-quiz__back" data-entry-back="1" aria-label="Voltar para a primeira pergunta">← Voltar</button>
-        </section>
-
-        <section class="quiz-step quiz-step--hidden" id="entry-quiz-step-3" data-entry-step="3">
-          <p class="entry-quiz__eyebrow">Última escolha</p>
-          <h2 class="quiz-headline" tabindex="-1">Como prefere organizar as orientações?</h2>
-          <p class="entry-quiz__support">Essa escolha ajuda a destacar a forma mais prática de usar o NutriMãe.</p>
-          <div class="quiz-options">
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-support="guia-visual" aria-pressed="false">Consultar alimento por alimento<span aria-hidden="true">›</span></button>
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-support="cardapio" aria-pressed="false">Seguir um plano pronto para cada dia<span aria-hidden="true">›</span></button>
-            <button type="button" class="quiz-option-btn entry-quiz__option" data-entry-support="receitas" aria-pressed="false">Trocar opções e montar combinações<span aria-hidden="true">›</span></button>
-          </div>
-          <button type="button" class="entry-quiz__back" data-entry-back="2" aria-label="Voltar para a segunda pergunta">← Voltar</button>
-        </section>
-
-      </div>
-    </main>
-
-    <section class="entry-quiz__loading quiz-loading--hidden" id="entry-quiz-loading" aria-live="polite" aria-busy="true">
-      <div class="entry-quiz__loading-brand">
-        <picture>
-          <source type="image/webp" srcset="assets/logo-384.webp 384w, assets/logo-768.webp 768w" sizes="(max-width: 540px) 64vw, 340px">
-          <img src="assets/logo.png" alt="NutriMãe" class="entry-quiz__loading-logo" width="1239" height="1270" loading="lazy" decoding="async">
-        </picture>
-      </div>
-      <p class="entry-quiz__loading-tagline">Alimentação segura, com carinho</p>
-      <div class="entry-quiz__loading-track" aria-hidden="true">
-        <div class="entry-quiz__loading-fill" id="entry-quiz-loading-fill"></div>
-      </div>
-      <p class="entry-quiz__loading-text" id="entry-quiz-loading-text">Organizando suas escolhas...</p>
-    </section>
-
-    <p class="entry-quiz__privacy">As respostas servem apenas para personalizar esta experiência. Nenhum cadastro é necessário.</p>
-  </div>
-</div>
-<noscript><style>.entry-quiz{display:none!important}body{overflow:auto!important}</style></noscript>
+<body>
 
 <!-- ===================== NAV ===================== -->
 <nav class="site-nav" id="site-nav">
@@ -169,7 +82,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
            e prejudica o LCP em 4G. O iframe real só entra no DOM quando a
            pessoa clica (ver script.js, seção "BLOCO 1: Hero"). -->
       <div class="video-wrapper" id="video-wrapper" data-youtube-id="n_zXKnnfUuM">
-        <div class="video-placeholder" id="video-placeholder" role="button" tabindex="0" aria-label="Reproduzir vídeo de apresentação" data-thumbnail="https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg">
+        <div class="video-placeholder" id="video-placeholder" role="button" tabindex="0" aria-label="Reproduzir vídeo de apresentação" data-thumbnail="https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg" style="background-image: url('https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg');">
           <div class="play-button" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           </div>
@@ -188,6 +101,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
     <div class="hero__cta-group" style="grid-area: cta;">
       <button class="btn btn--primary btn--large" id="cta-hero">Quero conhecer os planos</button>
+      <span class="hero__price-badge">Plano Anual completo por apenas R$47 · Pagamento único</span>
       <p class="hero__micro-proof">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
         7 dias de garantia incondicional
@@ -706,7 +620,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
     <div class="pricing-toggle" role="tablist">
       <button type="button" class="pricing-toggle__btn" id="toggle-mensal" data-plan-toggle="mensal" role="tab" aria-selected="false">Mensal</button>
-      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$251,80</span></button>
+      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$311,80</span></button>
     </div>
 
     <div class="plan-card-single" id="plan-card-mensal" hidden>
@@ -718,13 +632,14 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
     <div class="plan-card-single plan-card-single--featured" id="plan-card-anual">
       <span class="plan-card__badge">MAIS ESCOLHIDO</span>
       <p class="plan-card__label">Plano Anual</p>
-      <p class="plan-card__old">R$348,80 no plano mensal por 12 meses</p>
-      <p class="plan-card__price">R$ 97<span>à vista</span></p>
-      <p class="plan-card__note">ou 12x de R$9,70 no cartão</p>
+      <p class="plan-card__old">R$358,80 no plano mensal por 12 meses</p>
+      <p class="plan-card__price">R$ 47<span>à vista</span></p>
+      <p class="plan-card__note">pagamento único no Pix ou cartão · sem mensalidades</p>
       <ul class="offer-checklist">
-        <li><span class="check-icon">✓</span> Tudo do NutriMãe</li>
-        <li><span class="check-icon">✓</span> Atualizações semanais</li>
-        <li><span class="check-icon">✓</span> Cancelamento quando quiser</li>
+        <li><span class="check-icon">✓</span> Tudo do NutriMãe por 1 ano inteiro</li>
+        <li><span class="check-icon">✓</span> <strong>BÔNUS:</strong> Manual S.O.S. Desmame Noturno incluso (grátis)</li>
+        <li><span class="check-icon">✓</span> Atualizações e novos cardápios toda semana</li>
+        <li><span class="check-icon">✓</span> 7 dias de garantia incondicional</li>
       </ul>
     </div>
 
@@ -804,7 +719,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
           <span class="faq-toggle" aria-hidden="true">+</span>
         </button>
         <div class="faq-answer">
-          <p>No plano mensal, R$19,90 vale só para o primeiro mês. A partir do segundo, o valor passa a ser R$29,90/mês. No plano anual, o valor é R$97 à vista (ou 12x de R$9,70 no cartão), sem reajuste durante o ano.</p>
+          <p>No plano mensal, R$19,90 vale só para o primeiro mês. A partir do segundo, o valor passa a ser R$29,90/mês. No plano anual, o valor é R$47 à vista no Pix ou cartão (pagamento único, sem mensalidade), com acesso por 1 ano inteiro.</p>
         </div>
       </div>
 
@@ -851,7 +766,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
 <!-- ===================== BARRA DE CTA FIXA (mobile) ===================== -->
 <div class="sticky-cta" id="sticky-cta" aria-hidden="true">
-  <span class="sticky-cta__price">Anual por R$97</span>
+  <span class="sticky-cta__price">Anual por R$47</span>
   <button class="btn btn--primary sticky-cta__btn" id="sticky-cta-btn">Garantir meu acesso ao NutriMãe</button>
 </div>
 

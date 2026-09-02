@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { TrackingBatchSchema, hasForbiddenProperties, type TrackingEventPayload, type TrackingAttribution } from "@/lib/tracking/contracts";
+import { INTERNAL_DEVICE_COOKIE, isValidInternalDeviceCookie } from "@/lib/tracking/internal-device";
 
 export const runtime = "nodejs";
 
@@ -25,9 +26,21 @@ function rateLimited(key: string): boolean {
   return current.count > MAX_REQUESTS_PER_WINDOW;
 }
 
+function readCookie(request: Request, name: string): string | undefined {
+  const header = request.headers.get("cookie");
+  if (!header) return undefined;
+  for (const part of header.split(";")) {
+    const [key, ...rest] = part.trim().split("=");
+    if (key === name) return decodeURIComponent(rest.join("="));
+  }
+  return undefined;
+}
+
 function isTrustedInternalRequest(request: Request): boolean {
   const host = request.headers.get("host")?.split(":")[0];
   if (host === "localhost" || host === "127.0.0.1") return true;
+
+  if (isValidInternalDeviceCookie(readCookie(request, INTERNAL_DEVICE_COOKIE))) return true;
 
   const expected = process.env.TRACKING_E2E_SECRET;
   const received = request.headers.get("x-nutrimae-tracking-e2e");

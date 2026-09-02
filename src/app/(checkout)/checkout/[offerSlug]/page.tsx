@@ -97,7 +97,7 @@ export default async function CheckoutOfferPage({
           </p>
           {offerSlug === "nutrimae-anual" && (
             <>
-              <p className="mt-1 text-sm font-medium text-sage-600">ou 12x de R$9,70 no cartão, sem juros</p>
+              <p className="mt-1 text-sm font-medium text-sage-600">pagamento único no Pix ou no cartão</p>
               <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
                 ✓ Bônus incluído: SOS Desmame Noturno (R$ 27) de graça
               </p>

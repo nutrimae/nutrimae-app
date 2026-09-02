@@ -801,7 +801,7 @@ create policy "Usuárias veem suas próprias assinaturas"
 -- realmente sincronize o campo active em produção.
 insert into public.offers (slug, product_key, name, billing_type, price_cents, recurring_price_cents, active)
 values
-  ('nutrimae-anual', 'nutrimae_assinatura', 'NutriMãe — Plano Anual', 'one_time', 9700, null, true),
+  ('nutrimae-anual', 'nutrimae_assinatura', 'NutriMãe — Plano Anual', 'one_time', 4700, null, true),
   ('sos-desmame', 'sos_desmame_noturno', 'SOS Desmame Noturno', 'one_time', 2700, null, true),
   ('protocolo-intestino', 'protocolo_intestino_livre', 'Protocolo Intestino Livre', 'one_time', 1700, null, true),
   ('nutribot-30d', 'nutribot_30d', 'NutriBot — 30 Dias', 'one_time', 2790, null, true),

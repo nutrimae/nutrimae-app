@@ -318,7 +318,6 @@ export function CheckoutForm({
             <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
             <Input className="w-1/3" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
           </div>
-          <p className="text-xs font-medium text-sage-600">ou 12x de {formatBRL(Math.round(totalCents / 12))} no cartão</p>
           <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
         </div>
       )}

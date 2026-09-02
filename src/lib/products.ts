@@ -73,9 +73,9 @@ export const PRODUCTS: Record<ProductKey, Product> = {
     modules: ["cardapio", "cortes_seguros", "lista_compras", "alergia"],
     built: true,
     annual: {
-      price: 97,
+      price: 47,
       note: "à vista",
-      installmentNote: "ou 12x de R$9,70 no cartão",
+      installmentNote: "pagamento único no Pix ou no cartão",
     },
   },
   // Produtos futuros: módulo ainda não construído, só o "gate" (config) está pronto

@@ -5,6 +5,7 @@ import { findOrCreateUser, savePhoneNumber } from "@/lib/webhooks/find-or-create
 import { claimWebhookEvent, finalizeWebhookEvent } from "@/lib/webhooks/log-event";
 import { isKnownProductKey } from "@/lib/products";
 import { emitFinancialTrackingEvent } from "@/lib/tracking/financial";
+import { bestEffortReportOrderToUtmify } from "@/lib/utmify/orders";
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- meta-conversion.js é CommonJS solto na raiz do repo (ver MÁQUINA_LOW_TICKET_BR.md).
 const { sendPurchaseEvent } = require("../../../../../meta-conversion.js");
 
@@ -464,6 +465,7 @@ export async function POST(request: Request) {
         : typeof data.order?.metadata?.order_id === "string"
           ? data.order.metadata.order_id
           : undefined;
+    const occurredAt = typeof payload.created_at === "string" ? payload.created_at : new Date().toISOString();
 
     switch (eventType) {
       case "order.paid":
@@ -475,7 +477,10 @@ export async function POST(request: Request) {
           status: "paid",
           rawEvent: payload,
         });
-        if (orderRow) await grantAccessForOrder(admin, orderRow);
+        if (orderRow) {
+          await grantAccessForOrder(admin, orderRow);
+          await bestEffortReportOrderToUtmify(admin, orderRow.id, "paid", occurredAt);
+        }
         await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
         break;
       }
@@ -485,7 +490,8 @@ export async function POST(request: Request) {
         // Cobre tanto cartão recusado quanto Pix não pago dentro do prazo —
         // o evento confirmado na doc não distingue os dois; nunca escreve
         // em user_products aqui (acesso nunca foi concedido, nada a revogar).
-        await markOrderStatus(admin, { localOrderId, pagarmeOrderId, pagarmeChargeId, status: "refused", rawEvent: payload });
+        const orderRow = await markOrderStatus(admin, { localOrderId, pagarmeOrderId, pagarmeChargeId, status: "refused", rawEvent: payload });
+        if (orderRow) await bestEffortReportOrderToUtmify(admin, orderRow.id, "refused", occurredAt);
         await finalizeWebhookEvent(admin, claim.logId, { status: "processed" });
         break;
       }
@@ -495,6 +501,12 @@ export async function POST(request: Request) {
         const orderRow = await markOrderStatus(admin, { localOrderId, pagarmeOrderId, pagarmeChargeId, status: "refunded", rawEvent: payload });
         if (orderRow) {
           await revokeAccessForOrder(admin, orderRow);
+          await bestEffortReportOrderToUtmify(
+            admin,
+            orderRow.id,
+            eventType === "charge.chargedback" ? "chargedback" : "refunded",
+            occurredAt,
+          );
           await emitFinancialTrackingEvent(admin, {
             eventName: eventType === "charge.chargedback" ? "chargeback_confirmed" : "refund_confirmed",
             aggregateId: orderRow.id,

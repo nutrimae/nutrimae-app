@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
+import Script from "next/script";
 import { Poppins } from "next/font/google";
 import { SplashScreen } from "@/components/splash-screen";
 import { TrackingConsentManager } from "@/components/tracking-consent";
@@ -41,6 +42,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-cream text-brown-800">
+        <Script
+          id="utmify-utms"
+          src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+          strategy="afterInteractive"
+          data-utmify-prevent-xcod-sck=""
+          data-utmify-prevent-subids=""
+        />
         <Suspense fallback={null}>
           <TrackingConsentManager />
         </Suspense>

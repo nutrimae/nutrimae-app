@@ -130,7 +130,7 @@ async function grantAccessForOrder(
   admin: AdminClient,
   orderRow: { id: string; customer_id: string; offer_id: string; user_id: string | null; amount_cents: number; metadata: Record<string, unknown> | null; status: string; fbc: string | null; fbp: string | null; client_ip: string | null; client_user_agent: string | null },
 ) {
-  const { data: offer } = await admin.from("offers").select("product_key, name, price_cents").eq("id", orderRow.offer_id).maybeSingle();
+  const { data: offer } = await admin.from("offers").select("slug, product_key, name, price_cents").eq("id", orderRow.offer_id).maybeSingle();
   const { data: customer } = await admin.from("customers").select("email, phone_number").eq("id", orderRow.customer_id).maybeSingle();
 
   if (!offer || !customer) {
@@ -162,6 +162,22 @@ async function grantAccessForOrder(
     },
     { onConflict: "user_id,product_id" },
   );
+
+  // Bônus da oferta: quem compra o Anual já leva o SOS Desmame Noturno de
+  // graça, embutido no valor do Anual (não é bump pago, por isso não soma
+  // em expansionCreditCentavos abaixo).
+  if (offer.slug === "nutrimae-anual") {
+    await admin.from("user_products").upsert(
+      {
+        user_id: userId,
+        product_id: "sos_desmame_noturno",
+        product_name: "SOS Desmame Noturno (bônus do Anual)",
+        status: "active",
+        canceled_at: null,
+      },
+      { onConflict: "user_id,product_id" },
+    );
+  }
 
   // Um pedido pode ter mais de um item (o Anual + order bumps no mesmo
   // checkout) — cada item libera o produto correspondente, não só a oferta

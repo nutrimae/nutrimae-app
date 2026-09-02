@@ -47,10 +47,12 @@ export default async function CheckoutOfferPage({
 
   // Batch Cooking primeiro de propósito: resolve a dor que a compra
   // principal acabou de criar ("o que eu dou" -> "quando eu cozinho isso").
+  // SOS Desmame sai da lista de bumps pagos no Anual porque já vem de graça
+  // (ver bônus embutido em grantAccessForOrder no webhook do Pagar.me).
   const priority = ["batch-cooking", "sos-desmame", "protocolo-intestino", "nutribot-30d"];
-  const bumps: Array<{ id: string; slug: string; name: string; price_cents: number }> = (bumpsData ?? []).sort(
-    (a, b) => priority.indexOf(a.slug) - priority.indexOf(b.slug),
-  );
+  const bumps: Array<{ id: string; slug: string; name: string; price_cents: number }> = (bumpsData ?? [])
+    .filter((b) => !(offerSlug === "nutrimae-anual" && b.slug === "sos-desmame"))
+    .sort((a, b) => priority.indexOf(a.slug) - priority.indexOf(b.slug));
 
   return (
     <main className="min-h-dvh bg-cream pb-10">
@@ -94,7 +96,12 @@ export default async function CheckoutOfferPage({
             )}
           </p>
           {offerSlug === "nutrimae-anual" && (
-            <p className="mt-1 text-sm font-medium text-sage-600">ou 12x de R$9,70 no cartão, sem juros</p>
+            <>
+              <p className="mt-1 text-sm font-medium text-sage-600">ou 12x de R$9,70 no cartão, sem juros</p>
+              <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+                ✓ Bônus incluído: SOS Desmame Noturno (R$ 27) de graça
+              </p>
+            </>
           )}
         </div>
 

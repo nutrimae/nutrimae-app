@@ -76,6 +76,9 @@ export function Offer() {
                 <span className="text-base font-semibold text-brown-700"> {product.annual.note}</span>
               </p>
               <p className="mt-1 text-sm font-semibold text-brown-700">{product.annual.installmentNote}</p>
+              <p className="mt-3 flex items-center gap-1.5 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+                <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={3} /> Bônus incluído: SOS Desmame Noturno (R$ 27) de graça
+              </p>
             </div>
           ) : (
             <div className="rounded-3xl border-2 border-white bg-white/95 p-5 text-left text-brown-800 shadow-lg [text-shadow:none]">

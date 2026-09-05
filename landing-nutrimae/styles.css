@@ -2301,19 +2301,6 @@ body.entry-quiz-active {
   opacity: 0.8;
 }
 
-.hero__price-badge {
-  display: inline-block;
-  margin-top: 6px;
-  margin-bottom: 8px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: #FFF0F0;
-  color: #C85A32;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
 .entry-quiz__logo {
   display: block;
   width: 60px;

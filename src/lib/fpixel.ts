@@ -14,6 +14,10 @@ export const pageview = () => {
   callFbq("track", "PageView");
 };
 
-export const event = (name: string, options?: Record<string, unknown>) => {
+export const event = (name: string, options?: Record<string, unknown>, eventId?: string) => {
+  if (eventId) {
+    callFbq("track", name, options ?? {}, { eventID: eventId });
+    return;
+  }
   callFbq("track", name, options);
 };

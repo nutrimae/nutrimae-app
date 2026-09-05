@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { IconAvatar3D } from "@/components/ui/icon-avatar-3d";
+import { PurchasePixel } from "./_components/purchase-pixel";
 
 /**
  * Revalida no servidor — nunca confia no "status" que o navegador trouxe
@@ -25,7 +26,7 @@ export default async function ObrigadoPage({
   if (subscriptionId) {
     const { data: subscription } = await admin
       .from("subscriptions")
-      .select("id, status")
+      .select("id, status, offers(price_cents)")
       .eq("id", subscriptionId)
       .maybeSingle();
 
@@ -48,8 +49,11 @@ export default async function ObrigadoPage({
       );
     }
 
+    const subscriptionOffer = Array.isArray(subscription.offers) ? subscription.offers[0] : subscription.offers;
+
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-cream px-4 text-center">
+        {subscriptionOffer && <PurchasePixel eventId={subscription.id} valueCents={subscriptionOffer.price_cents} />}
         <IconAvatar3D src="/images/illustrations/icon-star.webp" size="xl" />
         <div>
           <h1 className="font-heading text-2xl font-bold text-brown-900">Assinatura confirmada!</h1>
@@ -66,7 +70,7 @@ export default async function ObrigadoPage({
   }
 
   const order = orderId
-    ? (await admin.from("orders").select("id, status, payment_method").eq("id", orderId).maybeSingle()).data
+    ? (await admin.from("orders").select("id, status, payment_method, amount_cents").eq("id", orderId).maybeSingle()).data
     : null;
 
   if (!order) {
@@ -94,6 +98,7 @@ export default async function ObrigadoPage({
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-cream px-4 text-center">
+      <PurchasePixel eventId={order.id} valueCents={order.amount_cents} />
       <IconAvatar3D src="/images/illustrations/icon-star.webp" size="xl" />
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-900">Pagamento confirmado!</h1>

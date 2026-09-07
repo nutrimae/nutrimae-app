@@ -103,6 +103,9 @@ export default async function CheckoutOfferPage({
               </p>
             </>
           )}
+          {offerSlug === "nutrimae-mensal" && (
+            <p className="mt-1 text-sm font-medium text-sage-600">Pix ou cartão — renovação automática só no cartão</p>
+          )}
         </div>
 
         {offer.billing_type === "recurring" ? (

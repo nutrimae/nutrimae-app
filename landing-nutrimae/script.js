@@ -303,14 +303,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function revealLandingFromQuiz() {
-      var deferredVideoThumbnail = document.getElementById('video-placeholder');
-      if (deferredVideoThumbnail && !deferredVideoThumbnail.style.backgroundImage) {
-        var thumbnailUrl = deferredVideoThumbnail.getAttribute('data-thumbnail');
-        if (thumbnailUrl) {
-          deferredVideoThumbnail.style.backgroundImage = 'url("' + thumbnailUrl + '")';
-        }
-      }
-
       entryQuiz.classList.add('entry-quiz--leaving');
       document.body.classList.remove('entry-quiz-active');
 
@@ -626,33 +618,6 @@ document.addEventListener('DOMContentLoaded', function () {
     ctaHero.addEventListener('click', function () {
       trackEvent('HeroCtaClick');
       scrollToSection('bloco-6');
-    });
-  }
-
-  var videoWrapper = document.getElementById('video-wrapper');
-  var videoPlaceholder = document.getElementById('video-placeholder');
-  if (videoPlaceholder && videoWrapper) {
-    var playVideo = function () {
-      trackEvent('VideoPlay');
-      var youtubeId = videoWrapper.getAttribute('data-youtube-id');
-      if (!youtubeId) return;
-
-      // Só cria o iframe do YouTube no clique (facade pattern) — carregar o
-      // player de cara pesa a página e prejudica o LCP em 4G.
-      var iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0';
-      iframe.title = 'Vídeo de apresentação NutriMãe';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-      iframe.allowFullscreen = true;
-      videoWrapper.innerHTML = '';
-      videoWrapper.appendChild(iframe);
-    };
-    videoPlaceholder.addEventListener('click', playVideo);
-    videoPlaceholder.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        playVideo();
-      }
     });
   }
 

@@ -19,6 +19,17 @@
 <link rel="stylesheet" href="styles.min.css">
 <link rel="stylesheet" href="support-widget.min.css">
 
+<!-- VTurb: preload/dns-prefetch pro player da VSL carregar o mais rápido
+     possível (gerado no painel VTurb, player "VSL CORRIGIDA.mp4"). -->
+<script>!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);</script>
+<link rel="preload" href="https://scripts.converteai.net/54b9e6c8-4189-4c2b-9a5c-18b090a590f3/players/6a9ed5398a73aedfe2926121/v4/player.js" as="script">
+<link rel="preload" href="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js" as="script">
+<link rel="preload" href="https://cdn.converteai.net/54b9e6c8-4189-4c2b-9a5c-18b090a590f3/6a9ed5086da0a5d652a2360a/main.m3u8" as="fetch">
+<link rel="dns-prefetch" href="https://cdn.converteai.net">
+<link rel="dns-prefetch" href="https://scripts.converteai.net">
+<link rel="dns-prefetch" href="https://images.converteai.net">
+<link rel="dns-prefetch" href="https://license.vturb.com">
+
 <!-- Meta Pixel (NutriMãe, id 2114096239178681) -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -76,18 +87,18 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
     <div class="hero__media" style="grid-area: media;">
 
-      <!-- VÍDEO VSL: https://youtu.be/n_zXKnnfUuM
-           Facade de clique-para-carregar (thumbnail + botão play), não um
-           <iframe> direto: carregar o player do YouTube de cara pesa a página
-           e prejudica o LCP em 4G. O iframe real só entra no DOM quando a
-           pessoa clica (ver script.js, seção "BLOCO 1: Hero"). -->
-      <div class="video-wrapper" id="video-wrapper" data-youtube-id="n_zXKnnfUuM">
-        <div class="video-placeholder" id="video-placeholder" role="button" tabindex="0" aria-label="Reproduzir vídeo de apresentação" data-thumbnail="https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg" style="background-image: url('https://img.youtube.com/vi/n_zXKnnfUuM/maxresdefault.jpg');">
-          <div class="play-button" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-        </div>
-      </div>
+      <!-- VÍDEO VSL — player VTurb (troca o antigo facade do YouTube).
+           O <script> injeta o player.js de forma assíncrona; o preload no
+           <head> já deixa esses arquivos "quentes" antes daqui. -->
+      <vturb-smartplayer id="vid-6a9ed5398a73aedfe2926121" style="display: block; margin: 0 auto; width: 100%;">
+        <div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;"></div>
+      </vturb-smartplayer>
+      <script type="text/javascript">
+        var s = document.createElement("script");
+        s.src = "https://scripts.converteai.net/54b9e6c8-4189-4c2b-9a5c-18b090a590f3/players/6a9ed5398a73aedfe2926121/v4/player.js";
+        s.async = true;
+        document.head.appendChild(s);
+      </script>
     </div>
 
     <p class="hero__subtitle" style="grid-area: subtitle;">Planeje a semana, consulte o corte indicado e leve a lista de compras para o WhatsApp — direto no celular.</p>

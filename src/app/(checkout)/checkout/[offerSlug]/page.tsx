@@ -80,33 +80,25 @@ export default async function CheckoutOfferPage({
           </div>
         )}
 
-        <div className="rounded-[24px] bg-white p-5 text-center shadow-subtle">
-          <h1 className="font-heading text-xl font-bold leading-tight text-brown-900">{offer.name}</h1>
-          <p className="mt-2 flex items-baseline justify-center gap-1">
-            <span className="text-4xl font-extrabold tracking-tight text-primary-600">
-              {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-            </span>
-            {offer.billing_type === "recurring" && (
+        {offer.billing_type === "recurring" && (
+          <div className="rounded-[24px] bg-white p-5 text-center shadow-subtle">
+            <h1 className="font-heading text-xl font-bold leading-tight text-brown-900">{offer.name}</h1>
+            <p className="mt-2 flex items-baseline justify-center gap-1">
+              <span className="text-4xl font-extrabold tracking-tight text-primary-600">
+                {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </span>
               <span className="text-sm font-semibold text-brown-700/86">
                 no 1º ciclo
                 {offer.recurring_price_cents != null && offer.recurring_price_cents !== offer.price_cents
                   ? `, depois ${(offer.recurring_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mês`
                   : "/mês"}
               </span>
+            </p>
+            {offerSlug === "nutrimae-mensal" && (
+              <p className="mt-1 text-sm font-medium text-sage-600">Pix ou cartão — renovação automática só no cartão</p>
             )}
-          </p>
-          {offerSlug === "nutrimae-anual" && (
-            <>
-              <p className="mt-1 text-sm font-medium text-sage-600">pagamento único no Pix ou no cartão</p>
-              <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
-                ✓ Bônus incluído: SOS Desmame Noturno (R$ 27) de graça
-              </p>
-            </>
-          )}
-          {offerSlug === "nutrimae-mensal" && (
-            <p className="mt-1 text-sm font-medium text-sage-600">Pix ou cartão — renovação automática só no cartão</p>
-          )}
-        </div>
+          </div>
+        )}
 
         {offer.billing_type === "recurring" ? (
           <SubscriptionCheckoutForm

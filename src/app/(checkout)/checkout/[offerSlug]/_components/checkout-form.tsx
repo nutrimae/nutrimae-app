@@ -231,7 +231,35 @@ export function CheckoutForm({
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
+    <>
+      <div className="rounded-[24px] bg-white p-5 text-center shadow-subtle">
+        <h1 className="font-heading text-xl font-bold leading-tight text-brown-900">{offer.name}</h1>
+        {paymentMethod === "credit_card" && installments > 1 ? (
+          <div className="mt-2 rounded-2xl bg-primary-50 p-4">
+            {offer.slug === "nutrimae-anual" && (
+              <p className="text-xs text-brown-700/70">
+                De <span className="font-bold text-red-500 line-through">R$358,80</span> por
+              </p>
+            )}
+            <p className="mt-0.5 font-heading text-3xl font-extrabold text-primary-600">
+              <span className="text-lg font-bold">{installments}x de</span> {formatBRL(installmentValue)}
+            </p>
+            <p className="mt-0.5 text-sm font-bold text-brown-700">ou {formatBRL(totalCents)} à vista</p>
+          </div>
+        ) : (
+          <p className="mt-2 font-heading text-4xl font-extrabold tracking-tight text-primary-600">{formatBRL(totalCents)}</p>
+        )}
+        {offer.slug === "nutrimae-anual" && (
+          <>
+            <p className="mt-1 text-sm font-medium text-sage-600">pagamento único no Pix ou no cartão</p>
+            <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+              ✓ Bônus incluído: SOS Desmame Noturno (R$ 27) de graça
+            </p>
+          </>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
       {bumps.length > 0 && (
         <div className="flex flex-col gap-2.5 border-b border-sage-100/80 pb-5">
           <p className="font-heading text-sm font-bold text-brown-900">Aproveite e leve também:</p>
@@ -377,6 +405,7 @@ export function CheckoutForm({
       <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">
         <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pagamento seguro · dados protegidos · 7 dias de garantia
       </p>
-    </div>
+      </div>
+    </>
   );
 }

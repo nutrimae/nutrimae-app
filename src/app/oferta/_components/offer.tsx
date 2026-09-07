@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
+import { Check, X, Sparkles } from "lucide-react";
 import { PRODUCTS } from "@/lib/products";
 import { trackEvent } from "./track";
 import { saveOnboardingMonths } from "./onboarding-handoff";
 import { useAge } from "./age-context";
+
+/** R$37, oferta exclusiva só alcançável pelo modal abaixo (offer "nutrimae-anual-upsell" no banco). */
+const MENSAL_UPSELL_PRICE_CENTS = 3700;
 
 const product = PRODUCTS.nutrimae_assinatura;
 
@@ -27,16 +30,44 @@ export function Offer() {
   const { ageOption } = useAge();
   const onboardingMonths = ageOption.onboardingMonths;
   const [plan, setPlan] = useState<PlanChoice>("anual");
+  const [showMensalUpsell, setShowMensalUpsell] = useState(false);
 
-  function handleCheckout() {
-    trackEvent("InitiateCheckout", { plan });
+  function goToCheckout(offerSlug: string) {
     // A fase escolhida viaja via sessionStorage, não por query string — mesma
     // técnica já usada por SplashScreen. Lida em onboarding/baby/page.tsx.
     saveOnboardingMonths(onboardingMonths);
-    router.push(plan === "anual" ? "/checkout/nutrimae-anual" : "/checkout/nutrimae-mensal");
+    router.push(`/checkout/${offerSlug}`);
+  }
+
+  function handleCheckout() {
+    trackEvent("InitiateCheckout", { plan });
+
+    // Clicou querendo o Mensal: antes de ir pro checkout dele, mostra um
+    // modal com a oferta exclusiva do Anual por R$37 (mesmo padrão do
+    // modal de upsell do Croche) — só aparece nesse caminho, nunca pra
+    // quem já escolheu Anual.
+    if (plan === "mensal") {
+      setShowMensalUpsell(true);
+      return;
+    }
+
+    goToCheckout("nutrimae-anual");
+  }
+
+  function acceptMensalUpsell() {
+    trackEvent("MensalUpsellAccepted");
+    setShowMensalUpsell(false);
+    goToCheckout("nutrimae-anual-upsell");
+  }
+
+  function declineMensalUpsell() {
+    trackEvent("MensalUpsellDeclined");
+    setShowMensalUpsell(false);
+    goToCheckout("nutrimae-mensal");
   }
 
   return (
+    <>
     <section id="oferta" className="bg-gradient-to-br from-primary-600 via-primary-500 to-primary-300 px-5 py-10">
       <div className="mx-auto flex w-full max-w-sm flex-col items-center text-center [text-shadow:0_1px_3px_rgba(0,0,0,0.25)]">
         <h2 className="font-heading text-2xl font-extrabold text-white">
@@ -129,5 +160,55 @@ export function Offer() {
         </p>
       </div>
     </section>
+
+    {showMensalUpsell && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="relative w-full max-w-sm rounded-3xl border-2 border-primary-300 bg-white p-6 text-center shadow-2xl">
+          <button
+            type="button"
+            onClick={declineMensalUpsell}
+            aria-label="Fechar"
+            className="absolute right-4 top-4 text-brown-700/50 hover:text-brown-700"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary-50">
+            <Sparkles className="h-7 w-7 text-primary-500" />
+          </div>
+
+          <p className="font-heading text-xs font-bold uppercase tracking-widest text-primary-500">
+            Espera! Oferta exclusiva pra você
+          </p>
+          <h3 className="mt-2 font-heading text-xl font-bold leading-snug text-brown-900">
+            Leve o ano inteiro por só {formatPrice(MENSAL_UPSELL_PRICE_CENTS / 100)}
+          </h3>
+          <p className="mt-3 text-sm leading-relaxed text-brown-700/86">
+            Em vez de {formatPrice(product.price)} agora e {formatPrice(product.regularPrice)}/mês depois, garanta o{" "}
+            <strong>Plano Anual completo</strong> por {formatPrice(MENSAL_UPSELL_PRICE_CENTS / 100)} — pagamento único,
+            só nesta tela.
+          </p>
+
+          <div className="mt-5 flex items-baseline justify-center gap-2">
+            <span className="text-base text-brown-700/50 line-through">{formatPrice(358.8)}</span>
+            <span className="font-heading text-4xl font-extrabold text-brown-900">
+              {formatPrice(MENSAL_UPSELL_PRICE_CENTS / 100)}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={acceptMensalUpsell}
+            className="mt-6 flex min-h-14 w-full items-center justify-center rounded-2xl bg-green-500 px-6 font-heading text-base font-extrabold text-brown-900 shadow-[0_10px_28px_rgba(0,0,0,0.2),0_6px_22px_rgba(34,197,94,0.45)] transition-transform duration-100 ease-out hover:bg-green-600 active:scale-[0.98]"
+          >
+            Sim! Quero o Anual por {formatPrice(MENSAL_UPSELL_PRICE_CENTS / 100)}
+          </button>
+          <button type="button" onClick={declineMensalUpsell} className="mt-3 text-sm text-brown-700/60 underline">
+            Não, obrigada — quero só o Mensal por {formatPrice(product.price)}
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

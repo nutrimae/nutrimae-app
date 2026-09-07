@@ -917,8 +917,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$47';
   }
 
-  function goToCheckout() {
-    trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
+  function goToOffer(offerSlug) {
     // SEC/TRACKING: repassa utm_*/fbclid/gclid/etc. da URL da landing pro
     // checkout — sem isso, a mudança de domínio (nutrimae.app ->
     // app.nutrimae.app) perde toda a atribuição de campanha, e o
@@ -935,7 +934,43 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch (e) {}
     var query = params.toString();
-    window.location.href = APP_URL + '/checkout/nutrimae-' + selectedPlan + (query ? '?' + query : '');
+    window.location.href = APP_URL + '/checkout/' + offerSlug + (query ? '?' + query : '');
+  }
+
+  // Modal de upsell (mesmo padrão do Croche): quem escolhe Mensal vê, antes
+  // do checkout, a oferta exclusiva do Anual por R$37 — só nesse caminho,
+  // nunca pra quem já escolheu Anual direto.
+  var mensalUpsellModal = document.getElementById('mensal-upsell-modal');
+
+  function openMensalUpsell() {
+    if (!mensalUpsellModal) { goToOffer('nutrimae-mensal'); return; }
+    mensalUpsellModal.classList.add('is-open');
+    trackEvent('MensalUpsellShown');
+  }
+
+  window.closeMensalUpsell = function () {
+    if (mensalUpsellModal) mensalUpsellModal.classList.remove('is-open');
+  };
+
+  window.acceptMensalUpsell = function () {
+    trackEvent('MensalUpsellAccepted');
+    window.closeMensalUpsell();
+    goToOffer('nutrimae-anual-upsell');
+  };
+
+  window.declineMensalUpsell = function () {
+    trackEvent('MensalUpsellDeclined');
+    window.closeMensalUpsell();
+    goToOffer('nutrimae-mensal');
+  };
+
+  function goToCheckout() {
+    trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
+    if (selectedPlan === 'mensal') {
+      openMensalUpsell();
+      return;
+    }
+    goToOffer('nutrimae-anual');
   }
 
   if (ctaCheckoutDynamic) {

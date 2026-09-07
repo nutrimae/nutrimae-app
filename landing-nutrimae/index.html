@@ -837,6 +837,39 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
   </div>
 </footer>
 
+<!-- ===================== MODAL: UPSELL MENSAL -> ANUAL R$37 ===================== -->
+<div class="mensal-upsell-modal" id="mensal-upsell-modal">
+  <div class="mensal-upsell-modal__backdrop" onclick="closeMensalUpsell()"></div>
+  <div class="mensal-upsell-modal__card" role="dialog" aria-modal="true" aria-labelledby="mensal-upsell-title">
+    <button type="button" class="mensal-upsell-modal__close" onclick="closeMensalUpsell()" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div class="mensal-upsell-modal__icon">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z"/></svg>
+    </div>
+
+    <p class="mensal-upsell-modal__eyebrow">Espera! Oferta exclusiva pra você</p>
+    <h3 class="mensal-upsell-modal__title" id="mensal-upsell-title">Leve o ano inteiro por só R$37</h3>
+    <p class="mensal-upsell-modal__text">
+      Em vez de R$19,90 agora e R$29,90/mês depois, garanta o <strong>Plano Anual completo</strong> por R$37 —
+      pagamento único, só nesta tela.
+    </p>
+
+    <div class="mensal-upsell-modal__price">
+      <span class="mensal-upsell-modal__price-old">R$358,80</span>
+      <span class="mensal-upsell-modal__price-new">R$37</span>
+    </div>
+
+    <button type="button" class="btn btn--checkout btn--large mensal-upsell-modal__accept" onclick="acceptMensalUpsell()">
+      Sim! Quero o Anual por R$37
+    </button>
+    <button type="button" class="mensal-upsell-modal__decline" onclick="declineMensalUpsell()">
+      Não, obrigada — quero só o Mensal por R$19,90
+    </button>
+  </div>
+</div>
+
 <script src="script.min.js"></script>
 <script src="support-widget.min.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>

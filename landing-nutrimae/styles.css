@@ -1328,24 +1328,63 @@ section { padding: 40px 0; }
 }
 
 /* =====================================================
-   BLOCO 10 — AUTORIDADE
+   BLOCO 10 — HISTÓRIA (Camille, especialista por trás do NutriMãe)
    ===================================================== */
-.authority { background: var(--color-bg); }
-
-.authority__content { text-align: center; }
-
-.authority-avatar {
-  width: 88px;
-  height: auto;
-  margin: 0 auto 16px;
-  display: block;
+.persona-story {
+  background: var(--color-white);
+  padding: 48px 0;
 }
 
-.authority__text {
-  color: var(--color-text-medium);
+.persona-story__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.persona-story__img {
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 12px 34px rgba(68, 45, 53, 0.10);
+  border: 1px solid rgba(230, 58, 120, 0.10);
+}
+
+.persona-story__img img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.persona-story__caption {
+  font-family: "Caveat", var(--font-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--color-primary-dark);
+  margin-bottom: 2px;
+}
+
+.persona-story__quote {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1.35;
+  color: var(--color-text-dark);
+  margin-bottom: 16px;
+}
+
+.persona-story__text {
   font-size: 0.95rem;
-  max-width: 480px;
-  margin: 0 auto 12px;
+  line-height: 1.62;
+  color: var(--color-text-medium);
+  margin-bottom: 14px;
+}
+
+.persona-story__signature {
+  font-family: "Caveat", var(--font-heading);
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--color-text-dark);
+  margin-top: 4px;
 }
 
 /* =====================================================
@@ -2864,6 +2903,7 @@ body.entry-quiz-active {
   .community-spotlight__grid { flex-direction: row; align-items: center; }
   .community-spotlight__copy { flex: 1; }
   .community-spotlight__testimonial { flex: 1; max-width: 380px; }
+  .persona-story__img { max-width: 340px; margin: 0 auto; }
   .final-cta__grid { flex-direction: row; justify-content: space-between; text-align: left; }
   .final-cta__action { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
   .btn--white { width: auto; padding: 0 32px; }

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import Script from "next/script";
-import { Poppins } from "next/font/google";
+import { Poppins, Caveat } from "next/font/google";
 import { SplashScreen } from "@/components/splash-screen";
 import { TrackingConsentManager } from "@/components/tracking-consent";
 import "./globals.css";
@@ -10,6 +10,13 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["600", "700"],
   display: "swap",
 });
 
@@ -40,7 +47,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${poppins.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${poppins.variable} ${caveat.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-cream text-brown-800">
         <Script
           id="utmify-utms"

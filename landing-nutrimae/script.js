@@ -1180,7 +1180,8 @@ document.addEventListener('DOMContentLoaded', function () {
     '.feature-card', '.audience-card', '.objection-card', '.faq-item',
     '.journey__step', '.comparison__col', '.sos-card', '.chat-window',
     '.mini-mock', '.plan-card-single', '.community-spotlight__testimonial',
-    '.app-preview__img', 'section .section-title'
+    '.app-preview__img', '.persona-story__img', '.persona-story__copy',
+    'section .section-title'
   ].join(', ');
   var revealTargets = document.querySelectorAll(revealSelector);
 

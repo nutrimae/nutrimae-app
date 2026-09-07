@@ -48,7 +48,7 @@ export function SubscriptionCheckoutForm({
   offer,
   bumps,
 }: {
-  offer: { slug: string; name: string; priceCents: number };
+  offer: { slug: string; name: string; priceCents: number; recurringPriceCents: number | null };
   bumps: Bump[];
 }) {
   const router = useRouter();
@@ -375,10 +375,20 @@ export function SubscriptionCheckoutForm({
 
       {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>}
 
-      <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
-        <span className="text-sm font-semibold text-brown-700/86">Cobrado agora</span>
-        <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(chargedNowCents)}</span>
-      </div>
+      {paymentMethod === "credit_card" && offer.recurringPriceCents != null && offer.recurringPriceCents > offer.priceCents ? (
+        <div className="rounded-2xl bg-primary-50 p-4 text-center">
+          <p className="text-xs text-brown-700/70">
+            De <span className="font-bold text-red-500 line-through">{formatBRL(offer.recurringPriceCents)}</span> por
+          </p>
+          <p className="mt-0.5 font-heading text-3xl font-extrabold text-primary-600">{formatBRL(chargedNowCents)}</p>
+          <p className="mt-0.5 text-sm font-bold text-brown-700">no 1º mês, depois {formatBRL(offer.recurringPriceCents)}/mês</p>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
+          <span className="text-sm font-semibold text-brown-700/86">Cobrado agora</span>
+          <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(chargedNowCents)}</span>
+        </div>
+      )}
 
       <p className="text-center text-xs font-medium text-sage-600">
         {paymentMethod === "credit_card" ? "Cancele quando quiser, sem multa." : "Pagamento único desse ciclo, no Pix."}

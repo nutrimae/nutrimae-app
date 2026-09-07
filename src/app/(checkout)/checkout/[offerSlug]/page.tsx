@@ -109,7 +109,10 @@ export default async function CheckoutOfferPage({
         </div>
 
         {offer.billing_type === "recurring" ? (
-          <SubscriptionCheckoutForm offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents }} bumps={bumps} />
+          <SubscriptionCheckoutForm
+            offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents, recurringPriceCents: offer.recurring_price_cents }}
+            bumps={bumps}
+          />
         ) : (
           <CheckoutForm offer={{ slug: offer.slug, name: offer.name, priceCents: offer.price_cents }} bumps={bumps} />
         )}

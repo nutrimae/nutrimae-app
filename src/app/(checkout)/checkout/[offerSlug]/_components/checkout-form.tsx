@@ -344,14 +344,24 @@ export function CheckoutForm({
         <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>
       )}
 
-      <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
-        <span className="text-sm font-semibold text-brown-700/86">Total</span>
-        <span className="font-heading text-xl font-extrabold text-brown-900">
-          {paymentMethod === "credit_card" && installments > 1
-            ? `${installments}x de ${formatBRL(installmentValue)}`
-            : formatBRL(totalCents)}
-        </span>
-      </div>
+      {paymentMethod === "credit_card" && installments > 1 ? (
+        <div className="rounded-2xl bg-primary-50 p-4 text-center">
+          {offer.slug === "nutrimae-anual" && (
+            <p className="text-xs text-brown-700/70">
+              De <span className="font-bold text-red-500 line-through">R$358,80</span> por
+            </p>
+          )}
+          <p className="mt-0.5 font-heading text-3xl font-extrabold text-primary-600">
+            <span className="text-lg font-bold">{installments}x de</span> {formatBRL(installmentValue)}
+          </p>
+          <p className="mt-0.5 text-sm font-bold text-brown-700">ou {formatBRL(totalCents)} à vista</p>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
+          <span className="text-sm font-semibold text-brown-700/86">Total</span>
+          <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(totalCents)}</span>
+        </div>
+      )}
 
       <Button variant="brand" size="lg" onClick={handleSubmit} disabled={loading} loading={loading}>
         <span className="flex items-center justify-center gap-2">

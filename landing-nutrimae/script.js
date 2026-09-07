@@ -35,19 +35,49 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------------------------------------------------
-     Depoimentos: pausa acessível no mobile e no teclado
+     Depoimentos: carrossel de prints reais do WhatsApp
+     (mesmo padrão já usado no Kit Crochê com Fé e na Clínica Psi)
      --------------------------------------------------- */
-  var testimonialsMarquee = document.getElementById('testimonials-track');
-  var testimonialsPauseButton = document.getElementById('testimonials-pause');
+  var TOTAL_DEPOIMENTOS = 9;
+  var depoimentoIndex = 0;
+  var depoimentoImg = document.getElementById('depoimento-img');
+  var depoimentoDots = document.getElementById('depoimento-dots');
 
-  if (testimonialsMarquee && testimonialsPauseButton) {
-    testimonialsPauseButton.addEventListener('click', function () {
-      var isPaused = testimonialsMarquee.classList.toggle('is-paused');
-      testimonialsPauseButton.setAttribute('aria-pressed', String(isPaused));
-      testimonialsPauseButton.innerHTML = isPaused
-        ? '<span aria-hidden="true">▶</span> Continuar relatos'
-        : '<span aria-hidden="true">Ⅱ</span> Pausar relatos';
-    });
+  if (depoimentoImg && depoimentoDots) {
+    for (var di = 0; di < TOTAL_DEPOIMENTOS; di++) {
+      (function (dotIndex) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.setAttribute('aria-label', 'Ver depoimento ' + (dotIndex + 1));
+        dot.className = 'testimonials-carousel__dot' + (dotIndex === 0 ? ' is-active' : '');
+        dot.addEventListener('click', function () { showDepoimento(dotIndex); });
+        depoimentoDots.appendChild(dot);
+      })(di);
+    }
+
+    var showDepoimento = function (index) {
+      depoimentoIndex = (index + TOTAL_DEPOIMENTOS) % TOTAL_DEPOIMENTOS;
+      depoimentoImg.src = 'assets/depoimentos/depoimento_' + (depoimentoIndex + 1) + '.jpg';
+      Array.prototype.forEach.call(depoimentoDots.children, function (dot, i) {
+        dot.classList.toggle('is-active', i === depoimentoIndex);
+      });
+    };
+
+    window.moveDepoimento = function (delta) {
+      showDepoimento(depoimentoIndex + delta);
+    };
+
+    var depoimentoTouchStartX = null;
+    var depoimentoFrame = depoimentoImg.closest('.testimonials-carousel__frame');
+    depoimentoFrame.addEventListener('touchstart', function (e) {
+      depoimentoTouchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    depoimentoFrame.addEventListener('touchend', function (e) {
+      if (depoimentoTouchStartX === null) return;
+      var delta = e.changedTouches[0].clientX - depoimentoTouchStartX;
+      if (Math.abs(delta) > 40) window.moveDepoimento(delta < 0 ? 1 : -1);
+      depoimentoTouchStartX = null;
+    }, { passive: true });
   }
 
   /* ---------------------------------------------------

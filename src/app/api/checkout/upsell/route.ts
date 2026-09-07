@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPaymentProvider } from "@/lib/payments";
-import { resolveParentCustomer } from "@/lib/payments/resolve-parent-customer";
 import { generateStatusToken } from "@/lib/checkout/status-token";
 import { isCheckoutRateLimited } from "@/lib/checkout/rate-limit";
 
@@ -10,18 +9,16 @@ import { isCheckoutRateLimited } from "@/lib/checkout/rate-limit";
  * Cobrança de OTO1 (upsell pós-compra) — genérica por offerSlug, pra não
  * duplicar essa lógica a cada nova oferta de upsell. Mesmo padrão do
  * downsell (src/app/api/checkout/downsell/route.ts): reaproveita os dados
- * do cliente já coletados no pedido/assinatura pai (resolveParentCustomer
- * aceita os dois), preço sempre relido de "offers".
+ * do cliente já coletados no pedido pai, preço sempre relido de "offers".
  *
- * Usada pelo OTO1 do Anual (Batch Cooking & Congelamento) e pelo OTO1 do
- * Mensal (Anual por R$37, oferta exclusiva — ver /upsell/page.tsx). Só
- * aceita ofertas one_time — a oferta em si nunca é recorrente aqui, mesmo
- * quando o pedido pai é uma subscription.
+ * Hoje usada pelo OTO1 adaptado pro Anual (Batch Cooking & Congelamento —
+ * ver memória "project-bump-upsell-mensal-swap" sobre a adaptação
+ * temporária). Só aceita ofertas one_time — assinatura nunca passa por
+ * aqui.
  */
 
 interface UpsellBody {
   parentOrderId?: unknown;
-  parentSubscriptionId?: unknown;
   offerSlug?: unknown;
   paymentMethod?: unknown;
   cardToken?: unknown;
@@ -51,11 +48,10 @@ export async function POST(request: Request) {
   }
 
   const parentOrderId = typeof body.parentOrderId === "string" ? body.parentOrderId : null;
-  const parentSubscriptionId = typeof body.parentSubscriptionId === "string" ? body.parentSubscriptionId : null;
   const offerSlug = typeof body.offerSlug === "string" ? body.offerSlug : null;
   const paymentMethod = body.paymentMethod === "pix" || body.paymentMethod === "credit_card" ? body.paymentMethod : null;
 
-  if ((!parentOrderId && !parentSubscriptionId) || !offerSlug || !paymentMethod) {
+  if (!parentOrderId || !offerSlug || !paymentMethod) {
     return NextResponse.json({ error: "missing_or_invalid_fields" }, { status: 400 });
   }
 
@@ -67,10 +63,24 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
 
-  const customer = await resolveParentCustomer(admin, { parentOrderId, parentSubscriptionId });
+  const { data: parentOrder } = await admin
+    .from("orders")
+    .select("id, status, customer_id")
+    .eq("id", parentOrderId)
+    .maybeSingle();
 
-  if (!customer) {
-    return NextResponse.json({ error: "parent_not_confirmed" }, { status: 403 });
+  if (!parentOrder || parentOrder.status !== "paid") {
+    return NextResponse.json({ error: "parent_order_not_paid" }, { status: 403 });
+  }
+
+  const { data: customer } = await admin
+    .from("customers")
+    .select("id, pagarme_customer_id")
+    .eq("id", parentOrder.customer_id)
+    .maybeSingle();
+
+  if (!customer?.pagarme_customer_id) {
+    return NextResponse.json({ error: "customer_not_found" }, { status: 404 });
   }
 
   const { data: offer } = await admin
@@ -89,10 +99,9 @@ export async function POST(request: Request) {
     const { data: orderRow, error: orderError } = await admin
       .from("orders")
       .insert({
-        customer_id: customer.customerId,
+        customer_id: customer.id,
         offer_id: offer.id,
-        parent_order_id: parentOrderId,
-        parent_subscription_id: parentSubscriptionId,
+        parent_order_id: parentOrder.id,
         status: "pending",
         payment_method: paymentMethod,
         amount_cents: offer.price_cents,
@@ -113,10 +122,10 @@ export async function POST(request: Request) {
 
     if (paymentMethod === "pix") {
       const pix = await provider.createPixPayment({
-        providerCustomerId: customer.providerCustomerId,
+        providerCustomerId: customer.pagarme_customer_id,
         amountCents: offer.price_cents,
         description: offer.name,
-        metadata: { order_id: orderRow.id },
+        metadata: { order_id: orderRow.id, parent_order_id: parentOrder.id },
       });
 
       await admin.from("orders").update({ pagarme_order_id: pix.providerOrderId }).eq("id", orderRow.id);
@@ -140,12 +149,12 @@ export async function POST(request: Request) {
     }
 
     const card = await provider.createCardPayment({
-      providerCustomerId: customer.providerCustomerId,
+      providerCustomerId: customer.pagarme_customer_id,
       amountCents: offer.price_cents,
       description: offer.name,
       cardToken: body.cardToken as string,
       billingAddress: billingAddress as NonNullable<typeof billingAddress>,
-      metadata: { order_id: orderRow.id },
+      metadata: { order_id: orderRow.id, parent_order_id: parentOrder.id },
     });
 
     await admin.from("orders").update({ pagarme_order_id: card.providerOrderId }).eq("id", orderRow.id);

@@ -14,17 +14,14 @@ function formatBRL(cents: number) {
 
 export function UpsellCheckout({
   parentOrderId,
-  parentSubscriptionId,
   offerSlug,
   priceCents,
 }: {
-  parentOrderId?: string;
-  parentSubscriptionId?: string;
+  parentOrderId: string;
   offerSlug: string;
   priceCents: number;
 }) {
   const router = useRouter();
-  const downsellQuery = parentSubscriptionId ? `subscriptionId=${parentSubscriptionId}` : `orderId=${parentOrderId}`;
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card">("pix");
   const [cardNumber, setCardNumber] = useState("");
   const [cardHolder, setCardHolder] = useState("");
@@ -38,7 +35,7 @@ export function UpsellCheckout({
   const [pixCopied, setPixCopied] = useState(false);
 
   function handleDecline() {
-    router.push(`/downsell?${downsellQuery}`);
+    router.push(`/downsell?orderId=${parentOrderId}`);
   }
 
   function pollPixStatus(orderId: string, statusToken: string) {
@@ -47,7 +44,7 @@ export function UpsellCheckout({
       const data = await res.json();
       if (data.status === "paid") {
         clearInterval(interval);
-        router.push(`/downsell?${downsellQuery}`);
+        router.push(`/downsell?orderId=${parentOrderId}`);
       }
       if (data.status === "expired" || data.status === "refused") {
         clearInterval(interval);
@@ -84,7 +81,6 @@ export function UpsellCheckout({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           parentOrderId,
-          parentSubscriptionId,
           offerSlug,
           paymentMethod,
           cardToken,
@@ -111,7 +107,7 @@ export function UpsellCheckout({
         return;
       }
 
-      router.push(`/downsell?${downsellQuery}`);
+      router.push(`/downsell?orderId=${parentOrderId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo deu errado. Tente de novo.");
       setLoading(false);

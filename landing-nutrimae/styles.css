@@ -1789,7 +1789,32 @@ section { padding: 40px 0; }
   margin-top: 2px;
   font-size: 0.85rem;
   color: var(--color-text-medium);
+}
+
+.plan-card__old span {
+  color: #C02D2D;
+  font-weight: 700;
   text-decoration: line-through;
+}
+
+.plan-card__price-box {
+  margin-top: 6px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #FFE9F1;
+  text-align: center;
+}
+
+.plan-card__price-de {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.plan-card__cash {
+  margin-top: 2px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
 }
 
 .plan-card__context {

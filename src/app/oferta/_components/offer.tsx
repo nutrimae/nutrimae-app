@@ -71,11 +71,18 @@ export function Offer() {
                 MAIS ESCOLHIDO
               </span>
               <p className="font-heading text-sm font-bold uppercase tracking-wide text-brown-700/70">Anual</p>
-              <p className="font-heading text-3xl font-extrabold text-primary-600">
-                {formatPrice(product.annual.price)}
-                <span className="text-base font-semibold text-brown-700"> {product.annual.note}</span>
-              </p>
-              <p className="mt-1 text-sm font-semibold text-brown-700">{product.annual.installmentNote}</p>
+              <div className="mt-2 rounded-2xl bg-primary-50 p-4 text-center">
+                <p className="text-xs text-brown-700/70">
+                  De <span className="font-bold text-red-500 line-through">{formatPrice(product.annual.anchorPrice)}</span> por
+                </p>
+                <p className="mt-0.5 font-heading text-3xl font-extrabold text-primary-600">
+                  <span className="text-lg font-bold">{product.annual.maxInstallments}x de</span>{" "}
+                  {formatPrice(product.annual.price / product.annual.maxInstallments)}
+                </p>
+                <p className="mt-0.5 text-sm font-bold text-brown-700">
+                  ou {formatPrice(product.annual.price)} {product.annual.note}
+                </p>
+              </div>
               <p className="mt-3 flex items-center gap-1.5 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
                 <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={3} /> Bônus incluído: SOS Desmame Noturno (R$ 27) de graça
               </p>

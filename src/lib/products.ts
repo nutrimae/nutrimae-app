@@ -57,8 +57,10 @@ export interface Product {
     price: number;
     /** Texto de apoio ao preço à vista, ex.: "à vista". */
     note: string;
-    /** Opção de parcelamento real (não é price/12 — o cartão cobra um pouco mais). */
-    installmentNote: string;
+    /** Preço-âncora riscado (ex.: o mesmo período pago mês a mês). */
+    anchorPrice: number;
+    /** Parcelas reais aceitas no cartão (mesmo limite do checkout-form.tsx). */
+    maxInstallments: number;
   };
 }
 
@@ -75,7 +77,8 @@ export const PRODUCTS: Record<ProductKey, Product> = {
     annual: {
       price: 47,
       note: "à vista",
-      installmentNote: "pagamento único no Pix ou no cartão",
+      anchorPrice: 358.8,
+      maxInstallments: 7,
     },
   },
   // Produtos futuros: módulo ainda não construído, só o "gate" (config) está pronto

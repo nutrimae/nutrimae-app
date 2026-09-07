@@ -26,6 +26,8 @@ function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+const MAX_INSTALLMENTS = 7;
+
 export function CheckoutForm({
   offer,
   bumps,
@@ -36,6 +38,7 @@ export function CheckoutForm({
   const router = useRouter();
   const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card">("pix");
+  const [installments, setInstallments] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [document, setDocument] = useState("");
@@ -59,6 +62,7 @@ export function CheckoutForm({
     .filter((b) => selectedBumps.includes(b.slug))
     .reduce((sum, b) => sum + b.price_cents, 0);
   const totalCents = offer.priceCents + bumpTotal;
+  const installmentValue = totalCents / installments;
 
   const documentDigits = document.replace(/\D/g, "");
   const documentError = documentTouched && documentDigits.length === 11 && !isValidCpf(documentDigits) ? "CPF inválido — confira os números." : null;
@@ -109,6 +113,7 @@ export function CheckoutForm({
           bumpSlugs: selectedBumps,
           paymentMethod,
           cardToken,
+          installments: paymentMethod === "credit_card" ? installments : undefined,
           billingAddress: paymentMethod === "credit_card" ? billingAddress : undefined,
           customer: { name, email, document, phone },
           tracking: getCheckoutTrackingContext(),
@@ -318,6 +323,17 @@ export function CheckoutForm({
             <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
             <Input className="w-1/3" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
           </div>
+          <select
+            value={installments}
+            onChange={(e) => setInstallments(Number(e.target.value))}
+            className="min-h-12 w-full rounded-2xl border-2 border-sage-100/80 px-4 text-sm font-semibold text-brown-900 focus:border-primary-300 focus:outline-none"
+          >
+            {Array.from({ length: MAX_INSTALLMENTS }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}x de {formatBRL(totalCents / n)} {n === 1 ? "à vista" : ""}
+              </option>
+            ))}
+          </select>
           <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
         </div>
       )}
@@ -330,13 +346,21 @@ export function CheckoutForm({
 
       <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
         <span className="text-sm font-semibold text-brown-700/86">Total</span>
-        <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(totalCents)}</span>
+        <span className="font-heading text-xl font-extrabold text-brown-900">
+          {paymentMethod === "credit_card" && installments > 1
+            ? `${installments}x de ${formatBRL(installmentValue)}`
+            : formatBRL(totalCents)}
+        </span>
       </div>
 
       <Button variant="brand" size="lg" onClick={handleSubmit} disabled={loading} loading={loading}>
         <span className="flex items-center justify-center gap-2">
           <Lock className="h-4 w-4" strokeWidth={2.5} />
-          {`Finalizar compra — ${formatBRL(totalCents)}`}
+          {`Finalizar compra — ${
+            paymentMethod === "credit_card" && installments > 1
+              ? `${installments}x de ${formatBRL(installmentValue)}`
+              : formatBRL(totalCents)
+          }`}
         </span>
       </Button>
 

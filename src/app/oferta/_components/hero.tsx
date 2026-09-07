@@ -1,7 +1,5 @@
 "use client";
 
-import { trackEvent } from "./track";
-import { scrollToSection } from "./scroll";
 import { TrackedVsl } from "./tracked-vsl";
 
 export function Hero() {
@@ -18,16 +16,9 @@ export function Hero() {
 
         <TrackedVsl />
 
-        <button
-          type="button"
-          onClick={() => {
-            trackEvent("HeroCtaClick");
-            scrollToSection("fase");
-          }}
-          className="flex min-h-14 w-full items-center justify-center rounded-2xl bg-primary-500 px-6 font-heading text-base font-bold text-white shadow-md shadow-primary-500/20 transition-transform duration-100 ease-out hover:bg-primary-hover active:scale-[0.98]"
-        >
-          Ver o que preparamos para a fase do meu bebê
-        </button>
+        <p className="font-heading text-lg font-bold italic leading-snug text-primary-500">
+          O fim do &quot;o que eu ofereço hoje?&quot; está logo abaixo — sem achismo, sem stress.
+        </p>
       </div>
     </section>
   );

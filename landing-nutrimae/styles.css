@@ -2301,6 +2301,17 @@ body.entry-quiz-active {
   opacity: 0.8;
 }
 
+.hero__cta-phrase {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  color: var(--color-primary-dark);
+  margin: 0 0 4px;
+}
+
+
 .entry-quiz__logo {
   display: block;
   width: 60px;

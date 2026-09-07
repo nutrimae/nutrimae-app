@@ -103,6 +103,10 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
         s.async = true;
         document.head.appendChild(s);
       </script>
+
+      <!-- Mini-gancho de reengajamento: aparece e some sozinho em pontos
+           específicos do vídeo (ver vslHook em script.js). -->
+      <div class="vsl-hook" id="vsl-hook" aria-live="polite"></div>
     </div>
 
     <p class="hero__subtitle" style="grid-area: subtitle;">Planeje a semana, consulte o corte indicado e leve a lista de compras para o WhatsApp — direto no celular.</p>
@@ -124,6 +128,26 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
         Pagamento seguro e cancelamento direto no app
       </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BÔNUS LIBERADO NO VÍDEO (revelação progressiva) ===================== -->
+<section class="video-unlock" id="video-unlock">
+  <div class="container">
+    <div class="video-unlock__card" id="video-unlock-card">
+      <div class="video-unlock__locked" id="video-unlock-locked">
+        <div class="video-unlock__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
+        </div>
+        <p class="video-unlock__label">Bônus liberado conforme você assiste ao vídeo acima</p>
+        <div class="video-unlock__track"><div class="video-unlock__fill" id="video-unlock-fill"></div></div>
+      </div>
+      <div class="video-unlock__unlocked" id="video-unlock-unlocked" hidden>
+        <p class="video-unlock__badge">✨ Bônus desbloqueado</p>
+        <p class="video-unlock__title">Como adaptar qualquer receita quando falta um ingrediente</p>
+        <p class="video-unlock__text">Abra o guia de substituições da fase do seu bebê e troque o alimento indicado — sem perder o valor nutricional da refeição.</p>
+      </div>
     </div>
   </div>
 </section>

@@ -35,6 +35,106 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------------------------------------------------
+     VSL (player VTurb): pixel por % assistido, revelação
+     progressiva de conteúdo e mini-ganchos de reengajamento.
+
+     API oficial do player (smartplayer.instances[0].on(...) e
+     .video.currentTime/.duration) — ver
+     https://help.vturb.com/en-us/article/old-player-using-the-delay-code-to-sync-page-elements-with-your-video-1r9mnzz/
+
+     Observação: o VTurb também dispara pixels de % assistido
+     automaticamente a cada 5% se você cadastrar o Pixel ID do
+     Meta direto no painel do player (Configurações > Pixels) —
+     isso não depende de código. O bloco abaixo é um espelho desses
+     eventos usando o Pixel que já está instalado nesta página, para
+     não depender de outra configuração além desta aqui.
+     --------------------------------------------------- */
+  (function () {
+    var PIXEL_MILESTONES = [10, 25, 50, 75];
+    var UNLOCK_AT_PERCENT = 30;
+    var firedMilestones = {};
+    var hooksShown = {};
+    var contentUnlocked = false;
+
+    var unlockLocked = document.getElementById('video-unlock-locked');
+    var unlockUnlocked = document.getElementById('video-unlock-unlocked');
+    var unlockFill = document.getElementById('video-unlock-fill');
+    var vslHook = document.getElementById('vsl-hook');
+
+    function fireProgressPixel(percent) {
+      if (firedMilestones[percent]) return;
+      firedMilestones[percent] = true;
+      trackEvent('VSLProgress' + percent, { percent: percent });
+    }
+
+    function unlockGatedContent() {
+      if (contentUnlocked || !unlockLocked || !unlockUnlocked) return;
+      contentUnlocked = true;
+      unlockLocked.style.display = 'none';
+      unlockUnlocked.hidden = false;
+      trackEvent('VSLContentUnlocked', { percent: UNLOCK_AT_PERCENT });
+    }
+
+    function showHook(key, text) {
+      if (hooksShown[key] || !vslHook) return;
+      hooksShown[key] = true;
+      vslHook.textContent = text;
+      vslHook.classList.add('is-visible');
+      window.setTimeout(function () { vslHook.classList.remove('is-visible'); }, 6000);
+    }
+
+    // A API pública do player não expõe duração em .video (só currentTime);
+    // a duração real do vídeo vive em .instance.duration.
+    function getPercentWatched(instance) {
+      var currentTime = instance.video && instance.video.currentTime;
+      var duration = instance.instance && instance.instance.duration;
+      if (!duration || typeof currentTime !== 'number') return null;
+      return (currentTime / duration) * 100;
+    }
+
+    function handleTimeUpdate(instance) {
+      var percent = getPercentWatched(instance);
+      if (percent === null) return;
+      percent = Math.floor(percent);
+
+      if (unlockFill) unlockFill.style.width = Math.min(percent, UNLOCK_AT_PERCENT) / UNLOCK_AT_PERCENT * 100 + '%';
+      if (percent >= UNLOCK_AT_PERCENT) unlockGatedContent();
+
+      PIXEL_MILESTONES.forEach(function (milestone) {
+        if (percent >= milestone) fireProgressPixel(milestone);
+      });
+
+      if (percent >= 15) showHook('early', 'Fica só mais um minutinho, a parte boa vem a seguir 👀');
+      if (percent >= 60) showHook('late', 'Quase lá! Depois do vídeo é só escolher seu plano.');
+    }
+
+    function handlePause(instance) {
+      var percent = getPercentWatched(instance);
+      if (percent === null) return;
+      if (percent < 85) {
+        showHook('pause', 'Pausou? Sem problema — é só apertar o play pra continuar de onde parou.');
+        trackEvent('VSLPaused', { percent: Math.floor(percent) });
+      }
+    }
+
+    function attachToPlayer(instance) {
+      instance.on('timeupdate', function () { handleTimeUpdate(instance); });
+      instance.on('pause', function () { handlePause(instance); });
+    }
+
+    function waitForPlayer(attemptsLeft) {
+      if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances.length) {
+        attachToPlayer(window.smartplayer.instances[0]);
+        return;
+      }
+      if (attemptsLeft <= 0) return;
+      window.setTimeout(function () { waitForPlayer(attemptsLeft - 1); }, 400);
+    }
+
+    if (unlockLocked || vslHook) waitForPlayer(40);
+  })();
+
+  /* ---------------------------------------------------
      Depoimentos: carrossel de prints reais do WhatsApp
      (mesmo padrão já usado no Kit Crochê com Fé e na Clínica Psi)
      --------------------------------------------------- */

@@ -1180,4 +1180,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
   trackEvent('ViewContent', { page: 'oferta' });
 
+  /* ---------------------------------------------------
+     Notificação de "compra recente" — mesmo padrão já usado no Croche e
+     na Clínica Psi. Não é feed em tempo real (sem backend por trás
+     aqui); é uma lista de exemplos rotativa, sem repetir até esgotar o
+     ciclo.
+     --------------------------------------------------- */
+  var PURCHASE_EXAMPLES = [
+    ['Mariana S.', 'São Paulo, SP'],
+    ['Camila R.', 'Belo Horizonte, MG'],
+    ['Juliana P.', 'Porto Alegre, RS'],
+    ['Fernanda L.', 'Salvador, BA'],
+    ['Priscila M.', 'Curitiba, PR'],
+    ['Patrícia G.', 'Recife, PE'],
+    ['Renata C.', 'Fortaleza, CE'],
+    ['Larissa T.', 'Goiânia, GO'],
+    ['Bianca F.', 'Rio de Janeiro, RJ'],
+    ['Débora N.', 'Florianópolis, SC'],
+    ['Simone A.', 'Brasília, DF'],
+    ['Aline V.', 'Campinas, SP']
+  ];
+  var purchaseToastEl = document.getElementById('purchase-toast');
+  var purchaseToastNameEl = document.getElementById('purchase-toast-name');
+  var purchaseToastCityEl = document.getElementById('purchase-toast-city');
+  var purchaseQueue = [];
+  var purchaseHideTimer = null;
+
+  function nextPurchaseExample() {
+    if (purchaseQueue.length === 0) {
+      purchaseQueue = PURCHASE_EXAMPLES.slice().sort(function () { return Math.random() - 0.5; });
+    }
+    return purchaseQueue.pop();
+  }
+
+  function showPurchaseToast() {
+    if (!purchaseToastEl) return;
+    var example = nextPurchaseExample();
+    purchaseToastNameEl.textContent = example[0];
+    purchaseToastCityEl.textContent = example[1];
+    purchaseToastEl.classList.add('is-visible');
+
+    clearTimeout(purchaseHideTimer);
+    purchaseHideTimer = setTimeout(function () {
+      purchaseToastEl.classList.remove('is-visible');
+    }, 6000);
+  }
+
+  if (purchaseToastEl) {
+    setTimeout(showPurchaseToast, 4000);
+    setInterval(showPurchaseToast, 30000);
+  }
+
 });

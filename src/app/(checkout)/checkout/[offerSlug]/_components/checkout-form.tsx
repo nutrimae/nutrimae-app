@@ -9,7 +9,6 @@ import { tokenizeCard } from "@/lib/payments/tokenize-card";
 import { PixCountdown } from "@/components/pix-countdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Chip } from "@/components/ui/chip";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
 import { getCheckoutTrackingContext, getFacebookMatchCookies, getQuizAnswers, track } from "@/lib/tracking/client";
@@ -296,7 +295,6 @@ export function CheckoutForm({
                   )}
                 </span>
                 <span className="flex shrink-0 flex-col items-end gap-1">
-                  <Chip color="sage">vitalício</Chip>
                   <span className="font-heading font-bold text-primary-600">{formatBRL(bump.price_cents)}</span>
                 </span>
               </label>

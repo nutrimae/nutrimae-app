@@ -7,7 +7,6 @@ import { CreditCard, ShieldCheck, Loader2, Check, QrCode, Copy } from "lucide-re
 import { isValidCpf } from "@/lib/utils";
 import { tokenizeCard } from "@/lib/payments/tokenize-card";
 import { PixCountdown } from "@/components/pix-countdown";
-import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
@@ -297,7 +296,6 @@ export function SubscriptionCheckoutForm({
                   )}
                 </span>
                 <span className="flex shrink-0 flex-col items-end gap-1">
-                  <Chip color="sage">vitalício</Chip>
                   <span className="font-heading font-bold text-primary-600">{formatBRL(bump.price_cents)}</span>
                 </span>
               </label>

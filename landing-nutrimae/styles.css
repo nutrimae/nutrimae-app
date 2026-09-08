@@ -3322,57 +3322,6 @@ button:focus-visible,
 .mensal-upsell-modal__decline:hover { color: var(--color-text-dark); }
 
 /* =====================================================
-   Notificação de compra recente (canto inferior esquerdo)
-   ===================================================== */
-.purchase-toast {
-  position: fixed;
-  left: 12px;
-  bottom: 16px;
-  z-index: 150;
-  max-width: 300px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px 12px 12px;
-  border-radius: 16px;
-  background: var(--color-white);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  transform: translateY(130%);
-  opacity: 0;
-  transition: transform 0.5s ease, opacity 0.5s ease;
-  pointer-events: none;
-}
-
-.purchase-toast.is-visible {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.purchase-toast__icon {
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: #FFE9F1;
-  color: var(--color-primary-dark);
-}
-
-.purchase-toast__text {
-  margin: 0;
-  font-size: 0.78rem;
-  line-height: 1.4;
-  color: var(--color-text-dark);
-}
-
-.purchase-toast__city {
-  color: var(--color-text-medium);
-}
-
-/* =====================================================
    Depoimentos: carrossel de prints reais do WhatsApp
    ===================================================== */
 .testimonials-carousel-wrap {

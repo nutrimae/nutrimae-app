@@ -14,7 +14,6 @@ import { Offer } from "./offer";
 import { OfertaFooter } from "./footer";
 import { ViewContentTracker } from "./view-content-tracker";
 import { LazyMount } from "./lazy-mount";
-import { PurchaseToast } from "./purchase-toast";
 
 // A única seção abaixo da dobra com JS de verdade (estado do acordeão) —
 // as outras (Problem, BeliefBreak, Inclusions, SosHighlight, Testimonial,
@@ -37,7 +36,6 @@ export function OfertaContent() {
   return (
     <main className="flex flex-col overflow-x-hidden">
       <ViewContentTracker />
-      <PurchaseToast />
       <Hero />
       <AgeProvider>
         <AgeSelector />

@@ -1193,46 +1193,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ---------------------------------------------------
-     Barra de CTA fixa (mobile)
-     --------------------------------------------------- */
-  var stickyCta = document.getElementById('sticky-cta');
-  var stickyCtaBtn = document.getElementById('sticky-cta-btn');
-  var heroSection = document.getElementById('bloco-1');
-  var offerSectionForSticky = document.getElementById('bloco-6');
-
-  if (stickyCta && heroSection && offerSectionForSticky) {
-    // Visibilidade calculada por geometria: funciona com ou sem
-    // IntersectionObserver, garantindo a barra também em navegadores in-app.
-    function isElementOnScreen(el) {
-      var rect = el.getBoundingClientRect();
-      var viewportH = window.innerHeight || document.documentElement.clientHeight;
-      return rect.top < viewportH && rect.bottom > 0;
-    }
-
-    function updateStickyCta() {
-      var shouldShow = !isElementOnScreen(heroSection) && !isElementOnScreen(offerSectionForSticky);
-      stickyCta.classList.toggle('sticky-cta--visible', shouldShow);
-      stickyCta.setAttribute('aria-hidden', String(!shouldShow));
-    }
-
-    if (supportsIO) {
-      safeObserve(heroSection, updateStickyCta, { threshold: 0 });
-      safeObserve(offerSectionForSticky, updateStickyCta, { threshold: 0 });
-    }
-
-    window.addEventListener('scroll', updateStickyCta, { passive: true });
-    window.addEventListener('resize', updateStickyCta, { passive: true });
-    updateStickyCta();
-  }
-
-  if (stickyCtaBtn) {
-    stickyCtaBtn.addEventListener('click', function () {
-      trackEvent('StickyCtaClick');
-      scrollToSection('bloco-6');
-    });
-  }
-
-  /* ---------------------------------------------------
      Parallax leve no fundo da demonstração do produto — só transform,
      só enquanto o elemento está na tela (liga/desliga o listener de
      scroll via IntersectionObserver pra não gastar CPU à toa no resto

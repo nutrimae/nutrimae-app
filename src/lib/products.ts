@@ -35,13 +35,13 @@ export interface BundledItem {
 export interface Product {
   key: ProductKey;
   name: string;
-  /** Preço promocional cobrado agora (ex.: preço de entrada no primeiro mês). */
+  /** Preço do Plano Básico — pagamento único, sem mensalidade (offer "nutrimae-basico"). */
   price: number;
-  /** Preço cheio recorrente (ex.: mensalidade normal), usado no cálculo de "valor total". */
+  /** Preço-âncora riscado do Básico (comparação, não é cobrança recorrente). */
   regularPrice: number;
   /** true = produto de pagamento único (order bump), não mostra "/mês" ao lado do preço cheio. */
   oneTimePayment?: boolean;
-  /** Texto ao lado do preço promocional, ex.: "no primeiro mês". */
+  /** Texto ao lado do preço do Básico, ex.: "pagamento único, acesso vitalício". */
   priceNote: string;
   /** Itens bônus mostrados riscados (de R$X por GRÁTIS) na tela de upgrade. */
   bundled: BundledItem[];
@@ -50,14 +50,14 @@ export interface Product {
   /** Se as telas dos módulos já existem no app. */
   built: boolean;
   /**
-   * Plano anual opcional (preço à vista). Quando presente, telas de oferta podem
-   * exibir os dois planos lado a lado. Ausente = produto só tem opção mensal.
+   * Plano Completo — mesmo produto, mais bônus, preço à vista (offer
+   * "nutrimae-anual"). Sempre presente para nutrimae_assinatura.
    */
-  annual?: {
+  completo?: {
     price: number;
-    /** Texto de apoio ao preço à vista, ex.: "à vista". */
+    /** Texto de apoio ao preço à vista, ex.: "à vista, acesso vitalício". */
     note: string;
-    /** Preço-âncora riscado (ex.: o mesmo período pago mês a mês). */
+    /** Preço-âncora riscado (comparação com o Básico + bônus avulsos). */
     anchorPrice: number;
     /** Parcelas reais aceitas no cartão (mesmo limite do checkout-form.tsx). */
     maxInstallments: number;
@@ -67,16 +67,17 @@ export interface Product {
 export const PRODUCTS: Record<ProductKey, Product> = {
   nutrimae_assinatura: {
     key: "nutrimae_assinatura",
-    name: "NutriMãe (assinatura)",
+    name: "NutriMãe — Plano Básico",
     price: 19.9,
     regularPrice: 29.9,
-    priceNote: "no primeiro mês",
+    priceNote: "pagamento único, acesso vitalício",
+    oneTimePayment: true,
     bundled: [{ label: "Guia de Sinais de Alergia", originalPrice: 19.9 }],
     modules: ["cardapio", "cortes_seguros", "lista_compras", "alergia"],
     built: true,
-    annual: {
+    completo: {
       price: 47,
-      note: "à vista",
+      note: "à vista, acesso vitalício",
       anchorPrice: 358.8,
       maxInstallments: 7,
     },

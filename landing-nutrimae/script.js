@@ -1003,48 +1003,49 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: 0.3 });
 
   /* ---------------------------------------------------
-     BLOCO 11: Oferta — Plano Anual/Mensal + Checkout
+     BLOCO 11: Oferta — Plano Completo/Básico + Checkout
      --------------------------------------------------- */
-  // Mensal e Anual são ofertas reais desde 2026-08-24 (offers.active=true,
-  // assinatura recorrente validada no sandbox do Pagar.me — ver memória
-  // project-bump-upsell-mensal-swap). O botão de compra agora segue o
-  // toggle de verdade, em vez de sempre levar pro Anual.
-  var toggleMensal = document.getElementById('toggle-mensal');
-  var toggleAnual = document.getElementById('toggle-anual');
-  var planCardMensal = document.getElementById('plan-card-mensal');
-  var planCardAnual = document.getElementById('plan-card-anual');
-  var selectedPlan = 'anual';
+  // Pivô de 2026-09-08: NutriMãe não vende mais assinatura recorrente —
+  // Básico e Completo são os dois planos, ambos pagamento único vitalício
+  // (offers.active=true, ver migração
+  // 202609080001_planos_basico_completo.sql). O botão de compra segue o
+  // toggle de verdade, em vez de sempre levar pro Completo.
+  var toggleBasico = document.getElementById('toggle-basico');
+  var toggleCompleto = document.getElementById('toggle-completo');
+  var planCardBasico = document.getElementById('plan-card-basico');
+  var planCardCompleto = document.getElementById('plan-card-completo');
+  var selectedPlan = 'completo';
+  var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
 
   function selectPlanToggle(plan) {
     selectedPlan = plan;
-    var showMensal = plan === 'mensal';
-    if (toggleMensal) {
-      toggleMensal.classList.toggle('is-active', showMensal);
-      toggleMensal.setAttribute('aria-selected', String(showMensal));
+    var showBasico = plan === 'basico';
+    if (toggleBasico) {
+      toggleBasico.classList.toggle('is-active', showBasico);
+      toggleBasico.setAttribute('aria-selected', String(showBasico));
     }
-    if (toggleAnual) {
-      toggleAnual.classList.toggle('is-active', !showMensal);
-      toggleAnual.setAttribute('aria-selected', String(!showMensal));
+    if (toggleCompleto) {
+      toggleCompleto.classList.toggle('is-active', !showBasico);
+      toggleCompleto.setAttribute('aria-selected', String(!showBasico));
     }
-    if (planCardMensal) planCardMensal.hidden = !showMensal;
-    if (planCardAnual) planCardAnual.hidden = showMensal;
+    if (planCardBasico) planCardBasico.hidden = !showBasico;
+    if (planCardCompleto) planCardCompleto.hidden = showBasico;
     if (ctaCheckoutDynamic) {
-      ctaCheckoutDynamic.textContent = showMensal
-        ? 'Quero começar por R$19,90/mês'
-        : 'Quero o acesso anual por R$47';
+      ctaCheckoutDynamic.textContent = showBasico
+        ? 'Quero o Básico por R$19,90'
+        : 'Quero o Completo por R$47';
     }
   }
 
-  if (toggleMensal) {
-    toggleMensal.addEventListener('click', function () { selectPlanToggle('mensal'); });
+  if (toggleBasico) {
+    toggleBasico.addEventListener('click', function () { selectPlanToggle('basico'); });
   }
-  if (toggleAnual) {
-    toggleAnual.addEventListener('click', function () { selectPlanToggle('anual'); });
+  if (toggleCompleto) {
+    toggleCompleto.addEventListener('click', function () { selectPlanToggle('completo'); });
   }
 
-  var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
   if (ctaCheckoutDynamic) {
-    ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$47';
+    ctaCheckoutDynamic.textContent = 'Quero o Completo por R$47';
   }
 
   function goToOffer(offerSlug) {
@@ -1067,40 +1068,9 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = APP_URL + '/checkout/' + offerSlug + (query ? '?' + query : '');
   }
 
-  // Modal de upsell (mesmo padrão do Croche): quem escolhe Mensal vê, antes
-  // do checkout, a oferta exclusiva do Anual por R$37 — só nesse caminho,
-  // nunca pra quem já escolheu Anual direto.
-  var mensalUpsellModal = document.getElementById('mensal-upsell-modal');
-
-  function openMensalUpsell() {
-    if (!mensalUpsellModal) { goToOffer('nutrimae-mensal'); return; }
-    mensalUpsellModal.classList.add('is-open');
-    trackEvent('MensalUpsellShown');
-  }
-
-  window.closeMensalUpsell = function () {
-    if (mensalUpsellModal) mensalUpsellModal.classList.remove('is-open');
-  };
-
-  window.acceptMensalUpsell = function () {
-    trackEvent('MensalUpsellAccepted');
-    window.closeMensalUpsell();
-    goToOffer('nutrimae-anual-upsell');
-  };
-
-  window.declineMensalUpsell = function () {
-    trackEvent('MensalUpsellDeclined');
-    window.closeMensalUpsell();
-    goToOffer('nutrimae-mensal');
-  };
-
   function goToCheckout() {
     trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
-    if (selectedPlan === 'mensal') {
-      openMensalUpsell();
-      return;
-    }
-    goToOffer('nutrimae-anual');
+    goToOffer(selectedPlan === 'basico' ? 'nutrimae-basico' : 'nutrimae-anual');
   }
 
   if (ctaCheckoutDynamic) {

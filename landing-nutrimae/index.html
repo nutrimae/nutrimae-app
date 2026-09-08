@@ -606,28 +606,31 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
   </div>
 </section>
 
-<!-- ===================== OFERTA (Mensal + Anual) =====================
-     Mensal e Anual são ofertas reais desde 2026-08-24 — o botão "Começar
-     agora" segue o plano selecionado no toggle (ver selectPlanToggle em
+<!-- ===================== OFERTA (Básico + Completo) =====================
+     Pivô de 2026-09-08: NutriMãe não vende mais assinatura recorrente —
+     os dois planos são pagamento único, acesso vitalício (ver migração
+     202609080001_planos_basico_completo.sql). O botão "Começar agora"
+     segue o plano selecionado no toggle (ver selectPlanToggle em
      script.js). -->
 <section id="bloco-6" class="offer">
   <div class="container">
     <h2 class="offer__title">Comece a organizar a alimentação do seu bebê hoje</h2>
+    <p class="offer__subtitle">Pagamento único, acesso vitalício — sem mensalidade</p>
 
     <div class="pricing-toggle" role="tablist">
-      <button type="button" class="pricing-toggle__btn" id="toggle-mensal" data-plan-toggle="mensal" role="tab" aria-selected="false">Mensal</button>
-      <button type="button" class="pricing-toggle__btn is-active" id="toggle-anual" data-plan-toggle="anual" role="tab" aria-selected="true">Anual <span class="pricing-toggle__badge">economize R$311,80</span></button>
+      <button type="button" class="pricing-toggle__btn" id="toggle-basico" data-plan-toggle="basico" role="tab" aria-selected="false">Básico</button>
+      <button type="button" class="pricing-toggle__btn is-active" id="toggle-completo" data-plan-toggle="completo" role="tab" aria-selected="true">Completo <span class="pricing-toggle__badge">economize R$311,80</span></button>
     </div>
 
-    <div class="plan-card-single" id="plan-card-mensal" hidden>
-      <p class="plan-card__label">Plano Mensal</p>
-      <p class="plan-card__price">R$ 19,90<span>no primeiro mês</span></p>
-      <p class="plan-card__note">depois R$29,90/mês — cancele quando quiser</p>
+    <div class="plan-card-single" id="plan-card-basico" hidden>
+      <p class="plan-card__label">Plano Básico · vitalício</p>
+      <p class="plan-card__price">R$ 19,90<span>pagamento único</span></p>
+      <p class="plan-card__note">Pix ou cartão · sem mensalidades</p>
     </div>
 
-    <div class="plan-card-single plan-card-single--featured" id="plan-card-anual">
+    <div class="plan-card-single plan-card-single--featured" id="plan-card-completo">
       <span class="plan-card__badge">MAIS ESCOLHIDO</span>
-      <p class="plan-card__label">Plano Anual</p>
+      <p class="plan-card__label">Plano Completo · vitalício</p>
       <div class="plan-card__price-box">
         <p class="plan-card__old">De <span>R$358,80</span> por</p>
         <p class="plan-card__price">7x <span class="plan-card__price-de">de</span> R$6,71</p>
@@ -635,7 +638,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
       </div>
       <p class="plan-card__note">Pix ou cartão · sem mensalidades</p>
       <ul class="offer-checklist">
-        <li><span class="check-icon">✓</span> Tudo do NutriMãe por 1 ano inteiro</li>
+        <li><span class="check-icon">✓</span> Tudo do NutriMãe, acesso vitalício</li>
         <li><span class="check-icon">✓</span> <strong>BÔNUS:</strong> Manual S.O.S. Desmame Noturno incluso (grátis)</li>
         <li><span class="check-icon">✓</span> Atualizações e novos cardápios toda semana</li>
         <li><span class="check-icon">✓</span> 7 dias de garantia incondicional</li>
@@ -655,7 +658,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
       Acesse o NutriMãe por 7 dias. Se não fizer sentido para a rotina, devolvemos o valor, sem perguntas.
     </p>
 
-    <p class="offer__recurrence">Cancele quando quiser, com 2 toques dentro do seu perfil no app.</p>
+    <p class="offer__recurrence">Pagamento único, sem mensalidade — o acesso é vitalício.</p>
   </div>
 </section>
 
@@ -694,11 +697,11 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false">
-          Posso cancelar quando quiser?
+          Existe mensalidade ou cobrança recorrente?
           <span class="faq-toggle" aria-hidden="true">+</span>
         </button>
         <div class="faq-answer">
-          <p>Sim. No plano mensal, o cancelamento é feito a qualquer momento, direto no seu perfil dentro do app (menu Perfil → Gerenciar assinatura), sem multa e sem tempo mínimo de permanência.</p>
+          <p>Não. Os dois planos são pagamento único — Pix ou cartão — e o acesso é vitalício, sem mensalidade e sem cobrança automática depois.</p>
         </div>
       </div>
 
@@ -714,11 +717,11 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false">
-          Quanto eu pago depois do primeiro mês?
+          Qual a diferença entre o Plano Básico e o Plano Completo?
           <span class="faq-toggle" aria-hidden="true">+</span>
         </button>
         <div class="faq-answer">
-          <p>No plano mensal, R$19,90 vale só para o primeiro mês. A partir do segundo, o valor passa a ser R$29,90/mês. No plano anual, o valor é R$47 à vista no Pix ou cartão (pagamento único, sem mensalidade), com acesso por 1 ano inteiro.</p>
+          <p>O Básico custa R$19,90, pagamento único vitalício. O Completo custa R$47 à vista (ou parcelado no cartão) e já inclui o bônus Manual S.O.S. Desmame Noturno de graça.</p>
         </div>
       </div>
 
@@ -816,39 +819,6 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
     </div>
   </div>
 </footer>
-
-<!-- ===================== MODAL: UPSELL MENSAL -> ANUAL R$37 ===================== -->
-<div class="mensal-upsell-modal" id="mensal-upsell-modal">
-  <div class="mensal-upsell-modal__backdrop" onclick="closeMensalUpsell()"></div>
-  <div class="mensal-upsell-modal__card" role="dialog" aria-modal="true" aria-labelledby="mensal-upsell-title">
-    <button type="button" class="mensal-upsell-modal__close" onclick="closeMensalUpsell()" aria-label="Fechar">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-
-    <div class="mensal-upsell-modal__icon">
-      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2L12 16.4l-6.3 4.6L8 13.8 2 9.2h7.6z"/></svg>
-    </div>
-
-    <p class="mensal-upsell-modal__eyebrow">Espera! Oferta exclusiva pra você</p>
-    <h3 class="mensal-upsell-modal__title" id="mensal-upsell-title">Leve o ano inteiro por só R$37</h3>
-    <p class="mensal-upsell-modal__text">
-      Em vez de R$19,90 agora e R$29,90/mês depois, garanta o <strong>Plano Anual completo</strong> por R$37 —
-      pagamento único, só nesta tela.
-    </p>
-
-    <div class="mensal-upsell-modal__price">
-      <span class="mensal-upsell-modal__price-old">R$358,80</span>
-      <span class="mensal-upsell-modal__price-new">R$37</span>
-    </div>
-
-    <button type="button" class="btn btn--checkout btn--large mensal-upsell-modal__accept" onclick="acceptMensalUpsell()">
-      Sim! Quero o Anual por R$37
-    </button>
-    <button type="button" class="mensal-upsell-modal__decline" onclick="declineMensalUpsell()">
-      Não, obrigada — quero só o Mensal por R$19,90
-    </button>
-  </div>
-</div>
 
 <script src="script.min.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>

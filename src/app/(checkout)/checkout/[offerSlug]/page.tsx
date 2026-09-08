@@ -25,7 +25,7 @@ export default async function CheckoutOfferPage({
   // As duas consultas não dependem uma da outra (a lista de bumps é fixa por
   // slug, não pelo resultado da oferta) — rodam em paralelo pra cortar uma
   // volta inteira de rede no carregamento do checkout.
-  const wantsBumps = offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-mensal";
+  const wantsBumps = offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-basico";
   const [{ data: offer }, { data: bumpsData }] = await Promise.all([
     admin
       .from("offers")
@@ -67,7 +67,7 @@ export default async function CheckoutOfferPage({
           <span className="font-heading text-sm font-bold tracking-tight text-brown-900">NutriMãe</span>
         </div>
 
-        {(offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-mensal") && (
+        {(offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-basico") && (
           <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-[28px] shadow-strong">
             <Image
               src="/images/order-bumps/nutrimae-anual.webp"

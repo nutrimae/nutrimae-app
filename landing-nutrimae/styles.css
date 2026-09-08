@@ -1137,89 +1137,6 @@ section { padding: 40px 0; }
 }
 
 /* =====================================================
-   BLOCO 6 — ASSISTENTE HONESTO
-   ===================================================== */
-.chat-section { background: var(--color-bg); padding: 28px 0; }
-
-.chat-window {
-  background: var(--color-white);
-  border: 2px solid #F1EEE8;
-  border-bottom: 6px solid #E9E4DA;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: var(--color-primary-dark);
-  color: var(--color-white);
-}
-
-.chat-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--color-white);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-heading);
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.chat-header__info { display: flex; flex-direction: column; }
-
-.chat-header__name { font-weight: 700; font-size: 0.95rem; }
-
-.chat-header__status {
-  font-size: 0.75rem;
-  opacity: 0.9;
-}
-
-.chat-body {
-  padding: 18px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.assistant-question {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-text-dark);
-  margin-bottom: 10px;
-}
-
-.assistant-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.assistant-note {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  color: var(--color-success);
-  font-weight: 500;
-}
-
-.assistant-note--hidden { display: none; }
-
-.assistant-step {
-  transition: opacity var(--transition-base);
-}
-
-.assistant-step--hidden { display: none; }
-
-.assistant-finish { margin-top: 4px; }
-
-.assistant-finish--hidden { display: none; }
-
 /* =====================================================
    BLOCO 5 — DEMONSTRAÇÃO BUSCÁVEL
    ===================================================== */
@@ -3071,7 +2988,6 @@ body.entry-quiz-active {
 .journey__step,
 .comparison__col,
 .sos-card,
-.chat-window,
 .mini-mock,
 .plan-card-single,
 .community-spotlight__testimonial,
@@ -3089,7 +3005,6 @@ section .section-title {
 .journey__step.is-visible,
 .comparison__col.is-visible,
 .sos-card.is-visible,
-.chat-window.is-visible,
 .mini-mock.is-visible,
 .plan-card-single.is-visible,
 .community-spotlight__testimonial.is-visible,

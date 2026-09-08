@@ -915,68 +915,6 @@ document.addEventListener('DOMContentLoaded', function () {
   renderFoodResult();
 
   /* ---------------------------------------------------
-     BLOCO 6: Assistente honesto (2 perguntas reais)
-     --------------------------------------------------- */
-  var methodNotes = {
-    'papinha': 'Anotado — papinha. As receitas em textura de papinha já aparecem primeiro pra você.',
-    'blw': 'Anotado — BLW. O guia de cortes por pedaço fica em destaque na sua tela inicial.',
-    'misto': 'Anotado — método misto. Você recebe as duas texturas lado a lado, sem precisar escolher uma só.',
-    'nao-decidi': 'Sem problema. O app mostra os dois métodos lado a lado para você decidir com calma.'
-  };
-
-  var allergenNotes = {
-    'nao': 'Sem alergênico conhecido — seguimos com a introdução gradual recomendada.',
-    'ovo': 'Anotado — ovo. As receitas com ovo já saem sinalizadas para você.',
-    'leite': 'Anotado — leite. As receitas com leite já saem sinalizadas para você.',
-    'outro': 'Anotado. No app dá para marcar o alergênico específico e filtrar as receitas.'
-  };
-
-  var methodOptions = document.querySelectorAll('#assistant-method-options .option-btn');
-  var methodNoteEl = document.getElementById('assistant-method-note');
-  var allergenStep = document.getElementById('assistant-allergen-step');
-  var allergenOptions = document.querySelectorAll('#assistant-allergen-options .option-btn');
-  var allergenNoteEl = document.getElementById('assistant-allergen-note');
-  var assistantFinishBtn = document.getElementById('assistant-finish');
-
-  methodOptions.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      methodOptions.forEach(function (b) { b.classList.remove('selected'); });
-      btn.classList.add('selected');
-      var method = btn.getAttribute('data-method');
-      trackEvent('AssistantAnswer', { question: 'method', answer: method });
-
-      if (methodNoteEl) {
-        methodNoteEl.textContent = methodNotes[method];
-        methodNoteEl.classList.remove('assistant-note--hidden');
-      }
-      if (allergenStep) allergenStep.classList.remove('assistant-step--hidden');
-    });
-  });
-
-  allergenOptions.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      allergenOptions.forEach(function (b) { b.classList.remove('selected'); });
-      btn.classList.add('selected');
-      var allergen = btn.getAttribute('data-allergen');
-      trackEvent('AssistantAnswer', { question: 'allergen', answer: allergen });
-      trackEvent('AssistantComplete');
-
-      if (allergenNoteEl) {
-        allergenNoteEl.textContent = allergenNotes[allergen];
-        allergenNoteEl.classList.remove('assistant-note--hidden');
-      }
-      if (assistantFinishBtn) assistantFinishBtn.classList.remove('assistant-finish--hidden');
-    });
-  });
-
-  if (assistantFinishBtn) {
-    assistantFinishBtn.addEventListener('click', function () {
-      trackEvent('AssistantFinish');
-      scrollToSection('bloco-6');
-    });
-  }
-
-  /* ---------------------------------------------------
      BLOCO 8: Manual S.O.S. (link para o app)
      --------------------------------------------------- */
   var sosLink = document.getElementById('sos-link');
@@ -1208,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', function () {
      --------------------------------------------------- */
   var revealSelector = [
     '.feature-card', '.audience-card', '.objection-card', '.faq-item',
-    '.journey__step', '.comparison__col', '.sos-card', '.chat-window',
+    '.journey__step', '.comparison__col', '.sos-card',
     '.mini-mock', '.plan-card-single', '.community-spotlight__testimonial',
     '.app-preview__img', '.persona-story__img', '.persona-story__copy',
     'section .section-title'

@@ -35,19 +35,149 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------------------------------------------------
-     Depoimentos: pausa acessível no mobile e no teclado
-     --------------------------------------------------- */
-  var testimonialsMarquee = document.getElementById('testimonials-track');
-  var testimonialsPauseButton = document.getElementById('testimonials-pause');
+     VSL (player VTurb): pixel por % assistido, revelação
+     progressiva de conteúdo e mini-ganchos de reengajamento.
 
-  if (testimonialsMarquee && testimonialsPauseButton) {
-    testimonialsPauseButton.addEventListener('click', function () {
-      var isPaused = testimonialsMarquee.classList.toggle('is-paused');
-      testimonialsPauseButton.setAttribute('aria-pressed', String(isPaused));
-      testimonialsPauseButton.innerHTML = isPaused
-        ? '<span aria-hidden="true">▶</span> Continuar relatos'
-        : '<span aria-hidden="true">Ⅱ</span> Pausar relatos';
-    });
+     API oficial do player (smartplayer.instances[0].on(...) e
+     .video.currentTime/.duration) — ver
+     https://help.vturb.com/en-us/article/old-player-using-the-delay-code-to-sync-page-elements-with-your-video-1r9mnzz/
+
+     Observação: o VTurb também dispara pixels de % assistido
+     automaticamente a cada 5% se você cadastrar o Pixel ID do
+     Meta direto no painel do player (Configurações > Pixels) —
+     isso não depende de código. O bloco abaixo é um espelho desses
+     eventos usando o Pixel que já está instalado nesta página, para
+     não depender de outra configuração além desta aqui.
+     --------------------------------------------------- */
+  (function () {
+    var PIXEL_MILESTONES = [10, 25, 50, 75];
+    var UNLOCK_AT_PERCENT = 30;
+    var firedMilestones = {};
+    var hooksShown = {};
+    var contentUnlocked = false;
+
+    var unlockLocked = document.getElementById('video-unlock-locked');
+    var unlockUnlocked = document.getElementById('video-unlock-unlocked');
+    var unlockFill = document.getElementById('video-unlock-fill');
+    var vslHook = document.getElementById('vsl-hook');
+
+    function fireProgressPixel(percent) {
+      if (firedMilestones[percent]) return;
+      firedMilestones[percent] = true;
+      trackEvent('VSLProgress' + percent, { percent: percent });
+    }
+
+    function unlockGatedContent() {
+      if (contentUnlocked || !unlockLocked || !unlockUnlocked) return;
+      contentUnlocked = true;
+      unlockLocked.style.display = 'none';
+      unlockUnlocked.hidden = false;
+      trackEvent('VSLContentUnlocked', { percent: UNLOCK_AT_PERCENT });
+    }
+
+    function showHook(key, text) {
+      if (hooksShown[key] || !vslHook) return;
+      hooksShown[key] = true;
+      vslHook.textContent = text;
+      vslHook.classList.add('is-visible');
+      window.setTimeout(function () { vslHook.classList.remove('is-visible'); }, 6000);
+    }
+
+    // A API pública do player não expõe duração em .video (só currentTime);
+    // a duração real do vídeo vive em .instance.duration.
+    function getPercentWatched(instance) {
+      var currentTime = instance.video && instance.video.currentTime;
+      var duration = instance.instance && instance.instance.duration;
+      if (!duration || typeof currentTime !== 'number') return null;
+      return (currentTime / duration) * 100;
+    }
+
+    function handleTimeUpdate(instance) {
+      var percent = getPercentWatched(instance);
+      if (percent === null) return;
+      percent = Math.floor(percent);
+
+      if (unlockFill) unlockFill.style.width = Math.min(percent, UNLOCK_AT_PERCENT) / UNLOCK_AT_PERCENT * 100 + '%';
+      if (percent >= UNLOCK_AT_PERCENT) unlockGatedContent();
+
+      PIXEL_MILESTONES.forEach(function (milestone) {
+        if (percent >= milestone) fireProgressPixel(milestone);
+      });
+
+      if (percent >= 15) showHook('early', 'Fica só mais um minutinho, a parte boa vem a seguir 👀');
+      if (percent >= 60) showHook('late', 'Quase lá! Depois do vídeo é só escolher seu plano.');
+    }
+
+    function handlePause(instance) {
+      var percent = getPercentWatched(instance);
+      if (percent === null) return;
+      if (percent < 85) {
+        showHook('pause', 'Pausou? Sem problema — é só apertar o play pra continuar de onde parou.');
+        trackEvent('VSLPaused', { percent: Math.floor(percent) });
+      }
+    }
+
+    function attachToPlayer(instance) {
+      instance.on('timeupdate', function () { handleTimeUpdate(instance); });
+      instance.on('pause', function () { handlePause(instance); });
+    }
+
+    function waitForPlayer(attemptsLeft) {
+      if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances.length) {
+        attachToPlayer(window.smartplayer.instances[0]);
+        return;
+      }
+      if (attemptsLeft <= 0) return;
+      window.setTimeout(function () { waitForPlayer(attemptsLeft - 1); }, 400);
+    }
+
+    if (unlockLocked || vslHook) waitForPlayer(40);
+  })();
+
+  /* ---------------------------------------------------
+     Depoimentos: carrossel de prints reais do WhatsApp
+     (mesmo padrão já usado no Kit Crochê com Fé e na Clínica Psi)
+     --------------------------------------------------- */
+  var TOTAL_DEPOIMENTOS = 9;
+  var depoimentoIndex = 0;
+  var depoimentoImg = document.getElementById('depoimento-img');
+  var depoimentoDots = document.getElementById('depoimento-dots');
+
+  if (depoimentoImg && depoimentoDots) {
+    for (var di = 0; di < TOTAL_DEPOIMENTOS; di++) {
+      (function (dotIndex) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.setAttribute('aria-label', 'Ver depoimento ' + (dotIndex + 1));
+        dot.className = 'testimonials-carousel__dot' + (dotIndex === 0 ? ' is-active' : '');
+        dot.addEventListener('click', function () { showDepoimento(dotIndex); });
+        depoimentoDots.appendChild(dot);
+      })(di);
+    }
+
+    var showDepoimento = function (index) {
+      depoimentoIndex = (index + TOTAL_DEPOIMENTOS) % TOTAL_DEPOIMENTOS;
+      depoimentoImg.src = 'assets/depoimentos/depoimento_' + (depoimentoIndex + 1) + '.jpg';
+      Array.prototype.forEach.call(depoimentoDots.children, function (dot, i) {
+        dot.classList.toggle('is-active', i === depoimentoIndex);
+      });
+    };
+
+    window.moveDepoimento = function (delta) {
+      showDepoimento(depoimentoIndex + delta);
+    };
+
+    var depoimentoTouchStartX = null;
+    var depoimentoFrame = depoimentoImg.closest('.testimonials-carousel__frame');
+    depoimentoFrame.addEventListener('touchstart', function (e) {
+      depoimentoTouchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    depoimentoFrame.addEventListener('touchend', function (e) {
+      if (depoimentoTouchStartX === null) return;
+      var delta = e.changedTouches[0].clientX - depoimentoTouchStartX;
+      if (Math.abs(delta) > 40) window.moveDepoimento(delta < 0 ? 1 : -1);
+      depoimentoTouchStartX = null;
+    }, { passive: true });
   }
 
   /* ---------------------------------------------------
@@ -303,14 +433,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function revealLandingFromQuiz() {
-      var deferredVideoThumbnail = document.getElementById('video-placeholder');
-      if (deferredVideoThumbnail && !deferredVideoThumbnail.style.backgroundImage) {
-        var thumbnailUrl = deferredVideoThumbnail.getAttribute('data-thumbnail');
-        if (thumbnailUrl) {
-          deferredVideoThumbnail.style.backgroundImage = 'url("' + thumbnailUrl + '")';
-        }
-      }
-
       entryQuiz.classList.add('entry-quiz--leaving');
       document.body.classList.remove('entry-quiz-active');
 
@@ -629,33 +751,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  var videoWrapper = document.getElementById('video-wrapper');
-  var videoPlaceholder = document.getElementById('video-placeholder');
-  if (videoPlaceholder && videoWrapper) {
-    var playVideo = function () {
-      trackEvent('VideoPlay');
-      var youtubeId = videoWrapper.getAttribute('data-youtube-id');
-      if (!youtubeId) return;
-
-      // Só cria o iframe do YouTube no clique (facade pattern) — carregar o
-      // player de cara pesa a página e prejudica o LCP em 4G.
-      var iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0';
-      iframe.title = 'Vídeo de apresentação NutriMãe';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-      iframe.allowFullscreen = true;
-      videoWrapper.innerHTML = '';
-      videoWrapper.appendChild(iframe);
-    };
-    videoPlaceholder.addEventListener('click', playVideo);
-    videoPlaceholder.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        playVideo();
-      }
-    });
-  }
-
   /* ---------------------------------------------------
      Dados: fases e alimentos
      --------------------------------------------------- */
@@ -952,8 +1047,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$47';
   }
 
-  function goToCheckout() {
-    trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
+  function goToOffer(offerSlug) {
     // SEC/TRACKING: repassa utm_*/fbclid/gclid/etc. da URL da landing pro
     // checkout — sem isso, a mudança de domínio (nutrimae.app ->
     // app.nutrimae.app) perde toda a atribuição de campanha, e o
@@ -970,7 +1064,43 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } catch (e) {}
     var query = params.toString();
-    window.location.href = APP_URL + '/checkout/nutrimae-' + selectedPlan + (query ? '?' + query : '');
+    window.location.href = APP_URL + '/checkout/' + offerSlug + (query ? '?' + query : '');
+  }
+
+  // Modal de upsell (mesmo padrão do Croche): quem escolhe Mensal vê, antes
+  // do checkout, a oferta exclusiva do Anual por R$37 — só nesse caminho,
+  // nunca pra quem já escolheu Anual direto.
+  var mensalUpsellModal = document.getElementById('mensal-upsell-modal');
+
+  function openMensalUpsell() {
+    if (!mensalUpsellModal) { goToOffer('nutrimae-mensal'); return; }
+    mensalUpsellModal.classList.add('is-open');
+    trackEvent('MensalUpsellShown');
+  }
+
+  window.closeMensalUpsell = function () {
+    if (mensalUpsellModal) mensalUpsellModal.classList.remove('is-open');
+  };
+
+  window.acceptMensalUpsell = function () {
+    trackEvent('MensalUpsellAccepted');
+    window.closeMensalUpsell();
+    goToOffer('nutrimae-anual-upsell');
+  };
+
+  window.declineMensalUpsell = function () {
+    trackEvent('MensalUpsellDeclined');
+    window.closeMensalUpsell();
+    goToOffer('nutrimae-mensal');
+  };
+
+  function goToCheckout() {
+    trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
+    if (selectedPlan === 'mensal') {
+      openMensalUpsell();
+      return;
+    }
+    goToOffer('nutrimae-anual');
   }
 
   if (ctaCheckoutDynamic) {
@@ -1150,7 +1280,8 @@ document.addEventListener('DOMContentLoaded', function () {
     '.feature-card', '.audience-card', '.objection-card', '.faq-item',
     '.journey__step', '.comparison__col', '.sos-card', '.chat-window',
     '.mini-mock', '.plan-card-single', '.community-spotlight__testimonial',
-    '.app-preview__img', 'section .section-title'
+    '.app-preview__img', '.persona-story__img', '.persona-story__copy',
+    'section .section-title'
   ].join(', ');
   var revealTargets = document.querySelectorAll(revealSelector);
 
@@ -1179,5 +1310,56 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   trackEvent('ViewContent', { page: 'oferta' });
+
+  /* ---------------------------------------------------
+     Notificação de "compra recente" — mesmo padrão já usado no Croche e
+     na Clínica Psi. Não é feed em tempo real (sem backend por trás
+     aqui); é uma lista de exemplos rotativa, sem repetir até esgotar o
+     ciclo.
+     --------------------------------------------------- */
+  var PURCHASE_EXAMPLES = [
+    ['Mariana S.', 'São Paulo, SP'],
+    ['Camila R.', 'Belo Horizonte, MG'],
+    ['Juliana P.', 'Porto Alegre, RS'],
+    ['Fernanda L.', 'Salvador, BA'],
+    ['Priscila M.', 'Curitiba, PR'],
+    ['Patrícia G.', 'Recife, PE'],
+    ['Renata C.', 'Fortaleza, CE'],
+    ['Larissa T.', 'Goiânia, GO'],
+    ['Bianca F.', 'Rio de Janeiro, RJ'],
+    ['Débora N.', 'Florianópolis, SC'],
+    ['Simone A.', 'Brasília, DF'],
+    ['Aline V.', 'Campinas, SP']
+  ];
+  var purchaseToastEl = document.getElementById('purchase-toast');
+  var purchaseToastNameEl = document.getElementById('purchase-toast-name');
+  var purchaseToastCityEl = document.getElementById('purchase-toast-city');
+  var purchaseQueue = [];
+  var purchaseHideTimer = null;
+
+  function nextPurchaseExample() {
+    if (purchaseQueue.length === 0) {
+      purchaseQueue = PURCHASE_EXAMPLES.slice().sort(function () { return Math.random() - 0.5; });
+    }
+    return purchaseQueue.pop();
+  }
+
+  function showPurchaseToast() {
+    if (!purchaseToastEl) return;
+    var example = nextPurchaseExample();
+    purchaseToastNameEl.textContent = example[0];
+    purchaseToastCityEl.textContent = example[1];
+    purchaseToastEl.classList.add('is-visible');
+
+    clearTimeout(purchaseHideTimer);
+    purchaseHideTimer = setTimeout(function () {
+      purchaseToastEl.classList.remove('is-visible');
+    }, 6000);
+  }
+
+  if (purchaseToastEl) {
+    setTimeout(showPurchaseToast, 4000);
+    setInterval(showPurchaseToast, 30000);
+  }
 
 });

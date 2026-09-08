@@ -1,22 +1,49 @@
+import Image from "next/image";
+
 export function About() {
   return (
-    <section className="mx-auto w-full max-w-sm px-5 py-8 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary-500 font-heading text-lg font-bold text-white">
-        NM
+    <section className="mx-auto w-full max-w-sm px-5 py-8">
+      <div className="mx-auto max-w-[260px] overflow-hidden rounded-3xl border border-sage-100/80 shadow-strong">
+        <Image
+          src="/persona/camille_historia_01.jpg"
+          alt="Camille, especialista por trás do NutriMãe, na cozinha de casa"
+          width={800}
+          height={1421}
+          className="h-auto w-full"
+        />
       </div>
-      <h2 className="mt-4 font-heading text-xl font-bold text-brown-800">Sobre o NutriMãe</h2>
-      <p className="mt-3 text-sm text-brown-700">
-        O NutriMãe nasceu de uma ideia simples: a introdução alimentar fica mais leve quando a mãe tem tudo
-        organizado em um lugar só. Em vez de juntar informação solta de vários cantos, reunimos cardápio, lista de
-        compras e o corte indicado de cada alimento — tudo separado por faixa etária e pronto para consultar com
-        uma mão só, no meio da correria.
+
+      <p
+        className="mt-5 text-xl font-bold text-primary-600"
+        style={{ fontFamily: "var(--font-caveat)" }}
+      >
+        Acolhimento por trás de cada pratinho
       </p>
-      <p className="mt-3 text-sm text-brown-700">
-        Nossa proposta é organização e praticidade no dia a dia, sempre como apoio ao acompanhamento do pediatra ou
-        nutricionista que cuida do seu bebê — nunca como substituto dele.
+      <h2 className="mt-1 font-heading text-lg font-extrabold leading-snug text-brown-900">
+        "Cuidar de cada refeição não deveria significar descobrir tudo sozinha."
+      </h2>
+
+      <p className="mt-3 text-sm leading-relaxed text-brown-700">
+        Sou Camille. Estou aqui para te mostrar um jeito mais simples de organizar uma rotina cheia de
+        pequenas decisões: o que oferecer, como preparar e o que comprar para a semana.
       </p>
-      {/* [PLACEHOLDER — se houver profissional de saúde realmente vinculado à marca,
-          descreva aqui formação e registro. Não afirme validação que não existe.] */}
+      <p className="mt-3 text-sm leading-relaxed text-brown-700">
+        Imagine a cena: a hora da refeição se aproxima, a geladeira está aberta e aquela receita que você
+        salvou desapareceu entre tantas mensagens. É para facilitar esses momentos que o NutriMãe reúne
+        cardápios por fase, guia visual de cortes, receitas e substituições em um só lugar — até a lista de
+        compras pode seguir direto para o WhatsApp.
+      </p>
+      <p className="mt-3 text-sm leading-relaxed text-brown-700">
+        Para que você passe menos tempo procurando e tenha mais espaço para aproveitar as descobertas à
+        mesa, no ritmo da sua família.
+      </p>
+
+      <p
+        className="mt-4 text-lg font-bold text-brown-900"
+        style={{ fontFamily: "var(--font-caveat)" }}
+      >
+        Com carinho, Camille 💛
+      </p>
     </section>
   );
 }

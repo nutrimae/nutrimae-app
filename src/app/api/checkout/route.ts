@@ -112,7 +112,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "offer_not_available" }, { status: 404 });
   }
 
-  if (offer.billing_type !== "one_time") {
+  // Exceção deliberada e temporária: o Plano Mensal aceita Pix como
+  // pagamento avulso (1 ciclo só, sem recorrência automática — Pix não
+  // suporta cobrança futura) enquanto validamos se isso aumenta conversão.
+  // Vira uma order comum (grantAccessForOrder no webhook), não uma
+  // subscription — por isso o acesso concedido não expira sozinho. Quando
+  // a validação terminar, REMOVER esta exceção e voltar a exigir cartão
+  // (ver subscription-checkout-form.tsx) — ela é o "bloqueio pra
+  // recorrência" combinado com o time.
+  const isMensalPixException = offerSlug === "nutrimae-mensal" && offer.billing_type === "recurring" && paymentMethod === "pix";
+
+  if (offer.billing_type !== "one_time" && !isMensalPixException) {
     // Assinatura (Mensal, NutriBot VIP) ainda não é vendida por esta rota
     // nesta entrega — o gate real é "active=false" na oferta, isto aqui é
     // uma segunda trava, redundante de propósito.

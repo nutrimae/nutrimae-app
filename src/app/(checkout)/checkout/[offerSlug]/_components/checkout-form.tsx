@@ -9,7 +9,6 @@ import { tokenizeCard } from "@/lib/payments/tokenize-card";
 import { PixCountdown } from "@/components/pix-countdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Chip } from "@/components/ui/chip";
 import { BillingAddressFields, type BillingAddressValue } from "../../../_components/billing-address-fields";
 import { BUMP_IMAGES, BUMP_DESCRIPTIONS } from "@/lib/checkout/bump-content";
 import { getCheckoutTrackingContext, getFacebookMatchCookies, getQuizAnswers, track } from "@/lib/tracking/client";
@@ -26,6 +25,8 @@ function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+const MAX_INSTALLMENTS = 7;
+
 export function CheckoutForm({
   offer,
   bumps,
@@ -36,6 +37,7 @@ export function CheckoutForm({
   const router = useRouter();
   const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card">("pix");
+  const [installments, setInstallments] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [document, setDocument] = useState("");
@@ -59,6 +61,7 @@ export function CheckoutForm({
     .filter((b) => selectedBumps.includes(b.slug))
     .reduce((sum, b) => sum + b.price_cents, 0);
   const totalCents = offer.priceCents + bumpTotal;
+  const installmentValue = totalCents / installments;
 
   const documentDigits = document.replace(/\D/g, "");
   const documentError = documentTouched && documentDigits.length === 11 && !isValidCpf(documentDigits) ? "CPF inválido — confira os números." : null;
@@ -109,6 +112,7 @@ export function CheckoutForm({
           bumpSlugs: selectedBumps,
           paymentMethod,
           cardToken,
+          installments: paymentMethod === "credit_card" ? installments : undefined,
           billingAddress: paymentMethod === "credit_card" ? billingAddress : undefined,
           customer: { name, email, document, phone },
           tracking: getCheckoutTrackingContext(),
@@ -226,7 +230,35 @@ export function CheckoutForm({
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
+    <>
+      <div className="rounded-[24px] bg-white p-5 text-center shadow-subtle">
+        <h1 className="font-heading text-xl font-bold leading-tight text-brown-900">{offer.name}</h1>
+        {paymentMethod === "credit_card" && installments > 1 ? (
+          <div className="mt-2 rounded-2xl bg-primary-50 p-4">
+            {offer.slug === "nutrimae-anual" && (
+              <p className="text-xs text-brown-700/70">
+                De <span className="font-bold text-red-500 line-through">R$358,80</span> por
+              </p>
+            )}
+            <p className="mt-0.5 font-heading text-3xl font-extrabold text-primary-600">
+              <span className="text-lg font-bold">{installments}x de</span> {formatBRL(installmentValue)}
+            </p>
+            <p className="mt-0.5 text-sm font-bold text-brown-700">ou {formatBRL(totalCents)} à vista</p>
+          </div>
+        ) : (
+          <p className="mt-2 font-heading text-4xl font-extrabold tracking-tight text-primary-600">{formatBRL(totalCents)}</p>
+        )}
+        {offer.slug === "nutrimae-anual" && (
+          <>
+            <p className="mt-1 text-sm font-medium text-sage-600">pagamento único no Pix ou no cartão</p>
+            <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">
+              ✓ Bônus incluído: SOS Desmame Noturno (R$ 27) de graça
+            </p>
+          </>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
       {bumps.length > 0 && (
         <div className="flex flex-col gap-2.5 border-b border-sage-100/80 pb-5">
           <p className="font-heading text-sm font-bold text-brown-900">Aproveite e leve também:</p>
@@ -263,7 +295,6 @@ export function CheckoutForm({
                   )}
                 </span>
                 <span className="flex shrink-0 flex-col items-end gap-1">
-                  <Chip color="sage">vitalício</Chip>
                   <span className="font-heading font-bold text-primary-600">{formatBRL(bump.price_cents)}</span>
                 </span>
               </label>
@@ -318,6 +349,17 @@ export function CheckoutForm({
             <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
             <Input className="w-1/3" placeholder="CVV" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} />
           </div>
+          <select
+            value={installments}
+            onChange={(e) => setInstallments(Number(e.target.value))}
+            className="min-h-12 w-full rounded-2xl border-2 border-sage-100/80 px-4 text-sm font-semibold text-brown-900 focus:border-primary-300 focus:outline-none"
+          >
+            {Array.from({ length: MAX_INSTALLMENTS }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n}x de {formatBRL(totalCents / n)} {n === 1 ? "à vista" : ""}
+              </option>
+            ))}
+          </select>
           <BillingAddressFields value={billingAddress} onChange={setBillingAddress} />
         </div>
       )}
@@ -328,21 +370,40 @@ export function CheckoutForm({
         <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600">{error}</p>
       )}
 
-      <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
-        <span className="text-sm font-semibold text-brown-700/86">Total</span>
-        <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(totalCents)}</span>
-      </div>
+      {paymentMethod === "credit_card" && installments > 1 ? (
+        <div className="rounded-2xl bg-primary-50 p-4 text-center">
+          {offer.slug === "nutrimae-anual" && (
+            <p className="text-xs text-brown-700/70">
+              De <span className="font-bold text-red-500 line-through">R$358,80</span> por
+            </p>
+          )}
+          <p className="mt-0.5 font-heading text-3xl font-extrabold text-primary-600">
+            <span className="text-lg font-bold">{installments}x de</span> {formatBRL(installmentValue)}
+          </p>
+          <p className="mt-0.5 text-sm font-bold text-brown-700">ou {formatBRL(totalCents)} à vista</p>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
+          <span className="text-sm font-semibold text-brown-700/86">Total</span>
+          <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(totalCents)}</span>
+        </div>
+      )}
 
       <Button variant="brand" size="lg" onClick={handleSubmit} disabled={loading} loading={loading}>
         <span className="flex items-center justify-center gap-2">
           <Lock className="h-4 w-4" strokeWidth={2.5} />
-          {`Finalizar compra — ${formatBRL(totalCents)}`}
+          {`Finalizar compra — ${
+            paymentMethod === "credit_card" && installments > 1
+              ? `${installments}x de ${formatBRL(installmentValue)}`
+              : formatBRL(totalCents)
+          }`}
         </span>
       </Button>
 
       <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">
         <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pagamento seguro · dados protegidos · 7 dias de garantia
       </p>
-    </div>
+      </div>
+    </>
   );
 }

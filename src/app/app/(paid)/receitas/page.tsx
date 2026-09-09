@@ -58,9 +58,10 @@ export default function ReceitasPage() {
       excludeAllergens: excludedAllergens,
       blwOnly,
       region,
+      locale,
     });
     return onlyFavorites ? base.filter((r) => favoriteIds.includes(r.id)) : base;
-  }, [query, ageBand, mealType, onlyFavorites, favoriteIds, excludedAllergens, blwOnly, region]);
+  }, [query, ageBand, mealType, onlyFavorites, favoriteIds, excludedAllergens, blwOnly, region, locale]);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">

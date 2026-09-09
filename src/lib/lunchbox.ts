@@ -1,5 +1,4 @@
 import { FOODS } from "@/lib/foods";
-import { RECIPES } from "@/lib/recipes";
 import type { IngredientCategory } from "@/lib/menu";
 import type { DayKey } from "@/lib/menu";
 import type { Locale } from "@/lib/i18n/locale";

@@ -8,7 +8,7 @@ import { ListenButton } from "@/components/listen-button";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { getAgeBandLabel } from "@/lib/menu";
-import { getAllergenLabel, getRecipeMealTypeLabel, RECIPES } from "@/lib/recipes";
+import { getAllergenLabel, getRecipeMealTypeLabel, getRecipes } from "@/lib/recipes";
 import {
   getFavoriteRecipeIds,
   getRecipeRatings,
@@ -20,11 +20,11 @@ import { useLocale } from "@/lib/use-locale";
 
 export default function RecipeDetailPage() {
   const params = useParams<{ id: string }>();
-  const recipe = RECIPES.find((r) => r.id === params.id);
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const { locale } = useLocale();
   const es = locale === "es";
+  const recipe = useMemo(() => getRecipes(locale).find((r) => r.id === params.id), [locale, params.id]);
   const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
   const ALLERGEN_LABEL = useMemo(() => getAllergenLabel(locale), [locale]);
   const RECIPE_MEAL_TYPE_LABEL = useMemo(() => getRecipeMealTypeLabel(locale), [locale]);

@@ -43,7 +43,13 @@ export function useLocale() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from("profiles").update({ locale: l }).eq("user_id", user.id);
+    // "profiles" não tem policy de update pro client — ver
+    // src/app/api/profile/locale/route.ts para o porquê.
+    await fetch("/api/profile/locale", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locale: l }),
+    });
   }, []);
 
   return { locale, setLocale, loading } as const;

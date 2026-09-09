@@ -160,7 +160,7 @@ export default function AppHomePage() {
 
   const months = ageInMonths(activeBaby.birth_date);
   const photoUrl = activeBaby.photo_url;
-  const today = getTodaySuggestion(ageBandForMonths(months), new Date(), { triedFoodKeys, avoidAllergen });
+  const today = getTodaySuggestion(ageBandForMonths(months), new Date(), { triedFoodKeys, avoidAllergen, locale });
   const firstName = activeBaby.name.split(" ")[0];
   const babyLabel = es ? "Mi bebé" : activeBaby.gender === "male" ? "Meu bebê" : "Minha bebê";
 

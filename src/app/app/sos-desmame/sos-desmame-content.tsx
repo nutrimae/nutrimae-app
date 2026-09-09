@@ -4,19 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Pause, Play, Lock, Check, Moon, X } from "lucide-react";
 import {
-  WEANING_TRACKS,
-  WEANING_WEEKS,
   PANIC_TRACK_ID,
   WEANING_PROGRESS_STORAGE_KEY,
   emptyWeaningProgress,
+  getWeaningTracks,
+  getWeaningWeeks,
   type WeaningProgress,
 } from "@/lib/weaning";
 import { useLocale } from "@/lib/use-locale";
-
-// Faixas do mini-podcast (playlist normal) — a primeira do catálogo é
-// reservada para o Botão de Pânico e não aparece de novo aqui embaixo.
-const PLAYLIST_TRACKS = WEANING_TRACKS.filter((t) => t.id !== PANIC_TRACK_ID);
-const PANIC_TRACK = WEANING_TRACKS.find((t) => t.id === PANIC_TRACK_ID)!;
 
 function audioSrc(id: string) {
   return `/api/audio/desmame/${id}`;
@@ -151,22 +146,31 @@ function DayCircle({
 export function SosDesmameContent() {
   const { locale } = useLocale();
   const es = locale === "es";
+
+  const weaningTracks = getWeaningTracks(locale);
+  // Faixas do mini-podcast (playlist normal) — a primeira do catálogo é
+  // reservada para o Botão de Pânico e não aparece de novo aqui embaixo.
+  const PLAYLIST_TRACKS = weaningTracks.filter((t) => t.id !== PANIC_TRACK_ID);
+  const PANIC_TRACK = weaningTracks.find((t) => t.id === PANIC_TRACK_ID)!;
+  const WEANING_WEEKS = getWeaningWeeks(locale);
+
   const [panicOpen, setPanicOpen] = useState(false);
   const [playingId, setPlayingId] = useState<string>("");
   const [progressById, setProgressById] = useState<Record<string, number>>({});
   const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
 
-  const [weekProgress, setWeekProgress] = useState<WeaningProgress>(emptyWeaningProgress());
+  const [weekProgress, setWeekProgress] = useState<WeaningProgress>(emptyWeaningProgress(locale));
   const [celebratingKey, setCelebratingKey] = useState<string | null>(null);
 
   // Carrega o progresso salvo assim que a tela monta (só existe no navegador).
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(WEANING_PROGRESS_STORAGE_KEY);
-      if (raw) setWeekProgress({ ...emptyWeaningProgress(), ...JSON.parse(raw) });
+      if (raw) setWeekProgress({ ...emptyWeaningProgress(locale), ...JSON.parse(raw) });
     } catch {
       // localStorage indisponível (modo privado, etc.) — segue com estado vazio.
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function registerAudio(id: string, el: HTMLAudioElement | null) {

@@ -1,3 +1,5 @@
+import type { Locale } from "@/lib/i18n/locale";
+
 export type UtensilCategory = "hora-de-comer" | "preparo" | "armazenamento" | "seguranca";
 
 export const UTENSIL_CATEGORY_LABEL: Record<UtensilCategory, string> = {
@@ -6,6 +8,17 @@ export const UTENSIL_CATEGORY_LABEL: Record<UtensilCategory, string> = {
   armazenamento: "Armazenamento",
   seguranca: "Segurança",
 };
+
+export const UTENSIL_CATEGORY_LABEL_ES: Record<UtensilCategory, string> = {
+  "hora-de-comer": "A la hora de comer",
+  preparo: "Preparación",
+  armazenamento: "Almacenamiento",
+  seguranca: "Seguridad",
+};
+
+export function getUtensilCategoryLabel(locale: Locale = "pt-BR"): Record<UtensilCategory, string> {
+  return locale === "es" ? UTENSIL_CATEGORY_LABEL_ES : UTENSIL_CATEGORY_LABEL;
+}
 
 export interface Utensil {
   id: string;
@@ -162,6 +175,154 @@ export const UTENSILS: Utensil[] = [
   },
 ];
 
-export function essentialUtensils(): Utensil[] {
-  return UTENSILS.filter((u) => u.essential);
+export const UTENSILS_ES: Utensil[] = [
+  {
+    id: "cadeirao",
+    name: "Silla de comer",
+    emoji: "🪑",
+    imageUrl: "/images/illustrations/utensil-cadeirao.webp",
+    category: "hora-de-comer",
+    why: "Mantiene al bebé sentado erguido y con apoyo de 90 grados — postura esencial para la seguridad contra atragantamiento.",
+    whatToLookFor: "Cinturón de 5 puntos, apoyapiés ajustable (ayuda a la estabilidad para masticar) y bandeja removible para facilitar la limpieza.",
+    essential: true,
+  },
+  {
+    id: "babador-silicone",
+    name: "Babero de silicona con bolsillo",
+    emoji: "🧑‍🍼",
+    imageUrl: "/images/illustrations/utensil-babador-silicone.webp",
+    category: "hora-de-comer",
+    why: "Atrapa la comida que cae, reduce el desperdicio y facilita mucho la limpieza después de la comida.",
+    whatToLookFor: "Silicona suave (no irrita el cuello), cierre ajustable y fácil de lavar en el fregadero.",
+    essential: true,
+  },
+  {
+    id: "prato-ventosa",
+    name: "Plato con ventosa",
+    emoji: "🍽️",
+    category: "hora-de-comer",
+    why: "Se adhiere a la bandeja y evita que el bebé tire todo el plato al piso — algo común en la etapa de autonomía.",
+    whatToLookFor: "Ventosa que realmente se sujeta a superficies lisas, divisiones para separar los alimentos.",
+    essential: false,
+  },
+  {
+    id: "talheres-treino",
+    name: "Cubiertos de entrenamiento",
+    emoji: "🥄",
+    imageUrl: "/images/illustrations/utensil-talheres-treino.webp",
+    category: "hora-de-comer",
+    why: "Mango corto y grueso, fácil de sostener para la manito pequeña — ayuda a desarrollar la pinza y la autonomía.",
+    whatToLookFor: "Punta redondeada (sin riesgo de lastimar la boca), material atóxico y libre de BPA.",
+    essential: true,
+  },
+  {
+    id: "copo-transicao",
+    name: "Vaso de transición (entrenamiento)",
+    emoji: "🥤",
+    imageUrl: "/images/illustrations/utensil-copo-transicao.webp",
+    category: "hora-de-comer",
+    why: "Ayuda al bebé a pasar del biberón/pecho al vaso poco a poco, sin depender de la boquilla.",
+    whatToLookFor: "Boquilla de silicona suave al inicio, luego un borde libre de boquilla para entrenar a sorber.",
+    essential: true,
+  },
+  {
+    id: "toalha-plastica-chao",
+    name: "Mantel plástico para debajo de la silla",
+    emoji: "🧽",
+    category: "hora-de-comer",
+    why: "Protege el piso del desorden inevitable del BLW y la autonomía — facilita mucho la rutina de limpieza.",
+    whatToLookFor: "Material lavable, tamaño suficiente para cubrir bien alrededor de la silla.",
+    essential: false,
+  },
+  {
+    id: "processador-mixer",
+    name: "Mini procesadora o licuadora",
+    emoji: "🌀",
+    category: "preparo",
+    why: "Agiliza la preparación de purés en la etapa inicial, sobre todo si vas a congelar porciones.",
+    whatToLookFor: "Potencia suficiente para verduras cocidas, fácil de lavar y, si es posible, compacta.",
+    essential: false,
+  },
+  {
+    id: "peneira-passador",
+    name: "Colador o pasapurés",
+    emoji: "🥣",
+    category: "preparo",
+    why: "Deja los purés bien lisos en las primeras semanas, sin trozos que puedan incomodar al bebé.",
+    whatToLookFor: "Malla fina, mango cómodo para sostener durante el proceso.",
+    essential: false,
+  },
+  {
+    id: "forminhas-gelo",
+    name: "Moldes de silicona (tipo cubitos de hielo)",
+    emoji: "🧊",
+    imageUrl: "/images/illustrations/utensil-forminhas-gelo.webp",
+    category: "preparo",
+    why: "Cada cubo es una porción individual lista para congelar — practicidad para el día a día.",
+    whatToLookFor: "Silicona flexible (facilita desmoldar), con tapa para evitar contaminación en el congelador.",
+    essential: true,
+  },
+  {
+    id: "potes-vidro-pequenos",
+    name: "Frascos pequeños de vidrio con tapa",
+    emoji: "🫙",
+    imageUrl: "/images/illustrations/utensil-potes-vidro-pequenos.webp",
+    category: "armazenamento",
+    why: "Ideales para guardar porciones listas en el refrigerador o congelador, sin retener olores ni mancharse como el plástico.",
+    whatToLookFor: "Vidrio templado apto para congelar (no se agrieta con el cambio de temperatura), tapa bien sellada.",
+    essential: true,
+  },
+  {
+    id: "etiquetas-data",
+    name: "Etiquetas o cinta para marcar la fecha",
+    emoji: "🏷️",
+    category: "armazenamento",
+    why: "Ayuda a controlar la vigencia de cada porción congelada y evitar desperdicio por olvido.",
+    whatToLookFor: "Cinta apta para congelador (no se despega con el frío/humedad), marcador permanente.",
+    essential: false,
+  },
+  {
+    id: "organizador-congelador",
+    name: "Organizador para el congelador",
+    emoji: "📦",
+    category: "armazenamento",
+    why: "Mantiene las porciones organizadas por fecha y tipo de alimento, facilitando armar el menú de la semana.",
+    whatToLookFor: "Tamaño compatible con tu congelador, divisiones ajustables.",
+    essential: false,
+  },
+  {
+    id: "termometro-alimentos",
+    name: "Termómetro de cocina",
+    emoji: "🌡️",
+    category: "seguranca",
+    why: "Garantiza que carnes, pollo y pescado alcanzaron la temperatura segura de cocción, reduciendo el riesgo de contaminación.",
+    whatToLookFor: "Lectura rápida, fácil de higienizar entre usos.",
+    essential: false,
+  },
+  {
+    id: "tesoura-cortador",
+    name: "Tijera o cortador de alimentos para bebé",
+    emoji: "✂️",
+    category: "seguranca",
+    why: "Facilita cortar rápidamente en restaurantes o paseos, en el formato y tamaño seguro para la edad.",
+    whatToLookFor: "Hoja de acero inoxidable, tapa protectora para llevar en el bolso.",
+    essential: false,
+  },
+  {
+    id: "kit-primeiros-socorros",
+    name: "Kit básico de primeros auxilios",
+    emoji: "🩹",
+    category: "seguranca",
+    why: "Tenerlo a mano facilita actuar rápido ante pequeños incidentes durante las comidas, además de dar tranquilidad a la rutina.",
+    whatToLookFor: "Contenido básico (gasas, suero fisiológico, termómetro) guardado en un lugar de fácil acceso en la cocina.",
+    essential: false,
+  },
+];
+
+export function getUtensils(locale: Locale = "pt-BR"): Utensil[] {
+  return locale === "es" ? UTENSILS_ES : UTENSILS;
+}
+
+export function essentialUtensils(locale: Locale = "pt-BR"): Utensil[] {
+  return getUtensils(locale).filter((u) => u.essential);
 }

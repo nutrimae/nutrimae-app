@@ -9,7 +9,7 @@ import { Chip } from "@/components/ui/chip";
 import {
   categoryFromTitle,
   formatRelativeDate,
-  POST_CATEGORY_INFO,
+  getPostCategoryInfo,
   titleWithoutCategoryPrefix,
   type CommunityPost,
   type CommunityReply,
@@ -21,6 +21,7 @@ export function PostDetail({ postId }: { postId: string }) {
   const supabase = useMemo(() => createClient(), []);
   const { locale } = useLocale();
   const es = locale === "es";
+  const POST_CATEGORY_INFO = useMemo(() => getPostCategoryInfo(locale), [locale]);
 
   const [post, setPost] = useState<CommunityPost | null>(null);
   const [replies, setReplies] = useState<CommunityReply[]>([]);
@@ -156,7 +157,7 @@ export function PostDetail({ postId }: { postId: string }) {
         </p>
         <p className="mt-2 whitespace-pre-wrap text-brown-800">{post.body}</p>
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-xs text-brown-700/86">{formatRelativeDate(post.created_at)}</span>
+          <span className="text-xs text-brown-700/86">{formatRelativeDate(post.created_at, locale)}</span>
           <ReportButton
             reported={reported.has(post.id)}
             onReport={() => handleReport("post", post.id)}
@@ -180,7 +181,7 @@ export function PostDetail({ postId }: { postId: string }) {
             )}
             <p className="text-brown-800">{reply.body}</p>
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-brown-700/86">{formatRelativeDate(reply.created_at)}</span>
+              <span className="text-xs text-brown-700/86">{formatRelativeDate(reply.created_at, locale)}</span>
               <ReportButton
                 reported={reported.has(reply.id)}
                 onReport={() => handleReport("reply", reply.id)}

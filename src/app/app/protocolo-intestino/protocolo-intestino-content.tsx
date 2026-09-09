@@ -3,7 +3,7 @@
 import { Clock, Salad } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { Chip } from "@/components/ui/chip";
-import { STOOL_LIGHT_CATEGORIES, LAXATIVE_RECIPES } from "@/lib/intestino";
+import { getStoolLightCategories, getLaxativeRecipes } from "@/lib/intestino";
 import { useLocale } from "@/lib/use-locale";
 
 const CATEGORY_STYLES: Record<
@@ -22,6 +22,8 @@ const CATEGORY_STYLES: Record<
 export function ProtocoloIntestinoContent() {
   const { locale } = useLocale();
   const es = locale === "es";
+  const stoolLightCategories = getStoolLightCategories(locale);
+  const laxativeRecipes = getLaxativeRecipes(locale);
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-7 px-4 py-6">
       <BackButton fallbackHref="/app/vip" />
@@ -43,7 +45,7 @@ export function ProtocoloIntestinoContent() {
       <section className="flex flex-col gap-3">
         <h2 className="font-heading text-base font-bold text-brown-800">{es ? "El Semáforo de la Caca" : "O Semáforo do Cocô"}</h2>
         <div className="flex flex-col gap-3">
-          {STOOL_LIGHT_CATEGORIES.map((category) => {
+          {stoolLightCategories.map((category) => {
             const style = CATEGORY_STYLES[category.key];
             return (
               <div key={category.key} className={`rounded-2xl p-4 ${style.card}`}>
@@ -77,7 +79,7 @@ export function ProtocoloIntestinoContent() {
       <section className="flex flex-col gap-3">
         <h2 className="font-heading text-base font-bold text-brown-800">{es ? "Las 5 Recetas Laxantes" : "As 5 Receitas Laxativas"}</h2>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
-          {LAXATIVE_RECIPES.map((recipe) => (
+          {laxativeRecipes.map((recipe) => (
             <article
               key={recipe.id}
               className="flex w-[240px] shrink-0 snap-start flex-col gap-2.5 rounded-2xl bg-white p-4 shadow-sm shadow-brown-900/5"

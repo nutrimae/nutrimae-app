@@ -6,7 +6,7 @@ import { CheckCircle2, Share2, Star } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { useLocale } from "@/lib/use-locale";
-import { UTENSIL_CATEGORY_LABEL, UTENSILS, type UtensilCategory } from "@/lib/utensils";
+import { getUtensilCategoryLabel, getUtensils, type UtensilCategory } from "@/lib/utensils";
 
 const CATEGORIES: UtensilCategory[] = ["hora-de-comer", "preparo", "armazenamento", "seguranca"];
 
@@ -15,7 +15,9 @@ export default function UtensiliosRecomendadosPage() {
   const es = locale === "es";
   const [onlyEssential, setOnlyEssential] = useState(false);
 
-  const list = useMemo(() => (onlyEssential ? UTENSILS.filter((u) => u.essential) : UTENSILS), [onlyEssential]);
+  const UTENSILS = useMemo(() => getUtensils(locale), [locale]);
+  const UTENSIL_CATEGORY_LABEL = useMemo(() => getUtensilCategoryLabel(locale), [locale]);
+  const list = useMemo(() => (onlyEssential ? UTENSILS.filter((u) => u.essential) : UTENSILS), [onlyEssential, UTENSILS]);
 
   function handleShare() {
     const essentials = UTENSILS.filter((u) => u.essential);

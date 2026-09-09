@@ -26,6 +26,36 @@
         "rule": "design-system-font-size",
         "value": "11px",
         "createdAt": "2026-08-24T23:02:31.719Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffa500",
+        "createdAt": "2026-09-09T15:33:23.439Z",
+        "reason": "reused from existing pt-BR LUNCHBOX_GROUPS entry (line 28), same color mirrored for ES locale variant, not a new design decision"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ff6b6b",
+        "createdAt": "2026-09-09T15:33:23.518Z",
+        "reason": "reused from existing pt-BR LUNCHBOX_GROUPS entry, mirrored for ES locale variant"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#10b981",
+        "createdAt": "2026-09-09T15:33:23.600Z",
+        "reason": "reused from existing pt-BR LUNCHBOX_GROUPS entry, mirrored for ES locale variant"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#8b5cf6",
+        "createdAt": "2026-09-09T15:33:23.679Z",
+        "reason": "reused from existing pt-BR LUNCHBOX_GROUPS entry, mirrored for ES locale variant"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ec4899",
+        "createdAt": "2026-09-09T15:33:23.760Z",
+        "reason": "reused from existing pt-BR LUNCHBOX_GROUPS entry, mirrored for ES locale variant"
       }
     ]
   }

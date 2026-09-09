@@ -68,8 +68,8 @@ export default function ListaComprasPage() {
 
   const lunchboxItems = useMemo(() => {
     if (!activeBaby || !isPost24Months) return [];
-    return getWeeklyLunchboxShoppingItems(activeBaby.id);
-  }, [activeBaby, isPost24Months]);
+    return getWeeklyLunchboxShoppingItems(activeBaby.id, locale);
+  }, [activeBaby, isPost24Months, locale]);
 
   const displayGroups = useMemo(() => {
     const labels = getCategoryLabel(locale);

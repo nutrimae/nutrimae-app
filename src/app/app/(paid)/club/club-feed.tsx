@@ -22,10 +22,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   badgeForStats,
   categoryFromTitle,
-  COMMUNITY_BADGE_INFO,
   formatRelativeDate,
-  OFFICIAL_ANNOUNCEMENTS,
-  POST_CATEGORY_INFO,
+  getCommunityBadgeInfo,
+  getOfficialAnnouncements,
+  getPostCategoryInfo,
   titleWithCategory,
   titleWithoutCategoryPrefix,
   type CommunityFaq,
@@ -59,6 +59,9 @@ export function ClubFeed() {
   const { locale } = useLocale();
   const es = locale === "es";
   const FILTERS = es ? FILTERS_ES : FILTERS_PT;
+  const COMMUNITY_BADGE_INFO = useMemo(() => getCommunityBadgeInfo(locale), [locale]);
+  const POST_CATEGORY_INFO = useMemo(() => getPostCategoryInfo(locale), [locale]);
+  const OFFICIAL_ANNOUNCEMENTS = useMemo(() => getOfficialAnnouncements(locale), [locale]);
 
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [faqs, setFaqs] = useState<CommunityFaq[]>([]);
@@ -367,7 +370,7 @@ export function ClubFeed() {
                         ? "resposta"
                         : "respostas"}
                   </span>
-                  <span>{formatRelativeDate(post.created_at)}</span>
+                  <span>{formatRelativeDate(post.created_at, locale)}</span>
                   {hasNew && (
                     <span className="ml-auto flex items-center gap-1 font-semibold text-terracotta-600">
                       <span className="h-2 w-2 rounded-full bg-terracotta-500" />
@@ -399,6 +402,7 @@ function NewPostSheet({
   const [saving, setSaving] = useState(false);
   const { locale } = useLocale();
   const es = locale === "es";
+  const POST_CATEGORY_INFO = useMemo(() => getPostCategoryInfo(locale), [locale]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-brown-900/30" onClick={onClose}>

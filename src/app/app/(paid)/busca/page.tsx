@@ -25,7 +25,7 @@ export default function BuscaPage() {
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
 
-  const results = useMemo(() => searchFoods(query, region), [query, region]);
+  const results = useMemo(() => searchFoods(query, region, locale), [query, region, locale]);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">

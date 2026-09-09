@@ -7,10 +7,10 @@ import { Chip } from "@/components/ui/chip";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { useLocale } from "@/lib/use-locale";
 import {
-  TEETHER_CATEGORY_LABEL,
-  TEETHERS,
-  TEETHING_NORMAL_SIGNS,
-  TEETHING_WARNING_SIGNS,
+  getTeetherCategoryLabel,
+  getTeethers,
+  getTeethingNormalSigns,
+  getTeethingWarningSigns,
   teethersForActiveTeething,
   type Teether,
 } from "@/lib/teethers";
@@ -22,9 +22,14 @@ export default function MordedoresNaturaisPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showTable, setShowTable] = useState(false);
 
+  const TEETHERS = useMemo(() => getTeethers(locale), [locale]);
+  const TEETHER_CATEGORY_LABEL = useMemo(() => getTeetherCategoryLabel(locale), [locale]);
+  const TEETHING_NORMAL_SIGNS = useMemo(() => getTeethingNormalSigns(locale), [locale]);
+  const TEETHING_WARNING_SIGNS = useMemo(() => getTeethingWarningSigns(locale), [locale]);
+
   const list = useMemo(
-    () => (activeTeethingOnly ? teethersForActiveTeething() : TEETHERS),
-    [activeTeethingOnly],
+    () => (activeTeethingOnly ? teethersForActiveTeething(locale) : TEETHERS),
+    [activeTeethingOnly, locale, TEETHERS],
   );
 
   function handleShare(teether: Teether) {

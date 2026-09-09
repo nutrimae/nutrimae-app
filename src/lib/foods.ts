@@ -1,6 +1,7 @@
 import type { AgeBand } from "@/lib/menu";
 import type { Region } from "@/lib/regions";
 import type { LatamRegion } from "@/lib/latam-regions";
+import type { Locale } from "@/lib/i18n/locale";
 
 export interface FoodItem {
   id: string;
@@ -575,6 +576,536 @@ export const FOODS: FoodItem[] = [
   },
 ];
 
+/**
+ * Versão em espanhol latino-americano do guia de cortes seguros. Estrutura
+ * idêntica ao array FOODS (mesmos ids, mesmo shape) — nomes, cortes, avisos
+ * e aliases traduzidos/adaptados para o espanhol falado na América Latina
+ * (ex.: "papa" e não "patata", "maní" e não "cacahuete" como termo
+ * principal, "banana" e não "plátano"). O campo `regiao` (regiões
+ * brasileiras) não faz sentido aqui e foi omitido.
+ */
+export const FOODS_ES: FoodItem[] = [
+  {
+    id: "banana",
+    name: "Banana",
+    aliases: ["guineo"],
+    emoji: "🍌",
+    cuts: {
+      "6-7": "Bien madura, triturada, o en bastón grueso del tamaño de la mano (BLW).",
+      "8-9": "En trozos pequeños y blandos, o parcialmente triturada.",
+      "10-12": "Cortada en rodajas o cubos pequeños.",
+      "13-24": "Cortada en trozos pequeños, como el resto de la familia.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "maca",
+    name: "Manzana",
+    aliases: [],
+    emoji: "🍎",
+    cuts: {
+      "6-7": "Cocida al vapor hasta quedar bien blanda y triturada. Nunca cruda y entera.",
+      "8-9": "Cocida y en trozos pequeños y blandos.",
+      "10-12": "Rallada o cocida en trozos pequeños.",
+      "13-24": "Cruda, rallada o en rodajas bien finas. Evita trozos grandes y duros.",
+    },
+    warning: "La manzana cruda en trozos grandes es riesgo de atragantamiento a cualquier edad en esta etapa — rállala o cocínala.",
+    adequado_lancheira: true,
+  },
+  {
+    id: "pera",
+    name: "Pera",
+    aliases: [],
+    emoji: "🍐",
+    cuts: {
+      "6-7": "Cocida al vapor y triturada, o en bastones blandos cocidos.",
+      "8-9": "Cocida, en trozos pequeños y blandos.",
+      "10-12": "Madura, en trozos pequeños, cruda o cocida.",
+      "13-24": "Madura, en trozos pequeños.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "mamao",
+    name: "Papaya",
+    aliases: ["lechosa", "fruta bomba"],
+    emoji: "🧡",
+    cuts: {
+      "6-7": "Bien madura, triturada o en bastones grandes y blandos.",
+      "8-9": "En trozos pequeños y blandos.",
+      "10-12": "En cubos pequeños.",
+      "13-24": "En cubos pequeños.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "manga",
+    name: "Mango",
+    aliases: [],
+    emoji: "🥭",
+    cuts: {
+      "6-7": "Bien maduro, triturado o en bastones blandos.",
+      "8-9": "En trozos pequeños y blandos.",
+      "10-12": "En cubos pequeños.",
+      "13-24": "En cubos pequeños.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "uva",
+    name: "Uva",
+    aliases: [],
+    emoji: "🍇",
+    cuts: {
+      "6-7": "No se recomienda entera. Si se ofrece, cocida y bien triturada.",
+      "8-9": "Cortada en cuartos, sin cáscara ni semillas. Nunca entera.",
+      "10-12": "Cortada en cuartos, sin cáscara ni semillas. Nunca entera.",
+      "13-24": "Cortada al menos por la mitad (idealmente en cuartos), sin cáscara. Nunca entera.",
+    },
+    warning: "La uva entera es una de las principales causas de atragantamiento grave en niños pequeños — córtala siempre, a cualquier edad.",
+    adequado_lancheira: true,
+  },
+  {
+    id: "morango",
+    name: "Fresa",
+    aliases: ["frutilla"],
+    emoji: "🍓",
+    cuts: {
+      "6-7": "Triturada o en rodajas gruesas y blandas.",
+      "8-9": "Cortada en trozos pequeños.",
+      "10-12": "Cortada en trozos pequeños o rodajas.",
+      "13-24": "Cortada por la mitad o en rodajas.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "tomate",
+    name: "Tomate",
+    aliases: ["tomate-cherry"],
+    emoji: "🍅",
+    cuts: {
+      "6-7": "Sin piel ni semillas, cocido y triturado.",
+      "8-9": "Sin piel, en trozos pequeños y blandos.",
+      "10-12": "En trozos pequeños, sin piel si es posible.",
+      "13-24": "En trozos. Si es tomate cherry, córtalo siempre por la mitad o en cuartos.",
+    },
+    warning: "El tomate cherry o la uva enteros son riesgo de atragantamiento — córtalos siempre en cuartos.",
+    adequado_lancheira: true,
+  },
+  {
+    id: "cenoura",
+    name: "Zanahoria",
+    aliases: [],
+    emoji: "🥕",
+    cuts: {
+      "6-7": "Cocida hasta quedar bien blanda, triturada o en bastón blando.",
+      "8-9": "Cocida, en trozos pequeños y blandos.",
+      "10-12": "Cocida, en rodajas o trozos pequeños.",
+      "13-24": "Cocida, en trozos. Evita cruda y crocante en esta etapa.",
+    },
+    warning: "La zanahoria cruda y dura es riesgo de atragantamiento — cocínala siempre hasta que quede blanda.",
+    adequado_lancheira: true,
+  },
+  {
+    id: "batata-doce",
+    name: "Camote",
+    aliases: ["boniato", "batata", "papa dulce"],
+    emoji: "🍠",
+    cuts: {
+      "6-7": "Cocido y triturado, o en bastón blando.",
+      "8-9": "Cocido, en trozos pequeños y blandos.",
+      "10-12": "Cocido, en cubos pequeños.",
+      "13-24": "Cocido, en trozos o cubos.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "batata",
+    name: "Papa",
+    aliases: ["patata"],
+    emoji: "🥔",
+    cuts: {
+      "6-7": "Cocida y triturada, o en bastón blando.",
+      "8-9": "Cocida, en trozos pequeños y blandos.",
+      "10-12": "Cocida, en cubos pequeños.",
+      "13-24": "Cocida, en trozos o cubos.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "abobrinha",
+    name: "Calabacín",
+    aliases: ["zapallito", "calabacita", "zucchini"],
+    emoji: "🥒",
+    cuts: {
+      "6-7": "Cocido y triturado, o en bastón bien blando.",
+      "8-9": "Cocido, en trozos pequeños y blandos.",
+      "10-12": "Cocido, en trozos pequeños.",
+      "13-24": "Cocido, en trozos.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "brocolis",
+    name: "Brócoli",
+    aliases: [],
+    emoji: "🥦",
+    cuts: {
+      "6-7": "Cocido hasta quedar bien blando, en ramitos grandes (BLW) o triturado.",
+      "8-9": "Cocido, en ramitos pequeños y blandos.",
+      "10-12": "Cocido, en trozos pequeños.",
+      "13-24": "Cocido, en trozos pequeños.",
+    },
+    adequado_lancheira: true,
+  },
+  {
+    id: "frango",
+    name: "Pollo",
+    aliases: ["pechuga de pollo"],
+    emoji: "🍗",
+    cuts: {
+      "6-7": "Bien cocido y deshilachado bien fino, triturado en el puré.",
+      "8-9": "Deshilachado en hebras un poco más gruesas.",
+      "10-12": "Picado en trozos pequeños y blandos.",
+      "13-24": "En trozos pequeños, siempre bien cocido.",
+    },
+    warning: "Verifica siempre que no haya huesos ni cartílagos antes de servir.",
+    adequado_lancheira: true,
+  },
+  {
+    id: "carne-moida",
+    name: "Carne molida",
+    aliases: ["carne picada"],
+    emoji: "🍖",
+    cuts: {
+      "6-7": "Bien cocida y triturada junto con el puré.",
+      "8-9": "Bien cocida, en trocitos sueltos.",
+      "10-12": "Bien cocida, en trozos pequeños.",
+      "13-24": "Bien cocida, en trozos.",
+    },
+  },
+  {
+    id: "peixe",
+    name: "Pescado",
+    aliases: [],
+    emoji: "🐟",
+    cuts: {
+      "6-7": "Cocido y deshilachado bien fino, sin espinas.",
+      "8-9": "Deshilachado, sin espinas, en trozos blandos.",
+      "10-12": "En trozos pequeños, sin espinas.",
+      "13-24": "En trozos, sin espinas.",
+    },
+    warning: "Revisa con cuidado que no quede ninguna espina antes de servir, a cualquier edad.",
+    alergenico_declarado: ["pescado"],
+  },
+  {
+    id: "ovo",
+    name: "Huevo",
+    aliases: [],
+    emoji: "🥚",
+    cuts: {
+      "6-7": "Bien cocido (yema y clara firmes), triturado o en tiras de tortilla de huevo.",
+      "8-9": "Bien cocido, en trozos pequeños.",
+      "10-12": "Bien cocido, en trozos.",
+      "13-24": "Bien cocido, en trozos.",
+    },
+    warning: "Sírvelo siempre totalmente cocido, nunca crudo o blando, para evitar riesgo de contaminación.",
+    adequado_lancheira: true,
+    alergenico_declarado: ["huevo"],
+  },
+  {
+    id: "queijo",
+    name: "Queso",
+    aliases: ["queso fresco"],
+    emoji: "🧀",
+    cuts: {
+      "6-7": "Queso blanco blando (tipo queso fresco), en pequeña cantidad.",
+      "8-9": "Queso blanco blando, en trozos pequeños.",
+      "10-12": "En cubos pequeños y blandos.",
+      "13-24": "En cubos o rodajas finas.",
+    },
+    warning: "Evita quesos duros o en cubos grandes, que pueden ser riesgo de atragantamiento.",
+    adequado_lancheira: true,
+    alergenico_declarado: ["leche"],
+  },
+  {
+    id: "pao",
+    name: "Pan",
+    aliases: [],
+    emoji: "🍞",
+    cuts: {
+      "6-7": "Pan blando sin corteza dura, en tiras largas (BLW).",
+      "8-9": "Pan blando, en trozos pequeños.",
+      "10-12": "En trozos pequeños.",
+      "13-24": "En trozos.",
+    },
+    adequado_lancheira: true,
+    alergenico_declarado: ["gluten"],
+  },
+  {
+    id: "amendoim",
+    name: "Maní",
+    aliases: ["cacahuate", "cacahuete", "mantequilla de maní"],
+    emoji: "🥜",
+    cuts: {
+      "6-7": "Nunca entero. Solo mantequilla de maní lisa, bien diluida en agua o fruta.",
+      "8-9": "Solo mantequilla de maní lisa, en pequeña cantidad, observando reacción.",
+      "10-12": "Mantequilla de maní lisa untada en capa fina. Nunca en granos enteros.",
+      "13-24": "Mantequilla de maní lisa. El maní entero solo es seguro después de los 4-5 años.",
+    },
+    warning: "El maní entero o picado grueso es un riesgo grave de atragantamiento hasta los 4-5 años, además de ser un alérgeno común: introdúcelo con cuidado y observa reacciones durante algunos días.",
+  },
+  {
+    id: "pipoca",
+    name: "Palomitas de maíz",
+    aliases: ["pochoclo", "cabritas", "canchita"],
+    emoji: "🍿",
+    cuts: {
+      "6-7": "No se recomienda en esta etapa.",
+      "8-9": "No se recomienda en esta etapa.",
+      "10-12": "No se recomienda en esta etapa.",
+      "13-24": "Evítalas hasta los 4 años.",
+    },
+    warning: "Las palomitas de maíz son uno de los mayores riesgos de atragantamiento en niños pequeños — evítalas hasta al menos los 4 años.",
+  },
+  {
+    id: "salsicha",
+    name: "Salchicha",
+    aliases: ["longaniza"],
+    emoji: "🌭",
+    cuts: {
+      "6-7": "No se recomienda en esta etapa (ultraprocesado, alto en sodio).",
+      "8-9": "Evítala; prefiere proteínas frescas.",
+      "10-12": "Si se ofrece ocasionalmente, córtala a lo largo, nunca en rodajas.",
+      "13-24": "Ocasionalmente, córtala a lo largo, nunca en rodajas.",
+    },
+    warning: "La salchicha en rodajas es un riesgo clásico de atragantamiento — si la ofreces, córtala siempre a lo largo y en tiras finas.",
+  },
+  {
+    id: "mel",
+    name: "Miel",
+    aliases: [],
+    emoji: "🍯",
+    cuts: {
+      "6-7": "No la ofrezcas.",
+      "8-9": "No la ofrezcas.",
+      "10-12": "No la ofrezcas.",
+      "13-24": "Solo después de cumplir 1 año.",
+    },
+    warning: "La miel no debe ofrecerse antes del año de edad: riesgo de botulismo infantil.",
+  },
+  {
+    id: "arroz",
+    name: "Arroz",
+    aliases: [],
+    emoji: "🍚",
+    cuts: {
+      "6-7": "Bien cocido y triturado, con bastante agua.",
+      "8-9": "Bien cocido, suelto.",
+      "10-12": "Cocido, suelto.",
+      "13-24": "Cocido, como el resto de la familia.",
+    },
+  },
+  {
+    id: "feijao",
+    name: "Frijoles",
+    aliases: ["porotos", "judías", "habichuelas"],
+    emoji: "🫘",
+    cuts: {
+      "6-7": "Bien cocidos, triturados, sin cáscara si es posible.",
+      "8-9": "Bien cocidos, levemente triturados.",
+      "10-12": "Bien cocidos, enteros (granos blandos).",
+      "13-24": "Bien cocidos, como el resto de la familia.",
+    },
+  },
+  // ─── Alimentos regionales (mantidos com ids e status de revisão originais) ───
+
+  {
+    id: "acai",
+    name: "Açaí",
+    aliases: ["asai"],
+    emoji: "🟣",
+    cuts: {
+      "6-7": "No se recomienda por debajo de los 12 meses.",
+      "8-9": "No se recomienda por debajo de los 12 meses.",
+      "10-12": "No se recomienda por debajo de los 12 meses.",
+      "13-24": "Puro, sin azúcar, bien batido y liso. Se puede mezclar con banana triturada.",
+    },
+    warning: "El açaí puede causar reacción alérgica en algunos bebés. Introdúcelo en poca cantidad y observa por 3 días. NUNCA lo ofrezcas con azúcar, jarabe de guaraná o leche condensada.",
+    revisao: "pendente",
+    prioridadeRevisao: "alta",
+    minAgeMonths: 12,
+  },
+  {
+    id: "tucuma",
+    name: "Tucumá",
+    aliases: [],
+    emoji: "🟠",
+    cuts: {
+      "6-7": "No se recomienda por debajo de los 12 meses — textura muy fibrosa.",
+      "8-9": "No se recomienda por debajo de los 12 meses — textura muy fibrosa.",
+      "10-12": "No se recomienda por debajo de los 12 meses — textura muy fibrosa.",
+      "13-24": "Pulpa retirada de la semilla, bien triturada o batida en puré. Nunca ofrecerlo con la semilla.",
+    },
+    warning: "El tucumá tiene una textura muy fibrosa y una semilla dura. Retira toda la pulpa de la semilla y tritúrala bien antes de ofrecerla.",
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+    minAgeMonths: 12,
+  },
+  {
+    id: "cupuacu",
+    name: "Copoazú",
+    aliases: ["cupuaçu"],
+    emoji: "🤎",
+    cuts: {
+      "6-7": "Pulpa pura bien batida y colada, sin semillas. Sabor ácido — mezclar con banana para suavizar.",
+      "8-9": "Pulpa batida, puede ser más espesa. Mezclar con frutas dulces.",
+      "10-12": "Pulpa en trocitos blandos o batida.",
+      "13-24": "Pulpa en trozos pequeños o mezclada en preparaciones.",
+    },
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+    minAgeMonths: 8,
+  },
+  {
+    id: "tambaqui",
+    name: "Tambaquí",
+    aliases: ["pez de río"],
+    emoji: "🐟",
+    cuts: {
+      "6-7": "Cocido, deshilachado en hebras bien finas, revisando manualmente cada porción para retirar espinas.",
+      "8-9": "Cocido y deshilachado, en trocitos blandos. Revisar espinas antes de servir.",
+      "10-12": "Cocido, en láminas pequeñas. Revisar siempre las espinas.",
+      "13-24": "Cocido o asado, en trozos pequeños. Seguir revisando espinas.",
+    },
+    warning: "El pescado de río tiene muchas espinas finas. SIEMPRE revisa manualmente cada porción antes de ofrecérsela al bebé — pasa los dedos por el pescado deshilachado para sentir espinas escondidas.",
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+  },
+  {
+    id: "pirarucu",
+    name: "Pirarucú",
+    aliases: ["paiche", "bacalao del amazonas"],
+    emoji: "🐟",
+    cuts: {
+      "6-7": "Cocido y deshilachado bien fino, revisando espinas manualmente antes de servir.",
+      "8-9": "Cocido y deshilachado, en trocitos blandos. Revisar espinas.",
+      "10-12": "Cocido, en láminas pequeñas. Revisar siempre las espinas.",
+      "13-24": "Cocido o asado, en trozos pequeños. Seguir revisando espinas.",
+    },
+    warning: "Pescado de río — SIEMPRE revisa manualmente cada porción por espinas antes de servir.",
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+  },
+  {
+    id: "tucunare",
+    name: "Tucunaré",
+    aliases: ["pavón"],
+    emoji: "🐟",
+    cuts: {
+      "6-7": "Cocido y deshilachado bien fino, revisando espinas manualmente.",
+      "8-9": "Cocido y deshilachado en trocitos. Revisar espinas.",
+      "10-12": "Cocido, en láminas pequeñas. Revisar espinas.",
+      "13-24": "Cocido o a la parrilla, en trozos pequeños. Revisar espinas.",
+    },
+    warning: "Pescado de río — SIEMPRE revisa manualmente cada porción por espinas antes de servir.",
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+  },
+  {
+    id: "umbu",
+    name: "Umbú",
+    aliases: ["imbu"],
+    emoji: "🟢",
+    cuts: {
+      "6-7": "No se recomienda por debajo de los 8 meses — sabor ácido y textura irregular.",
+      "8-9": "Maduro, pulpa triturada. Elegir bien maduro para reducir la acidez.",
+      "10-12": "Pulpa triturada o en trocitos blandos, bien maduro.",
+      "13-24": "Pulpa en trozos pequeños. Retirar semilla y cáscara.",
+    },
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+    minAgeMonths: 8,
+  },
+  {
+    id: "caju-fruta",
+    name: "Marañón (fruta)",
+    aliases: ["caju", "pseudofruto del marañón"],
+    emoji: "🟡",
+    cuts: {
+      "6-7": "No se recomienda por debajo de los 8 meses — las fibras largas pueden ser difíciles.",
+      "8-9": "Maduro, jugo exprimido al momento (sin azúcar añadida). Colar bien para quitar las fibras.",
+      "10-12": "Jugo colado o pulpa cocida y triturada.",
+      "13-24": "Pulpa madura en trocitos o jugo natural.",
+    },
+    warning: "Solo la FRUTA (el pedúnculo). El anacardo (la nuez) es un alérgeno de declaración obligatoria — no confundir.",
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+    minAgeMonths: 8,
+  },
+  {
+    id: "feijao-de-corda",
+    name: "Frijol caupí",
+    aliases: ["frijol de vaca", "poroto chino"],
+    emoji: "🫘",
+    cuts: {
+      "6-7": "Cocido hasta quedar bien blando, triturado con tenedor hasta hacer puré. Usar el caldo espeso.",
+      "8-9": "Cocido y levemente triturado, con caldo.",
+      "10-12": "Cocido, granos enteros bien blandos.",
+      "13-24": "Cocido normalmente, como el frijol de la familia.",
+    },
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+  },
+  {
+    id: "pequi",
+    name: "Pequi",
+    aliases: [],
+    emoji: "💛",
+    cuts: {
+      "6-7": "NO ofrecer — riesgo de seguridad alto, la semilla tiene espinas internas.",
+      "8-9": "NO ofrecer — riesgo de seguridad alto, la semilla tiene espinas internas.",
+      "10-12": "NO ofrecer — riesgo de seguridad alto, la semilla tiene espinas internas.",
+      "13-24": "SOLO la pulpa raspada con cuchara alrededor de la semilla. NUNCA morder, roer o romper la semilla — tiene espinas internas que perforan la boca y la garganta.",
+    },
+    warning: "⚠️ RIESGO ALTO DE SEGURIDAD: la semilla del pequi contiene miles de espinas finísimas por dentro. NUNCA morder, roer o romper la semilla. La pulpa debe raspar-se con cuidado con una cuchara, sin tocar las espinas. Ofrécelo solo a niños mayores de 13 meses, con supervisión constante y preparación exclusiva de un adulto.",
+    revisao: "pendente",
+    prioridadeRevisao: "alta",
+    minAgeMonths: 13,
+  },
+  {
+    id: "guariroba",
+    name: "Guariroba",
+    aliases: ["palmito amargo"],
+    emoji: "🌴",
+    cuts: {
+      "6-7": "No se recomienda por debajo de los 10 meses — sabor amargo y textura firme.",
+      "8-9": "No se recomienda por debajo de los 10 meses — sabor amargo y textura firme.",
+      "10-12": "Cocida por bastante tiempo hasta quedar bien blanda, picada bien fina. El amargor es natural.",
+      "13-24": "Cocida y picada en trozos pequeños. Se puede saltear con condimentos suaves.",
+    },
+    revisao: "pendente",
+    prioridadeRevisao: "normal",
+    minAgeMonths: 10,
+  },
+  {
+    id: "pinhao",
+    name: "Piñón",
+    aliases: [],
+    emoji: "🌰",
+    cuts: {
+      "6-7": "No se recomienda por debajo de los 10 meses — riesgo de atragantamiento por la textura firme.",
+      "8-9": "No se recomienda por debajo de los 10 meses — riesgo de atragantamiento por la textura firme.",
+      "10-12": "Bien cocido (olla a presión por 40 min), triturado con tenedor o picado bien fino.",
+      "13-24": "Bien cocido, picado en trozos pequeños. Nunca ofrecerlo crudo o mal cocido.",
+    },
+    warning: "El piñón mal cocido o en trozos grandes es riesgo de atragantamiento. Cocínalo siempre muy bien (olla a presión por 40 minutos) y pícalo en trozos bien pequeños.",
+    revisao: "pendente",
+    prioridadeRevisao: "alta",
+    minAgeMonths: 10,
+  },
+];
+
 function normalize(str: string): string {
   return str
     .normalize("NFD")
@@ -583,11 +1114,20 @@ function normalize(str: string): string {
     .trim();
 }
 
-export function searchFoods(query: string, userRegion?: Region | LatamRegion | null): FoodItem[] {
+/** Retorna o array de alimentos correspondente ao locale (padrão "es", já que o app agora é hispanofalante por padrão). */
+export function getFoods(locale: Locale = "es"): FoodItem[] {
+  return locale === "pt-BR" ? FOODS : FOODS_ES;
+}
+
+export function searchFoods(
+  query: string,
+  userRegion?: Region | LatamRegion | null,
+  locale: Locale = "es",
+): FoodItem[] {
   const q = normalize(query);
   if (!q) return [];
 
-  const matches = FOODS.filter((food) => {
+  const matches = getFoods(locale).filter((food) => {
     // Alimentos pendentes de revisão não aparecem na busca pública
     if (food.revisao === "pendente") return false;
     if (normalize(food.name).includes(q)) return true;

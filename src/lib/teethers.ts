@@ -1,3 +1,5 @@
+import type { Locale } from "@/lib/i18n/locale";
+
 export type TeetherCategory = "frutas" | "silicone" | "pao" | "frio" | "extras";
 
 export const TEETHER_CATEGORY_LABEL: Record<TeetherCategory, string> = {
@@ -7,6 +9,18 @@ export const TEETHER_CATEGORY_LABEL: Record<TeetherCategory, string> = {
   frio: "Frio",
   extras: "Extras",
 };
+
+export const TEETHER_CATEGORY_LABEL_ES: Record<TeetherCategory, string> = {
+  frutas: "Frutas",
+  silicone: "Silicona",
+  pao: "Pan y galletas",
+  frio: "Frío",
+  extras: "Extras",
+};
+
+export function getTeetherCategoryLabel(locale: Locale = "pt-BR"): Record<TeetherCategory, string> {
+  return locale === "es" ? TEETHER_CATEGORY_LABEL_ES : TEETHER_CATEGORY_LABEL;
+}
 
 export interface Teether {
   id: string;
@@ -236,6 +250,223 @@ export const TEETHERS: Teether[] = [
   },
 ];
 
+export const TEETHERS_ES: Teether[] = [
+  {
+    id: "maca",
+    name: "Manzana",
+    emoji: "🍎",
+    category: "frutas",
+    minAgeMonths: 6,
+    temperature: "Fría (heladera)",
+    prep: "Corta un bastón grueso con cáscara, enfriado en la heladera por 30 minutos.",
+    maxDurationMinutes: 10,
+    safety: "Supervisa siempre — pueden soltarse trozos con la mordida. Retíralo si queda demasiado pequeño para sostenerlo con firmeza.",
+    benefits: "El frío ayuda a aliviar la inflamación de la encía; la cáscara da resistencia para morder sin romperse fácil.",
+    howToOffer: "Sostén el otro extremo en los primeros usos, hasta que el bebé aprenda a sostenerlo solo.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "cenoura",
+    name: "Zanahoria",
+    emoji: "🥕",
+    category: "frutas",
+    minAgeMonths: 6,
+    temperature: "Fría (heladera)",
+    prep: "Usa un bastón entero y grueso, enfriado en la heladera — nunca cocida (queda demasiado blanda y se rompe).",
+    maxDurationMinutes: 10,
+    safety: "Usa siempre un bastón demasiado grande para caber entero en la boca. Descártalo apenas aparezcan marcas profundas de mordida.",
+    benefits: "Textura firme y fría, ideal para masajear la encía.",
+    howToOffer: "Ofrécela por el extremo más grueso, sosteniendo el mango con la mano.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "banana-congelada",
+    name: "Banana congelada",
+    emoji: "🍌",
+    category: "frutas",
+    minAgeMonths: 6,
+    temperature: "Congelada",
+    prep: "Congela media banana con cáscara por 1 a 2 horas, hasta que quede firme pero no dura como piedra.",
+    maxDurationMinutes: 10,
+    safety: "Se ablanda rápido — cámbiala apenas se ablande demasiado y se convierta en papilla, para evitar atragantamiento.",
+    benefits: "El frío intenso es uno de los más eficaces para el alivio inmediato del dolor.",
+    howToOffer: "Ofrécela con la cáscara como apoyo para la mano del bebé.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "melancia",
+    name: "Sandía",
+    emoji: "🍉",
+    category: "frutas",
+    minAgeMonths: 8,
+    temperature: "Fría (heladera)",
+    prep: "Corta un bastón grueso sin semillas, enfriado.",
+    maxDurationMinutes: 10,
+    safety: "Retira todas las semillas antes de ofrecerla. Queda resbaladiza — supervisa de cerca.",
+    benefits: "Refrescante e hidratante, ideal en días calurosos de salida de dientes.",
+    howToOffer: "Ofrécela en un trozo lo bastante grande para que no quepa entero en la boca.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "pera",
+    name: "Pera",
+    emoji: "🍐",
+    category: "frutas",
+    minAgeMonths: 6,
+    temperature: "Fría (heladera)",
+    prep: "Usa una pera firme (no muy madura), en bastón grueso, fría.",
+    maxDurationMinutes: 10,
+    safety: "Las peras muy maduras se ablandan rápido y se rompen — prefiere peras más firmes para este fin.",
+    benefits: "Textura firme y levemente dulce, bien aceptada por la mayoría de los bebés.",
+    howToOffer: "Ofrécela por el extremo, sosteniéndola junto con el bebé en los primeros usos.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "beterraba",
+    name: "Remolacha",
+    emoji: "🟣",
+    category: "frutas",
+    minAgeMonths: 6,
+    temperature: "Fría (heladera)",
+    prep: "Usa un bastón grueso crudo, frío — la textura bien firme es lo que funciona aquí.",
+    maxDurationMinutes: 10,
+    safety: "Puede manchar ropa y piel temporalmente (es solo el color, inofensivo). Supervisa como con cualquier mordedor de vegetal crudo.",
+    benefits: "Muy firme y resistente, dura más tiempo sin romperse que otros vegetales.",
+    howToOffer: "Ofrécela por el extremo más delgado, manteniendo la parte gruesa fuera de la boca.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "mordedor-silicone",
+    name: "Mordedor de silicona",
+    emoji: "🧸",
+    category: "silicone",
+    minAgeMonths: 3,
+    temperature: "Ambiente o frío (apto para heladera)",
+    prep: "Elige un mordedor de silicona de grado alimenticio (certificación FDA u homóloga local), sin BPA, de pieza única — sin partes pequeñas que puedan soltarse.",
+    maxDurationMinutes: 30,
+    safety: "Revisa que no tenga grietas antes de cada uso y reemplázalo al primer signo de desgaste. Nunca lo ates al cuello del bebé.",
+    benefits: "Se puede enfriar en la heladera (nunca en el congelador, la mayoría se agrieta), reutilizable y diseñado para la seguridad.",
+    howToOffer: "Lávalo después de cada uso y mantenlo limpio entre un uso y otro.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "pao",
+    name: "Pan",
+    emoji: "🍞",
+    category: "pao",
+    minAgeMonths: 6,
+    temperature: "Ambiente o levemente tostado",
+    prep: "Usa una corteza gruesa de pan tipo baguette o una rebanada de pan integral levemente tostada, en tira larga.",
+    maxDurationMinutes: 10,
+    safety: "Se ablanda con la saliva — cámbialo cuando empiece a deshacerse, para no correr riesgo de atragantamiento.",
+    benefits: "Textura firme al principio, se va ablandando de a poco a medida que el bebé mastica.",
+    howToOffer: "Ofrécelo por el extremo, dejando la otra parte fuera de la boca.",
+    goodForActiveTeething: false,
+  },
+  {
+    id: "biscoito-polvilho",
+    name: "Galleta de almidón de yuca",
+    emoji: "🥨",
+    category: "pao",
+    minAgeMonths: 8,
+    temperature: "Ambiente",
+    prep: "Elige una galleta de almidón de yuca simple, sin azúcar y sin relleno, en forma de argolla o bastón.",
+    maxDurationMinutes: 10,
+    safety: "Se ablanda y puede romperse en trozos — supervisa y retira los trozos pequeños que se suelten.",
+    benefits: "Crocante al principio, práctica para llevar en el bolso.",
+    howToOffer: "Ofrécela entera, sosteniéndola por el borde hasta que el bebé la agarre sola.",
+    goodForActiveTeething: false,
+  },
+  {
+    id: "torrada",
+    name: "Tostada",
+    emoji: "🍞",
+    category: "pao",
+    minAgeMonths: 6,
+    temperature: "Ambiente",
+    prep: "Tuesta una rebanada de pan integral hasta que quede bien firme y córtala en tiras largas.",
+    maxDurationMinutes: 10,
+    safety: "Se ablanda rápido con la saliva — cámbiala cuando quede blanda.",
+    benefits: "Más firme que el pan común, dura un poco más a la mordida.",
+    howToOffer: "Ofrécela en tiras largas, fáciles de sostener.",
+    goodForActiveTeething: false,
+  },
+  {
+    id: "pano-congelado",
+    name: "Paño de algodón congelado",
+    emoji: "🧊",
+    category: "frio",
+    minAgeMonths: 3,
+    temperature: "Congelado",
+    prep: "Moja un paño de algodón limpio en agua filtrada, escúrrelo, dóblalo y congélalo por 30-40 minutos.",
+    maxDurationMinutes: 15,
+    safety: "Verifica que no esté tan duro como para lastimar la encía — el paño debe ceder un poco a la presión.",
+    benefits: "Alivio frío profundo, sin riesgo de que se suelten trozos — una de las opciones más seguras para bebés muy pequeños.",
+    howToOffer: "Sostén un extremo mientras el bebé muerde el otro.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "chupeta-gelada",
+    name: "Chupete frío",
+    emoji: "🍼",
+    category: "frio",
+    minAgeMonths: 0,
+    temperature: "Frío (heladera, no congelador)",
+    prep: "Deja el chupete habitual del bebé en la heladera por 15-20 minutos antes de ofrecerlo.",
+    maxDurationMinutes: 15,
+    safety: "Nunca lo congeles — la silicona puede agrietarse y quedar cortante. Siempre heladera, nunca congelador.",
+    benefits: "Alivio frío usando un objeto que el bebé ya conoce y acepta bien.",
+    howToOffer: "Ofrécelo como de costumbre, el frío ya aporta el efecto extra.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "mamadeira-gelada",
+    name: "Mamadera o vasito frío",
+    emoji: "🥤",
+    category: "frio",
+    minAgeMonths: 6,
+    temperature: "Fría (heladera)",
+    prep: "Sirve agua bien fría en un vasito entrenador — el pico frío ya ayuda por sí solo.",
+    maxDurationMinutes: 15,
+    safety: "No ofrezcas líquidos congelados o con hielo sólido — riesgo de atragantamiento.",
+    benefits: "Hidrata y alivia al mismo tiempo.",
+    howToOffer: "Ofrécela normalmente en la rutina de líquidos del día.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "abacaxi",
+    name: "Piña",
+    emoji: "🍍",
+    category: "extras",
+    minAgeMonths: 8,
+    temperature: "Fría (heladera)",
+    prep: "Corta un bastón grueso sin cáscara, frío.",
+    maxDurationMinutes: 10,
+    safety: "Es ácida — algunas encías inflamadas pueden quedar sensibles. Observa la reacción y detente si molesta.",
+    benefits: "Las enzimas de la piña tienen un leve efecto calmante en algunas encías, además del alivio por el frío.",
+    howToOffer: "Ofrécela en bastón grueso, supervisando de cerca por su textura fibrosa.",
+    goodForActiveTeething: true,
+  },
+  {
+    id: "biscotto",
+    name: "Biscotto (galleta dura italiana)",
+    emoji: "🍪",
+    category: "extras",
+    minAgeMonths: 10,
+    temperature: "Ambiente",
+    prep: "Elige un biscotto simple, sin exceso de azúcar, cortado en bastón.",
+    maxDurationMinutes: 10,
+    safety: "Es bastante duro al principio — ofrécelo solo si el bebé ya tiene buena fuerza de mordida (generalmente 10+ meses).",
+    benefits: "Muy resistente, tarda bastante en ablandarse, ideal para sesiones más largas de mordida.",
+    howToOffer: "Ofrécelo por el extremo, supervisando los trozos que puedan romperse.",
+    goodForActiveTeething: false,
+  },
+];
+
+export function getTeethers(locale: Locale = "pt-BR"): Teether[] {
+  return locale === "es" ? TEETHERS_ES : TEETHERS;
+}
+
 export const TEETHING_NORMAL_SIGNS: string[] = [
   "Salivação bem acima do normal",
   "Gengiva inchada ou avermelhada em um ponto específico",
@@ -246,12 +477,36 @@ export const TEETHING_NORMAL_SIGNS: string[] = [
   "Recusa parcial de alimentos por desconforto na boca",
 ];
 
+export const TEETHING_NORMAL_SIGNS_ES: string[] = [
+  "Salivación muy por encima de lo normal",
+  "Encía hinchada o enrojecida en un punto específico",
+  "Ganas de morder todo lo que encuentra por delante",
+  "Irritabilidad, especialmente por la noche",
+  "Leve aumento de la temperatura (sin llegar a fiebre)",
+  "Sueño más agitado de lo habitual",
+  "Rechazo parcial de alimentos por molestia en la boca",
+];
+
+export function getTeethingNormalSigns(locale: Locale = "pt-BR"): string[] {
+  return locale === "es" ? TEETHING_NORMAL_SIGNS_ES : TEETHING_NORMAL_SIGNS;
+}
+
 export const TEETHING_WARNING_SIGNS: string[] = [
   "Febre alta (acima de 38°C) — teething não causa febre alta, procure o pediatra.",
   "Diarreia ou vômitos — também não são causados por teething, investigue outra causa.",
   "Feridas abertas, sangramento ou pus na gengiva — pare de usar mordedores e procure avaliação.",
 ];
 
-export function teethersForActiveTeething(): Teether[] {
-  return TEETHERS.filter((t) => t.goodForActiveTeething);
+export const TEETHING_WARNING_SIGNS_ES: string[] = [
+  "Fiebre alta (por encima de 38 °C) — la salida de dientes no causa fiebre alta, consulta al pediatra.",
+  "Diarrea o vómitos — tampoco son causados por la salida de dientes, investiga otra causa.",
+  "Heridas abiertas, sangrado o pus en la encía — deja de usar mordedores y busca una evaluación.",
+];
+
+export function getTeethingWarningSigns(locale: Locale = "pt-BR"): string[] {
+  return locale === "es" ? TEETHING_WARNING_SIGNS_ES : TEETHING_WARNING_SIGNS;
+}
+
+export function teethersForActiveTeething(locale: Locale = "pt-BR"): Teether[] {
+  return getTeethers(locale).filter((t) => t.goodForActiveTeething);
 }

@@ -2,6 +2,7 @@ import { FOODS } from "@/lib/foods";
 import { RECIPES } from "@/lib/recipes";
 import type { IngredientCategory } from "@/lib/menu";
 import type { DayKey } from "@/lib/menu";
+import type { Locale } from "@/lib/i18n/locale";
 
 export type LunchboxGroup = "proteina" | "carboidrato" | "fruta" | "vegetal" | "laticinio_extra";
 
@@ -81,6 +82,73 @@ export const LUNCHBOX_GROUPS: LunchboxGroupConfig[] = [
   },
 ];
 
+const LUNCHBOX_GROUPS_ES: LunchboxGroupConfig[] = [
+  {
+    key: "carboidrato",
+    label: "Carbohidratos",
+    shortLabel: "Carbo",
+    emoji: "🥖",
+    idealPercent: 30,
+    color: "#FFA500",
+    textColor: "#7a4e00",
+    bgColor: "#FEF3C7",
+    description: "Energía sostenida para jugar y aprender.",
+    examples: ["Pan integral", "Choclo cocido", "Panqueque de banana", "Batata (camote)"],
+  },
+  {
+    key: "proteina",
+    label: "Proteínas",
+    shortLabel: "Proteína",
+    emoji: "🥩",
+    idealPercent: 25,
+    color: "#FF6B6B",
+    textColor: "#7a1f1f",
+    bgColor: "#FFE4E6",
+    description: "Saciedad y desarrollo muscular.",
+    examples: ["Huevo cocido", "Pollo desmenuzado", "Hummus", "Queso blanco"],
+  },
+  {
+    key: "vegetal",
+    label: "Vegetales",
+    shortLabel: "Vegetal",
+    emoji: "🥦",
+    idealPercent: 25,
+    color: "#10B981",
+    textColor: "#064e3b",
+    bgColor: "#D1FAE5",
+    description: "Vitaminas, minerales e inmunidad.",
+    examples: ["Tomate cherry en 4", "Bastoncitos de pepino", "Zanahoria cocida blanda"],
+  },
+  {
+    key: "fruta",
+    label: "Frutas",
+    shortLabel: "Fruta",
+    emoji: "🍎",
+    idealPercent: 15,
+    color: "#8B5CF6",
+    textColor: "#3b1f6b",
+    bgColor: "#EDE9FE",
+    description: "Fibra, hidratación y dulzor natural.",
+    examples: ["Uva en cuartos", "Manzana en tiritas", "Banana", "Melón"],
+  },
+  {
+    key: "laticinio_extra",
+    label: "Lácteos y extras",
+    shortLabel: "Extra",
+    emoji: "🥛",
+    idealPercent: 5,
+    color: "#EC4899",
+    textColor: "#831843",
+    bgColor: "#FCE7F3",
+    description: "Calcio o grasas buenas (semillas trituradas).",
+    examples: ["Yogur natural", "Semillas de zapallo trituradas"],
+  },
+];
+
+export function getLunchboxGroups(locale: Locale = "pt-BR"): LunchboxGroupConfig[] {
+  return locale === "es" ? LUNCHBOX_GROUPS_ES : LUNCHBOX_GROUPS;
+}
+
 export interface LunchboxItem {
   id: string;
   name: string;
@@ -130,6 +198,48 @@ export const LUNCHBOX_BANK: LunchboxItem[] = [
   { id: "lb-queijo-cottage", name: "Queijo cottage / ricota fresca", group: "laticinio_extra", emoji: "🥣", category: "mercado", allergens: ["leite"], prepNote: "Leve e fácil de espalhar" },
   { id: "lb-sementes-chia", name: "Mix de sementes trituradas", group: "laticinio_extra", emoji: "✨", category: "mercado", prepNote: "Chia ou linhaça moídas polvilhadas na fruta" },
 ];
+
+const LUNCHBOX_BANK_ES: LunchboxItem[] = [
+  // Frutas
+  { id: "lb-banana", name: "Banana en rodajas", group: "fruta", emoji: "🍌", category: "feira", prepNote: "Unas gotas de limón ayudan a que no se oscurezca" },
+  { id: "lb-uva", name: "Uvas cortadas en 4", group: "fruta", emoji: "🍇", category: "feira", prepNote: "Corta siempre en cuartos, a lo largo" },
+  { id: "lb-maca", name: "Manzana en láminas finas", group: "fruta", emoji: "🍎", category: "feira", prepNote: "Rodajas finas o rociadas con agua y limón" },
+  { id: "lb-mamao", name: "Papaya en cubitos", group: "fruta", emoji: "🧡", category: "feira", prepNote: "En un pote bien cerrado con tenedor de entrenamiento" },
+  { id: "lb-manga", name: "Mango en cubos", group: "fruta", emoji: "🥭", category: "feira", prepNote: "Mango maduro y firme, fácil de agarrar" },
+  { id: "lb-morango", name: "Frutillas en rodajas", group: "fruta", emoji: "🍓", category: "feira", prepNote: "Lava bien y seca antes de guardar" },
+  { id: "lb-melancia", name: "Sandía en cubos sin semillas", group: "fruta", emoji: "🍉", category: "feira", prepNote: "Retira todas las semillas" },
+
+  // Vegetales
+  { id: "lb-tomatinho", name: "Tomate cherry en 4", group: "vegetal", emoji: "🍅", category: "feira", prepNote: "Nunca lo mandes entero; siempre en 4 partes" },
+  { id: "lb-cenoura-palito", name: "Bastoncitos de zanahoria cocida", group: "vegetal", emoji: "🥕", category: "feira", prepNote: "Cocida hasta quedar blanda al tacto" },
+  { id: "lb-pepino", name: "Bastoncitos de pepino sin cáscara", group: "vegetal", emoji: "🥒", category: "feira", prepNote: "Retira el centro con semillas si está muy acuoso" },
+  { id: "lb-brocolis", name: "Floretes de brócoli al vapor", group: "vegetal", emoji: "🥦", category: "feira", prepNote: "Cocido al vapor con un hilo de aceite de oliva" },
+  { id: "lb-abobrinha", name: "Zapallito italiano grillado en tiras", group: "vegetal", emoji: "🥒", category: "feira", prepNote: "Grillado sin exceso de aceite" },
+
+  // Carbohidratos
+  { id: "lb-pao-integral", name: "Tiritas de pan integral", group: "carboidrato", emoji: "🍞", category: "mercado", allergens: ["gluten"], prepNote: "Pan 100% integral sin corteza dura" },
+  { id: "lb-milho", name: "Choclo cocido desgranado", group: "carboidrato", emoji: "🌽", category: "feira", prepNote: "Desgrana con el cuchillo después de cocinar" },
+  { id: "lb-panqueca-banana", name: "Panquequito de banana", group: "carboidrato", emoji: "🥞", category: "mercado", allergens: ["ovo", "gluten"], prepNote: "Hecho en sartén antiadherente sin azúcar" },
+  { id: "lb-batata-doce", name: "Cubos de batata (camote) asada", group: "carboidrato", emoji: "🍠", category: "feira", prepNote: "Asada con romero y aceite de oliva" },
+  { id: "lb-biscoito-aveia", name: "Galletita casera de avena", group: "carboidrato", emoji: "🍪", category: "mercado", allergens: ["gluten"], prepNote: "Banana + avena horneadas por 15 min" },
+  { id: "lb-tapioca", name: "Rollito de tapioca", group: "carboidrato", emoji: "🫓", category: "mercado", prepNote: "Relleno con queso blanco o hummus" },
+
+  // Proteínas
+  { id: "lb-ovo-cozido", name: "Huevo de codorniz o huevo cocido", group: "proteina", emoji: "🥚", category: "mercado", allergens: ["ovo"], prepNote: "Yema 100% firme; corta por la mitad" },
+  { id: "lb-frango-desfiado", name: "Pollo desmenuzado condimentado", group: "proteina", emoji: "🍗", category: "mercado", prepNote: "Cocido con hierbas y desmenuzado bien fino" },
+  { id: "lb-queijo-minas", name: "Cubitos de queso blanco fresco", group: "proteina", emoji: "🧀", category: "mercado", allergens: ["leite"], prepNote: "Manténlo en un pote con conservador de frío" },
+  { id: "lb-homus", name: "Pasta de garbanzo (hummus)", group: "proteina", emoji: "🥣", category: "mercado", prepNote: "Ideal para untar en el pancito o mojar la zanahoria" },
+  { id: "lb-omelete-legumes", name: "Tiras de tortilla de huevo con verduras", group: "proteina", emoji: "🍳", category: "mercado", allergens: ["ovo"], prepNote: "Bien cocida de los dos lados" },
+
+  // Lácteos y extras
+  { id: "lb-iogurte-natural", name: "Yogur natural entero", group: "laticinio_extra", emoji: "🥛", category: "mercado", allergens: ["leite"], prepNote: "Sin azúcar; envíalo con gel refrigerante" },
+  { id: "lb-queijo-cottage", name: "Queso cottage / ricota fresca", group: "laticinio_extra", emoji: "🥣", category: "mercado", allergens: ["leite"], prepNote: "Liviano y fácil de untar" },
+  { id: "lb-sementes-chia", name: "Mix de semillas trituradas", group: "laticinio_extra", emoji: "✨", category: "mercado", prepNote: "Chía o lino molidos, espolvoreados sobre la fruta" },
+];
+
+export function getLunchboxBank(locale: Locale = "pt-BR"): LunchboxItem[] {
+  return locale === "es" ? LUNCHBOX_BANK_ES : LUNCHBOX_BANK;
+}
 
 export interface LunchboxCompartments {
   carboidrato?: LunchboxItem;
@@ -185,6 +295,47 @@ export const DEFAULT_TEMPLATES: LunchboxTemplate[] = [
   },
 ];
 
+const DEFAULT_TEMPLATES_ES: LunchboxTemplate[] = [
+  {
+    id: "tpl-classico",
+    name: "Lonchera Colorida Clásica",
+    compartments: {
+      carboidrato: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-pao-integral"),
+      proteina: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-queijo-minas"),
+      vegetal: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-tomatinho"),
+      fruta: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-uva"),
+    },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "tpl-energia",
+    name: "Lonchera Energía y Panquequito",
+    compartments: {
+      carboidrato: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-panqueca-banana"),
+      proteina: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-ovo-cozido"),
+      vegetal: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-cenoura-palito"),
+      fruta: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-morango"),
+    },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "tpl-pratico",
+    name: "Lonchera Práctica de Frutas y Hummus",
+    compartments: {
+      carboidrato: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-milho"),
+      proteina: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-homus"),
+      vegetal: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-pepino"),
+      fruta: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-maca"),
+      laticinio_extra: LUNCHBOX_BANK_ES.find((i) => i.id === "lb-iogurte-natural"),
+    },
+    createdAt: new Date().toISOString(),
+  },
+];
+
+export function getDefaultTemplates(locale: Locale = "pt-BR"): LunchboxTemplate[] {
+  return locale === "es" ? DEFAULT_TEMPLATES_ES : DEFAULT_TEMPLATES;
+}
+
 export interface LunchboxBalance {
   totalItems: number;
   groupCounts: Record<LunchboxGroup, number>;
@@ -194,7 +345,8 @@ export interface LunchboxBalance {
   missingGroups: LunchboxGroup[];
 }
 
-export function calculateLunchboxBalance(compartments: LunchboxCompartments): LunchboxBalance {
+export function calculateLunchboxBalance(compartments: LunchboxCompartments, locale: Locale = "pt-BR"): LunchboxBalance {
+  const es = locale === "es";
   const groupCounts: Record<LunchboxGroup, number> = {
     carboidrato: compartments.carboidrato ? 1 : 0,
     proteina: compartments.proteina ? 1 : 0,
@@ -221,21 +373,31 @@ export function calculateLunchboxBalance(compartments: LunchboxCompartments): Lu
     scorePercent = Math.round((mainGroupsPresent / 4) * 100);
   }
 
-  let feedback = "Adicione itens para montar a marmitinha.";
+  let feedback = es ? "Agrega alimentos para armar la lonchera." : "Adicione itens para montar a marmitinha.";
   let isBalanced = false;
 
   if (totalItems === 0) {
-    feedback = "Arraste ou toque nos alimentos para montar a marmitinha.";
+    feedback = es
+      ? "Arrastra o toca los alimentos para armar la lonchera."
+      : "Arraste ou toque nos alimentos para montar a marmitinha.";
   } else if (totalItems === 1) {
-    feedback = "Boa escolha inicial! Adicione outros grupos para equilibrar.";
+    feedback = es
+      ? "¡Buena primera elección! Agrega otros grupos para equilibrar."
+      : "Boa escolha inicial! Adicione outros grupos para equilibrar.";
   } else if (missingGroups.length >= 2) {
-    feedback = "Quase lá! Tente incluir ao menos uma fruta e uma proteína.";
+    feedback = es
+      ? "¡Ya casi! Intenta incluir al menos una fruta y una proteína."
+      : "Quase lá! Tente incluir ao menos uma fruta e uma proteína.";
   } else if (missingGroups.length === 1) {
-    const missingLabel = LUNCHBOX_GROUPS.find((g) => g.key === missingGroups[0])?.label.toLowerCase();
-    feedback = `Excelente combinação! Que tal adicionar um item de ${missingLabel}?`;
+    const missingLabel = getLunchboxGroups(locale).find((g) => g.key === missingGroups[0])?.label.toLowerCase();
+    feedback = es
+      ? `¡Excelente combinación! ¿Qué tal agregar un ítem de ${missingLabel}?`
+      : `Excelente combinação! Que tal adicionar um item de ${missingLabel}?`;
   } else {
     isBalanced = true;
-    feedback = "Perfeita! Marmitinha colorida, nutritiva e muito bem balanceada 🎉";
+    feedback = es
+      ? "¡Perfecta! Lonchera colorida, nutritiva y muy bien equilibrada 🎉"
+      : "Perfeita! Marmitinha colorida, nutritiva e muito bem balanceada 🎉";
   }
 
   return {
@@ -262,6 +424,21 @@ export const LUNCHBOX_SAFETY_GUIDELINES = {
   allergySchoolNotice:
     "Importante: Algumas creches e escolas possuem políticas estritas de restrição a alérgenos (como amendoim, castanhas e frutos do mar). Sempre confirme com a coordenação pedagógica as diretrizes da sala do bebê.",
 };
+
+const LUNCHBOX_SAFETY_GUIDELINES_ES = {
+  noFridgeFoods: [
+    "Mayonesa casera o abierta hace días",
+    "Salsas y cremas a base de leche sin refrigeración",
+    "Pescado o mariscos a temperatura ambiente",
+    "Carnes y huevos con yema blanda",
+  ],
+  allergySchoolNotice:
+    "Importante: algunas guarderías y colegios tienen políticas estrictas de restricción de alérgenos (como maní, frutos secos y mariscos). Confirma siempre con la coordinación pedagógica las pautas de la sala de tu bebé.",
+};
+
+export function getLunchboxSafetyGuidelines(locale: Locale = "pt-BR"): typeof LUNCHBOX_SAFETY_GUIDELINES {
+  return locale === "es" ? LUNCHBOX_SAFETY_GUIDELINES_ES : LUNCHBOX_SAFETY_GUIDELINES;
+}
 
 export interface LunchboxSafetyClaim {
   id: string;
@@ -296,9 +473,29 @@ export const LUNCHBOX_SAFETY_CLAIMS: LunchboxSafetyClaim[] = [
   },
 ];
 
+const LUNCHBOX_SAFETY_CLAIMS_ES: LunchboxSafetyClaim[] = [
+  {
+    id: "lb-safety-temperature-hours",
+    text: "Hasta 3 horas en bolsa térmica con gel refrigerante reutilizable",
+    fallbackText:
+      "El tiempo máximo seguro fuera de la heladera está en revisión — por ahora, mantén refrigerado hasta la hora de salir y lleva la lonchera lo más cerca posible del horario de consumo.",
+    revisao: "pendente",
+    prioridadeRevisao: "alta",
+  },
+  {
+    id: "lb-safety-cut-round-foods",
+    text: "Cortes seguros: las uvas y los tomates cherry siempre deben cortarse a lo largo en 4 partes para evitar cualquier riesgo de asfixia mecánica.",
+    fallbackText:
+      "Los alimentos redondos (uva, tomate cherry) necesitan un corte especial para reducir el riesgo de atragantamiento — la técnica exacta está en revisión; mientras tanto, conversa con el pediatra sobre el corte más seguro para la edad de tu bebé.",
+    revisao: "pendente",
+    prioridadeRevisao: "alta",
+  },
+];
+
 /** Texto pronto pra exibir: o real se já aprovado, senão o fallback seguro. */
-export function getLunchboxSafetyClaimText(id: string): string {
-  const claim = LUNCHBOX_SAFETY_CLAIMS.find((c) => c.id === id);
+export function getLunchboxSafetyClaimText(id: string, locale: Locale = "pt-BR"): string {
+  const claims = locale === "es" ? LUNCHBOX_SAFETY_CLAIMS_ES : LUNCHBOX_SAFETY_CLAIMS;
+  const claim = claims.find((c) => c.id === id);
   if (!claim) return "";
   return claim.revisao === "aprovado" ? claim.text : claim.fallbackText;
 }
@@ -312,8 +509,9 @@ export function getPendingLunchboxSafetyClaims(): LunchboxSafetyClaim[] {
 const STORAGE_PREFIX_TEMPLATES = "nutrimae:lunchbox-templates:";
 const STORAGE_PREFIX_PLAN = "nutrimae:lunchbox-weekly:";
 
-export function getSavedTemplates(babyId: string): LunchboxTemplate[] {
-  if (typeof window === "undefined") return DEFAULT_TEMPLATES;
+export function getSavedTemplates(babyId: string, locale: Locale = "pt-BR"): LunchboxTemplate[] {
+  const defaults = getDefaultTemplates(locale);
+  if (typeof window === "undefined") return defaults;
   try {
     const saved = localStorage.getItem(`${STORAGE_PREFIX_TEMPLATES}${babyId}`);
     if (saved) {
@@ -323,12 +521,12 @@ export function getSavedTemplates(babyId: string): LunchboxTemplate[] {
   } catch (e) {
     console.error("Error reading lunchbox templates", e);
   }
-  return DEFAULT_TEMPLATES;
+  return defaults;
 }
 
-export function saveLunchboxTemplate(babyId: string, template: LunchboxTemplate): LunchboxTemplate[] {
+export function saveLunchboxTemplate(babyId: string, template: LunchboxTemplate, locale: Locale = "pt-BR"): LunchboxTemplate[] {
   if (typeof window === "undefined") return [];
-  const current = getSavedTemplates(babyId);
+  const current = getSavedTemplates(babyId, locale);
   const existsIndex = current.findIndex((t) => t.id === template.id);
   let next: LunchboxTemplate[];
   if (existsIndex >= 0) {
@@ -345,9 +543,9 @@ export function saveLunchboxTemplate(babyId: string, template: LunchboxTemplate)
   return next;
 }
 
-export function deleteLunchboxTemplate(babyId: string, templateId: string): LunchboxTemplate[] {
+export function deleteLunchboxTemplate(babyId: string, templateId: string, locale: Locale = "pt-BR"): LunchboxTemplate[] {
   if (typeof window === "undefined") return [];
-  const current = getSavedTemplates(babyId);
+  const current = getSavedTemplates(babyId, locale);
   const next = current.filter((t) => t.id !== templateId);
   try {
     localStorage.setItem(`${STORAGE_PREFIX_TEMPLATES}${babyId}`, JSON.stringify(next));
@@ -357,13 +555,14 @@ export function deleteLunchboxTemplate(babyId: string, templateId: string): Lunc
   return next;
 }
 
-export function getWeeklyLunchboxPlan(babyId: string): WeeklyLunchboxPlan {
+export function getWeeklyLunchboxPlan(babyId: string, locale: Locale = "pt-BR"): WeeklyLunchboxPlan {
+  const templates = getDefaultTemplates(locale);
   const emptyPlan: WeeklyLunchboxPlan = {
-    seg: { ...DEFAULT_TEMPLATES[0].compartments },
-    ter: { ...DEFAULT_TEMPLATES[1].compartments },
-    qua: { ...DEFAULT_TEMPLATES[2].compartments },
-    qui: { ...DEFAULT_TEMPLATES[0].compartments },
-    sex: { ...DEFAULT_TEMPLATES[1].compartments },
+    seg: { ...templates[0].compartments },
+    ter: { ...templates[1].compartments },
+    qua: { ...templates[2].compartments },
+    qui: { ...templates[0].compartments },
+    sex: { ...templates[1].compartments },
     sab: {},
     dom: {},
   };
@@ -391,8 +590,11 @@ export function saveWeeklyLunchboxPlan(babyId: string, plan: WeeklyLunchboxPlan)
 
 export function getWeeklyLunchboxShoppingItems(
   babyId: string,
+  locale: Locale = "pt-BR",
 ): { key: string; name: string; category: IngredientCategory }[] {
-  const plan = getWeeklyLunchboxPlan(babyId);
+  const plan = getWeeklyLunchboxPlan(babyId, locale);
+  const bank = getLunchboxBank(locale);
+  const suffix = locale === "es" ? "(Lonchera)" : "(Lancheira)";
   const seen = new Map<string, { key: string; name: string; category: IngredientCategory }>();
 
   Object.values(plan).forEach((dayCompartments) => {
@@ -400,9 +602,10 @@ export function getWeeklyLunchboxShoppingItems(
       if (item && item.name) {
         const key = `lb-${item.id}`;
         if (!seen.has(key)) {
+          const localizedName = bank.find((b) => b.id === item.id)?.name ?? item.name;
           seen.set(key, {
             key,
-            name: `${item.name} (Lancheira)`,
+            name: `${localizedName} ${suffix}`,
             category: item.category || "feira",
           });
         }

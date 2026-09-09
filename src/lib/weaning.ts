@@ -3,6 +3,8 @@
 // existe narração real gravada em assets/audio/desmame/<id>.mp3 — enquanto
 // não existir, o player mostra "Em breve" em vez de quebrar.
 
+import type { Locale } from "@/lib/i18n/locale";
+
 export interface WeaningTrack {
   id: string;
   title: string;
@@ -53,8 +55,50 @@ export const WEANING_TRACKS: WeaningTrack[] = [
   },
 ];
 
-export function getWeaningTrack(id: string): WeaningTrack | undefined {
-  return WEANING_TRACKS.find((t) => t.id === id);
+export const WEANING_TRACKS_ES: WeaningTrack[] = [
+  {
+    id: PANIC_TRACK_ID,
+    title: "Respira — los pasos a seguir ahora",
+    subtitle: "2 minutos de instrucción directa para el llanto de esta madrugada",
+    durationLabel: "2 min",
+    hasAudio: true,
+  },
+  {
+    id: "tecnica-da-reducao",
+    title: "La técnica de la reducción gradual",
+    subtitle: "Cómo disminuir el tiempo de mamada poco a poco, sin trauma",
+    durationLabel: "4 min",
+    hasAudio: true,
+  },
+  {
+    id: "acalmar-sem-peito",
+    title: "Cómo calmar sin el pecho",
+    subtitle: "Alternativas de upa, arrullo y voz para reemplazar la mamada",
+    durationLabel: "3 min",
+    hasAudio: true,
+  },
+  {
+    id: "recaidas-de-madrugada",
+    title: "Las recaídas de madrugada son normales",
+    subtitle: "Qué hacer cuando una noche se escapa del plan",
+    durationLabel: "3 min",
+    hasAudio: true,
+  },
+  {
+    id: "papel-do-parceiro",
+    title: "El rol de la pareja en esta etapa",
+    subtitle: "Cómo repartir la madrugada sin depender solo de ti",
+    durationLabel: "2 min",
+    hasAudio: true,
+  },
+];
+
+export function getWeaningTracks(locale: Locale = "pt-BR"): WeaningTrack[] {
+  return locale === "es" ? WEANING_TRACKS_ES : WEANING_TRACKS;
+}
+
+export function getWeaningTrack(id: string, locale: Locale = "pt-BR"): WeaningTrack | undefined {
+  return getWeaningTracks(locale).find((t) => t.id === id);
 }
 
 export interface WeaningWeek {
@@ -71,13 +115,23 @@ export const WEANING_WEEKS: WeaningWeek[] = [
   { key: "week-3", title: "Semana 3: A Consolidação", subtitle: "Firmar a nova rotina de sono sem o peito" },
 ];
 
+export const WEANING_WEEKS_ES: WeaningWeek[] = [
+  { key: "week-1", title: "Semana 1: La Preparación", subtitle: "Observar la rutina y elegir la primera mamada a reducir" },
+  { key: "week-2", title: "Semana 2: La Reducción", subtitle: "Disminuir el tiempo de mamada nocturna, un poco cada día" },
+  { key: "week-3", title: "Semana 3: La Consolidación", subtitle: "Afirmar la nueva rutina de sueño sin el pecho" },
+];
+
+export function getWeaningWeeks(locale: Locale = "pt-BR"): WeaningWeek[] {
+  return locale === "es" ? WEANING_WEEKS_ES : WEANING_WEEKS;
+}
+
 export const WEANING_PROGRESS_STORAGE_KEY = "nutrimae_desmame_progress_v1";
 
 export type WeaningProgress = Record<string, boolean[]>;
 
-export function emptyWeaningProgress(): WeaningProgress {
+export function emptyWeaningProgress(locale: Locale = "pt-BR"): WeaningProgress {
   const progress: WeaningProgress = {};
-  for (const week of WEANING_WEEKS) {
+  for (const week of getWeaningWeeks(locale)) {
     progress[week.key] = Array(7).fill(false);
   }
   return progress;

@@ -19,12 +19,12 @@ import {
 import {
   calculateLunchboxBalance,
   deleteLunchboxTemplate,
+  getLunchboxBank,
+  getLunchboxGroups,
   getLunchboxSafetyClaimText,
+  getLunchboxSafetyGuidelines,
   getSavedTemplates,
   getWeeklyLunchboxPlan,
-  LUNCHBOX_BANK,
-  LUNCHBOX_GROUPS,
-  LUNCHBOX_SAFETY_GUIDELINES,
   saveLunchboxTemplate,
   saveWeeklyLunchboxPlan,
   type LunchboxCompartments,
@@ -33,8 +33,9 @@ import {
   type LunchboxTemplate,
   type WeeklyLunchboxPlan,
 } from "@/lib/lunchbox";
-import { DAYS, type DayKey, todayDayIndex } from "@/lib/menu";
+import { getDays, type DayKey, todayDayIndex } from "@/lib/menu";
 import { useToast } from "@/components/toast-provider";
+import { useLocale } from "@/lib/use-locale";
 
 interface LunchboxPlannerProps {
   babyId: string;
@@ -43,9 +44,16 @@ interface LunchboxPlannerProps {
 
 export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
   const { showToast } = useToast();
+  const { locale } = useLocale();
+  const es = locale === "es";
+  const DAYS = useMemo(() => getDays(locale), [locale]);
+  const LUNCHBOX_GROUPS = useMemo(() => getLunchboxGroups(locale), [locale]);
+  const LUNCHBOX_BANK = useMemo(() => getLunchboxBank(locale), [locale]);
+  const LUNCHBOX_SAFETY_GUIDELINES = useMemo(() => getLunchboxSafetyGuidelines(locale), [locale]);
+
   const [selectedDay, setSelectedDay] = useState<DayKey>(DAYS[todayDayIndex()].key);
-  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyLunchboxPlan>(() => getWeeklyLunchboxPlan(babyId));
-  const [templates, setTemplates] = useState<LunchboxTemplate[]>(() => getSavedTemplates(babyId));
+  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyLunchboxPlan>(() => getWeeklyLunchboxPlan(babyId, locale));
+  const [templates, setTemplates] = useState<LunchboxTemplate[]>(() => getSavedTemplates(babyId, locale));
   const [selectedFilterGroup, setSelectedFilterGroup] = useState<LunchboxGroup | "all">("all");
   const [activeSlotForAdd, setActiveSlotForAdd] = useState<LunchboxGroup | null>(null);
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
@@ -54,19 +62,19 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
   const [dragOverSlot, setDragOverSlot] = useState<LunchboxGroup | null>(null);
   const [safetyBoxExpanded, setSafetyBoxExpanded] = useState(true);
 
-  // Sync state when babyId changes
+  // Sync state when babyId or locale changes
   useEffect(() => {
-    setWeeklyPlan(getWeeklyLunchboxPlan(babyId));
-    setTemplates(getSavedTemplates(babyId));
-  }, [babyId]);
+    setWeeklyPlan(getWeeklyLunchboxPlan(babyId, locale));
+    setTemplates(getSavedTemplates(babyId, locale));
+  }, [babyId, locale]);
 
   const currentCompartments: LunchboxCompartments = useMemo(() => {
     return weeklyPlan[selectedDay] ?? {};
   }, [weeklyPlan, selectedDay]);
 
   const balance = useMemo(() => {
-    return calculateLunchboxBalance(currentCompartments);
-  }, [currentCompartments]);
+    return calculateLunchboxBalance(currentCompartments, locale);
+  }, [currentCompartments, locale]);
 
   function handleSetItem(group: LunchboxGroup, item: LunchboxItem | undefined) {
     setWeeklyPlan((prev) => {
@@ -81,7 +89,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
       return updated;
     });
     if (item) {
-      showToast(`✓ ${item.name} colocado na lancheira!`);
+      showToast(es ? `✓ ¡${item.name} agregado a la lonchera!` : `✓ ${item.name} colocado na lancheira!`);
     }
   }
 
@@ -91,7 +99,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
       saveWeeklyLunchboxPlan(babyId, updated);
       return updated;
     });
-    showToast("Lancheira do dia limpa.");
+    showToast(es ? "Lonchera del día vaciada." : "Lancheira do dia limpa.");
   }
 
   function handleApplyTemplate(template: LunchboxTemplate) {
@@ -100,34 +108,38 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
       saveWeeklyLunchboxPlan(babyId, updated);
       return updated;
     });
-    showToast(`✓ Modelo "${template.name}" aplicado para ${DAYS.find((d) => d.key === selectedDay)?.label}!`);
+    showToast(
+      es
+        ? `✓ ¡Modelo "${template.name}" aplicado para ${DAYS.find((d) => d.key === selectedDay)?.label}!`
+        : `✓ Modelo "${template.name}" aplicado para ${DAYS.find((d) => d.key === selectedDay)?.label}!`,
+    );
   }
 
   function handleSaveTemplateSubmit() {
-    const name = templateNameInput.trim() || `Lancheira de ${babyName}`;
+    const name = templateNameInput.trim() || (es ? `Lonchera de ${babyName}` : `Lancheira de ${babyName}`);
     const newTemplate: LunchboxTemplate = {
       id: `tpl-${Date.now()}`,
       name,
       compartments: { ...currentCompartments },
       createdAt: new Date().toISOString(),
     };
-    const updated = saveLunchboxTemplate(babyId, newTemplate);
+    const updated = saveLunchboxTemplate(babyId, newTemplate, locale);
     setTemplates(updated);
     setTemplateNameInput("");
     setTemplateModalOpen(false);
-    showToast(`✓ Modelo "${name}" salvo com sucesso!`);
+    showToast(es ? `✓ ¡Modelo "${name}" guardado con éxito!` : `✓ Modelo "${name}" salvo com sucesso!`);
   }
 
   function handleDeleteTemplate(id: string, name: string) {
-    const updated = deleteLunchboxTemplate(babyId, id);
+    const updated = deleteLunchboxTemplate(babyId, id, locale);
     setTemplates(updated);
-    showToast(`Modelo "${name}" removido.`);
+    showToast(es ? `Modelo "${name}" eliminado.` : `Modelo "${name}" removido.`);
   }
 
   const filteredBank = useMemo(() => {
     if (selectedFilterGroup === "all") return LUNCHBOX_BANK;
     return LUNCHBOX_BANK.filter((item) => item.group === selectedFilterGroup);
-  }, [selectedFilterGroup]);
+  }, [selectedFilterGroup, LUNCHBOX_BANK]);
 
   // Touch / Click to Add flow
   function handleSelectBankItem(item: LunchboxItem) {
@@ -145,11 +157,13 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             🍱
           </span>
           <h2 className="font-heading text-xl font-bold text-brown-800">
-            Lanchinho de Creche & Marmita
+            {es ? "Lonchera de Guardería y Vianda" : "Lanchinho de Creche & Marmita"}
           </h2>
         </div>
         <p className="mt-1 text-sm text-brown-700">
-          Planejador prático para a fase 24m+. Monte lanches equilibrados, que não vazam e aguentam bem até a hora do recreio de {babyName}.
+          {es
+            ? `Planificador práctico para la fase 24m+. Arma loncheras equilibradas, que no gotean y aguantan bien hasta la hora del recreo de ${babyName}.`
+            : `Planejador prático para a fase 24m+. Monte lanches equilibrados, que não vazam e aguentam bem até a hora do recreio de ${babyName}.`}
         </p>
       </div>
 
@@ -193,7 +207,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             className="flex min-h-9 items-center gap-1.5 rounded-full bg-amber-100 px-3 text-xs font-bold text-amber-800 active:bg-amber-200"
           >
             <BookmarkPlus className="h-3.5 w-3.5" />
-            Salvar como modelo
+            {es ? "Guardar como modelo" : "Salvar como modelo"}
           </button>
           {balance.totalItems > 0 && (
             <button
@@ -202,14 +216,14 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
               className="flex min-h-9 items-center gap-1 rounded-full bg-gray-100 px-3 text-xs font-semibold text-brown-700 active:bg-gray-200"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              Limpar dia
+              {es ? "Vaciar día" : "Limpar dia"}
             </button>
           )}
         </div>
 
         {templates.length > 0 && (
           <div className="flex items-center gap-1.5 overflow-x-auto">
-            <span className="text-[11px] font-medium text-brown-700/86 uppercase">Modelos:</span>
+            <span className="text-[11px] font-medium text-brown-700/86 uppercase">{es ? "Modelos:" : "Modelos:"}</span>
             {templates.slice(0, 3).map((tpl) => (
               <button
                 key={tpl.id}
@@ -229,11 +243,12 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold text-brown-800">
-              Marmita de {DAYS.find((d) => d.key === selectedDay)?.label}
+              {es ? "Vianda de " : "Marmita de "}
+              {DAYS.find((d) => d.key === selectedDay)?.label}
             </span>
           </div>
           <span className="text-xs font-semibold text-amber-800 bg-amber-200/70 px-2.5 py-1 rounded-full">
-            {balance.totalItems} de 5 itens
+            {es ? `${balance.totalItems} de 5 ítems` : `${balance.totalItems} de 5 itens`}
           </span>
         </div>
 
@@ -285,7 +300,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
                       type="button"
                       onClick={() => handleSetItem(group.key, undefined)}
                       className="flex h-6 w-6 items-center justify-center rounded-full text-brown-700/78 hover:bg-rose-50 hover:text-rose-600"
-                      title="Remover item"
+                      title={es ? "Quitar ítem" : "Remover item"}
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -307,7 +322,8 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
                       )}
                       {item.allergens && item.allergens.length > 0 && (
                         <span className="mt-1 inline-block rounded bg-peach-100 px-1.5 py-0.5 text-[11px] font-bold text-terracotta-600">
-                          Contém: {item.allergens.join(", ")}
+                          {es ? "Contiene: " : "Contém: "}
+                          {item.allergens.join(", ")}
                         </span>
                       )}
                     </div>
@@ -325,7 +341,13 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
                       <Plus className="h-4 w-4" />
                     </span>
                     <span className="text-xs font-semibold text-brown-700/86">
-                      {isSelectedForAdd ? "Escolha abaixo" : `Adicionar ${group.shortLabel.toLowerCase()}`}
+                      {isSelectedForAdd
+                        ? es
+                          ? "Elige abajo"
+                          : "Escolha abaixo"
+                        : es
+                        ? `Agregar ${group.shortLabel.toLowerCase()}`
+                        : `Adicionar ${group.shortLabel.toLowerCase()}`}
                     </span>
                   </button>
                 )}
@@ -339,7 +361,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
           <div className="flex items-center justify-between text-xs font-bold text-brown-800">
             <span className="flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              Equilíbrio da marmitinha
+              {es ? "Equilibrio de la lonchera" : "Equilíbrio da marmitinha"}
             </span>
             <span className={balance.isBalanced ? "text-sage-600 font-bold" : "text-amber-600"}>
               {balance.scorePercent}%
@@ -359,7 +381,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
                     backgroundColor: g.color,
                   }}
                   className="h-full transition-all duration-300"
-                  title={`${g.label}: ${present ? "Presente" : "Faltando"}`}
+                  title={`${g.label}: ${present ? (es ? "Presente" : "Presente") : es ? "Falta" : "Faltando"}`}
                 />
               );
             })}
@@ -373,9 +395,11 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
       <div className="rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
         <div className="flex items-center justify-between">
           <h3 className="font-heading text-lg font-bold text-brown-800">
-            Banco de Itens para Lancheira
+            {es ? "Banco de Ítems para la Lonchera" : "Banco de Itens para Lancheira"}
           </h3>
-          <span className="text-xs text-brown-700/86">Toque ou arraste para a marmita</span>
+          <span className="text-xs text-brown-700/86">
+            {es ? "Toca o arrastra hacia la vianda" : "Toque ou arraste para a marmita"}
+          </span>
         </div>
 
         {/* Filter Pills */}
@@ -389,7 +413,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
                 : "bg-sage-50 text-brown-700 hover:bg-sage-100"
             }`}
           >
-            Todos ({LUNCHBOX_BANK.length})
+            {es ? `Todos (${LUNCHBOX_BANK.length})` : `Todos (${LUNCHBOX_BANK.length})`}
           </button>
           {LUNCHBOX_GROUPS.map((g) => (
             <button
@@ -443,14 +467,15 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
                   </p>
                   {item.allergens && (
                     <p className="mt-0.5 text-[11px] text-terracotta-600">
-                      Alérgeno: {item.allergens.join(", ")}
+                      {es ? "Alérgeno: " : "Alérgeno: "}
+                      {item.allergens.join(", ")}
                     </p>
                   )}
                 </div>
 
                 <div className="mt-2 flex items-center justify-between pt-1 border-t border-gray-50">
                   <span className="text-[11px] text-brown-700/82">
-                    {isAlreadyInDay ? "✓ Na marmita" : "+ Adicionar"}
+                    {isAlreadyInDay ? (es ? "✓ En la vianda" : "✓ Na marmita") : es ? "+ Agregar" : "+ Adicionar"}
                   </span>
                   <Plus className="h-3.5 w-3.5 text-amber-500 opacity-0 group-hover:opacity-100" />
                 </div>
@@ -473,10 +498,12 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             </span>
             <div>
               <h4 className="font-heading text-base font-bold text-brown-800">
-                Segurança Alimentar da Lancheira
+                {es ? "Seguridad Alimentaria de la Lonchera" : "Segurança Alimentar da Lancheira"}
               </h4>
               <p className="text-xs text-brown-700/90">
-                Tempo fora da geladeira, alimentos proibidos e alérgenos na creche
+                {es
+                  ? "Tiempo fuera de la heladera, alimentos prohibidos y alérgenos en la guardería"
+                  : "Tempo fora da geladeira, alimentos proibidos e alérgenos na creche"}
               </p>
             </div>
           </div>
@@ -492,15 +519,21 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             <div className="flex items-start gap-2 rounded-xl bg-white/70 p-3">
               <Thermometer className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
               <div>
-                <strong className="block text-brown-800">Tempo seguro sem geladeira</strong>
-                <p className="text-brown-700/80 mt-0.5">{getLunchboxSafetyClaimText("lb-safety-temperature-hours")}</p>
+                <strong className="block text-brown-800">
+                  {es ? "Tiempo seguro sin heladera" : "Tempo seguro sem geladeira"}
+                </strong>
+                <p className="text-brown-700/80 mt-0.5">
+                  {getLunchboxSafetyClaimText("lb-safety-temperature-hours", locale)}
+                </p>
               </div>
             </div>
 
             <div className="flex items-start gap-2 rounded-xl bg-white/70 p-3">
               <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
               <div>
-                <strong className="block text-brown-800">Não enviar sem refrigeração garantida</strong>
+                <strong className="block text-brown-800">
+                  {es ? "No enviar sin refrigeración garantizada" : "Não enviar sem refrigeração garantida"}
+                </strong>
                 <ul className="mt-1 list-disc pl-4 text-brown-700/80 space-y-0.5">
                   {LUNCHBOX_SAFETY_GUIDELINES.noFridgeFoods.map((f) => (
                     <li key={f}>{f}</li>
@@ -512,7 +545,9 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             <div className="flex items-start gap-2 rounded-xl bg-white/70 p-3">
               <ShieldAlert className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />
               <div>
-                <strong className="block text-brown-800">Política de alérgenos da creche</strong>
+                <strong className="block text-brown-800">
+                  {es ? "Política de alérgenos de la guardería" : "Política de alérgenos da creche"}
+                </strong>
                 <p className="text-brown-700/80 mt-0.5">{LUNCHBOX_SAFETY_GUIDELINES.allergySchoolNotice}</p>
               </div>
             </div>
@@ -520,8 +555,10 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             <div className="flex items-start gap-2 rounded-xl bg-white/70 p-3">
               <Info className="h-4 w-4 shrink-0 text-sage-600 mt-0.5" />
               <div>
-                <strong className="block text-brown-800">Atenção aos cortes</strong>
-                <p className="text-brown-700/80 mt-0.5">{getLunchboxSafetyClaimText("lb-safety-cut-round-foods")}</p>
+                <strong className="block text-brown-800">{es ? "Atención a los cortes" : "Atenção aos cortes"}</strong>
+                <p className="text-brown-700/80 mt-0.5">
+                  {getLunchboxSafetyClaimText("lb-safety-cut-round-foods", locale)}
+                </p>
               </div>
             </div>
           </div>
@@ -540,7 +577,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
           >
             <div className="flex items-center justify-between">
               <h3 className="font-heading text-lg font-bold text-brown-800">
-                Salvar Modelo de Marmita
+                {es ? "Guardar Modelo de Vianda" : "Salvar Modelo de Marmita"}
               </h3>
               <button
                 type="button"
@@ -552,7 +589,9 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             </div>
 
             <p className="mt-1 text-xs text-brown-700/90">
-              Dê um nome para reutilizar esta combinação em qualquer dia da semana.
+              {es
+                ? "Dale un nombre para reutilizar esta combinación en cualquier día de la semana."
+                : "Dê um nome para reutilizar esta combinação em qualquer dia da semana."}
             </p>
 
             <input
@@ -560,7 +599,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
               autoFocus
               value={templateNameInput}
               onChange={(e) => setTemplateNameInput(e.target.value)}
-              placeholder="Ex: Lancheira Rápida de Segunda"
+              placeholder={es ? "Ej: Lonchera Rápida del Lunes" : "Ex: Lancheira Rápida de Segunda"}
               className="mt-4 min-h-12 w-full rounded-2xl border border-amber-200 bg-amber-50/40 px-4 text-sm text-brown-800 outline-none focus:border-amber-500"
             />
 
@@ -570,14 +609,14 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
                 onClick={handleSaveTemplateSubmit}
                 className="min-h-12 w-full rounded-2xl bg-amber-500 text-sm font-bold text-white shadow-sm active:bg-amber-600"
               >
-                Salvar Modelo
+                {es ? "Guardar Modelo" : "Salvar Modelo"}
               </button>
               <button
                 type="button"
                 onClick={() => setTemplateModalOpen(false)}
                 className="min-h-10 text-xs font-semibold text-brown-700"
               >
-                Cancelar
+                {es ? "Cancelar" : "Cancelar"}
               </button>
             </div>
           </div>

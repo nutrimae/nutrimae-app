@@ -10,12 +10,12 @@ import { useToast } from "@/components/toast-provider";
 import { BackButton } from "@/components/back-button";
 import { getAllergenChecklist } from "@/lib/allergen-checklist";
 import {
-  DIARY_FOODS,
-  FOOD_CATEGORY_LABEL,
   TOTAL_DIARY_FOODS,
   REACTION_EMOJI,
-  REACTION_LABEL,
-  MILESTONES,
+  getDiaryFoods,
+  getFoodCategoryLabel,
+  getReactionLabel,
+  getMilestones,
   type Reaction,
   type FoodCategory,
   type DiaryFood,
@@ -30,25 +30,16 @@ interface LogEntry {
 
 const CATEGORY_ORDER: FoodCategory[] = ["frutas", "legumes", "proteinas", "cereais"];
 
-const CATEGORY_LABEL_ES: Record<FoodCategory, string> = {
-  frutas: "Frutas",
-  legumes: "Verduras y hortalizas",
-  proteinas: "Proteínas",
-  cereais: "Cereales y granos",
-};
-
-const REACTION_LABEL_ES: Record<Reaction, string> = {
-  gostou: "Le gustó",
-  neutro: "Neutro",
-  nao_gostou: "No le gustó",
-};
-
 export function DiarioContent() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const { showToast } = useToast();
   const { locale } = useLocale();
   const es = locale === "es";
+  const DIARY_FOODS = useMemo(() => getDiaryFoods(locale), [locale]);
+  const FOOD_CATEGORY_LABEL = useMemo(() => getFoodCategoryLabel(locale), [locale]);
+  const REACTION_LABEL = useMemo(() => getReactionLabel(locale), [locale]);
+  const MILESTONES = useMemo(() => getMilestones(locale), [locale]);
 
   const [log, setLog] = useState<Record<string, LogEntry>>({});
   const [milestones, setMilestones] = useState<Record<string, string>>({});
@@ -290,7 +281,7 @@ export function DiarioContent() {
       {CATEGORY_ORDER.map((category) => (
         <div key={category}>
           <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
-            {es ? CATEGORY_LABEL_ES[category] : FOOD_CATEGORY_LABEL[category]}
+            {FOOD_CATEGORY_LABEL[category]}
           </h2>
           <div className="grid grid-cols-2 gap-2">
             {DIARY_FOODS.filter((f) => f.category === category).map((food) => {
@@ -359,6 +350,7 @@ export function DiarioContent() {
           onClose={() => setRegistering(null)}
           onSave={saveLogEntry}
           es={es}
+          reactionLabel={REACTION_LABEL}
         />
       )}
     </main>
@@ -371,12 +363,14 @@ function RegisterFoodSheet({
   onClose,
   onSave,
   es,
+  reactionLabel,
 }: {
   food: DiaryFood;
   existing?: LogEntry;
   onClose: () => void;
   onSave: (food: DiaryFood, reaction: Reaction, photoFile: File | null) => Promise<void>;
   es: boolean;
+  reactionLabel: Record<Reaction, string>;
 }) {
   const [reaction, setReaction] = useState<Reaction>(existing?.reaction ?? "gostou");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -403,7 +397,7 @@ function RegisterFoodSheet({
 
         <p className="mb-2 text-sm font-semibold text-brown-700">{es ? "¿Cómo fue la reacción?" : "Como foi a reação?"}</p>
         <div className="mb-4 flex gap-2">
-          {(Object.keys(REACTION_LABEL) as Reaction[]).map((r) => (
+          {(Object.keys(reactionLabel) as Reaction[]).map((r) => (
             <button
               key={r}
               type="button"
@@ -413,7 +407,7 @@ function RegisterFoodSheet({
               }`}
             >
               <span className="text-xl">{REACTION_EMOJI[r]}</span>
-              {es ? REACTION_LABEL_ES[r] : REACTION_LABEL[r]}
+              {reactionLabel[r]}
             </button>
           ))}
         </div>

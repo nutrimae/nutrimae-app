@@ -102,7 +102,7 @@ export default async function ObrigadoPage({
       <IconAvatar3D src="/images/illustrations/icon-star.webp" size="xl" />
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-900">¡Pago confirmado!</h1>
-        <p className="mt-2 text-sm text-brown-700/86">Seu acesso já foi liberado. Confira seu e-mail para os próximos passos.</p>
+        <p className="mt-2 text-sm text-brown-700/86">Tu acceso ya fue liberado. Revisa tu correo para los próximos pasos.</p>
       </div>
       <Link
         href={`/upsell?orderId=${order.id}`}

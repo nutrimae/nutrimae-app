@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ShieldCheck, Loader2, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Loader2 } from "lucide-react";
+import { IconAvatar3D } from "@/components/ui/icon-avatar-3d";
 import { CheckoutTestimonials } from "@/components/checkout-testimonials";
 import { CheckoutTrustFooter } from "@/components/checkout-trust-footer";
 
@@ -100,12 +101,17 @@ export function RebillCheckout({
 
   if (status === "granted") {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
-        <CheckCircle2 className="h-14 w-14 text-sage-500" strokeWidth={1.5} />
-        <h1 className="font-heading text-2xl font-bold text-brown-900">¡Pago confirmado!</h1>
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-5 px-4 text-center">
+        <IconAvatar3D src="/images/illustrations/icon-star.webp" size="xl" />
+        <div className="flex flex-col gap-2">
+          <h1 className="font-heading text-2xl font-bold text-brown-900">¡Pago confirmado!</h1>
+          <p className="font-heading text-lg font-bold text-primary-600">
+            Tu tranquilidad ya te espera en tu correo.
+          </p>
+        </div>
         <p className="text-sm text-brown-700/86">
-          Gracias por confiar en NutriMãe. En los próximos minutos vas a recibir un correo con las instrucciones
-          para acceder a tu cuenta.
+          Te enviamos un email con el enlace para crear tu contraseña y entrar a NutriMãe.
+          Puede tardar unos minutos — si no lo ves, revisa también la carpeta de spam.
         </p>
       </main>
     );

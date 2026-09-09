@@ -9,7 +9,7 @@ export default function PoliticaPrivacidadePage() {
         className="flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-        Voltar
+        Volver
       </Link>
 
       <div className="flex items-center gap-3">
@@ -17,63 +17,64 @@ export default function PoliticaPrivacidadePage() {
           <ShieldCheck className="h-6 w-6 text-sage-600" strokeWidth={2} />
         </div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Política de Privacidade
+          Política de Privacidad
         </h1>
       </div>
 
       <div className="flex flex-col gap-4 text-brown-800">
         <p>
-          O NutriMãe leva a sério a privacidade da sua família e trata seus dados em
-          conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).
+          En NutriMãe nos tomamos en serio la privacidad de tu familia y tratamos tus datos
+          conforme a la Ley N° 21.719 sobre Protección de Datos Personales de Chile y a las
+          demás leyes de protección de datos aplicables en tu país.
         </p>
 
         <section>
           <h2 className="font-heading text-lg font-bold text-brown-800">
-            Quais dados coletamos
+            Qué datos recopilamos
           </h2>
           <p className="mt-1">
-            Dados de cadastro (e-mail), dados do bebê que você opta por informar (nome,
-            data de nascimento, foto opcional) e registros de uso do app, como itens do
-            cardápio, alimentos experimentados e mensagens de suporte.
+            Datos de registro (correo electrónico), datos de tu bebé que decidas informar
+            (nombre, fecha de nacimiento, foto opcional) y registros de uso de la app, como
+            elementos del menú, alimentos probados y mensajes de soporte.
           </p>
         </section>
 
         <section>
           <h2 className="font-heading text-lg font-bold text-brown-800">
-            Como usamos seus dados
+            Cómo usamos tus datos
           </h2>
           <p className="mt-1">
-            Usamos esses dados exclusivamente para personalizar o conteúdo do app para a
-            fase do seu bebê e para dar suporte a você. Não vendemos nem compartilhamos
-            dados do seu bebê com terceiros para fins de marketing.
+            Usamos esos datos exclusivamente para personalizar el contenido de la app según
+            la etapa de tu bebé y para brindarte soporte. No vendemos ni compartimos los
+            datos de tu bebé con terceros con fines de marketing.
           </p>
         </section>
 
         <section>
           <h2 className="font-heading text-lg font-bold text-brown-800">
-            Onde seus dados ficam guardados
+            Dónde se guardan tus datos
           </h2>
           <p className="mt-1">
-            As informações são armazenadas de forma segura, com controle de acesso restrito
-            à sua própria conta (cada mãe só acessa os dados dos seus próprios bebês).
-            Fotos são guardadas em armazenamento privado, nunca públicas.
+            La información se almacena de forma segura, con control de acceso restringido a
+            tu propia cuenta (cada mamá solo accede a los datos de sus propios bebés). Las
+            fotos se guardan en almacenamiento privado, nunca de forma pública.
           </p>
         </section>
 
         <section>
-          <h2 className="font-heading text-lg font-bold text-brown-800">Seus direitos</h2>
+          <h2 className="font-heading text-lg font-bold text-brown-800">Tus derechos</h2>
           <p className="mt-1">
-            Você pode editar ou apagar os dados do seu bebê a qualquer momento em Perfil e
-            configurações, e pode solicitar a exclusão completa da sua conta pelo Canal de
-            Suporte.
+            Puedes editar o eliminar los datos de tu bebé en cualquier momento desde Perfil
+            y configuración, y puedes solicitar la eliminación completa de tu cuenta a
+            través del Canal de Soporte.
           </p>
         </section>
 
         <section>
-          <h2 className="font-heading text-lg font-bold text-brown-800">Dúvidas</h2>
+          <h2 className="font-heading text-lg font-bold text-brown-800">Dudas</h2>
           <p className="mt-1">
-            Para qualquer dúvida sobre privacidade ou tratamento de dados, fale com a gente
-            pelo Canal de Suporte dentro do app.
+            Para cualquier duda sobre privacidad o tratamiento de datos, escríbenos por el
+            Canal de Soporte dentro de la app.
           </p>
         </section>
       </div>

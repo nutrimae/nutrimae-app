@@ -25,6 +25,7 @@ export function RebillCheckout({
   const [status, setStatus] = useState<"idle" | "verifying" | "granted" | "failed">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
+  const [formReady, setFormReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,11 +76,20 @@ export function RebillCheckout({
       setStatus("failed");
     }
 
+    function onReady() {
+      // O "ready" dispara assim que o componente termina de montar a sessão,
+      // mas o iframe dos campos do cartão ainda leva um instante para pintar
+      // — sem essa folga o skeleton some antes dos campos aparecerem.
+      setTimeout(() => setFormReady(true), 400);
+    }
+
     el.addEventListener("success", onSuccess);
     el.addEventListener("error", onError);
+    el.addEventListener("ready", onReady);
     return () => {
       el.removeEventListener("success", onSuccess);
       el.removeEventListener("error", onError);
+      el.removeEventListener("ready", onReady);
     };
   }, [sdkReady, status]);
 
@@ -129,15 +139,23 @@ export function RebillCheckout({
               <p className="text-sm text-brown-700/86">Cargando formulario de pago...</p>
             </div>
           ) : (
-            <rebill-checkout
-              ref={ref}
-              key={plan}
-              public-key={process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY}
-              instant-product={instantProduct}
-              language="es"
-              display={JSON.stringify({ logo: false, footer: true, sandboxMode: true, excludePaymentMethods: ["bank_transfer", "cash"] })}
-              customer-information={JSON.stringify({ phoneNumber: { countryCode: "CL" } })}
-            />
+            <div className="relative">
+              {!formReady && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center gap-3 bg-white py-8 text-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
+                  <p className="text-sm text-brown-700/86">Cargando formulario de pago...</p>
+                </div>
+              )}
+              <rebill-checkout
+                ref={ref}
+                key={plan}
+                public-key={process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY}
+                instant-product={instantProduct}
+                language="es"
+                display={JSON.stringify({ logo: false, footer: true, sandboxMode: true, excludePaymentMethods: ["bank_transfer", "cash"] })}
+                customer-information={JSON.stringify({ phoneNumber: { countryCode: "CL" } })}
+              />
+            </div>
           )}
 
           {status === "failed" && errorMessage && (

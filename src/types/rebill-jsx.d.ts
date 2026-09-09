@@ -9,6 +9,7 @@ type RebillCheckoutProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLEl
   display?: string;
   css?: string;
   "customer-information"?: string;
+  "one-click-checkout"?: string;
 };
 
 declare module "react" {

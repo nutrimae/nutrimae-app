@@ -157,6 +157,7 @@ export function RebillCheckout({
                 public-key={process.env.NEXT_PUBLIC_REBILL_PUBLIC_KEY}
                 instant-product={instantProduct}
                 language="es"
+                one-click-checkout="false"
                 display={JSON.stringify({ logo: false, footer: true, sandboxMode: true, excludePaymentMethods: ["bank_transfer", "cash"] })}
                 customer-information={JSON.stringify({ phoneNumber: { countryCode: "CL" } })}
               />

@@ -478,7 +478,7 @@ const LUNCHBOX_SAFETY_CLAIMS_ES: LunchboxSafetyClaim[] = [
     id: "lb-safety-temperature-hours",
     text: "Hasta 3 horas en bolsa térmica con gel refrigerante reutilizable",
     fallbackText:
-      "El tiempo máximo seguro fuera de la heladera está en revisión — por ahora, mantén refrigerado hasta la hora de salir y lleva la lonchera lo más cerca posible del horario de consumo.",
+      "El tiempo máximo seguro fuera del refrigerador está en revisión — por ahora, mantén refrigerado hasta la hora de salir y lleva la lonchera lo más cerca posible del horario de consumo.",
     revisao: "pendente",
     prioridadeRevisao: "alta",
   },

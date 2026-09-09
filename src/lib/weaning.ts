@@ -118,7 +118,7 @@ export const WEANING_WEEKS: WeaningWeek[] = [
 export const WEANING_WEEKS_ES: WeaningWeek[] = [
   { key: "week-1", title: "Semana 1: La Preparación", subtitle: "Observar la rutina y elegir la primera mamada a reducir" },
   { key: "week-2", title: "Semana 2: La Reducción", subtitle: "Disminuir el tiempo de mamada nocturna, un poco cada día" },
-  { key: "week-3", title: "Semana 3: La Consolidación", subtitle: "Afirmar la nueva rutina de sueño sin el pecho" },
+  { key: "week-3", title: "Semana 3: La Consolidación", subtitle: "Consolidar la nueva rutina de sueño sin el pecho" },
 ];
 
 export function getWeaningWeeks(locale: Locale = "pt-BR"): WeaningWeek[] {

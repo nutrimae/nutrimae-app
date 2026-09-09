@@ -157,7 +157,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             🍱
           </span>
           <h2 className="font-heading text-xl font-bold text-brown-800">
-            {es ? "Lonchera de Guardería y Vianda" : "Lanchinho de Creche & Marmita"}
+            {es ? "Lonchera de Jardín y Colegio" : "Lanchinho de Creche & Marmita"}
           </h2>
         </div>
         <p className="mt-1 text-sm text-brown-700">
@@ -243,7 +243,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold text-brown-800">
-              {es ? "Vianda de " : "Marmita de "}
+              {es ? "Lonchera de " : "Marmita de "}
               {DAYS.find((d) => d.key === selectedDay)?.label}
             </span>
           </div>
@@ -398,7 +398,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
             {es ? "Banco de Ítems para la Lonchera" : "Banco de Itens para Lancheira"}
           </h3>
           <span className="text-xs text-brown-700/86">
-            {es ? "Toca o arrastra hacia la vianda" : "Toque ou arraste para a marmita"}
+            {es ? "Toca o arrastra hacia la lonchera" : "Toque ou arraste para a marmita"}
           </span>
         </div>
 
@@ -502,7 +502,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
               </h4>
               <p className="text-xs text-brown-700/90">
                 {es
-                  ? "Tiempo fuera de la heladera, alimentos prohibidos y alérgenos en la guardería"
+                  ? "Tiempo fuera del refrigerador, alimentos prohibidos y alérgenos en la guardería"
                   : "Tempo fora da geladeira, alimentos proibidos e alérgenos na creche"}
               </p>
             </div>
@@ -520,7 +520,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
               <Thermometer className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
               <div>
                 <strong className="block text-brown-800">
-                  {es ? "Tiempo seguro sin heladera" : "Tempo seguro sem geladeira"}
+                  {es ? "Tiempo seguro sin refrigerador" : "Tempo seguro sem geladeira"}
                 </strong>
                 <p className="text-brown-700/80 mt-0.5">
                   {getLunchboxSafetyClaimText("lb-safety-temperature-hours", locale)}
@@ -577,7 +577,7 @@ export function LunchboxPlanner({ babyId, babyName }: LunchboxPlannerProps) {
           >
             <div className="flex items-center justify-between">
               <h3 className="font-heading text-lg font-bold text-brown-800">
-                {es ? "Guardar Modelo de Vianda" : "Salvar Modelo de Marmita"}
+                {es ? "Guardar Modelo de Lonchera" : "Salvar Modelo de Marmita"}
               </h3>
               <button
                 type="button"

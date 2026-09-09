@@ -1068,7 +1068,7 @@ export const FOODS_ES: FoodItem[] = [
       "10-12": "NO ofrecer — riesgo de seguridad alto, la semilla tiene espinas internas.",
       "13-24": "SOLO la pulpa raspada con cuchara alrededor de la semilla. NUNCA morder, roer o romper la semilla — tiene espinas internas que perforan la boca y la garganta.",
     },
-    warning: "⚠️ RIESGO ALTO DE SEGURIDAD: la semilla del pequi contiene miles de espinas finísimas por dentro. NUNCA morder, roer o romper la semilla. La pulpa debe raspar-se con cuidado con una cuchara, sin tocar las espinas. Ofrécelo solo a niños mayores de 13 meses, con supervisión constante y preparación exclusiva de un adulto.",
+    warning: "⚠️ RIESGO ALTO DE SEGURIDAD: la semilla del pequi contiene miles de espinas finísimas por dentro. NUNCA morder, roer o romper la semilla. La pulpa debe rasparse con cuidado con una cuchara, sin tocar las espinas. Ofrécelo solo a niños mayores de 13 meses, con supervisión constante y preparación exclusiva de un adulto.",
     revisao: "pendente",
     prioridadeRevisao: "alta",
     minAgeMonths: 13,

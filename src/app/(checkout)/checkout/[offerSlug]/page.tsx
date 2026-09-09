@@ -58,7 +58,7 @@ export default async function CheckoutOfferPage({
     <main className="min-h-dvh bg-cream pb-10">
       <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-primary-50 px-4 py-2.5 text-center text-xs font-semibold text-primary-700">
         <ShieldCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
-        Pagamento processado com segurança · acesso liberado assim que a compra é confirmada
+        Pago procesado con seguridad · acceso liberado apenas se confirme la compra
       </div>
 
       <div className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 pt-8">
@@ -88,14 +88,14 @@ export default async function CheckoutOfferPage({
                 {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </span>
               <span className="text-sm font-semibold text-brown-700/86">
-                no 1º ciclo
+                en el 1º ciclo
                 {offer.recurring_price_cents != null && offer.recurring_price_cents !== offer.price_cents
-                  ? `, depois ${(offer.recurring_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mês`
-                  : "/mês"}
+                  ? `, luego ${(offer.recurring_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mes`
+                  : "/mes"}
               </span>
             </p>
             {offerSlug === "nutrimae-mensal" && (
-              <p className="mt-1 text-sm font-medium text-sage-600">Pix ou cartão — renovação automática só no cartão</p>
+              <p className="mt-1 text-sm font-medium text-sage-600">Tarjeta — renovación automática</p>
             )}
           </div>
         )}

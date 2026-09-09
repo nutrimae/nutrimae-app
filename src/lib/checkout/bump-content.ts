@@ -11,5 +11,5 @@ export const BUMP_IMAGES: Record<string, string> = {
 };
 
 export const BUMP_DESCRIPTIONS: Record<string, string> = {
-  "batch-cooking": "Cozinhe a semana inteira em uma hora só. Método de porcionamento, tabela de validade e etiquetas pra imprimir.",
+  "batch-cooking": "Cocina toda la semana en solo una hora. Método de porcionamiento, tabla de validez y etiquetas para imprimir.",
 };

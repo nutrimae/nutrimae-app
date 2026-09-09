@@ -44,7 +44,7 @@ export function VipUpsellCheckout({
     setError(null);
 
     if (!billingAddress.line1 || billingAddress.zipCode.replace(/\D/g, "").length !== 8 || !billingAddress.city || !billingAddress.state) {
-      setError("Confira o endereço de cobrança do cartão antes de continuar.");
+      setError("Revisa la dirección de facturación de la tarjeta antes de continuar.");
       return;
     }
 
@@ -72,14 +72,14 @@ export function VipUpsellCheckout({
       });
 
       if (!res.ok) {
-        setError("Não conseguimos processar a assinatura agora. Confira os dados do cartão ou tente de novo.");
+        setError("No pudimos procesar la suscripción ahora. Revisa los datos de la tarjeta o intenta de nuevo.");
         setLoading(false);
         return;
       }
 
       router.push("/app");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo deu errado. Tente de novo.");
+      setError(err instanceof Error ? err.message : "Algo salió mal. Intenta de nuevo.");
       setLoading(false);
     }
   }
@@ -87,8 +87,8 @@ export function VipUpsellCheckout({
   return (
     <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
       <div className="flex flex-col gap-3">
-        <Input placeholder="Número do cartão" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-        <Input placeholder="Nome impresso no cartão" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
+        <Input placeholder="Número de la tarjeta" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+        <Input placeholder="Nombre impreso en la tarjeta" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
         <div className="flex gap-2">
           <Input className="w-1/3" placeholder="MM" value={cardExpMonth} onChange={(e) => setCardExpMonth(e.target.value)} />
           <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
@@ -105,15 +105,15 @@ export function VipUpsellCheckout({
         disabled={loading}
         className="flex min-h-16 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 text-lg font-bold text-white shadow-[0_8px_24px_var(--color-primary-glow)] transition-transform active:scale-[0.98] disabled:opacity-60"
       >
-        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : `SIM! Quero o NutriBot VIP por ${formatBRL(recurringPriceCents)}/mês`}
+        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : `¡SÍ! Quiero el NutriBot VIP por ${formatBRL(recurringPriceCents)}/mes`}
       </button>
 
       <button type="button" onClick={handleDecline} className="mx-auto text-sm text-brown-700/60 underline">
-        Não, obrigada. Continuar sem o NutriBot VIP.
+        No, gracias. Continuar sin el NutriBot VIP.
       </button>
 
       <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pagamento seguro · cancele quando quiser
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pago seguro · cancela cuando quieras
       </p>
     </div>
   );

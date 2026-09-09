@@ -77,7 +77,7 @@ export function SubscriptionCheckoutForm({
   const chargedNowCents = offer.priceCents + bumpTotal;
 
   const documentDigits = document.replace(/\D/g, "");
-  const documentError = documentTouched && documentDigits.length === 11 && !isValidCpf(documentDigits) ? "CPF inválido — confira os números." : null;
+  const documentError = documentTouched && documentDigits.length === 11 && !isValidCpf(documentDigits) ? "CPF inválido — revisa los números." : null;
 
   function toggleBump(slug: string) {
     setSelectedBumps((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
@@ -94,7 +94,7 @@ export function SubscriptionCheckoutForm({
       }
       if (data.status === "expired" || data.status === "refused") {
         clearInterval(interval);
-        setError("O Pix expirou ou não foi confirmado. Gere um novo pagamento.");
+        setError("El Pix expiró o no fue confirmado. Genera un nuevo pago.");
         setPix(null);
       }
     }, 4000);
@@ -106,7 +106,7 @@ export function SubscriptionCheckoutForm({
       setPixCopied(true);
       setTimeout(() => setPixCopied(false), 2000);
     } catch {
-      setError("Não foi possível copiar automaticamente. Selecione e copie o código abaixo.");
+      setError("No fue posible copiar automáticamente. Selecciona y copia el código abajo.");
     }
   }
 
@@ -115,7 +115,7 @@ export function SubscriptionCheckoutForm({
 
     if (documentDigits.length !== 11 || !isValidCpf(documentDigits)) {
       setDocumentTouched(true);
-      setError("Confira o CPF antes de continuar.");
+      setError("Revisa el CPF antes de continuar.");
       return;
     }
 
@@ -123,12 +123,12 @@ export function SubscriptionCheckoutForm({
       paymentMethod === "credit_card" &&
       (!billingAddress.line1 || billingAddress.zipCode.replace(/\D/g, "").length !== 8 || !billingAddress.city || !billingAddress.state)
     ) {
-      setError("Confira o endereço de cobrança do cartão antes de continuar.");
+      setError("Revisa la dirección de facturación de la tarjeta antes de continuar.");
       return;
     }
 
     if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !turnstileToken) {
-      setError("Confirme que você não é um robô antes de continuar.");
+      setError("Confirma que no eres un robot antes de continuar.");
       return;
     }
 
@@ -158,8 +158,8 @@ export function SubscriptionCheckoutForm({
         if (!res.ok) {
           setError(
             data.error === "bot_verification_failed"
-              ? "Não conseguimos confirmar que você não é um robô. Atualize a página e tente de novo."
-              : "Não conseguimos gerar o Pix agora. Tente de novo em instantes.",
+              ? "No pudimos confirmar que no eres un robot. Actualiza la página e intenta de nuevo."
+              : "No pudimos generar el Pix ahora. Intenta de nuevo en unos instantes.",
           );
           setLoading(false);
           return;
@@ -168,7 +168,7 @@ export function SubscriptionCheckoutForm({
         setPix({ orderId: data.orderId, qrCode: data.pix.qrCode, qrCodeUrl: data.pix.qrCodeUrl, expiresAt: data.pix.expiresAt });
         pollPixStatus(data.orderId, data.statusToken);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Algo deu errado. Tente de novo.");
+        setError(err instanceof Error ? err.message : "Algo salió mal. Intenta de nuevo.");
         setLoading(false);
       }
       return;
@@ -202,8 +202,8 @@ export function SubscriptionCheckoutForm({
       if (!res.ok) {
         setError(
           data.error === "bot_verification_failed"
-            ? "Não conseguimos confirmar que você não é um robô. Atualize a página e tente de novo."
-            : "Não conseguimos processar sua assinatura agora. Tente de novo em instantes.",
+            ? "No pudimos confirmar que no eres un robot. Actualiza la página e intenta de nuevo."
+            : "No pudimos procesar tu suscripción ahora. Intenta de nuevo en unos instantes.",
         );
         setLoading(false);
         return;
@@ -211,7 +211,7 @@ export function SubscriptionCheckoutForm({
 
       router.push(`/checkout/obrigado?subscriptionId=${data.subscriptionId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo deu errado. Tente de novo.");
+      setError(err instanceof Error ? err.message : "Algo salió mal. Intenta de nuevo.");
       setLoading(false);
     }
   }
@@ -223,14 +223,14 @@ export function SubscriptionCheckoutForm({
           <QrCode className="h-7 w-7" strokeWidth={1.75} />
         </span>
         <div>
-          <p className="font-heading text-lg font-bold text-brown-900">Escaneie pra pagar</p>
-          <p className="mt-1 text-sm text-brown-700/86">Abra o app do seu banco e escaneie o QR Code, ou copie o código Pix abaixo.</p>
+          <p className="font-heading text-lg font-bold text-brown-900">Escanea para pagar</p>
+          <p className="mt-1 text-sm text-brown-700/86">Abre la app de tu banco y escanea el código QR, o copia el código Pix abajo.</p>
         </div>
 
         {pix.qrCodeUrl ? (
           <div className="rounded-2xl border-2 border-sage-100 bg-white p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={pix.qrCodeUrl} alt="QR Code Pix" className="h-48 w-48" />
+            <img src={pix.qrCodeUrl} alt="Código QR Pix" className="h-48 w-48" />
           </div>
         ) : null}
 
@@ -240,19 +240,19 @@ export function SubscriptionCheckoutForm({
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-sage-100/80 bg-sage-50 px-4 text-sm font-semibold text-sage-700 transition-transform active:scale-[0.98]"
         >
           {pixCopied ? <Check className="h-4 w-4" strokeWidth={2.5} /> : <Copy className="h-4 w-4" strokeWidth={2} />}
-          {pixCopied ? "Código copiado!" : "Copiar código Pix"}
+          {pixCopied ? "¡Código copiado!" : "Copiar código Pix"}
         </button>
         <textarea readOnly value={pix.qrCode} className="w-full resize-none rounded-2xl border-2 border-sage-100/80 bg-white/80 p-3 text-xs text-brown-700/70" rows={2} />
 
         <PixCountdown
           expiresAt={pix.expiresAt}
           onExpire={() => {
-            setError("O Pix expirou. Gere um novo pagamento.");
+            setError("El Pix expiró. Genera un nuevo pago.");
             setPix(null);
           }}
         />
         <p className="flex items-center gap-2 text-xs text-brown-700/70">
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-500" /> Aguardando confirmação do pagamento...
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-500" /> Esperando la confirmación del pago...
         </p>
       </div>
     );
@@ -262,7 +262,7 @@ export function SubscriptionCheckoutForm({
     <div className="flex flex-col gap-5 rounded-[24px] bg-white p-5 shadow-strong">
       {bumps.length > 0 && (
         <div className="flex flex-col gap-2.5 border-b border-sage-100/80 pb-5">
-          <p className="font-heading text-sm font-bold text-brown-900">Aproveite e leve também:</p>
+          <p className="font-heading text-sm font-bold text-brown-900">Aprovecha y lleva también:</p>
           {bumps.map((bump) => {
             const selected = selectedBumps.includes(bump.slug);
             return (
@@ -303,23 +303,23 @@ export function SubscriptionCheckoutForm({
           })}
           {selectedBumps.length > 0 && (
             <p className="text-xs text-brown-700/70">
-              Pagamento único, cobrado uma vez só junto com o 1º ciclo — nunca entra na sua mensalidade.
+              Pago único, cobrado una sola vez junto con el 1er ciclo — nunca entra en tu mensualidad.
             </p>
           )}
         </div>
       )}
 
       <div className="flex flex-col gap-3">
-        <Input placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} />
-        <Input placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input placeholder="Nombre completo" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input placeholder="Correo electrónico" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <Input
-          placeholder="CPF (só números)"
+          placeholder="CPF (solo números)"
           value={document}
           onChange={(e) => setDocument(e.target.value)}
           onBlur={() => setDocumentTouched(true)}
           error={documentError ?? undefined}
         />
-        <Input placeholder="Telefone (com DDD)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Input placeholder="Teléfono" value={phone} onChange={(e) => setPhone(e.target.value)} />
       </div>
 
       {allowPix ? (
@@ -340,26 +340,26 @@ export function SubscriptionCheckoutForm({
               paymentMethod === "credit_card" ? "bg-white text-primary-600 shadow-subtle" : "text-brown-700/70"
             }`}
           >
-            <CreditCard className="h-4 w-4" /> Cartão
+            <CreditCard className="h-4 w-4" /> Tarjeta
           </button>
         </div>
       ) : (
         <div className="flex items-center gap-2 rounded-2xl bg-primary-50 p-3 text-sm font-semibold text-primary-600">
-          <CreditCard className="h-4 w-4" /> Cartão de crédito (obrigatório para assinatura)
+          <CreditCard className="h-4 w-4" /> Tarjeta de crédito (obligatoria para la suscripción)
         </div>
       )}
 
       {paymentMethod === "pix" && allowPix && (
         <p className="text-xs text-brown-700/70">
-          No Pix, esse pagamento cobre só o 1º mês — a renovação não é automática. Pra manter o acesso todo mês sem
-          precisar pagar de novo, escolha Cartão.
+          Con Pix, este pago cubre solo el 1er mes — la renovación no es automática. Para mantener el acceso cada
+          mes sin tener que pagar de nuevo, elige Tarjeta.
         </p>
       )}
 
       {paymentMethod === "credit_card" && (
         <div className="flex flex-col gap-3">
-          <Input placeholder="Número do cartão" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-          <Input placeholder="Nome impresso no cartão" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
+          <Input placeholder="Número de la tarjeta" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+          <Input placeholder="Nombre impreso en la tarjeta" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
           <div className="flex gap-2">
             <Input className="w-1/3" placeholder="MM" value={cardExpMonth} onChange={(e) => setCardExpMonth(e.target.value)} />
             <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
@@ -379,17 +379,17 @@ export function SubscriptionCheckoutForm({
             De <span className="font-bold text-red-500 line-through">{formatBRL(offer.recurringPriceCents)}</span> por
           </p>
           <p className="mt-0.5 font-heading text-3xl font-extrabold text-primary-600">{formatBRL(chargedNowCents)}</p>
-          <p className="mt-0.5 text-sm font-bold text-brown-700">no 1º mês, depois {formatBRL(offer.recurringPriceCents)}/mês</p>
+          <p className="mt-0.5 text-sm font-bold text-brown-700">en el 1er mes, luego {formatBRL(offer.recurringPriceCents)}/mes</p>
         </div>
       ) : (
         <div className="flex items-center justify-between rounded-2xl bg-cream px-4 py-3">
-          <span className="text-sm font-semibold text-brown-700/86">Cobrado agora</span>
+          <span className="text-sm font-semibold text-brown-700/86">Cobrado ahora</span>
           <span className="font-heading text-xl font-extrabold text-brown-900">{formatBRL(chargedNowCents)}</span>
         </div>
       )}
 
       <p className="text-center text-xs font-medium text-sage-600">
-        {paymentMethod === "credit_card" ? "Cancele quando quiser, sem multa." : "Pagamento único desse ciclo, no Pix."}
+        {paymentMethod === "credit_card" ? "Cancela cuando quieras, sin penalidad." : "Pago único de este ciclo, con Pix."}
       </p>
 
       <button
@@ -401,14 +401,14 @@ export function SubscriptionCheckoutForm({
         {loading ? (
           <Loader2 className="h-5 w-5 animate-spin" />
         ) : paymentMethod === "pix" ? (
-          `Gerar Pix — ${formatBRL(chargedNowCents)}`
+          `Generar Pix — ${formatBRL(chargedNowCents)}`
         ) : (
-          `Assinar agora — ${formatBRL(chargedNowCents)}`
+          `Suscribirme ahora — ${formatBRL(chargedNowCents)}`
         )}
       </button>
 
       <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pagamento seguro · dados protegidos
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pago seguro · datos protegidos
       </p>
     </div>
   );

@@ -33,7 +33,7 @@ export default async function ObrigadoPage({
     if (!subscription) {
       return (
         <main className="flex min-h-dvh items-center justify-center bg-cream px-4">
-          <p className="text-center text-sm text-brown-700/86">Assinatura não encontrada.</p>
+          <p className="text-center text-sm text-brown-700/86">Suscripción no encontrada.</p>
         </main>
       );
     }
@@ -43,7 +43,7 @@ export default async function ObrigadoPage({
         <main className="flex min-h-dvh items-center justify-center bg-cream px-4">
           <div className="flex flex-col items-center gap-3 text-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-            <p className="text-sm text-brown-700/86">Ainda estamos confirmando sua assinatura.</p>
+            <p className="text-sm text-brown-700/86">Todavía estamos confirmando tu suscripción.</p>
           </div>
         </main>
       );
@@ -56,8 +56,8 @@ export default async function ObrigadoPage({
         {subscriptionOffer && <PurchasePixel eventId={subscription.id} valueCents={subscriptionOffer.price_cents} />}
         <IconAvatar3D src="/images/illustrations/icon-star.webp" size="xl" />
         <div>
-          <h1 className="font-heading text-2xl font-bold text-brown-900">Assinatura confirmada!</h1>
-          <p className="mt-2 text-sm text-brown-700/86">Seu acesso já foi liberado. Confira seu e-mail para os próximos passos.</p>
+          <h1 className="font-heading text-2xl font-bold text-brown-900">¡Suscripción confirmada!</h1>
+          <p className="mt-2 text-sm text-brown-700/86">Tu acceso ya fue liberado. Revisa tu correo para los próximos pasos.</p>
         </div>
         <Link
           href={`/upsell?subscriptionId=${subscription.id}`}
@@ -76,7 +76,7 @@ export default async function ObrigadoPage({
   if (!order) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-cream px-4">
-        <p className="text-center text-sm text-brown-700/86">Pedido não encontrado.</p>
+        <p className="text-center text-sm text-brown-700/86">Pedido no encontrado.</p>
       </main>
     );
   }
@@ -88,8 +88,8 @@ export default async function ObrigadoPage({
           <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
           <p className="text-sm text-brown-700/86">
             {order.payment_method === "pix"
-              ? "Ainda estamos confirmando seu Pix. Isso pode levar alguns instantes."
-              : "Ainda estamos confirmando seu pagamento."}
+              ? "Todavía estamos confirmando tu Pix. Esto puede tomar unos instantes."
+              : "Todavía estamos confirmando tu pago."}
           </p>
         </div>
       </main>
@@ -101,7 +101,7 @@ export default async function ObrigadoPage({
       <PurchasePixel eventId={order.id} valueCents={order.amount_cents} />
       <IconAvatar3D src="/images/illustrations/icon-star.webp" size="xl" />
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-900">Pagamento confirmado!</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-900">¡Pago confirmado!</h1>
         <p className="mt-2 text-sm text-brown-700/86">Seu acesso já foi liberado. Confira seu e-mail para os próximos passos.</p>
       </div>
       <Link

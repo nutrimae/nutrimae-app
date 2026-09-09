@@ -3,16 +3,16 @@ import Image from "next/image";
 const TESTIMONIALS = [
   {
     quote:
-      "Eu estava sempre procurando no celular o que preparar e acabava ficando perdida. Ficou muito mais fácil planejar a alimentação da semana.",
+      "Siempre andaba buscando en el celular qué preparar y terminaba perdida. Se volvió mucho más fácil planificar la alimentación de la semana.",
     author: "Marina Costa",
-    context: "mãe do Leo, 7 meses",
+    context: "mamá de Leo, 7 meses",
     avatar: "/testimonials/marina-costa.webp",
   },
   {
     quote:
-      "O que mais gostei foi poder acessar pelo celular quando estou preparando a comida. Não preciso ficar procurando informações em vários lugares.",
+      "Lo que más me gustó fue poder acceder desde el celular mientras preparo la comida. No tengo que andar buscando información en varios lugares.",
     author: "Camila Ribeiro",
-    context: "mãe da Sofia, 9 meses",
+    context: "mamá de Sofía, 9 meses",
     avatar: "/testimonials/camila-ribeiro.webp",
   },
 ];

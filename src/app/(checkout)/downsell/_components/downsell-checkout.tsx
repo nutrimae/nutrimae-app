@@ -49,7 +49,7 @@ export function DownsellCheckout({
       }
       if (data.status === "expired" || data.status === "refused") {
         clearInterval(interval);
-        setError("O Pix expirou ou não foi confirmado. Tente de novo.");
+        setError("El Pix expiró o no fue confirmado. Intenta de nuevo.");
         setPix(null);
       }
     }, 4000);
@@ -59,7 +59,7 @@ export function DownsellCheckout({
     setError(null);
 
     if (paymentMethod === "credit_card" && (!billingAddress.line1 || billingAddress.zipCode.replace(/\D/g, "").length !== 8 || !billingAddress.city || !billingAddress.state)) {
-      setError("Confira o endereço de cobrança do cartão antes de continuar.");
+      setError("Revisa la dirección de facturación de la tarjeta antes de continuar.");
       return;
     }
 
@@ -92,7 +92,7 @@ export function DownsellCheckout({
 
       const data = await res.json();
       if (!res.ok) {
-        setError("Não conseguimos processar o pagamento agora. Tente de novo em instantes.");
+        setError("No pudimos procesar el pago ahora. Intenta de nuevo en unos instantes.");
         setLoading(false);
         return;
       }
@@ -104,14 +104,14 @@ export function DownsellCheckout({
       }
 
       if (data.status === "refused") {
-        setError("Cartão recusado. Confira os dados ou tente outro cartão.");
+        setError("Tarjeta rechazada. Revisa los datos o intenta con otra tarjeta.");
         setLoading(false);
         return;
       }
 
       router.push("/app");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo deu errado. Tente de novo.");
+      setError(err instanceof Error ? err.message : "Algo salió mal. Intenta de nuevo.");
       setLoading(false);
     }
   }
@@ -122,7 +122,7 @@ export function DownsellCheckout({
       setPixCopied(true);
       setTimeout(() => setPixCopied(false), 2000);
     } catch {
-      // Clipboard indisponível — o campo abaixo continua selecionável manualmente.
+      // Clipboard no disponible — el campo de abajo se puede seleccionar manualmente.
     }
   }
 
@@ -132,11 +132,11 @@ export function DownsellCheckout({
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sage-50 text-sage-600">
           <QrCode className="h-7 w-7" strokeWidth={1.75} />
         </span>
-        <p className="text-sm text-brown-700/86">Escaneie o QR Code ou copie o código Pix:</p>
+        <p className="text-sm text-brown-700/86">Escanea el código QR o copia el código Pix:</p>
         {pix.qrCodeUrl ? (
           <div className="rounded-2xl border-2 border-sage-100 bg-white p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={pix.qrCodeUrl} alt="QR Code Pix" className="h-48 w-48" />
+            <img src={pix.qrCodeUrl} alt="Código QR Pix" className="h-48 w-48" />
           </div>
         ) : null}
         <button
@@ -145,18 +145,18 @@ export function DownsellCheckout({
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-sage-100/80 bg-sage-50 px-4 text-sm font-semibold text-sage-700 transition-transform active:scale-[0.98]"
         >
           {pixCopied ? <Check className="h-4 w-4" strokeWidth={2.5} /> : <Copy className="h-4 w-4" strokeWidth={2} />}
-          {pixCopied ? "Código copiado!" : "Copiar código Pix"}
+          {pixCopied ? "¡Código copiado!" : "Copiar código Pix"}
         </button>
         <textarea readOnly value={pix.qrCode} className="w-full resize-none rounded-2xl border-2 border-sage-100/80 bg-white/80 p-3 text-xs text-brown-700/70" rows={2} />
         <PixCountdown
           expiresAt={pix.expiresAt}
           onExpire={() => {
-            setError("O Pix expirou. Tente de novo.");
+            setError("El Pix expiró. Intenta de nuevo.");
             setPix(null);
           }}
         />
         <p className="flex items-center gap-2 text-xs text-brown-700/70">
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-500" /> Aguardando confirmação do pagamento...
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-500" /> Esperando la confirmación del pago...
         </p>
       </div>
     );
@@ -181,14 +181,14 @@ export function DownsellCheckout({
             paymentMethod === "credit_card" ? "bg-white text-primary-600 shadow-subtle" : "text-brown-700/70"
           }`}
         >
-          <CreditCard className="h-4 w-4" /> Cartão
+          <CreditCard className="h-4 w-4" /> Tarjeta
         </button>
       </div>
 
       {paymentMethod === "credit_card" && (
         <div className="flex flex-col gap-3">
-          <Input placeholder="Número do cartão" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-          <Input placeholder="Nome impresso no cartão" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
+          <Input placeholder="Número de la tarjeta" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+          <Input placeholder="Nombre impreso en la tarjeta" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
           <div className="flex gap-2">
             <Input className="w-1/3" placeholder="MM" value={cardExpMonth} onChange={(e) => setCardExpMonth(e.target.value)} />
             <Input className="w-1/3" placeholder="AAAA" value={cardExpYear} onChange={(e) => setCardExpYear(e.target.value)} />
@@ -206,7 +206,7 @@ export function DownsellCheckout({
         disabled={loading}
         className="flex min-h-16 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 text-lg font-bold text-white shadow-[0_8px_24px_var(--color-primary-glow)] transition-transform active:scale-[0.98] disabled:opacity-60"
       >
-        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : `SIM! Quero testar por ${formatBRL(priceCents)}`}
+        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : `¡SÍ! Quiero probarlo por ${formatBRL(priceCents)}`}
       </button>
 
       <button
@@ -214,11 +214,11 @@ export function DownsellCheckout({
         onClick={handleDeclineFinal}
         className="mx-auto text-sm text-brown-700/60 underline"
       >
-        Não, quero apenas o meu acesso ao aplicativo base e aos bônus.
+        No, quiero solo mi acceso a la app base y a los bonos.
       </button>
 
       <p className="flex items-center justify-center gap-2 text-xs text-brown-700/70">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pagamento seguro · dados protegidos
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sage-500" /> Pago seguro · datos protegidos
       </p>
     </div>
   );

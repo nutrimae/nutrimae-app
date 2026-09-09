@@ -7,15 +7,15 @@ import { UpsellCheckout } from "./_components/upsell-checkout";
 import { VipUpsellCheckout } from "./_components/vip-upsell-checkout";
 
 const BATCH_BENEFITS = [
-  { icon: CookingPot, color: "bg-primary-50 text-primary-500", title: "Método de porcionamento", text: "Cozinhe uma vez, coma a semana toda." },
-  { icon: CalendarCheck, color: "bg-sage-50 text-sage-600", title: "Tabela de validade", text: "Por alimento, na geladeira e no congelador — mais segurança, menos desperdício." },
-  { icon: Tag, color: "bg-amber-50 text-amber-600", title: "Etiquetas pra imprimir", text: "Identifique os potinhos de forma prática." },
+  { icon: CookingPot, color: "bg-primary-50 text-primary-500", title: "Método de porcionamiento", text: "Cocina una vez, come toda la semana." },
+  { icon: CalendarCheck, color: "bg-sage-50 text-sage-600", title: "Tabla de vencimiento", text: "Por alimento, en el refrigerador y en el congelador — más seguridad, menos desperdicio." },
+  { icon: Tag, color: "bg-amber-50 text-amber-600", title: "Etiquetas para imprimir", text: "Identifica los potitos de forma práctica." },
 ];
 
 const VIP_BENEFITS = [
-  { icon: MessageCircle, color: "bg-primary-50 text-primary-500", title: "Tira-dúvidas no WhatsApp", text: "Pergunta sobre qualquer alimento e recebe resposta na hora, direto no seu celular." },
-  { icon: Sparkles, color: "bg-sage-50 text-sage-600", title: "Contexto do seu bebê", text: "O NutriBot já sabe os alergênicos e o histórico alimentar — sem repetir tudo de novo." },
-  { icon: Clock3, color: "bg-amber-50 text-amber-600", title: "Sem limite de uso", text: "Pergunte quantas vezes precisar, todos os dias, enquanto a assinatura estiver ativa." },
+  { icon: MessageCircle, color: "bg-primary-50 text-primary-500", title: "Resuelve dudas por WhatsApp", text: "Pregunta sobre cualquier alimento y recibe respuesta al instante, directo en tu celular." },
+  { icon: Sparkles, color: "bg-sage-50 text-sage-600", title: "Contexto de tu bebé", text: "El NutriBot ya conoce los alérgenos y el historial alimentario — sin repetir todo de nuevo." },
+  { icon: Clock3, color: "bg-amber-50 text-amber-600", title: "Sin límite de uso", text: "Pregunta las veces que necesites, todos los días, mientras la suscripción esté activa." },
 ];
 
 /**
@@ -69,17 +69,17 @@ export default async function UpsellPage({
     return (
       <main className="min-h-dvh bg-cream pb-10">
         <div className="sticky top-0 z-50 bg-sage-500 px-4 py-3 text-center text-sm font-semibold text-white">
-          🎉 Sua assinatura está confirmada! Antes de continuar, veja uma oferta exclusiva desta página.
+          🎉 ¡Tu suscripción está confirmada! Antes de continuar, mira una oferta exclusiva de esta página.
         </div>
 
         <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6">
           <div className="text-center">
             <h1 className="font-heading text-2xl font-bold leading-tight text-brown-900">
-              Quer tirar dúvidas sobre a alimentação sem nem abrir o app?
+              ¿Quieres resolver dudas sobre la alimentación sin siquiera abrir la app?
             </h1>
             <p className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-base text-brown-700/86">
-              Conheça o <span className="font-heading font-bold text-primary-600">NutriBot VIP</span>
-              <Chip color="primary" variant="solid">no WhatsApp</Chip>
+              Conoce el <span className="font-heading font-bold text-primary-600">NutriBot VIP</span>
+              <Chip color="primary" variant="solid">por WhatsApp</Chip>
             </p>
           </div>
 
@@ -98,7 +98,7 @@ export default async function UpsellPage({
           </div>
 
           <p className="text-center text-xs text-brown-700/70">
-            Assinatura separada da sua mensalidade do app. Cancele quando quiser, sem multa.
+            Suscripción separada de tu mensualidad de la app. Cancela cuando quieras, sin penalidad.
           </p>
 
           <VipUpsellCheckout parentSubscriptionId={subscription.id} recurringPriceCents={vipOffer.recurring_price_cents} />
@@ -130,14 +130,14 @@ export default async function UpsellPage({
   return (
     <main className="min-h-dvh bg-cream pb-10">
       <div className="sticky top-0 z-50 bg-sage-500 px-4 py-3 text-center text-sm font-semibold text-white">
-        🎉 Sua compra do NutriMãe está confirmada! Antes de continuar, veja uma oferta exclusiva desta página.
+        🎉 ¡Tu compra de NutriMãe está confirmada! Antes de continuar, mira una oferta exclusiva de esta página.
       </div>
 
       <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6">
         <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-[28px] shadow-strong">
           <Image
             src="/images/order-bumps/batch-cooking.webp"
-            alt="Batch Cooking & Congelamento"
+            alt="Batch Cooking y Congelación"
             width={600}
             height={502}
             priority
@@ -147,11 +147,11 @@ export default async function UpsellPage({
 
         <div className="text-center">
           <h1 className="font-heading text-2xl font-bold leading-tight text-brown-900">
-            Você garantiu os cardápios. Que tal resolver de vez a pergunta &ldquo;quando eu vou cozinhar isso&rdquo;?
+            Ya aseguraste los menús. ¿Qué tal resolver de una vez la pregunta &ldquo;cuándo voy a cocinar esto&rdquo;?
           </h1>
           <p className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-base text-brown-700/86">
-            Conheça o <span className="font-heading font-bold text-primary-600">Batch Cooking & Congelamento</span>
-            <Chip color="primary" variant="solid">acesso vitalício</Chip>
+            Conoce el <span className="font-heading font-bold text-primary-600">Batch Cooking y Congelación</span>
+            <Chip color="primary" variant="solid">acceso vitalicio</Chip>
           </p>
         </div>
 
@@ -170,8 +170,8 @@ export default async function UpsellPage({
         </div>
 
         <p className="text-center text-xs text-brown-700/70">
-          Acesso vitalício, não entra na assinatura. Se você já investiu em outra expansão, o valor vira crédito
-          guardado no seu perfil.
+          Acceso vitalicio, no entra en la suscripción. Si ya invertiste en otra expansión, el valor se convierte en
+          crédito guardado en tu perfil.
         </p>
 
         <UpsellCheckout parentOrderId={order.id} offerSlug="batch-cooking" priceCents={offer.price_cents} />

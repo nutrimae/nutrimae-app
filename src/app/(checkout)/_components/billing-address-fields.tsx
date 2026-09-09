@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
  * cobrança com card_token, mesmo a doc pública listando os campos como
  * opcionais (confirmado contra o sandbox real, ver
  * src/lib/payments/pagarme.ts). Só aparece quando o método é cartão.
+ * (UI traducida a español para tráfico LATAM; los campos siguen siendo
+ * los exigidos por la pasarela brasileña Pagar.me.)
  */
 export interface BillingAddressValue {
   line1: string;
@@ -25,19 +27,19 @@ export function BillingAddressFields({
   return (
     <div className="flex flex-col gap-3">
       <Input
-        placeholder="CEP (só números)"
+        placeholder="CEP (solo números)"
         value={value.zipCode}
         onChange={(e) => onChange({ ...value, zipCode: e.target.value })}
       />
       <Input
-        placeholder="Endereço (rua e número)"
+        placeholder="Dirección (calle y número)"
         value={value.line1}
         onChange={(e) => onChange({ ...value, line1: e.target.value })}
       />
       <div className="flex gap-2">
         <Input
           className="flex-1"
-          placeholder="Cidade"
+          placeholder="Ciudad"
           value={value.city}
           onChange={(e) => onChange({ ...value, city: e.target.value })}
         />
@@ -49,7 +51,7 @@ export function BillingAddressFields({
           onChange={(e) => onChange({ ...value, state: e.target.value.toUpperCase() })}
         />
       </div>
-      <p className="text-xs text-brown-700/70">Endereço de cobrança, exigido pela operadora do cartão.</p>
+      <p className="text-xs text-brown-700/70">Dirección de facturación, exigida por el emisor de la tarjeta.</p>
     </div>
   );
 }

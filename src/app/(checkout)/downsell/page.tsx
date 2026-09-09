@@ -60,14 +60,14 @@ export default async function DownsellPage({
           tela), sem insinuar que o acesso já pago está sendo retido. */}
       <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-terracotta-500 px-4 py-3 text-center text-sm font-semibold text-white">
         <Clock className="h-4 w-4 shrink-0" strokeWidth={2.5} />
-        Esta oferta aparece só agora — não vamos mostrá-la de novo.
+        Esta oferta aparece solo ahora — no la vamos a mostrar de nuevo.
       </div>
 
       <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-8">
         <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-[28px] shadow-strong">
           <Image
             src="/images/order-bumps/nutribot-30d.webp"
-            alt="NutriBot — 30 Dias"
+            alt="NutriBot — 30 Días"
             width={600}
             height={600}
             priority
@@ -75,18 +75,18 @@ export default async function DownsellPage({
           />
         </div>
 
-        {/* B. Headline e copy de ancoragem */}
+        {/* B. Headline y copy de anclaje */}
         <div className="text-center">
           <h1 className="font-heading text-2xl font-bold leading-tight text-brown-900">
-            Eu entendo... assumir mais um gasto agora pode parecer muito.
+            Entiendo... asumir otro gasto ahora puede parecer demasiado.
           </h1>
           <p className="mt-3 text-base text-brown-700/86">
-            Mas eu não quero que você fique sem essa ajuda na cozinha. Que tal testar o NutriBot por 30 dias com
-            desconto?
+            Pero no quiero que te quedes sin esta ayuda en la cocina. ¿Qué tal probar el NutriBot por 30 días con
+            descuento?
           </p>
         </div>
 
-        {/* C. Card da oferta */}
+        {/* C. Card de la oferta */}
         <div className="relative rounded-[24px] border-2 border-primary-300 bg-white p-6 text-center shadow-strong">
           <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary-500 px-4 py-1 text-xs font-bold uppercase tracking-wide text-white">
             Oferta única
@@ -95,7 +95,7 @@ export default async function DownsellPage({
           <p className="font-heading text-4xl font-extrabold text-primary-600">
             {(offer.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
-          <p className="mt-2 text-xs text-brown-700/70">Pagamento único, 30 dias de acesso ao NutriBot.</p>
+          <p className="mt-2 text-xs text-brown-700/70">Pago único, 30 días de acceso al NutriBot.</p>
         </div>
 
         <DownsellCheckout parentOrderId={orderId} parentSubscriptionId={subscriptionId} priceCents={offer.price_cents} />

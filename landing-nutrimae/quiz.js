@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function updateQuizProgress(stepNumber) {
     if (!quizProgress) return;
     quizProgressFill.style.width = ((stepNumber / TOTAL_STEPS) * 100) + '%';
-    quizProgressLabel.textContent = 'Passo ' + stepNumber + ' de ' + TOTAL_STEPS;
+    quizProgressLabel.textContent = 'Paso ' + stepNumber + ' de ' + TOTAL_STEPS;
   }
 
   function goToStep(fromStep, toStep) {
@@ -95,10 +95,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // Texto legível da idade escolhida, usado só na mensagem de transição —
   // reforça que o que vem a seguir foi montado para a fase exata do bebê.
   var AGE_LABEL = {
-    'vai-comecar': 'quem vai começar aos 6 meses',
-    '6-8-meses': 'bebês de 6 a 8 meses',
-    '9-11-meses': 'bebês de 9 a 11 meses',
-    '12-mais': 'bebês de 12 meses ou mais'
+    'vai-comecar': 'quienes van a empezar a los 6 meses',
+    '6-8-meses': 'bebés de 6 a 8 meses',
+    '9-11-meses': 'bebés de 9 a 11 meses',
+    '12-mais': 'bebés de 12 meses o más'
   };
 
   function runTransition() {
@@ -108,11 +108,11 @@ document.addEventListener('DOMContentLoaded', function () {
       steps[3].classList.add('quiz-step--hidden');
       loading.classList.remove('quiz-loading--hidden');
 
-      var ageLabel = AGE_LABEL[answers.age] || 'a fase do seu bebê';
+      var ageLabel = AGE_LABEL[answers.age] || 'la etapa de tu bebé';
       var messages = [
-        'A processar as suas respostas...',
-        'A gerar plano nutricional seguro...',
-        'A selecionar cortes ideais para ' + ageLabel + '...'
+        'Procesando tus respuestas...',
+        'Generando un plan nutricional seguro...',
+        'Seleccionando cortes ideales para ' + ageLabel + '...'
       ];
       var messageIndex = 0;
       loadingText.textContent = messages[0];

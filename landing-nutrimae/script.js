@@ -104,15 +104,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (percent >= milestone) fireProgressPixel(milestone);
       });
 
-      if (percent >= 15) showHook('early', 'Fica só mais um minutinho, a parte boa vem a seguir 👀');
-      if (percent >= 60) showHook('late', 'Quase lá! Depois do vídeo é só escolher seu plano.');
+      if (percent >= 15) showHook('early', 'Quédate un minuto más, la parte buena viene a continuación 👀');
+      if (percent >= 60) showHook('late', '¡Ya casi! Después del video solo falta elegir tu plan.');
     }
 
     function handlePause(instance) {
       var percent = getPercentWatched(instance);
       if (percent === null) return;
       if (percent < 85) {
-        showHook('pause', 'Pausou? Sem problema — é só apertar o play pra continuar de onde parou.');
+        showHook('pause', '¿Pausaste? No hay problema — solo presiona play para continuar donde quedaste.');
         trackEvent('VSLPaused', { percent: Math.floor(percent) });
       }
     }
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
       (function (dotIndex) {
         var dot = document.createElement('button');
         dot.type = 'button';
-        dot.setAttribute('aria-label', 'Ver depoimento ' + (dotIndex + 1));
+        dot.setAttribute('aria-label', 'Ver testimonio ' + (dotIndex + 1));
         dot.className = 'testimonials-carousel__dot' + (dotIndex === 0 ? ' is-active' : '');
         dot.addEventListener('click', function () { showDepoimento(dotIndex); });
         depoimentoDots.appendChild(dot);
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     heroTypewriterStarted = true;
     var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var words = ['em um só lugar', 'por fase', 'sempre à mão'];
+    var words = ['en un solo lugar', 'por etapa', 'siempre a mano'];
 
     if (reducedMotion) {
       wordElement.textContent = words[0];
@@ -756,43 +756,43 @@ document.addEventListener('DOMContentLoaded', function () {
      --------------------------------------------------- */
   var AGE_CONTENT = {
     'vai-comecar': {
-      ctaLabel: 'Ver plano de início',
+      ctaLabel: 'Ver plan de inicio',
       food: {
-        name: 'Banana', emoji: '🍌', age: 'a partir dos 6 meses',
-        cut: 'Bastão largo, do tamanho do punho fechado do bebê',
-        how: 'Na mão, sem casca, com uma pontinha cortada para dar apoio'
+        name: 'Plátano', emoji: '🍌', age: 'a partir de los 6 meses',
+        cut: 'Bastón grueso, del tamaño del puño cerrado del bebé',
+        how: 'En la mano, sin cáscara, con una puntita cortada para dar apoyo'
       }
     },
     '6-meses': {
-      ctaLabel: 'Ver plano de 6 meses',
+      ctaLabel: 'Ver plan de 6 meses',
       food: {
-        name: 'Morango', emoji: '🍓', age: 'a partir dos 6 meses',
-        cut: 'Inteiro, com a rama removida',
-        how: 'Na mão do bebê, sentado e supervisionado'
+        name: 'Frutilla', emoji: '🍓', age: 'a partir de los 6 meses',
+        cut: 'Entera, sin el cáliz',
+        how: 'En la mano del bebé, sentado y supervisado'
       }
     },
     '7-9-meses': {
-      ctaLabel: 'Ver plano de 7 a 9 meses',
+      ctaLabel: 'Ver plan de 7 a 9 meses',
       food: {
-        name: 'Frango desfiado', emoji: '🍗', age: '7 a 9 meses',
-        cut: 'Desfiado ou em tiras finas e macias',
-        how: 'Junto com o prato, fácil de pegar com as mãos'
+        name: 'Pollo desmenuzado', emoji: '🍗', age: '7 a 9 meses',
+        cut: 'Desmenuzado o en tiras finas y suaves',
+        how: 'Junto con el plato, fácil de agarrar con las manos'
       }
     },
     '10-12-meses': {
-      ctaLabel: 'Ver plano de 10 a 12+ meses',
+      ctaLabel: 'Ver plan de 10 a 12+ meses',
       food: {
-        name: 'Bolinho de legumes', emoji: '🥕', age: '10 a 12+ meses',
-        cut: 'Pedaços pequenos e macios',
-        how: 'Incentive o bebê a pegar sozinho, com ou sem talher'
+        name: 'Bolita de verduras', emoji: '🥕', age: '10 a 12+ meses',
+        cut: 'Trozos pequeños y suaves',
+        how: 'Anima al bebé a agarrar solo, con o sin cubierto'
       }
     }
   };
 
   var SEARCHABLE_FOODS = [
-    { key: 'banana', name: 'Banana', emoji: '🍌', age: 'a partir dos 6 meses', cut: 'Bastão largo, do tamanho do punho fechado do bebê', how: 'Na mão, sem casca, com uma pontinha cortada para dar apoio' },
-    { key: 'abacate', name: 'Abacate', emoji: '🥑', age: 'a partir dos 6 meses', cut: 'Fatias grossas com casca, para facilitar a preensão', how: 'Na mão, ou amassado em uma colher pré-carregada' },
-    { key: 'morango', name: 'Morango', emoji: '🍓', age: 'a partir dos 6 meses', cut: 'Inteiro, com a rama removida', how: 'Na mão do bebê, sentado e supervisionado' }
+    { key: 'banana', name: 'Plátano', emoji: '🍌', age: 'a partir de los 6 meses', cut: 'Bastón grueso, del tamaño del puño cerrado del bebé', how: 'En la mano, sin cáscara, con una puntita cortada para dar apoyo' },
+    { key: 'abacate', name: 'Palta', emoji: '🥑', age: 'a partir de los 6 meses', cut: 'Rebanadas gruesas con cáscara, para facilitar el agarre', how: 'En la mano, o triturada en una cuchara precargada' },
+    { key: 'morango', name: 'Frutilla', emoji: '🍓', age: 'a partir de los 6 meses', cut: 'Entera, sin el cáliz', how: 'En la mano del bebé, sentado y supervisado' }
   ];
 
   var currentAgeKey = '6-meses';
@@ -970,8 +970,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (planCardCompleto) planCardCompleto.hidden = showBasico;
     if (ctaCheckoutDynamic) {
       ctaCheckoutDynamic.textContent = showBasico
-        ? 'Quero o Básico por R$19,90'
-        : 'Quero o Completo por R$47';
+        ? 'Quiero el Básico por $3.990'
+        : 'Quiero el Completo por $9.900';
     }
   }
 
@@ -983,32 +983,26 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (ctaCheckoutDynamic) {
-    ctaCheckoutDynamic.textContent = 'Quero o Completo por R$47';
+    ctaCheckoutDynamic.textContent = 'Quiero el Completo por $9.900';
   }
 
-  function goToOffer(offerSlug) {
-    // SEC/TRACKING: repassa utm_*/fbclid/gclid/etc. da URL da landing pro
-    // checkout — sem isso, a mudança de domínio (nutrimae.app ->
-    // app.nutrimae.app) perde toda a atribuição de campanha, e o
-    // src/lib/tracking/client.ts do app só enxerga um referrer genérico.
-    var params = new URLSearchParams(window.location.search);
-    // Repassa também a escolha de consentimento já feita na landing — sem
-    // isso, o checkout (origem diferente, localStorage não compartilha)
-    // reexibe o banner do zero, e quem não reage a ele fica sem nenhuma
-    // sessão registrada mesmo já tendo aceitado na landing.
-    try {
-      var consent = window.localStorage.getItem('nutrimae:tracking-consent:v1');
-      if (consent === 'analytics' || consent === 'marketing' || consent === 'denied') {
-        params.set('consent', consent);
-      }
-    } catch (e) {}
-    var query = params.toString();
-    window.location.href = APP_URL + '/checkout/' + offerSlug + (query ? '?' + query : '');
+  // Chile/CLP vía Rebill (sandbox — cuenta pendiente de activación, ver
+  // conversación con el equipo): pago hospedado, sin pasar por el checkout
+  // Pagar.me/BRL del app. Cuando Rebill esté en producción, reemplazar por
+  // los links reales o por una llamada a la API que genere el link por
+  // pedido.
+  var REBILL_LINKS = {
+    basico: 'https://pay.rebill.com/yeshuafiel-sandbox/test_pl_bbe988683faf441bbc213073ccbc4491',
+    completo: 'https://pay.rebill.com/yeshuafiel-sandbox/test_pl_69441ae2f38f4e419ac331c02dd58d77'
+  };
+
+  function goToOffer(plan) {
+    window.location.href = REBILL_LINKS[plan] || REBILL_LINKS.completo;
   }
 
   function goToCheckout() {
     trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
-    goToOffer(selectedPlan === 'basico' ? 'nutrimae-basico' : 'nutrimae-anual');
+    goToOffer(selectedPlan);
   }
 
   if (ctaCheckoutDynamic) {
@@ -1026,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!siteNav || !siteMenuToggle) return;
     siteNav.classList.remove('site-nav--open');
     siteMenuToggle.setAttribute('aria-expanded', 'false');
-    siteMenuToggle.setAttribute('aria-label', 'Abrir menu de navegação');
+    siteMenuToggle.setAttribute('aria-label', 'Abrir menú de navegación');
     if (returnFocus) siteMenuToggle.focus();
   }
 
@@ -1034,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', function () {
     siteMenuToggle.addEventListener('click', function () {
       var isOpen = siteNav.classList.toggle('site-nav--open');
       siteMenuToggle.setAttribute('aria-expanded', String(isOpen));
-      siteMenuToggle.setAttribute('aria-label', isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação');
+      siteMenuToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
       if (isOpen) trackEvent('NavigationMenuOpen');
     });
 

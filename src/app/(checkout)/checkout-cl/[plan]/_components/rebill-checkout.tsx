@@ -78,10 +78,11 @@ export function RebillCheckout({
 
     function onReady() {
       // O "ready" dispara assim que o componente monta a sessão, mas o
-      // iframe dos campos do cartão ainda demora pra pintar de verdade —
-      // a duração varia bastante conforme a rede do cliente, então usamos
+      // SDK ainda busca vários ícones/assets próprios (rebill.svg,
+      // chevron-down.svg, loader-card-v2.json...) antes de pintar os campos
+      // de verdade — em redes mais lentas isso passa fácil de 5s. Usamos
       // uma folga generosa em vez de confiar no timing exato do evento.
-      setTimeout(() => setFormReady(true), 2000);
+      setTimeout(() => setFormReady(true), 5000);
     }
 
     el.addEventListener("success", onSuccess);

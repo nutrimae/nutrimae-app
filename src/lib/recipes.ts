@@ -101,7 +101,7 @@ export interface Recipe {
 export const RECIPES: Recipe[] = [
   // ---------- 6-7 meses ----------
   {
-    id: "banana-aveia-purê",
+    id: "banana-aveia-pure",
     title: "Papinha de banana com aveia",
     ageBand: "6-7",
     mealType: "cafe",
@@ -1434,7 +1434,7 @@ export const RECIPES: Recipe[] = [
 export const RECIPES_ES: Recipe[] = [
   // ---------- 6-7 meses ----------
   {
-    id: "banana-aveia-purê",
+    id: "banana-aveia-pure",
     title: "Papilla de plátano con avena",
     ageBand: "6-7",
     mealType: "cafe",

@@ -987,17 +987,20 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Chile/CLP vía Rebill (sandbox — cuenta pendiente de activación, ver
-  // conversación con el equipo): pago hospedado, sin pasar por el checkout
-  // Pagar.me/BRL del app. Cuando Rebill esté en producción, reemplazar por
-  // los links reales o por una llamada a la API que genere el link por
-  // pedido.
-  var REBILL_LINKS = {
-    basico: 'https://pay.rebill.com/yeshuafiel-sandbox/test_pl_bbe988683faf441bbc213073ccbc4491',
-    completo: 'https://pay.rebill.com/yeshuafiel-sandbox/test_pl_69441ae2f38f4e419ac331c02dd58d77'
-  };
-
+  // conversación con el equipo): checkout propio en app.nutrimae.app,
+  // usando el componente <rebill-checkout> embebido (mismo look del
+  // checkout Pagar.me/BRL, ver src/app/(checkout)/checkout-cl/[plan]/),
+  // en vez del link hospedado en pay.rebill.com.
   function goToOffer(plan) {
-    window.location.href = REBILL_LINKS[plan] || REBILL_LINKS.completo;
+    var params = new URLSearchParams(window.location.search);
+    try {
+      var consent = window.localStorage.getItem('nutrimae:tracking-consent:v1');
+      if (consent === 'analytics' || consent === 'marketing' || consent === 'denied') {
+        params.set('consent', consent);
+      }
+    } catch (e) {}
+    var query = params.toString();
+    window.location.href = APP_URL + '/checkout-cl/' + plan + (query ? '?' + query : '');
   }
 
   function goToCheckout() {

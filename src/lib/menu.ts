@@ -1,5 +1,8 @@
 import { ageInMonths } from "@/lib/age";
 import type { Region } from "@/lib/regions";
+import type { LatamRegion } from "@/lib/latam-regions";
+import type { Locale } from "@/lib/i18n/locale";
+import { MENU_POOL_ES } from "@/lib/menu-es";
 
 export type AgeBand = "6-7" | "8-9" | "10-12" | "13-24";
 
@@ -9,6 +12,17 @@ export const AGE_BAND_LABEL: Record<AgeBand, string> = {
   "10-12": "10 a 12 meses · pedaços pequenos e comidinha de mão",
   "13-24": "13 a 24 meses · comida da família, em pedaços",
 };
+
+const AGE_BAND_LABEL_ES: Record<AgeBand, string> = {
+  "6-7": "6 a 7 meses · papillas coladas",
+  "8-9": "8 a 9 meses · triturado grueso y trocitos suaves",
+  "10-12": "10 a 12 meses · trocitos pequeños y comida para tomar con la mano",
+  "13-24": "13 a 24 meses · comida de la familia, en trozos",
+};
+
+export function getAgeBandLabel(locale: Locale = "pt-BR"): Record<AgeBand, string> {
+  return locale === "es" ? AGE_BAND_LABEL_ES : AGE_BAND_LABEL;
+}
 
 export function ageBandForMonths(months: number): AgeBand {
   if (months < 8) return "6-7";
@@ -29,6 +43,20 @@ export const DAYS: { key: DayKey; label: string; short: string }[] = [
   { key: "dom", label: "Domingo", short: "Dom" },
 ];
 
+const DAYS_ES: { key: DayKey; label: string; short: string }[] = [
+  { key: "seg", label: "Lunes", short: "Lun" },
+  { key: "ter", label: "Martes", short: "Mar" },
+  { key: "qua", label: "Miércoles", short: "Mié" },
+  { key: "qui", label: "Jueves", short: "Jue" },
+  { key: "sex", label: "Viernes", short: "Vie" },
+  { key: "sab", label: "Sábado", short: "Sáb" },
+  { key: "dom", label: "Domingo", short: "Dom" },
+];
+
+export function getDays(locale: Locale = "pt-BR"): { key: DayKey; label: string; short: string }[] {
+  return locale === "es" ? DAYS_ES : DAYS;
+}
+
 /** Converte Date.getDay() (0=domingo) para o índice da semana começando na segunda. */
 export function todayDayIndex(date: Date = new Date()): number {
   return (date.getDay() + 6) % 7;
@@ -42,6 +70,17 @@ export const MEAL_TYPES: { key: MealType; label: string }[] = [
   { key: "lanche", label: "Lanche" },
   { key: "jantar", label: "Jantar" },
 ];
+
+const MEAL_TYPES_ES: { key: MealType; label: string }[] = [
+  { key: "cafe", label: "Desayuno" },
+  { key: "almoco", label: "Almuerzo" },
+  { key: "lanche", label: "Merienda" },
+  { key: "jantar", label: "Cena" },
+];
+
+export function getMealTypes(locale: Locale = "pt-BR"): { key: MealType; label: string }[] {
+  return locale === "es" ? MEAL_TYPES_ES : MEAL_TYPES;
+}
 
 export type IngredientCategory = "feira" | "mercado" | "outros";
 
@@ -57,12 +96,16 @@ export interface MealSuggestion {
   prep: string;
   ingredients: Ingredient[];
   /** Regiões de origem — sugestões com região recebem bônus quando a usuária é da mesma região. */
-  regiao?: Region[];
+  regiao?: (Region | LatamRegion)[];
 }
 
-type Pool = Record<AgeBand, Record<MealType, MealSuggestion[]>>;
+export type Pool = Record<AgeBand, Record<MealType, MealSuggestion[]>>;
 
-const MENU_POOL: Pool = {
+function getPool(locale: Locale = "pt-BR"): Pool {
+  return locale === "es" ? MENU_POOL_ES : MENU_POOL_PT_BR;
+}
+
+const MENU_POOL_PT_BR: Pool = {
   "6-7": {
     cafe: [
       {
@@ -682,6 +725,17 @@ export const DIET_FILTER_LABEL: Record<DietFilter, string> = {
   sem_gluten: "Sem glúten",
 };
 
+const DIET_FILTER_LABEL_ES: Record<DietFilter, string> = {
+  padrao: "Estándar",
+  sem_leite: "Sin leche",
+  sem_ovo: "Sin huevo",
+  sem_gluten: "Sin gluten",
+};
+
+export function getDietFilterLabel(locale: Locale = "pt-BR"): Record<DietFilter, string> {
+  return locale === "es" ? DIET_FILTER_LABEL_ES : DIET_FILTER_LABEL;
+}
+
 const DIET_FILTER_TO_ALLERGEN: Record<DietFilter, AllergenTag | null> = {
   padrao: null,
   sem_leite: "leite",
@@ -721,7 +775,9 @@ export interface SuggestionOptions {
   /** Alergênico a evitar (Cardápio de Restrição). */
   avoidAllergen?: AllergenTag | null;
   /** Região da usuária para priorização de sugestões regionais. */
-  region?: Region | null;
+  region?: Region | LatamRegion | null;
+  /** Idioma/mercado do cardápio (pt-BR = Brasil, es = LATAM). */
+  locale?: Locale;
 }
 
 export function getSuggestion(
@@ -730,7 +786,7 @@ export function getSuggestion(
   dayIndex: number,
   options: SuggestionOptions = {},
 ): MealSuggestion {
-  const pool = MENU_POOL[ageBand][mealType];
+  const pool = getPool(options.locale)[ageBand][mealType];
   const { overrideIndex, triedFoodKeys, avoidAllergen, region } = options;
 
   if (overrideIndex !== undefined) {
@@ -773,8 +829,8 @@ export function getSuggestion(
   return pool[bestIndex];
 }
 
-export function poolSize(ageBand: AgeBand, mealType: MealType): number {
-  return MENU_POOL[ageBand][mealType].length;
+export function poolSize(ageBand: AgeBand, mealType: MealType, locale: Locale = "pt-BR"): number {
+  return getPool(locale)[ageBand][mealType].length;
 }
 
 export interface WeeklyMenuCell {
@@ -788,8 +844,8 @@ export function getWeeklyMenu(
   ageBand: AgeBand,
   options: Omit<SuggestionOptions, "overrideIndex"> = {},
 ): WeeklyMenuCell[][] {
-  return DAYS.map((day, dayIndex) =>
-    MEAL_TYPES.map(({ key: mealType }) => ({
+  return getDays(options.locale).map((day, dayIndex) =>
+    getMealTypes(options.locale).map(({ key: mealType }) => ({
       day: day.key,
       dayIndex,
       mealType,
@@ -814,7 +870,7 @@ export function getTodaySuggestion(
 ): { mealType: MealType; mealLabel: string; suggestion: MealSuggestion } {
   const mealType = mealTypeForNow(date);
   const dayIndex = todayDayIndex(date);
-  const mealLabel = MEAL_TYPES.find((m) => m.key === mealType)!.label;
+  const mealLabel = getMealTypes(options.locale).find((m) => m.key === mealType)!.label;
   return { mealType, mealLabel, suggestion: getSuggestion(ageBand, mealType, dayIndex, options) };
 }
 
@@ -845,6 +901,16 @@ const CATEGORY_LABEL: Record<IngredientCategory, string> = {
   outros: "Outros",
 };
 
+const CATEGORY_LABEL_ES: Record<IngredientCategory, string> = {
+  feira: "Verdulería",
+  mercado: "Supermercado",
+  outros: "Otros",
+};
+
+export function getCategoryLabel(locale: Locale = "pt-BR"): Record<IngredientCategory, string> {
+  return locale === "es" ? CATEGORY_LABEL_ES : CATEGORY_LABEL;
+}
+
 export function buildShoppingList(
   ageBand: AgeBand,
   options: Omit<SuggestionOptions, "overrideIndex"> = {},
@@ -872,13 +938,15 @@ export function buildShoppingList(
     groups[item.category].push(item);
   }
 
+  const sortLocale = options.locale === "es" ? "es" : "pt-BR";
   (Object.keys(groups) as IngredientCategory[]).forEach((category) => {
-    groups[category].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    groups[category].sort((a, b) => a.name.localeCompare(b.name, sortLocale));
   });
 
+  const categoryLabel = getCategoryLabel(options.locale);
   return (["feira", "mercado", "outros"] as IngredientCategory[])
     .filter((category) => groups[category].length > 0)
-    .map((category) => ({ category, label: CATEGORY_LABEL[category], items: groups[category] }));
+    .map((category) => ({ category, label: categoryLabel[category], items: groups[category] }));
 }
 
 export { ageInMonths };

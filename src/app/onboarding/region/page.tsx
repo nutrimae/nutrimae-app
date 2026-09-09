@@ -6,11 +6,33 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
 import { REGIONS, type Region } from "@/lib/regions";
+import { LATAM_REGIONS, type LatamRegion } from "@/lib/latam-regions";
+import { useLocale } from "@/lib/use-locale";
+
+const COPY = {
+  "pt-BR": {
+    title: "De qual região do Brasil vocês são?",
+    subtitle: "Assim priorizamos alimentos e receitas da sua região. Totalmente opcional!",
+    saving: "Salvando...",
+    continue: "Continuar",
+    skip: "Pular",
+  },
+  es: {
+    title: "¿De qué región de Latinoamérica son?",
+    subtitle: "Así priorizamos alimentos y recetas típicas de tu región. ¡Totalmente opcional!",
+    saving: "Guardando...",
+    continue: "Continuar",
+    skip: "Omitir",
+  },
+} as const;
 
 export default function RegionStepPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [selected, setSelected] = useState<Region | null>(null);
+  const { locale } = useLocale();
+  const t = COPY[locale];
+  const options = locale === "es" ? LATAM_REGIONS : REGIONS;
+  const [selected, setSelected] = useState<Region | LatamRegion | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleContinue() {
@@ -25,7 +47,8 @@ export default function RegionStepPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      await supabase.from("profiles").update({ region: selected }).eq("user_id", user.id);
+      const column = locale === "es" ? "latam_region" : "region";
+      await supabase.from("profiles").update({ [column]: selected }).eq("user_id", user.id);
     }
 
     setLoading(false);
@@ -39,14 +62,14 @@ export default function RegionStepPage() {
     >
       <div className="mx-auto w-full max-w-sm flex-1">
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          De qual região do Brasil vocês são?
+          {t.title}
         </h1>
         <p className="mt-2 text-sm text-brown-700/70">
-          Assim priorizamos alimentos e receitas da sua região. Totalmente opcional!
+          {t.subtitle}
         </p>
 
         <div className="mt-8 flex flex-col gap-3">
-          {REGIONS.map((r) => (
+          {options.map((r) => (
             <button
               key={r.key}
               type="button"
@@ -68,7 +91,7 @@ export default function RegionStepPage() {
         <ProgressDots step={4} total={6} />
         <div className="mt-6 flex flex-col gap-3">
           <Button onClick={handleContinue} disabled={loading} variant="brand">
-            {loading ? "Salvando..." : selected ? "Continuar" : "Pular"}
+            {loading ? t.saving : selected ? t.continue : t.skip}
           </Button>
         </div>
       </div>

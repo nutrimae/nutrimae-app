@@ -4,9 +4,26 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLocale } from "@/lib/use-locale";
+
+const COPY = {
+  "pt-BR": {
+    title: "Bem-vinda ao NutriMãe",
+    subtitle: "Vamos deixar tudo pronto para acompanhar a introdução alimentar do seu bebê, com calma.",
+    cta: "Vamos começar",
+  },
+  es: {
+    title: "Bienvenida a NutriMãe",
+    subtitle: "Vamos a dejar todo listo para acompañar la introducción alimentaria de tu bebé, con calma.",
+    cta: "Empezar",
+  },
+} as const;
 
 export default function WelcomePage() {
   const router = useRouter();
+  const { locale, setLocale } = useLocale();
+  const t = COPY[locale];
 
   return (
     <main
@@ -14,6 +31,10 @@ export default function WelcomePage() {
       style={{ background: "linear-gradient(180deg, #fff5f7 0%, #fdf9f3 40%, #f2f5ee 100%)" }}
     >
       <div className="absolute inset-0 dot-pattern opacity-15" />
+
+      <div className="relative flex justify-end">
+        <LanguageSwitcher locale={locale} onChange={setLocale} />
+      </div>
 
       <div className="relative flex flex-1 flex-col items-center justify-center text-center">
         <div className="animate-splash-logo mb-4">
@@ -27,10 +48,10 @@ export default function WelcomePage() {
           />
         </div>
         <h1 className="animate-fade-in-up font-heading text-3xl font-bold text-brown-800">
-          Bem-vinda ao NutriMãe
+          {t.title}
         </h1>
         <p className="animate-fade-in-up mt-3 max-w-xs text-base leading-relaxed text-brown-700/80" style={{ animationDelay: "0.1s" }}>
-          Vamos deixar tudo pronto para acompanhar a introdução alimentar do seu bebê, com calma.
+          {t.subtitle}
         </p>
       </div>
 
@@ -38,7 +59,7 @@ export default function WelcomePage() {
         <div className="mb-6">
           <ProgressDots step={0} total={6} />
         </div>
-        <Button variant="brand" onClick={() => router.push("/onboarding/baby")}>Vamos começar</Button>
+        <Button variant="brand" onClick={() => router.push("/onboarding/baby")}>{t.cta}</Button>
       </div>
     </main>
   );

@@ -7,12 +7,13 @@ import { Search, Clock, ChefHat, Heart, Hand } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
-import { AGE_BAND_LABEL, ageBandForMonths, type AgeBand } from "@/lib/menu";
+import { ageBandForMonths, getAgeBandLabel, type AgeBand } from "@/lib/menu";
 import { BackButton } from "@/components/back-button";
 import { useRegion } from "@/lib/use-region";
+import { useLocale } from "@/lib/use-locale";
 import {
-  ALLERGEN_LABEL,
-  RECIPE_MEAL_TYPE_LABEL,
+  getAllergenLabel,
+  getRecipeMealTypeLabel,
   searchRecipes,
   TOTAL_RECIPES,
   type RecipeMealType,
@@ -30,6 +31,10 @@ export default function ReceitasPage() {
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const babyBand = useMemo(() => ageBandForMonths(months), [months]);
   const { region } = useRegion();
+  const { locale } = useLocale();
+  const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
+  const ALLERGEN_LABEL = useMemo(() => getAllergenLabel(locale), [locale]);
+  const RECIPE_MEAL_TYPE_LABEL = useMemo(() => getRecipeMealTypeLabel(locale), [locale]);
 
   const [query, setQuery] = useState("");
   const [ageBand, setAgeBand] = useState<AgeBand | "todas">(activeBaby ? babyBand : "todas");

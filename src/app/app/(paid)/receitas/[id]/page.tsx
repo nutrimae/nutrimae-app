@@ -7,8 +7,8 @@ import { BackButton } from "@/components/back-button";
 import { ListenButton } from "@/components/listen-button";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
-import { AGE_BAND_LABEL } from "@/lib/menu";
-import { ALLERGEN_LABEL, RECIPE_MEAL_TYPE_LABEL, RECIPES } from "@/lib/recipes";
+import { getAgeBandLabel } from "@/lib/menu";
+import { getAllergenLabel, getRecipeMealTypeLabel, RECIPES } from "@/lib/recipes";
 import {
   getFavoriteRecipeIds,
   getRecipeRatings,
@@ -16,12 +16,17 @@ import {
   toggleFavoriteRecipe,
 } from "@/lib/recipe-favorites";
 import { getAllergenChecklist } from "@/lib/allergen-checklist";
+import { useLocale } from "@/lib/use-locale";
 
 export default function RecipeDetailPage() {
   const params = useParams<{ id: string }>();
   const recipe = RECIPES.find((r) => r.id === params.id);
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
+  const { locale } = useLocale();
+  const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
+  const ALLERGEN_LABEL = useMemo(() => getAllergenLabel(locale), [locale]);
+  const RECIPE_MEAL_TYPE_LABEL = useMemo(() => getRecipeMealTypeLabel(locale), [locale]);
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [rating, setRating] = useState(0);

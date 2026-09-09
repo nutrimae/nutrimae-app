@@ -1,5 +1,6 @@
 import type { AgeBand } from "@/lib/menu";
 import type { Region } from "@/lib/regions";
+import type { Locale } from "@/lib/i18n/locale";
 
 export type RecipeMealType = "cafe" | "almoco" | "lanche" | "ceia";
 
@@ -9,6 +10,17 @@ export const RECIPE_MEAL_TYPE_LABEL: Record<RecipeMealType, string> = {
   lanche: "Lanche",
   ceia: "Ceia",
 };
+
+const RECIPE_MEAL_TYPE_LABEL_ES: Record<RecipeMealType, string> = {
+  cafe: "Desayuno",
+  almoco: "Almuerzo",
+  lanche: "Merienda",
+  ceia: "Cena",
+};
+
+export function getRecipeMealTypeLabel(locale: Locale = "pt-BR"): Record<RecipeMealType, string> {
+  return locale === "es" ? RECIPE_MEAL_TYPE_LABEL_ES : RECIPE_MEAL_TYPE_LABEL;
+}
 
 export type Allergen =
   | "ovo"
@@ -44,6 +56,28 @@ export const ALLERGEN_LABEL: Record<Allergen, string> = {
   tremoco: "Tremoço",
   mel: "Mel",
 };
+
+const ALLERGEN_LABEL_ES: Record<Allergen, string> = {
+  ovo: "Huevo",
+  leite: "Leche",
+  gluten: "Gluten",
+  amendoim: "Maní",
+  castanhas: "Frutos secos",
+  peixe: "Pescado",
+  crustaceos: "Crustáceos",
+  moluscos: "Moluscos",
+  soja: "Soja",
+  gergelim: "Sésamo",
+  mostarda: "Mostaza",
+  aipo: "Apio",
+  sulfitos: "Sulfitos",
+  tremoco: "Altramuz",
+  mel: "Miel",
+};
+
+export function getAllergenLabel(locale: Locale = "pt-BR"): Record<Allergen, string> {
+  return locale === "es" ? ALLERGEN_LABEL_ES : ALLERGEN_LABEL;
+}
 
 export interface Recipe {
   id: string;

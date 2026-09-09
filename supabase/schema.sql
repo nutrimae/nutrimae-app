@@ -1450,3 +1450,15 @@ create policy "Service role gerencia log do NutriBot"
   on public.nutribot_conversation_log for all
   using (exists (select 1 from public.profiles where user_id = auth.uid() and is_admin = true));
 
+
+-- ═══════════════════════════════════════════════════════════════
+-- Expansão LATAM (idioma + sub-região)
+-- ═══════════════════════════════════════════════════════════════
+
+alter table public.profiles
+  add column if not exists locale text not null default 'pt-BR'
+  check (locale in ('pt-BR', 'es'));
+
+alter table public.profiles
+  add column if not exists latam_region text
+  check (latam_region is null or latam_region in ('mexico', 'centroamerica', 'caribe', 'andina', 'rio_de_la_plata', 'chile'));

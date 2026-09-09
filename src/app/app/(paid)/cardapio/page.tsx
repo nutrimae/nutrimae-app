@@ -13,13 +13,14 @@ import { BalancedPlate } from "@/components/balanced-plate";
 import { useRegion } from "@/lib/use-region";
 import { LunchboxPlanner } from "@/components/lunchbox/lunchbox-planner";
 import { useToast } from "@/components/toast-provider";
+import { useLocale } from "@/lib/use-locale";
 import {
-  AGE_BAND_LABEL,
   ageBandForMonths,
   allergenForDietFilter,
-  DAYS,
-  DIET_FILTER_LABEL,
-  MEAL_TYPES,
+  getAgeBandLabel,
+  getDays,
+  getDietFilterLabel,
+  getMealTypes,
   getSuggestion,
   poolSize,
   slugifyIngredient,
@@ -32,6 +33,11 @@ export default function CardapioPage() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const { showToast } = useToast();
+  const { locale } = useLocale();
+  const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
+  const DAYS = useMemo(() => getDays(locale), [locale]);
+  const MEAL_TYPES = useMemo(() => getMealTypes(locale), [locale]);
+  const DIET_FILTER_LABEL = useMemo(() => getDietFilterLabel(locale), [locale]);
 
   const [dayIndex, setDayIndex] = useState(() => todayDayIndex());
   const [expanded, setExpanded] = useState<MealType | null>(null);
@@ -117,6 +123,7 @@ export default function CardapioPage() {
     triedFoodKeys: hasDiario ? triedFoodKeys : undefined,
     avoidAllergen,
     region,
+    locale,
   };
 
   function overrideKey(mealType: MealType) {
@@ -125,7 +132,7 @@ export default function CardapioPage() {
 
   function handleSwap(mealType: MealType) {
     const key = overrideKey(mealType);
-    const size = poolSize(ageBand, mealType);
+    const size = poolSize(ageBand, mealType, locale);
     const current = overrides[key] ?? dayIndex % size;
     setOverrides((prev) => ({ ...prev, [key]: (current + 1) % size }));
     showToast("Sugestão trocada");

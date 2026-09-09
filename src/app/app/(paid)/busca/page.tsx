@@ -5,18 +5,21 @@ import { Search, AlertTriangle, X, Snowflake, Sun } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
-import { ageBandForMonths, AGE_BAND_LABEL } from "@/lib/menu";
+import { ageBandForMonths, getAgeBandLabel } from "@/lib/menu";
 import { searchFoods, type FoodItem } from "@/lib/foods";
 import { getFoodPrepGuide } from "@/lib/food-prep";
 import { BackButton } from "@/components/back-button";
 import { ListenButton } from "@/components/listen-button";
 import { useRegion } from "@/lib/use-region";
+import { useLocale } from "@/lib/use-locale";
 
 export default function BuscaPage() {
   const { activeBaby } = useActiveBaby();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<FoodItem | null>(null);
   const { region } = useRegion();
+  const { locale } = useLocale();
+  const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
 
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
@@ -127,6 +130,8 @@ function FoodDetail({
   babyAgeMonths?: number;
   onBack: () => void;
 }) {
+  const { locale } = useLocale();
+  const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
   const [modalOpen, setModalOpen] = useState(false);
   const [dbVideo, setDbVideo] = useState<{
     video_url: string;

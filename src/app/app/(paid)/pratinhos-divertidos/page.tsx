@@ -5,7 +5,7 @@ import { Clock, Heart, Plus, Share2, Star, Sparkles } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { useToast } from "@/components/toast-provider";
 import { ageInMonths } from "@/lib/age";
-import { AGE_BAND_LABEL, ageBandForMonths, type AgeBand } from "@/lib/menu";
+import { ageBandForMonths, getAgeBandLabel, type AgeBand } from "@/lib/menu";
 import { BackButton } from "@/components/back-button";
 import { Chip } from "@/components/ui/chip";
 import { PRATINHOS, TOTAL_PRATINHOS, type Pratinho } from "@/lib/pratinhos";
@@ -17,6 +17,7 @@ import {
   setPratinhoRating,
   toggleFavoritePratinho,
 } from "@/lib/pratinhos-saved";
+import { useLocale } from "@/lib/use-locale";
 
 const AGE_BANDS: AgeBand[] = ["6-7", "8-9", "10-12", "13-24"];
 
@@ -25,6 +26,8 @@ export default function PratinhosDivertidosPage() {
   const { showToast } = useToast();
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const babyBand = useMemo(() => ageBandForMonths(months), [months]);
+  const { locale } = useLocale();
+  const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
 
   const [ageBand, setAgeBand] = useState<AgeBand | "todas">(activeBaby ? babyBand : "todas");
   const [expandedId, setExpandedId] = useState<string | null>(null);

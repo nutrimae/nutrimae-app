@@ -7,8 +7,9 @@ import { useToast } from "@/components/toast-provider";
 import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
-import { ageBandForMonths, allergenForDietFilter, buildShoppingList, type DietFilter } from "@/lib/menu";
+import { ageBandForMonths, allergenForDietFilter, buildShoppingList, getCategoryLabel, type DietFilter } from "@/lib/menu";
 import { getWeeklyLunchboxShoppingItems } from "@/lib/lunchbox";
+import { useLocale } from "@/lib/use-locale";
 
 type ExtraCategory = "feira" | "mercado" | "outros";
 
@@ -39,14 +40,15 @@ export default function ListaComprasPage() {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState<ExtraCategory>("outros");
 
+  const { locale } = useLocale();
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const isPost24Months = months >= 24;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
   const dietFilter = (activeBaby?.diet_filter as DietFilter) ?? "padrao";
   const avoidAllergen = hasRestricao ? allergenForDietFilter(dietFilter) : null;
   const groups = useMemo(
-    () => buildShoppingList(ageBand, { avoidAllergen }),
-    [ageBand, avoidAllergen],
+    () => buildShoppingList(ageBand, { avoidAllergen, locale }),
+    [ageBand, avoidAllergen, locale],
   );
 
   const lunchboxItems = useMemo(() => {
@@ -55,7 +57,7 @@ export default function ListaComprasPage() {
   }, [activeBaby, isPost24Months]);
 
   const displayGroups = useMemo(() => {
-    const labels: Record<ExtraCategory, string> = { feira: "Feira", mercado: "Supermercado", outros: "Outros" };
+    const labels = getCategoryLabel(locale);
     const result = groups.map((group) => ({ ...group, items: [...group.items] }));
 
     // Merge lunchbox items
@@ -80,7 +82,7 @@ export default function ListaComprasPage() {
       group.items.push(extra);
     }
     return result;
-  }, [extras, groups, lunchboxItems]);
+  }, [extras, groups, lunchboxItems, locale]);
 
   const visibleKeys = useMemo(() => new Set(displayGroups.flatMap((group) => group.items.map((item) => item.key))), [displayGroups]);
   const totalItems = visibleKeys.size;

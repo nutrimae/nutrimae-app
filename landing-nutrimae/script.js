@@ -915,68 +915,6 @@ document.addEventListener('DOMContentLoaded', function () {
   renderFoodResult();
 
   /* ---------------------------------------------------
-     BLOCO 6: Assistente honesto (2 perguntas reais)
-     --------------------------------------------------- */
-  var methodNotes = {
-    'papinha': 'Anotado — papinha. As receitas em textura de papinha já aparecem primeiro pra você.',
-    'blw': 'Anotado — BLW. O guia de cortes por pedaço fica em destaque na sua tela inicial.',
-    'misto': 'Anotado — método misto. Você recebe as duas texturas lado a lado, sem precisar escolher uma só.',
-    'nao-decidi': 'Sem problema. O app mostra os dois métodos lado a lado para você decidir com calma.'
-  };
-
-  var allergenNotes = {
-    'nao': 'Sem alergênico conhecido — seguimos com a introdução gradual recomendada.',
-    'ovo': 'Anotado — ovo. As receitas com ovo já saem sinalizadas para você.',
-    'leite': 'Anotado — leite. As receitas com leite já saem sinalizadas para você.',
-    'outro': 'Anotado. No app dá para marcar o alergênico específico e filtrar as receitas.'
-  };
-
-  var methodOptions = document.querySelectorAll('#assistant-method-options .option-btn');
-  var methodNoteEl = document.getElementById('assistant-method-note');
-  var allergenStep = document.getElementById('assistant-allergen-step');
-  var allergenOptions = document.querySelectorAll('#assistant-allergen-options .option-btn');
-  var allergenNoteEl = document.getElementById('assistant-allergen-note');
-  var assistantFinishBtn = document.getElementById('assistant-finish');
-
-  methodOptions.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      methodOptions.forEach(function (b) { b.classList.remove('selected'); });
-      btn.classList.add('selected');
-      var method = btn.getAttribute('data-method');
-      trackEvent('AssistantAnswer', { question: 'method', answer: method });
-
-      if (methodNoteEl) {
-        methodNoteEl.textContent = methodNotes[method];
-        methodNoteEl.classList.remove('assistant-note--hidden');
-      }
-      if (allergenStep) allergenStep.classList.remove('assistant-step--hidden');
-    });
-  });
-
-  allergenOptions.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      allergenOptions.forEach(function (b) { b.classList.remove('selected'); });
-      btn.classList.add('selected');
-      var allergen = btn.getAttribute('data-allergen');
-      trackEvent('AssistantAnswer', { question: 'allergen', answer: allergen });
-      trackEvent('AssistantComplete');
-
-      if (allergenNoteEl) {
-        allergenNoteEl.textContent = allergenNotes[allergen];
-        allergenNoteEl.classList.remove('assistant-note--hidden');
-      }
-      if (assistantFinishBtn) assistantFinishBtn.classList.remove('assistant-finish--hidden');
-    });
-  });
-
-  if (assistantFinishBtn) {
-    assistantFinishBtn.addEventListener('click', function () {
-      trackEvent('AssistantFinish');
-      scrollToSection('bloco-6');
-    });
-  }
-
-  /* ---------------------------------------------------
      BLOCO 8: Manual S.O.S. (link para o app)
      --------------------------------------------------- */
   var sosLink = document.getElementById('sos-link');
@@ -1003,48 +941,49 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { threshold: 0.3 });
 
   /* ---------------------------------------------------
-     BLOCO 11: Oferta — Plano Anual/Mensal + Checkout
+     BLOCO 11: Oferta — Plano Completo/Básico + Checkout
      --------------------------------------------------- */
-  // Mensal e Anual são ofertas reais desde 2026-08-24 (offers.active=true,
-  // assinatura recorrente validada no sandbox do Pagar.me — ver memória
-  // project-bump-upsell-mensal-swap). O botão de compra agora segue o
-  // toggle de verdade, em vez de sempre levar pro Anual.
-  var toggleMensal = document.getElementById('toggle-mensal');
-  var toggleAnual = document.getElementById('toggle-anual');
-  var planCardMensal = document.getElementById('plan-card-mensal');
-  var planCardAnual = document.getElementById('plan-card-anual');
-  var selectedPlan = 'anual';
+  // Pivô de 2026-09-08: NutriMãe não vende mais assinatura recorrente —
+  // Básico e Completo são os dois planos, ambos pagamento único vitalício
+  // (offers.active=true, ver migração
+  // 202609080001_planos_basico_completo.sql). O botão de compra segue o
+  // toggle de verdade, em vez de sempre levar pro Completo.
+  var toggleBasico = document.getElementById('toggle-basico');
+  var toggleCompleto = document.getElementById('toggle-completo');
+  var planCardBasico = document.getElementById('plan-card-basico');
+  var planCardCompleto = document.getElementById('plan-card-completo');
+  var selectedPlan = 'completo';
+  var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
 
   function selectPlanToggle(plan) {
     selectedPlan = plan;
-    var showMensal = plan === 'mensal';
-    if (toggleMensal) {
-      toggleMensal.classList.toggle('is-active', showMensal);
-      toggleMensal.setAttribute('aria-selected', String(showMensal));
+    var showBasico = plan === 'basico';
+    if (toggleBasico) {
+      toggleBasico.classList.toggle('is-active', showBasico);
+      toggleBasico.setAttribute('aria-selected', String(showBasico));
     }
-    if (toggleAnual) {
-      toggleAnual.classList.toggle('is-active', !showMensal);
-      toggleAnual.setAttribute('aria-selected', String(!showMensal));
+    if (toggleCompleto) {
+      toggleCompleto.classList.toggle('is-active', !showBasico);
+      toggleCompleto.setAttribute('aria-selected', String(!showBasico));
     }
-    if (planCardMensal) planCardMensal.hidden = !showMensal;
-    if (planCardAnual) planCardAnual.hidden = showMensal;
+    if (planCardBasico) planCardBasico.hidden = !showBasico;
+    if (planCardCompleto) planCardCompleto.hidden = showBasico;
     if (ctaCheckoutDynamic) {
-      ctaCheckoutDynamic.textContent = showMensal
-        ? 'Quero começar por R$19,90/mês'
-        : 'Quero o acesso anual por R$47';
+      ctaCheckoutDynamic.textContent = showBasico
+        ? 'Quero o Básico por R$19,90'
+        : 'Quero o Completo por R$47';
     }
   }
 
-  if (toggleMensal) {
-    toggleMensal.addEventListener('click', function () { selectPlanToggle('mensal'); });
+  if (toggleBasico) {
+    toggleBasico.addEventListener('click', function () { selectPlanToggle('basico'); });
   }
-  if (toggleAnual) {
-    toggleAnual.addEventListener('click', function () { selectPlanToggle('anual'); });
+  if (toggleCompleto) {
+    toggleCompleto.addEventListener('click', function () { selectPlanToggle('completo'); });
   }
 
-  var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
   if (ctaCheckoutDynamic) {
-    ctaCheckoutDynamic.textContent = 'Quero o acesso anual por R$47';
+    ctaCheckoutDynamic.textContent = 'Quero o Completo por R$47';
   }
 
   function goToOffer(offerSlug) {
@@ -1067,40 +1006,9 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = APP_URL + '/checkout/' + offerSlug + (query ? '?' + query : '');
   }
 
-  // Modal de upsell (mesmo padrão do Croche): quem escolhe Mensal vê, antes
-  // do checkout, a oferta exclusiva do Anual por R$37 — só nesse caminho,
-  // nunca pra quem já escolheu Anual direto.
-  var mensalUpsellModal = document.getElementById('mensal-upsell-modal');
-
-  function openMensalUpsell() {
-    if (!mensalUpsellModal) { goToOffer('nutrimae-mensal'); return; }
-    mensalUpsellModal.classList.add('is-open');
-    trackEvent('MensalUpsellShown');
-  }
-
-  window.closeMensalUpsell = function () {
-    if (mensalUpsellModal) mensalUpsellModal.classList.remove('is-open');
-  };
-
-  window.acceptMensalUpsell = function () {
-    trackEvent('MensalUpsellAccepted');
-    window.closeMensalUpsell();
-    goToOffer('nutrimae-anual-upsell');
-  };
-
-  window.declineMensalUpsell = function () {
-    trackEvent('MensalUpsellDeclined');
-    window.closeMensalUpsell();
-    goToOffer('nutrimae-mensal');
-  };
-
   function goToCheckout() {
     trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
-    if (selectedPlan === 'mensal') {
-      openMensalUpsell();
-      return;
-    }
-    goToOffer('nutrimae-anual');
+    goToOffer(selectedPlan === 'basico' ? 'nutrimae-basico' : 'nutrimae-anual');
   }
 
   if (ctaCheckoutDynamic) {
@@ -1193,46 +1101,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ---------------------------------------------------
-     Barra de CTA fixa (mobile)
-     --------------------------------------------------- */
-  var stickyCta = document.getElementById('sticky-cta');
-  var stickyCtaBtn = document.getElementById('sticky-cta-btn');
-  var heroSection = document.getElementById('bloco-1');
-  var offerSectionForSticky = document.getElementById('bloco-6');
-
-  if (stickyCta && heroSection && offerSectionForSticky) {
-    // Visibilidade calculada por geometria: funciona com ou sem
-    // IntersectionObserver, garantindo a barra também em navegadores in-app.
-    function isElementOnScreen(el) {
-      var rect = el.getBoundingClientRect();
-      var viewportH = window.innerHeight || document.documentElement.clientHeight;
-      return rect.top < viewportH && rect.bottom > 0;
-    }
-
-    function updateStickyCta() {
-      var shouldShow = !isElementOnScreen(heroSection) && !isElementOnScreen(offerSectionForSticky);
-      stickyCta.classList.toggle('sticky-cta--visible', shouldShow);
-      stickyCta.setAttribute('aria-hidden', String(!shouldShow));
-    }
-
-    if (supportsIO) {
-      safeObserve(heroSection, updateStickyCta, { threshold: 0 });
-      safeObserve(offerSectionForSticky, updateStickyCta, { threshold: 0 });
-    }
-
-    window.addEventListener('scroll', updateStickyCta, { passive: true });
-    window.addEventListener('resize', updateStickyCta, { passive: true });
-    updateStickyCta();
-  }
-
-  if (stickyCtaBtn) {
-    stickyCtaBtn.addEventListener('click', function () {
-      trackEvent('StickyCtaClick');
-      scrollToSection('bloco-6');
-    });
-  }
-
-  /* ---------------------------------------------------
      Parallax leve no fundo da demonstração do produto — só transform,
      só enquanto o elemento está na tela (liga/desliga o listener de
      scroll via IntersectionObserver pra não gastar CPU à toa no resto
@@ -1278,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', function () {
      --------------------------------------------------- */
   var revealSelector = [
     '.feature-card', '.audience-card', '.objection-card', '.faq-item',
-    '.journey__step', '.comparison__col', '.sos-card', '.chat-window',
+    '.journey__step', '.comparison__col', '.sos-card',
     '.mini-mock', '.plan-card-single', '.community-spotlight__testimonial',
     '.app-preview__img', '.persona-story__img', '.persona-story__copy',
     'section .section-title'
@@ -1310,56 +1178,5 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   trackEvent('ViewContent', { page: 'oferta' });
-
-  /* ---------------------------------------------------
-     Notificação de "compra recente" — mesmo padrão já usado no Croche e
-     na Clínica Psi. Não é feed em tempo real (sem backend por trás
-     aqui); é uma lista de exemplos rotativa, sem repetir até esgotar o
-     ciclo.
-     --------------------------------------------------- */
-  var PURCHASE_EXAMPLES = [
-    ['Mariana S.', 'São Paulo, SP'],
-    ['Camila R.', 'Belo Horizonte, MG'],
-    ['Juliana P.', 'Porto Alegre, RS'],
-    ['Fernanda L.', 'Salvador, BA'],
-    ['Priscila M.', 'Curitiba, PR'],
-    ['Patrícia G.', 'Recife, PE'],
-    ['Renata C.', 'Fortaleza, CE'],
-    ['Larissa T.', 'Goiânia, GO'],
-    ['Bianca F.', 'Rio de Janeiro, RJ'],
-    ['Débora N.', 'Florianópolis, SC'],
-    ['Simone A.', 'Brasília, DF'],
-    ['Aline V.', 'Campinas, SP']
-  ];
-  var purchaseToastEl = document.getElementById('purchase-toast');
-  var purchaseToastNameEl = document.getElementById('purchase-toast-name');
-  var purchaseToastCityEl = document.getElementById('purchase-toast-city');
-  var purchaseQueue = [];
-  var purchaseHideTimer = null;
-
-  function nextPurchaseExample() {
-    if (purchaseQueue.length === 0) {
-      purchaseQueue = PURCHASE_EXAMPLES.slice().sort(function () { return Math.random() - 0.5; });
-    }
-    return purchaseQueue.pop();
-  }
-
-  function showPurchaseToast() {
-    if (!purchaseToastEl) return;
-    var example = nextPurchaseExample();
-    purchaseToastNameEl.textContent = example[0];
-    purchaseToastCityEl.textContent = example[1];
-    purchaseToastEl.classList.add('is-visible');
-
-    clearTimeout(purchaseHideTimer);
-    purchaseHideTimer = setTimeout(function () {
-      purchaseToastEl.classList.remove('is-visible');
-    }, 6000);
-  }
-
-  if (purchaseToastEl) {
-    setTimeout(showPurchaseToast, 4000);
-    setInterval(showPurchaseToast, 30000);
-  }
 
 });

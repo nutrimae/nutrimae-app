@@ -24,12 +24,12 @@ const FAQ_ITEMS = [
     a: "O NutriMãe é um material de organização e planejamento da rotina alimentar. Ele serve como apoio prático no dia a dia, mas não substitui a orientação do pediatra ou do nutricionista que acompanha o seu bebê. Em caso de alergia, restrição alimentar ou qualquer dúvida específica sobre o desenvolvimento dele, consulte sempre o profissional responsável.",
   },
   {
-    q: "Posso cancelar quando quiser?",
-    a: "Sim. O cancelamento é feito a qualquer momento, direto no seu perfil dentro do app (menu Perfil → Gerenciar assinatura), sem multa e sem tempo mínimo de permanência.",
+    q: "Existe mensalidade ou cobrança recorrente?",
+    a: "Não. Os dois planos são pagamento único: você paga uma vez (Pix ou cartão) e o acesso é vitalício, sem mensalidade e sem cobrança automática depois.",
   },
   {
-    q: "Quanto eu pago depois do primeiro mês?",
-    a: `No plano mensal, ${formatPrice(product.price)} vale só para o primeiro mês. A partir do segundo, o valor passa a ser ${formatPrice(product.regularPrice)}/mês. No plano anual, o valor é fixo de ${formatPrice(product.annual?.price ?? 0)} à vista, sem reajuste durante o ano.`,
+    q: "Qual a diferença entre o Plano Básico e o Plano Completo?",
+    a: `O Básico custa ${formatPrice(product.price)}, pagamento único vitalício. O Completo custa ${formatPrice(product.completo?.price ?? 0)} à vista (ou parcelado no cartão) e já inclui o bônus SOS Desmame Noturno de graça.`,
   },
   {
     q: "Como funciona a garantia de 7 dias?",

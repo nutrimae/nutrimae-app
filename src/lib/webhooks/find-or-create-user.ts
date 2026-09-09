@@ -61,7 +61,18 @@ export async function findOrCreateUser(
     // Corrida: outro evento pode ter criado a conta entre o lookup e o invite.
     const raceId = await findUserIdByEmail(admin, email);
     if (raceId) return { userId: raceId, created: false };
-    throw error;
+
+    // O envio do e-mail de convite pode falhar (provedor de e-mail fora do
+    // ar, rate limit, etc.) — isso NUNCA pode travar a liberação do produto
+    // que a cliente já pagou. Cria a conta sem depender do envio do e-mail;
+    // ela recupera o acesso pelo fluxo normal de "esqueci minha senha".
+    console.error("[find-or-create-user] falha ao enviar convite, criando conta sem e-mail", error);
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+    });
+    if (createError || !created.user) throw createError ?? error;
+    return { userId: created.user.id, created: true };
   }
 
   if (!data.user) throw new Error("Convite não retornou usuária criada.");

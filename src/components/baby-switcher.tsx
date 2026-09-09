@@ -8,6 +8,7 @@ import { ChevronDown, Plus, X, Camera } from "lucide-react";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { formatAge } from "@/lib/age";
 import { BabyPhotoUploadModal } from "@/components/baby-photo-upload-modal";
+import { useLocale } from "@/lib/use-locale";
 
 function BabyAvatar({ name, photoUrl, gender, size = 40 }: { name: string; photoUrl: string | null; gender?: string | null; size?: number }) {
   const [failed, setFailed] = useState(false);
@@ -31,6 +32,8 @@ export function BabySwitcher() {
   const [open, setOpen] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const pathname = usePathname();
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   if (!activeBaby) return null;
   // A Home possui o cabeçalho completo da referência (avatar, saudação e logo).
@@ -47,7 +50,7 @@ export function BabySwitcher() {
             type="button"
             onClick={() => setShowUpload(true)}
             className="group relative shrink-0 touch-manipulation"
-            aria-label="Alterar foto do bebê"
+            aria-label={es ? "Cambiar foto del bebé" : "Alterar foto do bebê"}
           >
             <BabyAvatar name={activeBaby.name} photoUrl={activeBaby.photo_url} gender={activeBaby.gender} size={36} />
             <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-white">
@@ -64,7 +67,7 @@ export function BabySwitcher() {
                 {activeBaby.name}
               </p>
               <p className="text-[11px] leading-tight text-brown-700/82">
-                {formatAge(activeBaby.birth_date)}
+                {formatAge(activeBaby.birth_date, locale)}
               </p>
             </div>
             {babies.length > 1 && (
@@ -92,7 +95,7 @@ export function BabySwitcher() {
           >
             <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-gray-200" />
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-heading text-xl font-bold text-brown-800">Seus bebês</h2>
+              <h2 className="font-heading text-xl font-bold text-brown-800">{es ? "Tus bebés" : "Seus bebês"}</h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -122,7 +125,7 @@ export function BabySwitcher() {
                     <p className="font-heading text-lg font-bold text-brown-800">
                       {baby.name}
                     </p>
-                    <p className="text-sm text-brown-700/86">{formatAge(baby.birth_date)}</p>
+                    <p className="text-sm text-brown-700/86">{formatAge(baby.birth_date, locale)}</p>
                   </div>
                 </button>
               ))}
@@ -133,7 +136,7 @@ export function BabySwitcher() {
               className="mt-4 flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary-200 text-base font-semibold text-primary-500 transition-colors hover:border-primary-300 hover:bg-primary-50/30"
             >
               <Plus className="h-5 w-5" strokeWidth={2} />
-              Adicionar bebê
+              {es ? "Agregar bebé" : "Adicionar bebê"}
             </Link>
           </div>
         </div>

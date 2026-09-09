@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
 import { consumeOnboardingMonths } from "@/app/oferta/_components/onboarding-handoff";
+import { useLocale } from "@/lib/use-locale";
+
 
 type Mode = "data" | "meses";
 
@@ -19,6 +21,8 @@ function birthDateFromMonths(months: number): string {
 export default function BabyStepPage() {
   const router = useRouter();
   const supabase = createClient();
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [name, setName] = useState("");
   const [mode, setMode] = useState<Mode>("data");
@@ -46,13 +50,13 @@ export default function BabyStepPage() {
 
     const finalName = name.trim();
     if (!finalName) {
-      setError("Como se chama o bebê?");
+      setError(es ? "¿Cómo se llama el bebé?" : "Como se chama o bebê?");
       return;
     }
 
     const finalBirthDate = mode === "data" ? birthDate : birthDateFromMonths(Number(months));
     if (!finalBirthDate) {
-      setError("Precisamos da data (ou idade) do bebê.");
+      setError(es ? "Necesitamos la fecha (o edad) del bebé." : "Precisamos da data (ou idade) do bebê.");
       return;
     }
 
@@ -76,7 +80,7 @@ export default function BabyStepPage() {
     setLoading(false);
 
     if (insertError || !data) {
-      setError("Não deu para salvar agora. Tente de novo em instantes.");
+      setError(es ? "No fue posible guardar ahora. Intenta de nuevo en unos instantes." : "Não deu para salvar agora. Tente de novo em instantes.");
       return;
     }
 
@@ -90,17 +94,17 @@ export default function BabyStepPage() {
     >
       <div className="mx-auto w-full max-w-sm flex-1">
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Conte sobre o seu bebê
+          {es ? "Cuéntanos sobre tu bebé" : "Conte sobre o seu bebê"}
         </h1>
         <p className="mt-2 text-sm text-brown-700/70">
-          Assim personalizamos as sugestões para a fase certa.
+          {es ? "Así personalizamos las sugerencias para la fase correcta." : "Assim personalizamos as sugestões para a fase certa."}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
           <Input
             id="baby-name"
-            label="Nome do bebê"
-            placeholder="Ex.: Alice"
+            label={es ? "Nombre del bebé" : "Nome do bebê"}
+            placeholder={es ? "Ej.: Alicia" : "Ex.: Alice"}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -114,7 +118,7 @@ export default function BabyStepPage() {
                 mode === "data" ? "bg-white text-brown-800 shadow-sm" : "text-brown-700/50"
               }`}
             >
-              Data de nascimento
+              {es ? "Fecha de nacimiento" : "Data de nascimento"}
             </button>
             <button
               type="button"
@@ -123,7 +127,7 @@ export default function BabyStepPage() {
                 mode === "meses" ? "bg-white text-brown-800 shadow-sm" : "text-brown-700/50"
               }`}
             >
-              Idade em meses
+              {es ? "Edad en meses" : "Idade em meses"}
             </button>
           </div>
 
@@ -131,7 +135,7 @@ export default function BabyStepPage() {
             <Input
               id="birth-date"
               type="date"
-              label="Data de nascimento"
+              label={es ? "Fecha de nacimiento" : "Data de nascimento"}
               value={birthDate}
               max={today}
               onChange={(e) => setBirthDate(e.target.value)}
@@ -142,8 +146,8 @@ export default function BabyStepPage() {
               id="months"
               type="number"
               inputMode="numeric"
-              label="Idade em meses"
-              placeholder="Ex.: 6"
+              label={es ? "Edad en meses" : "Idade em meses"}
+              placeholder={es ? "Ej.: 6" : "Ex.: 6"}
               min={0}
               max={36}
               value={months}
@@ -159,7 +163,7 @@ export default function BabyStepPage() {
           )}
 
           <Button type="submit" disabled={loading} variant="brand">
-            {loading ? "Salvando..." : "Continuar"}
+            {loading ? (es ? "Guardando..." : "Salvando...") : (es ? "Continuar" : "Continuar")}
           </Button>
         </form>
       </div>

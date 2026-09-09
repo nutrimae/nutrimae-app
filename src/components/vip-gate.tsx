@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getEntitlementStatus } from "@/lib/entitlements";
 import { VipUpgradeScreen } from "@/components/vip-upgrade-screen";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 
 /**
  * Gate da Área VIP: libera o acesso quando a usuária tem PELO MENOS UM dos
@@ -38,7 +39,8 @@ export async function VipGate({ children }: { children: React.ReactNode }) {
   ]);
 
   if (weaningStatus !== "active" && intestinoStatus !== "active" && batchCookingStatus !== "active") {
-    return <VipUpgradeScreen />;
+    const locale = await getServerLocale();
+    return <VipUpgradeScreen locale={locale} />;
   }
 
   return <>{children}</>;

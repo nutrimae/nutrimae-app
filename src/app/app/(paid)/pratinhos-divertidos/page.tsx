@@ -27,6 +27,7 @@ export default function PratinhosDivertidosPage() {
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const babyBand = useMemo(() => ageBandForMonths(months), [months]);
   const { locale } = useLocale();
+  const es = locale === "es";
   const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
 
   const [ageBand, setAgeBand] = useState<AgeBand | "todas">(activeBaby ? babyBand : "todas");
@@ -52,33 +53,57 @@ export default function PratinhosDivertidosPage() {
 
   function handleAddToCardapio(pratinho: Pratinho) {
     setChosenIds(addPratinhoToCardapio(pratinho.id));
-    showToast(`${pratinho.title} adicionado às suas escolhas do Cardápio`);
+    showToast(
+      es
+        ? `${pratinho.title} agregado a tus elecciones del Menú`
+        : `${pratinho.title} adicionado às suas escolhas do Cardápio`,
+    );
   }
 
   function handleShoppingList(pratinho: Pratinho) {
-    const lines = [
-      `🛒 Lista de compras — ${pratinho.title}`,
-      "",
-      ...pratinho.ingredients.map((i) => `• ${i}`),
-      "",
-      "Gerada em NutriMãe 💚",
-    ];
+    const lines = es
+      ? [
+          `🛒 Lista de compras — ${pratinho.title}`,
+          "",
+          ...pratinho.ingredients.map((i) => `• ${i}`),
+          "",
+          "Generada en NutriMãe 💚",
+        ]
+      : [
+          `🛒 Lista de compras — ${pratinho.title}`,
+          "",
+          ...pratinho.ingredients.map((i) => `• ${i}`),
+          "",
+          "Gerada em NutriMãe 💚",
+        ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
 
   function handleShare(pratinho: Pratinho) {
-    const lines = [
-      `🍽️ ${pratinho.title}`,
-      "",
-      "Ingredientes:",
-      ...pratinho.ingredients.map((i) => `• ${i}`),
-      "",
-      "Modo de preparo:",
-      ...pratinho.steps.map((s, i) => `${i + 1}. ${s}`),
-      "",
-      "Pratinho do NutriMãe 💚",
-    ];
+    const lines = es
+      ? [
+          `🍽️ ${pratinho.title}`,
+          "",
+          "Ingredientes:",
+          ...pratinho.ingredients.map((i) => `• ${i}`),
+          "",
+          "Modo de preparación:",
+          ...pratinho.steps.map((s, i) => `${i + 1}. ${s}`),
+          "",
+          "Platito de NutriMãe 💚",
+        ]
+      : [
+          `🍽️ ${pratinho.title}`,
+          "",
+          "Ingredientes:",
+          ...pratinho.ingredients.map((i) => `• ${i}`),
+          "",
+          "Modo de preparo:",
+          ...pratinho.steps.map((s, i) => `${i + 1}. ${s}`),
+          "",
+          "Pratinho do NutriMãe 💚",
+        ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
@@ -92,9 +117,13 @@ export default function PratinhosDivertidosPage() {
       <BackButton />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Pratinhos Divertidos</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">
+          {es ? "Platitos Divertidos" : "Pratinhos Divertidos"}
+        </h1>
         <p className="mt-1 text-sm text-brown-700/90">
-          {TOTAL_PRATINHOS} ideias de apresentação colorida para deixar a refeição mais convidativa.
+          {es
+            ? `${TOTAL_PRATINHOS} ideas de presentación colorida para hacer la comida más atractiva.`
+            : `${TOTAL_PRATINHOS} ideias de apresentação colorida para deixar a refeição mais convidativa.`}
         </p>
       </div>
 
@@ -106,7 +135,7 @@ export default function PratinhosDivertidosPage() {
             ageBand === "todas" ? "bg-sage-500 text-white" : "bg-sage-50 text-brown-700"
           }`}
         >
-          Todas as idades
+          {es ? "Todas las edades" : "Todas as idades"}
         </button>
         {AGE_BANDS.map((band) => (
           <button
@@ -160,7 +189,9 @@ export default function PratinhosDivertidosPage() {
               </p>
 
               {canUseNow && (
-                <Chip color="primary" className="w-fit">Pode usar nessa faixa</Chip>
+                <Chip color="primary" className="w-fit">
+                  {es ? "Se puede usar en esta franja" : "Pode usar nessa faixa"}
+                </Chip>
               )}
 
               {isExpanded && (
@@ -179,7 +210,7 @@ export default function PratinhosDivertidosPage() {
                   </div>
                   <div>
                     <p className="mb-1 text-xs font-bold uppercase tracking-wide text-sage-600">
-                      Modo de preparo
+                      {es ? "Modo de preparación" : "Modo de preparo"}
                     </p>
                     <ol className="flex flex-col gap-1">
                       {pratinho.steps.map((step, i) => (
@@ -209,14 +240,20 @@ export default function PratinhosDivertidosPage() {
                     className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-primary-500 text-sm font-semibold text-white disabled:bg-primary-200"
                   >
                     <Plus className="h-4 w-4" strokeWidth={2} />
-                    {isChosen ? "Já está nas suas escolhas" : "Adicionar ao Cardápio"}
+                    {isChosen
+                      ? es
+                        ? "Ya está en tus elecciones"
+                        : "Já está nas suas escolhas"
+                      : es
+                        ? "Agregar al Menú"
+                        : "Adicionar ao Cardápio"}
                   </button>
                   <button
                     type="button"
                     onClick={() => handleShoppingList(pratinho)}
                     className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-sage-500 text-sm font-semibold text-white"
                   >
-                    Gerar lista de compras
+                    {es ? "Generar lista de compras" : "Gerar lista de compras"}
                   </button>
                   <button
                     type="button"
@@ -224,7 +261,7 @@ export default function PratinhosDivertidosPage() {
                     className="flex min-h-11 items-center justify-center gap-2 rounded-2xl border-2 border-sage-200 text-sm font-semibold text-sage-700"
                   >
                     <Share2 className="h-4 w-4" strokeWidth={2} />
-                    Compartilhar no WhatsApp
+                    {es ? "Compartir por WhatsApp" : "Compartilhar no WhatsApp"}
                   </button>
                 </div>
               )}
@@ -235,7 +272,7 @@ export default function PratinhosDivertidosPage() {
                 className="mt-1 flex min-h-9 items-center justify-center gap-1 rounded-xl bg-sage-50 text-xs font-semibold text-sage-700"
               >
                 <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
-                {isExpanded ? "Fechar" : "Usar Esta Ideia"}
+                {isExpanded ? (es ? "Cerrar" : "Fechar") : es ? "Usar Esta Idea" : "Usar Esta Ideia"}
               </button>
             </div>
           );

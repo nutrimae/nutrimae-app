@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Volume2, Pause, Loader2 } from "lucide-react";
+import { useLocale } from "@/lib/use-locale";
 
 // Compartilhado entre TODAS as instâncias de ListenButton na página — garante
 // que só um áudio toca por vez (clicar em "Ouvir" num outro cartão pausa o
@@ -30,6 +31,8 @@ type PlayState = "idle" | "loading" | "playing" | "paused";
 export function ListenButton({ contentType, contentId, text, className = "" }: ListenButtonProps) {
   const [state, setState] = useState<PlayState>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   // Ao desmontar (ex.: usuária clica em "voltar" e a tela muda), para o
   // áudio em vez de deixá-lo tocando "fantasma" em segundo plano — era isso
@@ -88,8 +91,15 @@ export function ListenButton({ contentType, contentId, text, className = "" }: L
   }, [state, contentType, contentId, text]);
 
   const Icon = state === "loading" ? Loader2 : state === "playing" ? Pause : Volume2;
-  const label =
-    state === "loading"
+  const label = es
+    ? state === "loading"
+      ? "Cargando audio..."
+      : state === "playing"
+        ? "Pausar"
+        : state === "paused"
+          ? "Continuar escuchando"
+          : "Escuchar"
+    : state === "loading"
       ? "Carregando áudio..."
       : state === "playing"
         ? "Pausar"
@@ -110,7 +120,23 @@ export function ListenButton({ contentType, contentId, text, className = "" }: L
         className={`h-4 w-4 ${state === "loading" ? "animate-spin" : ""}`}
         strokeWidth={2}
       />
-      <span>{state === "idle" ? "Ouvir" : state === "loading" ? "Carregando..." : state === "playing" ? "Pausar" : "Continuar"}</span>
+      <span>
+        {es
+          ? state === "idle"
+            ? "Escuchar"
+            : state === "loading"
+              ? "Cargando..."
+              : state === "playing"
+                ? "Pausar"
+                : "Continuar"
+          : state === "idle"
+            ? "Ouvir"
+            : state === "loading"
+              ? "Carregando..."
+              : state === "playing"
+                ? "Pausar"
+                : "Continuar"}
+      </span>
     </button>
   );
 }

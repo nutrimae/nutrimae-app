@@ -12,6 +12,7 @@ import { IconAvatar3D } from "@/components/ui/icon-avatar-3d";
 import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { ageBandForMonths, allergenForDietFilter, getTodaySuggestion, type DietFilter } from "@/lib/menu";
+import { useLocale } from "@/lib/use-locale";
 
 
 const ICON_LEAF = "/images/illustrations/icon-leaf.webp";
@@ -22,23 +23,29 @@ const ICON_BUSCA = "/images/illustrations/icon-busca.webp";
 const ICON_LISTA = "/images/illustrations/icon-lista.webp";
 const MEAL_BOWL = "/images/illustrations/meal-bowl-3d.webp";
 
-const SHORTCUTS = [
-  { image: ICON_CARDAPIO, label: "Cardápio da semana", href: "/app/cardapio" },
-  { image: ICON_BUSCA, label: "Buscar corte seguro", href: "/app/busca" },
-  { image: ICON_LISTA, label: "Lista de compras", href: "/app/lista-compras" },
-];
+function getShortcuts(es: boolean) {
+  return [
+    { image: ICON_CARDAPIO, label: es ? "Menú de la semana" : "Cardápio da semana", href: "/app/cardapio" },
+    { image: ICON_BUSCA, label: es ? "Buscar corte seguro" : "Buscar corte seguro", href: "/app/busca" },
+    { image: ICON_LISTA, label: es ? "Lista de compras" : "Lista de compras", href: "/app/lista-compras" },
+  ];
+}
 
-const MEAL_BENEFITS = [
-  { icon: Droplet, text: "Hidrata e refresca", color: "text-primary-500" },
-  { icon: Leaf, text: "Fonte natural de nutrientes", color: "text-sage-500" },
-  { icon: Sparkles, text: "Ideal para a fase atual", color: "text-amber-500" },
-];
+function getMealBenefits(es: boolean) {
+  return [
+    { icon: Droplet, text: es ? "Hidrata y refresca" : "Hidrata e refresca", color: "text-primary-500" },
+    { icon: Leaf, text: es ? "Fuente natural de nutrientes" : "Fonte natural de nutrientes", color: "text-sage-500" },
+    { icon: Sparkles, text: es ? "Ideal para la fase actual" : "Ideal para a fase atual", color: "text-amber-500" },
+  ];
+}
 
-const TIPS = [
-  { image: ICON_DROPLET, title: "Hidratação é tudo!", text: "Ofereça água ao longo do dia, mesmo fora das refeições.", styles: "bg-primary-50" },
-  { image: ICON_LEAF, title: "Pequenas quantidades?", text: "O começo da alimentação é leve, seguro e gradual.", styles: "bg-sage-50" },
-  { image: ICON_STAR, title: "Você está no caminho certo!", text: "Cada escolha faz diferença no futuro do seu bebê.", styles: "bg-amber-50" },
-];
+function getTips(es: boolean) {
+  return [
+    { image: ICON_DROPLET, title: es ? "¡Hidratación es todo!" : "Hidratação é tudo!", text: es ? "Ofrece agua a lo largo del día, incluso fuera de las comidas." : "Ofereça água ao longo do dia, mesmo fora das refeições.", styles: "bg-primary-50" },
+    { image: ICON_LEAF, title: es ? "¿Pequeñas cantidades?" : "Pequenas quantidades?", text: es ? "El comienzo de la alimentación es ligero, seguro y gradual." : "O começo da alimentação é leve, seguro e gradual.", styles: "bg-sage-50" },
+    { image: ICON_STAR, title: es ? "¡Vas por el camino correcto!" : "Você está no caminho certo!", text: es ? "Cada elección hace la diferencia en el futuro de tu bebé." : "Cada escolha faz diferença no futuro do seu bebê.", styles: "bg-amber-50" },
+  ];
+}
 
 /**
  * Cada sugestão do cardápio (src/lib/menu.ts) tem sua própria foto real em
@@ -62,6 +69,11 @@ export default function AppHomePage() {
   const router = useRouter();
   const { activeBaby, updateBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
+  const { locale } = useLocale();
+  const es = locale === "es";
+  const SHORTCUTS = useMemo(() => getShortcuts(es), [es]);
+  const MEAL_BENEFITS = useMemo(() => getMealBenefits(es), [es]);
+  const TIPS = useMemo(() => getTips(es), [es]);
   const [triedFoodKeys, setTriedFoodKeys] = useState<Set<string> | undefined>();
   const [avoidAllergen, setAvoidAllergen] = useState<ReturnType<typeof allergenForDietFilter>>(null);
   const [showUpload, setShowUpload] = useState(false);
@@ -92,7 +104,7 @@ export default function AppHomePage() {
 
   if (!activeBaby) {
     return (
-      <main className="flex w-full flex-col gap-3.5 px-5 pb-5 pt-4 animate-pulse" aria-label="Carregando dados do bebê">
+      <main className="flex w-full flex-col gap-3.5 px-5 pb-5 pt-4 animate-pulse" aria-label={es ? "Cargando datos del bebé" : "Carregando dados do bebê"}>
         <section className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-14 w-14 rounded-full bg-primary-100" />
@@ -150,13 +162,13 @@ export default function AppHomePage() {
   const photoUrl = activeBaby.photo_url;
   const today = getTodaySuggestion(ageBandForMonths(months), new Date(), { triedFoodKeys, avoidAllergen });
   const firstName = activeBaby.name.split(" ")[0];
-  const babyLabel = activeBaby.gender === "male" ? "Meu bebê" : "Minha bebê";
+  const babyLabel = es ? "Mi bebé" : activeBaby.gender === "male" ? "Meu bebê" : "Minha bebê";
 
   return (
     <main className="flex w-full flex-col gap-3.5 px-5 pb-5 pt-4">
-      <section className="flex items-center justify-between" aria-label="Boas-vindas">
+      <section className="flex items-center justify-between" aria-label={es ? "Bienvenida" : "Boas-vindas"}>
         <div className="flex items-center gap-3">
-          <button type="button" onClick={() => setShowUpload(true)} className="group relative h-14 w-14 shrink-0 touch-manipulation" aria-label="Alterar foto do bebê">
+          <button type="button" onClick={() => setShowUpload(true)} className="group relative h-14 w-14 shrink-0 touch-manipulation" aria-label={es ? "Cambiar foto del bebé" : "Alterar foto do bebê"}>
             {photoUrl && !photoFailed ? (
               <Image src={photoUrl} alt={activeBaby.name} width={56} height={56} priority unoptimized className="h-14 w-14 rounded-full border-2 border-primary-500 object-cover shadow-sm" onError={() => setPhotoFailed(true)} />
             ) : (
@@ -165,18 +177,18 @@ export default function AppHomePage() {
             <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-cream"><Camera className="h-2.5 w-2.5" strokeWidth={2.5} /></span>
           </button>
           <div>
-            <h1 className="text-[20px] font-bold leading-tight tracking-[-0.35px] text-brown-900">Olá, {firstName}! <span aria-hidden="true">💗</span></h1>
-            <p className="mt-1 text-[12px] text-brown-700/82">Que bom te ver por aqui!</p>
+            <h1 className="text-[20px] font-bold leading-tight tracking-[-0.35px] text-brown-900">{es ? `Hola, ${firstName}!` : `Olá, ${firstName}!`} <span aria-hidden="true">💗</span></h1>
+            <p className="mt-1 text-[12px] text-brown-700/82">{es ? "¡Qué bueno verte por aquí!" : "Que bom te ver por aqui!"}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/app/suporte" aria-label="Notificações" className="relative flex h-11 w-11 touch-manipulation items-center justify-center rounded-full active:bg-primary-50"><Bell className="h-5 w-5 text-brown-700" strokeWidth={1.8} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary-500 ring-2 ring-cream" /></Link>
+          <Link href="/app/suporte" aria-label={es ? "Notificaciones" : "Notificações"} className="relative flex h-11 w-11 touch-manipulation items-center justify-center rounded-full active:bg-primary-50"><Bell className="h-5 w-5 text-brown-700" strokeWidth={1.8} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary-500 ring-2 ring-cream" /></Link>
           <Image src="/nutrimae-logo.png" alt="NutriMãe" width={42} height={42} priority className="h-10 w-10 object-contain" />
         </div>
       </section>
 
       <div className="flex min-h-[76px] items-center gap-3 rounded-[18px] bg-white px-4 shadow-subtle">
-        <button type="button" onClick={() => setShowUpload(true)} className="group relative shrink-0 touch-manipulation" aria-label="Alterar foto do bebê">
+        <button type="button" onClick={() => setShowUpload(true)} className="group relative shrink-0 touch-manipulation" aria-label={es ? "Cambiar foto del bebé" : "Alterar foto do bebê"}>
           {photoUrl && !photoFailed ? (
             <Image src={photoUrl} alt={activeBaby.name} width={48} height={48} unoptimized className="h-12 w-12 rounded-full object-cover shadow-subtle" onError={() => setPhotoFailed(true)} />
           ) : (
@@ -185,12 +197,12 @@ export default function AppHomePage() {
           <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-white ring-2 ring-white"><Camera className="h-2 w-2" strokeWidth={2.5} /></span>
         </button>
         <Link href="/app/perfil" className="flex min-w-0 flex-1 touch-manipulation items-center gap-3 transition-transform active:scale-[0.985]">
-          <span className="min-w-0 flex-1"><strong className="block truncate text-[16px] text-brown-900">{firstName}</strong><span className="mt-1 flex items-center gap-1 text-[11px] text-brown-700/80"><CalendarDays className="h-3 w-3" />{months} {months === 1 ? "mês" : "meses"} de vida</span></span>
+          <span className="min-w-0 flex-1"><strong className="block truncate text-[16px] text-brown-900">{firstName}</strong><span className="mt-1 flex items-center gap-1 text-[11px] text-brown-700/80"><CalendarDays className="h-3 w-3" />{es ? `${months} ${months === 1 ? "mes" : "meses"} de vida` : `${months} ${months === 1 ? "mês" : "meses"} de vida`}</span></span>
           <Chip color="primary"><Heart className="h-3.5 w-3.5" fill="currentColor" />{babyLabel}<ChevronRight className="h-3.5 w-3.5" /></Chip>
         </Link>
       </div>
 
-      <section className="grid grid-cols-3 gap-2" aria-label="Atalhos">
+      <section className="grid grid-cols-3 gap-2" aria-label={es ? "Atajos" : "Atalhos"}>
         {SHORTCUTS.map(({ image, label, href }) => (
           <Link
             key={label}
@@ -205,11 +217,11 @@ export default function AppHomePage() {
 
       <section className="mt-1">
         <div className="mb-2.5 flex items-center justify-between gap-2">
-          <h2 className="flex min-w-0 items-center gap-1.5 text-[13px] font-bold text-brown-900"><Heart className="h-4 w-4 shrink-0 text-primary-500" fill="currentColor" />Sugestão para agora: {today.mealLabel}</h2>
-          <Chip color="sage"><Leaf className="h-3 w-3" />Fase: {months} meses</Chip>
+          <h2 className="flex min-w-0 items-center gap-1.5 text-[13px] font-bold text-brown-900"><Heart className="h-4 w-4 shrink-0 text-primary-500" fill="currentColor" />{es ? `Sugerencia para ahora: ${today.mealLabel}` : `Sugestão para agora: ${today.mealLabel}`}</h2>
+          <Chip color="sage"><Leaf className="h-3 w-3" />{es ? `Etapa: ${months} meses` : `Fase: ${months} meses`}</Chip>
         </div>
         <Link href="/app/cardapio" className="block touch-manipulation rounded-[20px] bg-white p-3 shadow-strong transition-transform active:scale-[0.99]">
-          <Chip color="amber"><Star className="h-3 w-3" fill="currentColor" />Mais escolhido</Chip>
+          <Chip color="amber"><Star className="h-3 w-3" fill="currentColor" />{es ? "Más elegido" : "Mais escolhido"}</Chip>
           <h3 className="mt-2 text-[18px] font-bold leading-tight text-brown-900">{today.suggestion.title}</h3>
           <p className="mt-1 text-[11px] text-brown-700/82">{today.suggestion.description}</p>
           <div className="mt-3 flex items-center gap-3">
@@ -217,12 +229,12 @@ export default function AppHomePage() {
             <MealBowl suggestionId={today.suggestion.id} />
           </div>
           <span className="mt-3 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 text-[13px] font-bold text-white shadow-[0_4px_16px_var(--color-primary-shadow)]">
-            Ver cardápio completo da semana<ChevronRight className="h-4 w-4" strokeWidth={2.5} />
+            {es ? "Ver menú completo de la semana" : "Ver cardápio completo da semana"}<ChevronRight className="h-4 w-4" strokeWidth={2.5} />
           </span>
         </Link>
       </section>
 
-      <section className="grid grid-cols-3 gap-2" aria-label="Dicas do dia">
+      <section className="grid grid-cols-3 gap-2" aria-label={es ? "Consejos del día" : "Dicas do dia"}>
         {TIPS.map(({ image, title, text, styles }) => (
           <article key={title} className={`flex min-h-[142px] flex-col rounded-[18px] p-3 ${styles}`}>
             <IconAvatar3D src={image} size="sm" />

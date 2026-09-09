@@ -5,24 +5,35 @@ import Image from "next/image";
 import { CheckCircle2, Share2, Star } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
+import { useLocale } from "@/lib/use-locale";
 import { UTENSIL_CATEGORY_LABEL, UTENSILS, type UtensilCategory } from "@/lib/utensils";
 
 const CATEGORIES: UtensilCategory[] = ["hora-de-comer", "preparo", "armazenamento", "seguranca"];
 
 export default function UtensiliosRecomendadosPage() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [onlyEssential, setOnlyEssential] = useState(false);
 
   const list = useMemo(() => (onlyEssential ? UTENSILS.filter((u) => u.essential) : UTENSILS), [onlyEssential]);
 
   function handleShare() {
     const essentials = UTENSILS.filter((u) => u.essential);
-    const lines = [
-      "🧺 Utensílios essenciais para a introdução alimentar",
-      "",
-      ...essentials.map((u) => `• ${u.emoji} ${u.name}`),
-      "",
-      "Lista completa no NutriMãe 💚",
-    ];
+    const lines = es
+      ? [
+          "🧺 Utensilios esenciales para la introducción alimentaria",
+          "",
+          ...essentials.map((u) => `• ${u.emoji} ${u.name}`),
+          "",
+          "Lista completa en NutriMãe 💚",
+        ]
+      : [
+          "🧺 Utensílios essenciais para a introdução alimentar",
+          "",
+          ...essentials.map((u) => `• ${u.emoji} ${u.name}`),
+          "",
+          "Lista completa no NutriMãe 💚",
+        ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
@@ -32,9 +43,13 @@ export default function UtensiliosRecomendadosPage() {
       <BackButton />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Utensílios Recomendados</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">
+          {es ? "Utensilios Recomendados" : "Utensílios Recomendados"}
+        </h1>
         <p className="mt-1 text-brown-700">
-          O que realmente ajuda na rotina da introdução alimentar — e o que procurar na hora de comprar.
+          {es
+            ? "Lo que realmente ayuda en la rutina de la introducción alimentaria — y qué buscar al comprar."
+            : "O que realmente ajuda na rotina da introdução alimentar — e o que procurar na hora de comprar."}
         </p>
       </div>
 
@@ -46,7 +61,7 @@ export default function UtensiliosRecomendadosPage() {
             !onlyEssential ? "bg-sage-500 text-white" : "bg-sage-50 text-brown-700"
           }`}
         >
-          Todos ({UTENSILS.length})
+          {es ? "Todos" : "Todos"} ({UTENSILS.length})
         </button>
         <button
           type="button"
@@ -56,7 +71,7 @@ export default function UtensiliosRecomendadosPage() {
           }`}
         >
           <Star className="mr-1 inline h-3.5 w-3.5" strokeWidth={2} fill="currentColor" />
-          Essenciais
+          {es ? "Esenciales" : "Essenciais"}
         </button>
       </div>
 
@@ -96,7 +111,7 @@ export default function UtensiliosRecomendadosPage() {
                       <div className="mt-2 flex items-start gap-2 rounded-xl bg-sage-50 p-2">
                         <CheckCircle2 className="h-4 w-4 shrink-0 text-sage-600" strokeWidth={2} />
                         <p className="text-xs text-brown-700">
-                          <span className="font-semibold">O que procurar: </span>
+                          <span className="font-semibold">{es ? "Qué buscar: " : "O que procurar: "}</span>
                           {u.whatToLookFor}
                         </p>
                       </div>
@@ -115,7 +130,7 @@ export default function UtensiliosRecomendadosPage() {
         className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-sage-500 text-sm font-semibold text-white"
       >
         <Share2 className="h-4 w-4" strokeWidth={2} />
-        Compartilhar lista de essenciais
+        {es ? "Compartir lista de esenciales" : "Compartilhar lista de essenciais"}
       </button>
 
       <MedicalDisclaimerFooter />

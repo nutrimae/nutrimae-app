@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { ArrowRight, Crown, Lock, Moon, Salad, Snowflake } from "lucide-react";
 import { useVipAccess } from "@/lib/use-vip-access";
+import { useLocale } from "@/lib/use-locale";
 
 export function VipContent() {
   const { loading, hasWeaning, hasIntestino, hasBatchCooking } = useVipAccess();
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
@@ -13,9 +16,9 @@ export function VipContent() {
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-[0_8px_20px_rgba(217,164,6,0.3)]">
           <Crown className="h-7 w-7 text-white" strokeWidth={2} />
         </div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Área VIP</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">{es ? "Área VIP" : "Área VIP"}</h1>
         <p className="max-w-[26ch] text-sm text-brown-700/90">
-          Seus apoios extras, prontos para quando você mais precisar.
+          {es ? "Tus apoyos extra, listos para cuando más los necesites." : "Seus apoios extras, prontos para quando você mais precisar."}
         </p>
       </div>
 
@@ -33,18 +36,18 @@ export function VipContent() {
             {!loading && !hasWeaning && (
               <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/70">
                 <Lock className="h-3 w-3" strokeWidth={2} />
-                Ainda não incluso
+                {es ? "Aún no incluido" : "Ainda não incluso"}
               </span>
             )}
           </div>
           <div>
-            <p className="font-heading text-lg font-bold text-white">SOS Desmame Noturno</p>
+            <p className="font-heading text-lg font-bold text-white">{es ? "SOS Destete Nocturno" : "SOS Desmame Noturno"}</p>
             <p className="mt-1 text-sm text-white/60">
-              Modo Madrugada: botão de pânico, pílulas de áudio e rastreador de vitórias.
+              {es ? "Modo Madrugada: botón de pánico, píldoras de audio y rastreador de victorias." : "Modo Madrugada: botão de pânico, pílulas de áudio e rastreador de vitórias."}
             </p>
           </div>
           <div className="flex items-center gap-1.5 text-sm font-semibold text-purple-300">
-            Abrir
+            {es ? "Abrir" : "Abrir"}
             <ArrowRight className="h-4 w-4 transition-transform group-active:translate-x-0.5" strokeWidth={2} />
           </div>
         </Link>
@@ -61,18 +64,18 @@ export function VipContent() {
             {!loading && !hasIntestino && (
               <span className="flex items-center gap-1 rounded-full bg-brown-900/5 px-2.5 py-1 text-[11px] font-semibold text-brown-700/86">
                 <Lock className="h-3 w-3" strokeWidth={2} />
-                Ainda não incluso
+                {es ? "Aún no incluido" : "Ainda não incluso"}
               </span>
             )}
           </div>
           <div>
-            <p className="font-heading text-lg font-bold text-brown-800">Protocolo Intestino Livre</p>
+            <p className="font-heading text-lg font-bold text-brown-800">{es ? "Protocolo Intestino Libre" : "Protocolo Intestino Livre"}</p>
             <p className="mt-1 text-sm text-brown-700/86">
-              Semáforo do cocô e 5 receitas laxativas para alívio rápido e natural.
+              {es ? "Semáforo de la caca y 5 recetas laxantes para alivio rápido y natural." : "Semáforo do cocô e 5 receitas laxativas para alívio rápido e natural."}
             </p>
           </div>
           <div className="flex items-center gap-1.5 text-sm font-semibold text-sage-600">
-            Abrir
+            {es ? "Abrir" : "Abrir"}
             <ArrowRight className="h-4 w-4 transition-transform group-active:translate-x-0.5" strokeWidth={2} />
           </div>
         </Link>
@@ -89,18 +92,18 @@ export function VipContent() {
             {!loading && !hasBatchCooking && (
               <span className="flex items-center gap-1 rounded-full bg-brown-900/5 px-2.5 py-1 text-[11px] font-semibold text-brown-700/86">
                 <Lock className="h-3 w-3" strokeWidth={2} />
-                Ainda não incluso
+                {es ? "Aún no incluido" : "Ainda não incluso"}
               </span>
             )}
           </div>
           <div>
-            <p className="font-heading text-lg font-bold text-brown-800">Batch Cooking & Congelamento</p>
+            <p className="font-heading text-lg font-bold text-brown-800">{es ? "Batch Cooking y Congelación" : "Batch Cooking & Congelamento"}</p>
             <p className="mt-1 text-sm text-brown-700/86">
-              Método de porcionamento, tabela de validade e etiquetas prontas para imprimir.
+              {es ? "Método de porcionamiento, tabla de vencimiento y etiquetas listas para imprimir." : "Método de porcionamento, tabela de validade e etiquetas prontas para imprimir."}
             </p>
           </div>
           <div className="flex items-center gap-1.5 text-sm font-semibold text-primary-500">
-            Abrir
+            {es ? "Abrir" : "Abrir"}
             <ArrowRight className="h-4 w-4 transition-transform group-active:translate-x-0.5" strokeWidth={2} />
           </div>
         </Link>

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/back-button";
+import { useLocale } from "@/lib/use-locale";
 
 const whatsappSupportUrl = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_URL;
 
@@ -19,6 +20,8 @@ interface Ticket {
 }
 
 export default function SuportePage() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const supabase = useMemo(() => createClient(), []);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,9 +87,11 @@ export default function SuportePage() {
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
       <BackButton />
 
-      <h1 className="font-heading text-2xl font-bold text-brown-800">Suporte</h1>
+      <h1 className="font-heading text-2xl font-bold text-brown-800">{es ? "Soporte" : "Suporte"}</h1>
       <p className="text-brown-700">
-        Fale com a nossa equipe. Respondemos por aqui — você não precisa esperar online.
+        {es
+          ? "Habla con nuestro equipo. Respondemos por aquí — no necesitas esperar en línea."
+          : "Fale com a nossa equipe. Respondemos por aqui — você não precisa esperar online."}
       </p>
 
       {whatsappSupportUrl && (
@@ -98,21 +103,25 @@ export default function SuportePage() {
         >
           <MessageSquare className="h-6 w-6 shrink-0" strokeWidth={2} />
           <div>
-            <p className="font-semibold">Falar no WhatsApp</p>
-            <p className="text-xs text-white/80">Resposta rápida, direto com a nossa equipe.</p>
+            <p className="font-semibold">{es ? "Hablar por WhatsApp" : "Falar no WhatsApp"}</p>
+            <p className="text-xs text-white/80">
+              {es ? "Respuesta rápida, directo con nuestro equipo." : "Resposta rápida, direto com a nossa equipe."}
+            </p>
           </div>
         </a>
       )}
 
       <Button onClick={() => setShowForm(true)} className="flex items-center justify-center gap-2">
         <Plus className="h-5 w-5" strokeWidth={2} />
-        Novo ticket
+        {es ? "Nuevo ticket" : "Novo ticket"}
       </Button>
 
       {loading ? (
-        <p className="text-center text-brown-700/86">Carregando...</p>
+        <p className="text-center text-brown-700/86">{es ? "Cargando..." : "Carregando..."}</p>
       ) : tickets.length === 0 ? (
-        <p className="text-center text-brown-700/86">Você ainda não abriu nenhum ticket.</p>
+        <p className="text-center text-brown-700/86">
+          {es ? "Todavía no has abierto ningún ticket." : "Você ainda não abriu nenhum ticket."}
+        </p>
       ) : (
         <div className="flex flex-col gap-2">
           {tickets.map((t) => (
@@ -125,7 +134,7 @@ export default function SuportePage() {
               <div className="flex-1">
                 <p className="font-semibold text-brown-800">{t.subject}</p>
                 <p className="text-xs text-brown-700/86">
-                  {t.status === "open" ? "Em aberto" : "Encerrado"}
+                  {t.status === "open" ? (es ? "Abierto" : "Em aberto") : es ? "Cerrado" : "Encerrado"}
                 </p>
               </div>
               {t.unread && <span className="h-3 w-3 shrink-0 rounded-full bg-terracotta-500" />}
@@ -134,15 +143,17 @@ export default function SuportePage() {
         </div>
       )}
 
-      {showForm && <NewTicketSheet onClose={() => setShowForm(false)} onCreate={handleCreate} />}
+      {showForm && <NewTicketSheet es={es} onClose={() => setShowForm(false)} onCreate={handleCreate} />}
     </main>
   );
 }
 
 function NewTicketSheet({
+  es,
   onClose,
   onCreate,
 }: {
+  es: boolean;
   onClose: () => void;
   onCreate: (subject: string, message: string) => Promise<void>;
 }) {
@@ -154,7 +165,7 @@ function NewTicketSheet({
     <div className="fixed inset-0 z-50 flex items-end bg-brown-900/30" onClick={onClose}>
       <div className="w-full animate-fade-in-up rounded-t-3xl bg-cream p-6 pb-8" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-xl font-bold text-brown-800">Novo ticket</h2>
+          <h2 className="font-heading text-xl font-bold text-brown-800">{es ? "Nuevo ticket" : "Novo ticket"}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -167,14 +178,14 @@ function NewTicketSheet({
         <div className="flex flex-col gap-4">
           <Input
             id="ticket-subject"
-            label="Assunto"
-            placeholder="Ex.: Dúvida sobre minha assinatura"
+            label={es ? "Asunto" : "Assunto"}
+            placeholder={es ? "Ej.: Duda sobre mi suscripción" : "Ex.: Dúvida sobre minha assinatura"}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
           />
           <div>
             <label htmlFor="ticket-message" className="mb-2 block text-base font-semibold text-brown-700">
-              Mensagem
+              {es ? "Mensaje" : "Mensagem"}
             </label>
             <textarea
               id="ticket-message"
@@ -193,7 +204,7 @@ function NewTicketSheet({
             }}
             disabled={saving || !subject.trim() || !message.trim()}
           >
-            {saving ? "Enviando..." : "Enviar"}
+            {saving ? (es ? "Enviando..." : "Enviando...") : es ? "Enviar" : "Enviar"}
           </Button>
         </div>
       </div>

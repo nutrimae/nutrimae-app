@@ -15,9 +15,12 @@ import {
   type CommunityReply,
 } from "@/lib/community";
 import { markPostSeen } from "@/lib/community-notifications";
+import { useLocale } from "@/lib/use-locale";
 
 export function PostDetail({ postId }: { postId: string }) {
   const supabase = useMemo(() => createClient(), []);
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [post, setPost] = useState<CommunityPost | null>(null);
   const [replies, setReplies] = useState<CommunityReply[]>([]);
@@ -115,7 +118,7 @@ export function PostDetail({ postId }: { postId: string }) {
   if (loading) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Carregando...</p>
+        <p>{es ? "Cargando..." : "Carregando..."}</p>
       </main>
     );
   }
@@ -123,9 +126,9 @@ export function PostDetail({ postId }: { postId: string }) {
   if (!post) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Post não encontrado.</p>
+        <p>{es ? "Post no encontrado." : "Post não encontrado."}</p>
         <Link href="/app/club" className="text-sage-600 font-semibold">
-          Voltar à Comunidade
+          {es ? "Volver a la Comunidad" : "Voltar à Comunidade"}
         </Link>
       </main>
     );
@@ -138,7 +141,7 @@ export function PostDetail({ postId }: { postId: string }) {
         className="flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-        Voltar à Comunidade
+        {es ? "Volver a la Comunidad" : "Voltar à Comunidade"}
       </Link>
 
       <div className="rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
@@ -172,7 +175,7 @@ export function PostDetail({ postId }: { postId: string }) {
             {reply.is_official && (
               <span className="mb-1 flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-sage-700">
                 <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-                Resposta oficial NutriMãe
+                {es ? "Respuesta oficial NutriMãe" : "Resposta oficial NutriMãe"}
               </span>
             )}
             <p className="text-brown-800">{reply.body}</p>
@@ -192,7 +195,7 @@ export function PostDetail({ postId }: { postId: string }) {
           rows={3}
           value={replyBody}
           onChange={(e) => setReplyBody(e.target.value)}
-          placeholder="Escreva sua resposta..."
+          placeholder={es ? "Escribe tu respuesta..." : "Escreva sua resposta..."}
           className="w-full rounded-2xl border-2 border-sage-100 bg-white p-4 text-lg text-brown-800 outline-none focus:border-sage-400"
         />
         {isAdmin && (
@@ -203,11 +206,11 @@ export function PostDetail({ postId }: { postId: string }) {
               onChange={(e) => setAsOfficial(e.target.checked)}
               className="h-5 w-5 rounded accent-sage-500"
             />
-            Marcar como resposta oficial NutriMãe
+            {es ? "Marcar como respuesta oficial NutriMãe" : "Marcar como resposta oficial NutriMãe"}
           </label>
         )}
         <Button onClick={handleReply} disabled={sending || !replyBody.trim()}>
-          {sending ? "Enviando..." : "Responder"}
+          {sending ? (es ? "Enviando..." : "Enviando...") : es ? "Responder" : "Responder"}
         </Button>
       </div>
     </main>
@@ -215,6 +218,8 @@ export function PostDetail({ postId }: { postId: string }) {
 }
 
 function ReportButton({ reported, onReport }: { reported: boolean; onReport: () => void }) {
+  const { locale } = useLocale();
+  const es = locale === "es";
   return (
     <button
       type="button"
@@ -223,7 +228,7 @@ function ReportButton({ reported, onReport }: { reported: boolean; onReport: () 
       className="flex items-center gap-1 text-xs font-semibold text-brown-700/86 disabled:text-terracotta-500"
     >
       <Flag className="h-3.5 w-3.5" strokeWidth={2} />
-      {reported ? "Reportado" : "Reportar"}
+      {reported ? (es ? "Reportado" : "Reportado") : es ? "Reportar" : "Reportar"}
     </button>
   );
 }

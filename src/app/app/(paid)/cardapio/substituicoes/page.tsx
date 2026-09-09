@@ -2,8 +2,9 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ModuleGate } from "@/components/module-gate";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 
-const GROUPS = [
+const GROUPS_PT = [
   {
     title: "No lugar do leite (vaca)",
     items: [
@@ -32,7 +33,40 @@ const GROUPS = [
   },
 ];
 
-export default function SubstituicoesPage() {
+const GROUPS_ES = [
+  {
+    title: "En lugar de la leche (de vaca)",
+    items: [
+      { from: "Leche de vaca", to: "Leche vegetal sin azúcar (avena, arroz) a partir de la edad autorizada por el pediatra" },
+      { from: "Queso", to: "Tofu firme triturado o hummus, para dar cremosidad" },
+      { from: "Yogur", to: "Yogur de coco o de almendras sin azúcar" },
+      { from: "Mantequilla", to: "Aceite de oliva o aceite vegetal en la misma cantidad" },
+    ],
+  },
+  {
+    title: "En lugar del huevo",
+    items: [
+      { from: "1 huevo (en recetas horneadas)", to: "1 cucharada de linaza o chía molida + 3 cucharadas de agua, hidratada por 5 min" },
+      { from: "Huevo revuelto", to: "Tofu revuelto condimentado con cúrcuma" },
+      { from: "Huevo para empanizar", to: "Puré de banana o de manzana bien espeso" },
+    ],
+  },
+  {
+    title: "En lugar del gluten (trigo)",
+    items: [
+      { from: "Harina de trigo", to: "Harina de arroz, de avena sin gluten o fécula de mandioca, en recetas probadas" },
+      { from: "Fideos comunes", to: "Fideos de arroz o de maíz" },
+      { from: "Pan de trigo", to: "Pan sin gluten o tapioca" },
+      { from: "Avena común", to: "Avena certificada sin gluten (la común puede tener contaminación cruzada)" },
+    ],
+  },
+];
+
+export default async function SubstituicoesPage() {
+  const locale = await getServerLocale();
+  const es = locale === "es";
+  const GROUPS = es ? GROUPS_ES : GROUPS_PT;
+
   return (
     <ModuleGate productKey="restricao_alimentar">
       <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
@@ -41,15 +75,17 @@ export default function SubstituicoesPage() {
           className="flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600"
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-          Voltar ao cardápio
+          {es ? "Volver al menú" : "Voltar ao cardápio"}
         </Link>
 
         <div>
           <h1 className="font-heading text-2xl font-bold text-brown-800">
-            Guia de substituições
+            {es ? "Guía de sustituciones" : "Guia de substituições"}
           </h1>
           <p className="mt-1 text-brown-700">
-            Trocas comuns para adaptar receitas do dia a dia.
+            {es
+              ? "Cambios comunes para adaptar recetas del día a día."
+              : "Trocas comuns para adaptar receitas do dia a dia."}
           </p>
         </div>
 
@@ -62,7 +98,9 @@ export default function SubstituicoesPage() {
                   key={item.from}
                   className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5"
                 >
-                  <p className="text-sm font-semibold text-terracotta-600">Em vez de {item.from}</p>
+                  <p className="text-sm font-semibold text-terracotta-600">
+                    {es ? `En vez de ${item.from}` : `Em vez de ${item.from}`}
+                  </p>
                   <p className="mt-1 text-brown-800">{item.to}</p>
                 </div>
               ))}

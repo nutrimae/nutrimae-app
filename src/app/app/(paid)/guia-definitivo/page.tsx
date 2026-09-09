@@ -7,9 +7,12 @@ import { ageInMonths } from "@/lib/age";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { BackButton } from "@/components/back-button";
 import { Chip } from "@/components/ui/chip";
+import { useLocale } from "@/lib/use-locale";
 import { FIRST_WEEK_DAYS, PROGRESSION_STAGES, SAFETY_RULES } from "@/lib/introduction-guide";
 
 export default function GuiaDefinitivoPage() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const { activeBaby } = useActiveBaby();
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : null;
 
@@ -27,46 +30,50 @@ export default function GuiaDefinitivoPage() {
       <div>
         <div className="mb-2 flex items-center gap-2 text-primary-600">
           <BookOpen className="h-6 w-6" strokeWidth={2} />
-          <span className="text-sm font-bold uppercase tracking-wide">Guia definitivo</span>
+          <span className="text-sm font-bold uppercase tracking-wide">{es ? "Guía definitiva" : "Guia definitivo"}</span>
         </div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          A introdução alimentar, do começo ao fim
+          {es ? "La introducción alimentaria, de principio a fin" : "A introdução alimentar, do começo ao fim"}
         </h1>
         <p className="mt-1 text-brown-700">
-          Tudo o que você precisa saber para começar com segurança e confiança — sem enrolação.
+          {es
+            ? "Todo lo que necesitas saber para empezar con seguridad y confianza — sin rodeos."
+            : "Tudo o que você precisa saber para começar com segurança e confiança — sem enrolação."}
         </p>
       </div>
 
       <section>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">
-          O que é introdução alimentar?
+          {es ? "¿Qué es la introducción alimentaria?" : "O que é introdução alimentar?"}
         </h2>
         <div className="flex flex-col gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <p className="text-brown-800">
-            É o processo de apresentar ao bebê os primeiros alimentos sólidos, além do leite
-            materno ou fórmula, geralmente a partir dos 6 meses. Não é sobre substituir o leite —
-            é sobre expandir o paladar, desenvolver a habilidade de mastigar e engolir, e começar
-            a construir uma relação saudável com a comida.
+            {es
+              ? "Es el proceso de presentarle al bebé los primeros alimentos sólidos, además de la leche materna o fórmula, generalmente a partir de los 6 meses. No se trata de reemplazar la leche — se trata de ampliar el paladar, desarrollar la habilidad de masticar y tragar, y empezar a construir una relación saludable con la comida."
+              : "É o processo de apresentar ao bebê os primeiros alimentos sólidos, além do leite materno ou fórmula, geralmente a partir dos 6 meses. Não é sobre substituir o leite — é sobre expandir o paladar, desenvolver a habilidade de mastigar e engolir, e começar a construir uma relação saudável com a comida."}
           </p>
           <p className="text-brown-800">
-            Cada bebê tem seu próprio ritmo. Alguns aceitam tudo de primeira, outros levam
-            semanas para topar uma nova textura — e isso é absolutamente normal.
+            {es
+              ? "Cada bebé tiene su propio ritmo. Algunos aceptan todo de entrada, otros tardan semanas en aceptar una nueva textura — y eso es absolutamente normal."
+              : "Cada bebê tem seu próprio ritmo. Alguns aceitam tudo de primeira, outros levam semanas para topar uma nova textura — e isso é absolutamente normal."}
           </p>
         </div>
       </section>
 
       <section>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">
-          Passo a passo: os primeiros 7 dias
+          {es ? "Paso a paso: los primeros 7 días" : "Passo a passo: os primeiros 7 dias"}
         </h2>
         <p className="mb-3 text-sm text-brown-700/80">
-          Um roteiro ilustrativo — ajuste ao ritmo do seu bebê e à orientação do pediatra.
+          {es
+            ? "Un guion ilustrativo — ajústalo al ritmo de tu bebé y a la orientación del pediatra."
+            : "Um roteiro ilustrativo — ajuste ao ritmo do seu bebê e à orientação do pediatra."}
         </p>
         <ol className="flex flex-col gap-3 border-l-2 border-sage-200 pl-4">
           {FIRST_WEEK_DAYS.map((item) => (
             <li key={item.day} className="-ml-[21px] rounded-2xl bg-sage-50 p-4 pl-6">
               <span className="text-xs font-bold uppercase tracking-wide text-sage-600">
-                Dia {item.day}
+                {es ? `Día ${item.day}` : `Dia ${item.day}`}
               </span>
               <p className="mt-1 font-heading text-lg font-bold text-brown-800">{item.title}</p>
               <p className="mt-1 text-sm text-brown-700">{item.text}</p>
@@ -77,7 +84,7 @@ export default function GuiaDefinitivoPage() {
 
       <section>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">
-          Progressão dos 6 aos 24 meses
+          {es ? "Progresión de los 6 a los 24 meses" : "Progressão dos 6 aos 24 meses"}
         </h2>
         <div className="flex flex-col gap-3">
           {PROGRESSION_STAGES.map((stage, i) => {
@@ -92,13 +99,16 @@ export default function GuiaDefinitivoPage() {
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-heading text-lg font-bold text-brown-800">{stage.label}</p>
                   {isCurrent && (
-                    <Chip color="primary" variant="solid"><Sparkles className="h-3.5 w-3.5" strokeWidth={2.5} />Seu bebê está nesta fase!</Chip>
+                    <Chip color="primary" variant="solid">
+                      <Sparkles className="h-3.5 w-3.5" strokeWidth={2.5} />
+                      {es ? "¡Tu bebé está en esta fase!" : "Seu bebê está nesta fase!"}
+                    </Chip>
                   )}
                 </div>
                 <div className="mt-2 flex flex-col gap-1 text-sm text-brown-700">
-                  <p><span className="font-semibold text-brown-800">Textura:</span> {stage.texture}</p>
-                  <p><span className="font-semibold text-brown-800">Frequência:</span> {stage.frequency}</p>
-                  <p><span className="font-semibold text-brown-800">Quantidade:</span> {stage.quantity}</p>
+                  <p><span className="font-semibold text-brown-800">{es ? "Textura:" : "Textura:"}</span> {stage.texture}</p>
+                  <p><span className="font-semibold text-brown-800">{es ? "Frecuencia:" : "Frequência:"}</span> {stage.frequency}</p>
+                  <p><span className="font-semibold text-brown-800">{es ? "Cantidad:" : "Quantidade:"}</span> {stage.quantity}</p>
                 </div>
               </div>
             );
@@ -109,7 +119,7 @@ export default function GuiaDefinitivoPage() {
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-red-700">
           <ShieldAlert className="h-5 w-5" strokeWidth={2} />
-          Segurança alimentar — o que evitar
+          {es ? "Seguridad alimentaria — qué evitar" : "Segurança alimentar — o que evitar"}
         </h2>
         <div className="flex flex-col gap-2">
           {SAFETY_RULES.map((rule) => (

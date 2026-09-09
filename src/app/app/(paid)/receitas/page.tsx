@@ -32,6 +32,7 @@ export default function ReceitasPage() {
   const babyBand = useMemo(() => ageBandForMonths(months), [months]);
   const { region } = useRegion();
   const { locale } = useLocale();
+  const es = locale === "es";
   const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
   const ALLERGEN_LABEL = useMemo(() => getAllergenLabel(locale), [locale]);
   const RECIPE_MEAL_TYPE_LABEL = useMemo(() => getRecipeMealTypeLabel(locale), [locale]);
@@ -66,20 +67,37 @@ export default function ReceitasPage() {
       <BackButton />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Receitas</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">
+          {es ? "Recetas" : "Receitas"}
+        </h1>
         <p className="mt-1 text-sm text-brown-700/90">
-          {TOTAL_RECIPES} receitas para os 6 aos 24 meses, com modo de preparo completo.
+          {es
+            ? `${TOTAL_RECIPES} recetas para los 6 a los 24 meses, con modo de preparación completo.`
+            : `${TOTAL_RECIPES} receitas para os 6 aos 24 meses, com modo de preparo completo.`}
         </p>
       </div>
 
       {excludedAllergens.length > 0 && (
         <p className="rounded-2xl bg-sage-50 px-4 py-3 text-sm text-sage-700">
-          Escondendo receitas com {excludedAllergens.map((a) => ALLERGEN_LABEL[a]).join(", ")},
-          conforme seu{" "}
-          <Link href="/app/alergia/checklist" className="font-semibold underline">
-            checklist de alergênicos
-          </Link>
-          .
+          {es ? (
+            <>
+              Ocultando recetas con {excludedAllergens.map((a) => ALLERGEN_LABEL[a]).join(", ")},
+              según tu{" "}
+              <Link href="/app/alergia/checklist" className="font-semibold underline">
+                checklist de alergénicos
+              </Link>
+              .
+            </>
+          ) : (
+            <>
+              Escondendo receitas com {excludedAllergens.map((a) => ALLERGEN_LABEL[a]).join(", ")},
+              conforme seu{" "}
+              <Link href="/app/alergia/checklist" className="font-semibold underline">
+                checklist de alergênicos
+              </Link>
+              .
+            </>
+          )}
         </p>
       )}
 
@@ -91,7 +109,7 @@ export default function ReceitasPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar por nome ou ingrediente"
+          placeholder={es ? "Buscar por nombre o ingrediente" : "Buscar por nome ou ingrediente"}
           className="min-h-14 w-full rounded-xl border-2 border-sage-100 bg-white pl-12 pr-4 text-base text-brown-800 outline-none focus:border-primary-500 focus:shadow-[0_0_0_4px_var(--color-primary-glow)]"
         />
       </div>
@@ -104,7 +122,7 @@ export default function ReceitasPage() {
             ageBand === "todas" ? "bg-sage-500 text-white" : "bg-sage-50 text-brown-700"
           }`}
         >
-          Todas as idades
+          {es ? "Todas las edades" : "Todas as idades"}
         </button>
         {AGE_BANDS.map((band) => (
           <button
@@ -128,7 +146,7 @@ export default function ReceitasPage() {
             mealType === "todas" ? "bg-primary-500 text-white" : "bg-primary-100 text-brown-700"
           }`}
         >
-          Todas as refeições
+          {es ? "Todas las comidas" : "Todas as refeições"}
         </button>
         {MEAL_TYPES.map((type) => (
           <button
@@ -153,7 +171,7 @@ export default function ReceitasPage() {
           }`}
         >
           <Heart className="h-4 w-4" strokeWidth={2} fill={onlyFavorites ? "currentColor" : "none"} />
-          Só salvas
+          {es ? "Solo guardadas" : "Só salvas"}
         </button>
         <button
           type="button"
@@ -163,13 +181,13 @@ export default function ReceitasPage() {
           }`}
         >
           <Hand className="h-4 w-4" strokeWidth={2} />
-          Próprio para BLW
+          {es ? "Apto para BLW" : "Próprio para BLW"}
         </button>
       </div>
 
       {results.length === 0 ? (
         <p className="py-8 text-center text-brown-700/86">
-          Nenhuma receita encontrada com esses filtros.
+          {es ? "No se encontró ninguna receta con esos filtros." : "Nenhuma receita encontrada com esses filtros."}
         </p>
       ) : (
         <div className="flex flex-col gap-2">
@@ -191,7 +209,7 @@ export default function ReceitasPage() {
                   </span>
                   <span className="flex items-center gap-1">
                     <ChefHat className="h-3.5 w-3.5" strokeWidth={2} />
-                    {recipe.difficulty === "facil" ? "Fácil" : "Médio"}
+                    {recipe.difficulty === "facil" ? "Fácil" : es ? "Medio" : "Médio"}
                   </span>
                 </div>
               </div>

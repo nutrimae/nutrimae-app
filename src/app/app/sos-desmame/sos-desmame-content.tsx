@@ -11,6 +11,7 @@ import {
   emptyWeaningProgress,
   type WeaningProgress,
 } from "@/lib/weaning";
+import { useLocale } from "@/lib/use-locale";
 
 // Faixas do mini-podcast (playlist normal) — a primeira do catálogo é
 // reservada para o Botão de Pânico e não aparece de novo aqui embaixo.
@@ -36,6 +37,7 @@ function AudioPill({
   progress,
   onRequestPlay,
   onRegisterAudio,
+  es,
 }: {
   id: string;
   title: string;
@@ -46,6 +48,7 @@ function AudioPill({
   progress: number;
   onRequestPlay: (id: string) => void;
   onRegisterAudio: (id: string, el: HTMLAudioElement | null) => void;
+  es: boolean;
 }) {
   return (
     <div
@@ -56,7 +59,7 @@ function AudioPill({
         type="button"
         onClick={() => hasAudio && onRequestPlay(id)}
         disabled={!hasAudio}
-        aria-label={isPlaying ? `Pausar ${title}` : `Tocar ${title}`}
+        aria-label={isPlaying ? (es ? `Pausar ${title}` : `Pausar ${title}`) : es ? `Reproducir ${title}` : `Tocar ${title}`}
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform active:scale-90 ${
           hasAudio ? "cursor-pointer" : "cursor-not-allowed opacity-40"
         }`}
@@ -80,7 +83,7 @@ function AudioPill({
           {title}
         </p>
         <p className="truncate text-xs" style={{ color: "var(--midnight-text-dim)" }}>
-          {hasAudio ? subtitle : "Em breve — narração sendo gravada"}
+          {hasAudio ? subtitle : es ? "Próximamente — narración en grabación" : "Em breve — narração sendo gravada"}
         </p>
         <div className="audio-progress-track mt-2 h-1 w-full overflow-hidden rounded-full">
           <div className="audio-progress-fill h-full rounded-full" style={{ width: `${progress * 100}%` }} />
@@ -146,6 +149,8 @@ function DayCircle({
 }
 
 export function SosDesmameContent() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [panicOpen, setPanicOpen] = useState(false);
   const [playingId, setPlayingId] = useState<string>("");
   const [progressById, setProgressById] = useState<Record<string, number>>({});
@@ -244,7 +249,7 @@ export function SosDesmameContent() {
           style={{ color: "var(--midnight-text-dim)" }}
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-          Voltar
+          {es ? "Volver" : "Voltar"}
         </Link>
 
         {/* Hero — saudação calmante + botão de pânico */}
@@ -257,10 +262,10 @@ export function SosDesmameContent() {
           </div>
           <div>
             <h1 className="font-heading text-xl font-bold" style={{ color: "var(--midnight-text)" }}>
-              Respira. Você não está sozinha nessa madrugada.
+              {es ? "Respira. No estás sola en esta madrugada." : "Respira. Você não está sozinha nessa madrugada."}
             </h1>
             <p className="mt-2 text-sm" style={{ color: "var(--midnight-text-dim)" }}>
-              Um passo de cada vez — sem pressa, sem culpa.
+              {es ? "Un paso a la vez — sin prisa, sin culpa." : "Um passo de cada vez — sem pressa, sem culpa."}
             </p>
           </div>
 
@@ -270,14 +275,14 @@ export function SosDesmameContent() {
             className="animate-panic-pulse flex min-h-16 w-full items-center justify-center gap-2 rounded-3xl px-6 text-base font-bold text-white transition-transform active:scale-[0.97]"
             style={{ background: "linear-gradient(135deg, var(--midnight-accent-2), var(--midnight-accent))" }}
           >
-            Bebê acordou chorando agora? Toque aqui
+            {es ? "¿El bebé despertó llorando ahora? Toca aquí" : "Bebê acordou chorando agora? Toque aqui"}
           </button>
         </div>
 
         {/* Seção 1 — Mini-podcast / playlist de Pílulas de Áudio */}
         <section className="flex flex-col gap-3">
           <h2 className="font-heading text-base font-bold" style={{ color: "var(--midnight-text)" }}>
-            Pílulas de áudio para essa fase
+            {es ? "Píldoras de audio para esta etapa" : "Pílulas de áudio para essa fase"}
           </h2>
           <div className="flex flex-col gap-2.5">
             {PLAYLIST_TRACKS.map((track) => (
@@ -292,6 +297,7 @@ export function SosDesmameContent() {
                 progress={progressById[track.id] ?? 0}
                 onRequestPlay={requestPlay}
                 onRegisterAudio={registerAudio}
+                es={es}
               />
             ))}
           </div>
@@ -300,7 +306,7 @@ export function SosDesmameContent() {
         {/* Seção 2 — Rastreador de pequenas vitórias (gamificação leve) */}
         <section className="flex flex-col gap-3">
           <h2 className="font-heading text-base font-bold" style={{ color: "var(--midnight-text)" }}>
-            Suas pequenas vitórias
+            {es ? "Tus pequeñas victorias" : "Suas pequenas vitórias"}
           </h2>
           <div className="flex flex-col gap-3">
             {WEANING_WEEKS.map((week) => {
@@ -335,7 +341,7 @@ export function SosDesmameContent() {
                         checked={weekProgress[week.key]?.[dayIndex] ?? false}
                         celebrating={celebratingKey === `${week.key}-${dayIndex}`}
                         onToggle={() => toggleDay(week.key, dayIndex)}
-                        label={`${week.title} — dia ${dayIndex + 1}`}
+                        label={es ? `${week.title} — día ${dayIndex + 1}` : `${week.title} — dia ${dayIndex + 1}`}
                       />
                     ))}
                   </div>
@@ -346,8 +352,9 @@ export function SosDesmameContent() {
         </section>
 
         <p className="text-center text-[11px] leading-relaxed" style={{ color: "var(--midnight-text-dim)" }}>
-          Este conteúdo é um apoio emocional e educativo, não substitui orientação de um pediatra
-          ou consultora de amamentação.
+          {es
+            ? "Este contenido es un apoyo emocional y educativo, no sustituye la orientación de un pediatra o consultora de lactancia."
+            : "Este conteúdo é um apoio emocional e educativo, não substitui orientação de um pediatra ou consultora de amamentação."}
         </p>
       </div>
 
@@ -364,12 +371,12 @@ export function SosDesmameContent() {
           >
             <div className="mb-4 flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--midnight-accent)" }}>
-                Agora, com você
+                {es ? "Ahora, contigo" : "Agora, com você"}
               </span>
               <button
                 type="button"
                 onClick={closePanicModal}
-                aria-label="Fechar"
+                aria-label={es ? "Cerrar" : "Fechar"}
                 className="flex h-8 w-8 items-center justify-center rounded-full"
                 style={{ background: "rgba(226, 232, 240, 0.1)" }}
               >
@@ -378,8 +385,9 @@ export function SosDesmameContent() {
             </div>
 
             <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--midnight-text)" }}>
-              Toque em play e siga a instrução com o bebê no colo. Você não precisa fazer nada
-              além de ouvir agora.
+              {es
+                ? "Toca play y sigue la instrucción con el bebé en brazos. No necesitas hacer nada más que escuchar ahora."
+                : "Toque em play e siga a instrução com o bebê no colo. Você não precisa fazer nada além de ouvir agora."}
             </p>
 
             <AudioPill
@@ -392,6 +400,7 @@ export function SosDesmameContent() {
               progress={progressById[PANIC_TRACK.id] ?? 0}
               onRequestPlay={requestPlay}
               onRegisterAudio={registerAudio}
+              es={es}
             />
           </div>
         </div>

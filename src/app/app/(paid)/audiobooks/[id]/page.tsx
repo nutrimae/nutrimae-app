@@ -7,6 +7,7 @@ import { BackButton } from "@/components/back-button";
 import { useToast } from "@/components/toast-provider";
 import { getAudiobook } from "@/lib/audiobooks";
 import { getAudiobookRatings, setAudiobookRating } from "@/lib/audiobook-ratings";
+import { useLocale } from "@/lib/use-locale";
 
 const SPEEDS = [0.8, 1, 1.25, 1.5, 2];
 
@@ -22,6 +23,8 @@ export default function AudiobookDetailPage() {
   const book = getAudiobook(params.id);
   const { showToast } = useToast();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [speed, setSpeed] = useState(1);
   const [volume, setVolume] = useState(1);
@@ -45,7 +48,7 @@ export default function AudiobookDetailPage() {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
         <BackButton fallbackHref="/app/audiobooks" />
-        <p>Audiobook não encontrado.</p>
+        <p>{es ? "Audiobook no encontrado." : "Audiobook não encontrado."}</p>
       </main>
     );
   }
@@ -85,13 +88,15 @@ export default function AudiobookDetailPage() {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    showToast("Baixando áudio...");
+    showToast(es ? "Descargando audio..." : "Baixando áudio...");
   }
 
   function handleShare() {
     if (!book) return;
     const text = encodeURIComponent(
-      `🎧 ${book.title} — ${book.subtitle}\n\nOuça agora no NutriMãe.`,
+      es
+        ? `🎧 ${book.title} — ${book.subtitle}\n\nEscúchalo ahora en NutriMãe.`
+        : `🎧 ${book.title} — ${book.subtitle}\n\nOuça agora no NutriMãe.`,
     );
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
@@ -131,7 +136,7 @@ export default function AudiobookDetailPage() {
             <button
               type="button"
               onClick={togglePlay}
-              aria-label={isPlaying ? "Pausar" : "Tocar"}
+              aria-label={isPlaying ? (es ? "Pausar" : "Pausar") : (es ? "Reproducir" : "Tocar")}
               className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white active:bg-primary-600"
             >
               {isPlaying ? (
@@ -173,7 +178,7 @@ export default function AudiobookDetailPage() {
                 className="w-full accent-primary-400"
               />
             </div>
-            <button type="button" onClick={handleDownload} aria-label="Baixar áudio" className="text-brown-700">
+            <button type="button" onClick={handleDownload} aria-label={es ? "Descargar audio" : "Baixar áudio"} className="text-brown-700">
               <Download className="h-5 w-5" strokeWidth={2} />
             </button>
           </div>
@@ -195,8 +200,9 @@ export default function AudiobookDetailPage() {
         </div>
       ) : (
         <div className="rounded-2xl bg-yellow-100 p-4 text-sm text-brown-800">
-          A narração em áudio deste conteúdo ainda está em produção — leia a transcrição
-          completa abaixo por enquanto.
+          {es
+            ? "La narración en audio de este contenido todavía está en producción — por ahora, lea la transcripción completa a continuación."
+            : "A narração em áudio deste conteúdo ainda está em produção — leia a transcrição completa abaixo por enquanto."}
         </div>
       )}
 
@@ -206,11 +212,13 @@ export default function AudiobookDetailPage() {
         className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-sage-500 text-sm font-semibold text-white"
       >
         <Share2 className="h-5 w-5" strokeWidth={2} />
-        Compartilhar no WhatsApp
+        {es ? "Compartir en WhatsApp" : "Compartilhar no WhatsApp"}
       </button>
 
       <section>
-        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">Transcrição completa</h2>
+        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
+          {es ? "Transcripción completa" : "Transcrição completa"}
+        </h2>
         <div className="flex flex-col gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           {book.transcript.map((segment) => (
             <p key={segment.startSeconds} className="text-brown-800">
@@ -221,7 +229,9 @@ export default function AudiobookDetailPage() {
       </section>
 
       <section>
-        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">Avalie este audiobook</h2>
+        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
+          {es ? "Califique este audiobook" : "Avalie este audiobook"}
+        </h2>
         <div className="flex flex-col gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <div className="flex items-center justify-center gap-1">
             {[1, 2, 3, 4, 5].map((value) => (
@@ -238,7 +248,7 @@ export default function AudiobookDetailPage() {
             rows={3}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Comentário opcional..."
+            placeholder={es ? "Comentario opcional..." : "Comentário opcional..."}
             className="w-full rounded-2xl border-2 border-sage-100 bg-white p-3 text-base text-brown-800 outline-none focus:border-sage-400"
           />
           <button
@@ -247,7 +257,7 @@ export default function AudiobookDetailPage() {
             disabled={stars === 0}
             className="min-h-12 rounded-2xl bg-primary-500 text-sm font-semibold text-white disabled:opacity-40"
           >
-            {saved ? "Avaliação salva!" : "Salvar avaliação"}
+            {saved ? (es ? "¡Evaluación guardada!" : "Avaliação salva!") : (es ? "Guardar evaluación" : "Salvar avaliação")}
           </button>
         </div>
       </section>

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ageInMonths } from "@/lib/age";
 import { TOTAL_DIARY_FOODS } from "@/lib/food-diary";
 import { BackButton } from "@/components/back-button";
+import { useLocale } from "@/lib/use-locale";
 
 interface Stage {
   fromMonth: number;
@@ -56,6 +57,33 @@ const STAGES: Stage[] = [
   },
 ];
 
+const STAGES_ES: Record<string, { title: string; description: string }> = {
+  "Introdução alimentar começa": {
+    title: "Comienza la introducción alimentaria",
+    description: "Primer contacto con alimento sólido, además de la leche.",
+  },
+  "Primeiros sabores": {
+    title: "Primeros sabores",
+    description: "Explorando frutas y verduras, una a la vez.",
+  },
+  "Texturas diferentes": {
+    title: "Texturas diferentes",
+    description: "Alimentos con más consistencia, triturados groseramente.",
+  },
+  "Exploração ampla": {
+    title: "Exploración amplia",
+    description: "Mayor variedad de proteínas, cereales y condimentos suaves.",
+  },
+  "Autonomia na refeição": {
+    title: "Autonomía en la comida",
+    description: "Come solo(a), usa cubiertos, más independencia en la mesa.",
+  },
+  "Refeição em família": {
+    title: "Comida en familia",
+    description: "Comparte (casi) la misma comida de la familia, en trozos.",
+  },
+};
+
 function statusFor(currentMonths: number, stage: Stage): "done" | "current" | "locked" {
   if (currentMonths > stage.toMonth) return "done";
   if (currentMonths >= stage.fromMonth) return "current";
@@ -65,6 +93,8 @@ function statusFor(currentMonths: number, stage: Stage): "done" | "current" | "l
 export function DevelopmentTimeline() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [triedCount, setTriedCount] = useState(0);
 
   useEffect(() => {
@@ -87,7 +117,7 @@ export function DevelopmentTimeline() {
   if (!activeBaby) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Carregando...</p>
+        <p>{es ? "Cargando..." : "Carregando..."}</p>
       </main>
     );
   }
@@ -100,19 +130,24 @@ export function DevelopmentTimeline() {
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Marcos do desenvolvimento
+          {es ? "Hitos del desarrollo" : "Marcos do desenvolvimento"}
         </h1>
         <p className="mt-1 text-brown-700">
-          A jornada alimentar de {activeBaby.name}, mês a mês.
+          {es ? `El viaje alimentario de ${activeBaby.name}, mes a mes.` : `A jornada alimentar de ${activeBaby.name}, mês a mês.`}
         </p>
       </div>
 
       <ol className="flex flex-col gap-3 border-l-2 border-sage-200 pl-4">
         {STAGES.map((stage) => {
           const status = statusFor(currentMonths, stage);
-          const label = stage.fromMonth === stage.toMonth
-            ? `Mês ${stage.fromMonth}`
-            : `Meses ${stage.fromMonth}–${stage.toMonth}`;
+          const label = es
+            ? stage.fromMonth === stage.toMonth
+              ? `Mes ${stage.fromMonth}`
+              : `Meses ${stage.fromMonth}–${stage.toMonth}`
+            : stage.fromMonth === stage.toMonth
+              ? `Mês ${stage.fromMonth}`
+              : `Meses ${stage.fromMonth}–${stage.toMonth}`;
+          const copy = es ? STAGES_ES[stage.title] : stage;
 
           return (
             <li
@@ -144,14 +179,14 @@ export function DevelopmentTimeline() {
                   status === "locked" ? "text-brown-700/82" : "text-brown-800"
                 }`}
               >
-                {stage.title}
+                {copy.title}
               </p>
               <p className={`mt-0.5 text-sm ${status === "locked" ? "text-brown-700/78" : "text-brown-700"}`}>
-                {stage.description}
+                {copy.description}
               </p>
               {stage.showFoodCounter && status !== "locked" && (
                 <p className="mt-2 text-sm font-semibold text-primary-600">
-                  {triedCount} de {TOTAL_DIARY_FOODS} sabores provados
+                  {es ? `${triedCount} de ${TOTAL_DIARY_FOODS} sabores probados` : `${triedCount} de ${TOTAL_DIARY_FOODS} sabores provados`}
                 </p>
               )}
             </li>

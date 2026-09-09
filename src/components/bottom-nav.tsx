@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, CalendarDays, ShoppingBasket, LayoutGrid, Crown } from "lucide-react";
 import { useVipAccess } from "@/lib/use-vip-access";
+import { useLocale } from "@/lib/use-locale";
 
 const ITEMS = [
   { href: "/app", label: "Início", icon: Home },
@@ -12,11 +13,20 @@ const ITEMS = [
   { href: "/app/mais", label: "Mais", icon: LayoutGrid },
 ];
 
+const ITEMS_ES = [
+  { href: "/app", label: "Inicio", icon: Home },
+  { href: "/app/cardapio", label: "Menú", icon: CalendarDays },
+  { href: "/app/lista-compras", label: "Lista", icon: ShoppingBasket },
+  { href: "/app/mais", label: "Más", icon: LayoutGrid },
+];
+
 const VIP_PATHS = ["/app/vip", "/app/sos-desmame", "/app/protocolo-intestino", "/app/batch-cooking"];
 
 export function BottomNav() {
   const pathname = usePathname();
   const { hasAny: hasVipAccess } = useVipAccess();
+  const { locale } = useLocale();
+  const items = locale === "es" ? ITEMS_ES : ITEMS;
 
   // Tela imersiva "Modo Madrugada": sem navegação clara por cima do fundo escuro.
   if (pathname.startsWith("/app/sos-desmame")) return null;
@@ -26,7 +36,7 @@ export function BottomNav() {
   return (
     <nav className="sticky bottom-0 z-40 border-t border-gray-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
       <div className="flex">
-        {ITEMS.map(({ href, label, icon: Icon }) => {
+        {items.map(({ href, label, icon: Icon }) => {
           const active = href === "/app" ? pathname === "/app" : pathname.startsWith(href);
           return (
             <Link

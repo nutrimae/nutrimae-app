@@ -2,21 +2,57 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { PLATE_GROUPS } from "@/lib/plate";
+import { PLATE_GROUPS, type PlateGroup } from "@/lib/plate";
+import { useLocale } from "@/lib/use-locale";
+
+const PLATE_GROUPS_ES: Record<PlateGroup, { label: string; description: string; examples: string[] }> = {
+  carboidratos: {
+    label: "Carbohidratos",
+    description: "Energía para que tu bebé juegue y crezca.",
+    examples: ["Arroz", "Papa", "Fideos", "Pan integral"],
+  },
+  proteinas: {
+    label: "Proteínas",
+    description: "Construye músculos y huesos fuertes.",
+    examples: ["Pollo", "Huevos", "Frijoles", "Yogur", "Queso"],
+  },
+  vegetais: {
+    label: "Vegetales",
+    description: "Vitaminas y minerales para la inmunidad.",
+    examples: ["Brócoli", "Zanahoria", "Calabaza", "Espinaca"],
+  },
+  frutas: {
+    label: "Frutas",
+    description: "Fibras y dulzura natural.",
+    examples: ["Manzana", "Banana", "Fresa", "Sandía"],
+  },
+  laticinios: {
+    label: "Lácteos",
+    description: "Calcio para huesos saludables.",
+    examples: ["Leche", "Yogur", "Queso"],
+  },
+};
 
 export function BalancedPlate({ triedFoodKeys }: { triedFoodKeys?: Set<string> }) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const { locale } = useLocale();
+  const es = locale === "es";
+  const groups = PLATE_GROUPS.map((group) =>
+    es ? { ...group, ...PLATE_GROUPS_ES[group.key] } : group,
+  );
 
   return (
     <div className="rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
-      <h2 className="font-heading text-lg font-bold text-brown-800">Prato balanceado</h2>
+      <h2 className="font-heading text-lg font-bold text-brown-800">{es ? "Plato balanceado" : "Prato balanceado"}</h2>
       <p className="mt-1 text-sm text-brown-700">
-        Como equilibrar as refeições do dia a dia. Toque em cada grupo para ver exemplos.
+        {es
+          ? "Cómo equilibrar las comidas del día a día. Toca cada grupo para ver ejemplos."
+          : "Como equilibrar as refeições do dia a dia. Toque em cada grupo para ver exemplos."}
       </p>
 
       {/* Prato: barra segmentada proporcional */}
       <div className="mt-4 flex h-10 w-full overflow-hidden rounded-full">
-        {PLATE_GROUPS.map((group) => (
+        {groups.map((group) => (
           <button
             key={group.key}
             type="button"
@@ -35,7 +71,7 @@ export function BalancedPlate({ triedFoodKeys }: { triedFoodKeys?: Set<string> }
       </div>
 
       <div className="mt-3 flex flex-col gap-2">
-        {PLATE_GROUPS.map((group) => {
+        {groups.map((group) => {
           const isOpen = expanded === group.key;
           return (
             <div key={group.key} className="overflow-hidden rounded-2xl bg-sage-50/60">

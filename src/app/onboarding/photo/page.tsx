@@ -7,11 +7,14 @@ import { Camera } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
+import { useLocale } from "@/lib/use-locale";
 
 export default function PhotoStepPage() {
   const router = useRouter();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -63,7 +66,7 @@ export default function PhotoStepPage() {
 
     if (uploadError) {
       setLoading(false);
-      setError("Não deu para enviar a foto agora. Você pode adicionar depois.");
+      setError(es ? "No fue posible enviar la foto ahora. Puedes agregarla después." : "Não deu para enviar a foto agora. Você pode adicionar depois.");
       return;
     }
 
@@ -81,10 +84,10 @@ export default function PhotoStepPage() {
     >
       <div className="mx-auto flex w-full max-w-sm flex-1 flex-col items-center text-center">
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Uma foto do bebê?
+          {es ? "¿Una foto del bebé?" : "Uma foto do bebê?"}
         </h1>
         <p className="mt-2 text-sm text-brown-700/70">
-          Ela aparece no app para deixar tudo mais afetivo. Totalmente opcional.
+          {es ? "Aparece en la app para dejar todo más afectivo. Totalmente opcional." : "Ela aparece no app para deixar tudo mais afetivo. Totalmente opcional."}
         </p>
 
         <button
@@ -95,7 +98,7 @@ export default function PhotoStepPage() {
           {preview ? (
             <Image
               src={preview}
-              alt="Prévia da foto do bebê"
+              alt={es ? "Vista previa de la foto del bebé" : "Prévia da foto do bebê"}
               width={160}
               height={160}
               className="h-full w-full object-cover"
@@ -118,7 +121,7 @@ export default function PhotoStepPage() {
           onClick={() => fileInputRef.current?.click()}
           className="mt-4 min-h-11 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-hover"
         >
-          {preview ? "Escolher outra foto" : "Escolher foto"}
+          {es ? (preview ? "Elegir otra foto" : "Elegir foto") : (preview ? "Escolher outra foto" : "Escolher foto")}
         </button>
 
         {error && (
@@ -134,11 +137,13 @@ export default function PhotoStepPage() {
         </div>
         <div className="flex flex-col gap-3">
           <Button onClick={handleSave} disabled={loading} variant="brand">
-            {loading ? "Enviando..." : file ? "Usar essa foto" : "Continuar"}
+            {es
+              ? (loading ? "Enviando..." : file ? "Usar esta foto" : "Continuar")
+              : (loading ? "Enviando..." : file ? "Usar essa foto" : "Continuar")}
           </Button>
           {file && (
             <Button variant="ghost" onClick={goNext} disabled={loading}>
-              Pular por enquanto
+              {es ? "Saltar por ahora" : "Pular por enquanto"}
             </Button>
           )}
         </div>

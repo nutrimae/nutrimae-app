@@ -19,13 +19,25 @@ interface ExtraItem {
   category: ExtraCategory;
 }
 
-const CATEGORY_OPTIONS: { key: ExtraCategory; label: string; emoji: string }[] = [
-  { key: "feira", label: "Feira", emoji: "🥬" },
-  { key: "mercado", label: "Supermercado", emoji: "🛒" },
-  { key: "outros", label: "Outros", emoji: "✨" },
-];
+function getCategoryOptions(es: boolean): { key: ExtraCategory; label: string; emoji: string }[] {
+  return es
+    ? [
+        { key: "feira", label: "Verdulería", emoji: "🥬" },
+        { key: "mercado", label: "Supermercado", emoji: "🛒" },
+        { key: "outros", label: "Otros", emoji: "✨" },
+      ]
+    : [
+        { key: "feira", label: "Feira", emoji: "🥬" },
+        { key: "mercado", label: "Supermercado", emoji: "🛒" },
+        { key: "outros", label: "Outros", emoji: "✨" },
+      ];
+}
 
-const QUICK_SUGGESTIONS = ["Fraldas", "Lenços umedecidos", "Guardanapos", "Azeite"];
+function getQuickSuggestions(es: boolean): string[] {
+  return es
+    ? ["Pañales", "Toallitas húmedas", "Servilletas", "Aceite de oliva"]
+    : ["Fraldas", "Lenços umedecidos", "Guardanapos", "Azeite"];
+}
 
 export default function ListaComprasPage() {
   const { activeBaby } = useActiveBaby();
@@ -41,6 +53,9 @@ export default function ListaComprasPage() {
   const [newItemCategory, setNewItemCategory] = useState<ExtraCategory>("outros");
 
   const { locale } = useLocale();
+  const es = locale === "es";
+  const CATEGORY_OPTIONS = useMemo(() => getCategoryOptions(es), [es]);
+  const QUICK_SUGGESTIONS = useMemo(() => getQuickSuggestions(es), [es]);
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
   const isPost24Months = months >= 24;
   const ageBand = useMemo(() => ageBandForMonths(months), [months]);
@@ -173,7 +188,7 @@ export default function ListaComprasPage() {
     const name = newItemName.trim();
     if (!name) return;
     const extra: ExtraItem = {
-      key: `extra-${Date.now()}-${name.toLocaleLowerCase("pt-BR").replace(/\s+/g, "-")}`,
+      key: `extra-${Date.now()}-${name.toLocaleLowerCase(es ? "es" : "pt-BR").replace(/\s+/g, "-")}`,
       name,
       category: newItemCategory,
     };
@@ -185,7 +200,7 @@ export default function ListaComprasPage() {
     setNewItemName("");
     setNewItemCategory("outros");
     setShowAddItem(false);
-    showToast(`✓ ${name} entrou na lista!`);
+    showToast(es ? `✓ ¡${name} se agregó a la lista!` : `✓ ${name} entrou na lista!`);
   }
 
   async function removeExtraItem(key: string) {
@@ -206,13 +221,16 @@ export default function ListaComprasPage() {
 
   async function clearList() {
     if (!activeBaby) return;
-    if (!window.confirm("Limpar toda a lista? Isso desmarca os itens pegos e remove os itens que você adicionou.")) return;
+    const confirmMsg = es
+      ? "¿Limpiar toda la lista? Esto desmarca los ítems tomados y elimina los ítems que agregaste."
+      : "Limpar toda a lista? Isso desmarca os itens pegos e remove os itens que você adicionou.";
+    if (!window.confirm(confirmMsg)) return;
 
     setChecked(new Set());
     setExtras([]);
     window.localStorage.removeItem(`nutrimae:shopping-extras:${activeBaby.id}`);
     await supabase.from("shopping_list_checks").delete().eq("baby_id", activeBaby.id);
-    showToast("Lista limpa!");
+    showToast(es ? "¡Lista limpiada!" : "Lista limpa!");
   }
 
   function handleShareWhatsApp() {
@@ -225,7 +243,7 @@ export default function ListaComprasPage() {
       }
       lines.push("");
     }
-    lines.push("Gerada em NutriMãe 💚");
+    lines.push(es ? "Generada en NutriMãe 💚" : "Gerada em NutriMãe 💚");
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
@@ -233,7 +251,7 @@ export default function ListaComprasPage() {
   if (!activeBaby) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Carregando a lista...</p>
+        <p>{es ? "Cargando la lista..." : "Carregando a lista..."}</p>
       </main>
     );
   }
@@ -244,8 +262,11 @@ export default function ListaComprasPage() {
         <div>
           <h1 className="font-heading text-2xl font-bold text-brown-800">Lista de compras</h1>
           <p className="mt-1 text-sm text-brown-700/90">
-            Gerada a partir do cardápio da semana de {activeBaby.name}.
-            {!loading && totalItems > 0 && ` ${checkedCount} de ${totalItems} já pegos.`}
+            {es
+              ? `Generada a partir del menú de la semana de ${activeBaby.name}.`
+              : `Gerada a partir do cardápio da semana de ${activeBaby.name}.`}
+            {!loading && totalItems > 0 &&
+              (es ? ` ${checkedCount} de ${totalItems} ya tomados.` : ` ${checkedCount} de ${totalItems} já pegos.`)}
           </p>
         </div>
         <button
@@ -254,7 +275,7 @@ export default function ListaComprasPage() {
           disabled={loading || (checkedCount === 0 && extras.length === 0)}
           className="shrink-0 whitespace-nowrap pt-1 text-xs font-semibold text-brown-700/60 underline-offset-2 active:text-red-500 active:underline disabled:opacity-40"
         >
-          Limpar lista
+          {es ? "Limpiar lista" : "Limpar lista"}
         </button>
       </div>
 
@@ -265,7 +286,7 @@ export default function ListaComprasPage() {
         className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary-500 text-sm font-semibold text-white disabled:opacity-50"
       >
         <MessageCircle className="h-4 w-4" strokeWidth={2} />
-        Compartilhar por WhatsApp
+        {es ? "Compartir por WhatsApp" : "Compartilhar por WhatsApp"}
       </button>
 
       <button
@@ -278,8 +299,12 @@ export default function ListaComprasPage() {
             <Plus className="h-5 w-5" strokeWidth={2.5} />
           </span>
           <span>
-            <strong className="block text-sm text-brown-800">Faltou alguma coisinha?</strong>
-            <span className="text-xs text-brown-700/84">Adicione à lista em poucos segundos</span>
+            <strong className="block text-sm text-brown-800">
+              {es ? "¿Faltó alguna cosita?" : "Faltou alguma coisinha?"}
+            </strong>
+            <span className="text-xs text-brown-700/84">
+              {es ? "Agrégala a la lista en pocos segundos" : "Adicione à lista em poucos segundos"}
+            </span>
           </span>
         </span>
         <Sparkles className="h-5 w-5 text-primary-400" />
@@ -314,7 +339,7 @@ export default function ListaComprasPage() {
                   </span>
                 </button>
                 {item.key.startsWith("extra-") && (
-                  <button type="button" onClick={() => removeExtraItem(item.key)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-brown-700/35 active:bg-red-50 active:text-red-500" aria-label={`Remover ${item.name}`}>
+                  <button type="button" onClick={() => removeExtraItem(item.key)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-brown-700/35 active:bg-red-50 active:text-red-500" aria-label={es ? `Eliminar ${item.name}` : `Remover ${item.name}`}>
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}
@@ -333,25 +358,33 @@ export default function ListaComprasPage() {
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200" />
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 id="extra-item-title" className="text-xl font-bold text-brown-800">O que ficou faltando?</h2>
-                <p className="mt-1 text-sm text-brown-700/84">Pode ser da feira, do mercado ou algo só seu.</p>
+                <h2 id="extra-item-title" className="text-xl font-bold text-brown-800">
+                  {es ? "¿Qué faltó?" : "O que ficou faltando?"}
+                </h2>
+                <p className="mt-1 text-sm text-brown-700/84">
+                  {es ? "Puede ser de la verdulería, del supermercado o algo solo tuyo." : "Pode ser da feira, do mercado ou algo só seu."}
+                </p>
               </div>
-              <button type="button" onClick={() => setShowAddItem(false)} className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 text-brown-700/86" aria-label="Fechar"><X className="h-5 w-5" /></button>
+              <button type="button" onClick={() => setShowAddItem(false)} className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 text-brown-700/86" aria-label={es ? "Cerrar" : "Fechar"}><X className="h-5 w-5" /></button>
             </div>
 
-            <label htmlFor="extra-item-name" className="mt-5 block text-xs font-semibold uppercase tracking-wide text-brown-700/84">Nome do item</label>
-            <input id="extra-item-name" autoFocus value={newItemName} onChange={(event) => setNewItemName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addExtraItem(); }} placeholder="Ex.: sabonete do bebê" className="mt-2 min-h-14 w-full rounded-2xl border border-primary-100 bg-primary-50/40 px-4 text-base text-brown-800 outline-none transition-shadow placeholder:text-brown-700/35 focus:border-primary-500 focus:shadow-[0_0_0_4px_var(--color-primary-glow)]" />
+            <label htmlFor="extra-item-name" className="mt-5 block text-xs font-semibold uppercase tracking-wide text-brown-700/84">
+              {es ? "Nombre del ítem" : "Nome do item"}
+            </label>
+            <input id="extra-item-name" autoFocus value={newItemName} onChange={(event) => setNewItemName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addExtraItem(); }} placeholder={es ? "Ej.: jabón del bebé" : "Ex.: sabonete do bebê"} className="mt-2 min-h-14 w-full rounded-2xl border border-primary-100 bg-primary-50/40 px-4 text-base text-brown-800 outline-none transition-shadow placeholder:text-brown-700/35 focus:border-primary-500 focus:shadow-[0_0_0_4px_var(--color-primary-glow)]" />
 
             <div className="mt-3 flex flex-wrap gap-2">
               {QUICK_SUGGESTIONS.map((suggestion) => <button key={suggestion} type="button" onClick={() => setNewItemName(suggestion)} className="min-h-9 rounded-full bg-gray-50 px-3 text-xs font-medium text-brown-700 active:bg-primary-50 active:text-primary-600">+ {suggestion}</button>)}
             </div>
 
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-brown-700/84">Onde encontrar?</p>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-brown-700/84">
+              {es ? "¿Dónde encontrarlo?" : "Onde encontrar?"}
+            </p>
             <div className="mt-2 grid grid-cols-3 gap-2">
               {CATEGORY_OPTIONS.map((category) => <button key={category.key} type="button" onClick={() => setNewItemCategory(category.key)} className={`min-h-14 rounded-2xl border px-2 text-xs font-semibold transition-colors ${newItemCategory === category.key ? "border-primary-500 bg-primary-50 text-primary-600" : "border-gray-100 text-brown-700/86"}`}><span className="mr-1" aria-hidden="true">{category.emoji}</span>{category.label}</button>)}
             </div>
 
-            <button type="button" onClick={addExtraItem} disabled={!newItemName.trim()} className="mt-5 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-500 to-[#ff2974] text-base font-bold text-white shadow-[0_8px_20px_var(--color-primary-glow)] disabled:opacity-40"><Plus className="h-5 w-5" />Adicionar à minha lista</button>
+            <button type="button" onClick={addExtraItem} disabled={!newItemName.trim()} className="mt-5 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-500 to-[#ff2974] text-base font-bold text-white shadow-[0_8px_20px_var(--color-primary-glow)] disabled:opacity-40"><Plus className="h-5 w-5" />{es ? "Agregar a mi lista" : "Adicionar à minha lista"}</button>
           </section>
         </div>
       )}

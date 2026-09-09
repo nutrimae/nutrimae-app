@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
 import type { BabyGender } from "@/lib/types";
+import { useLocale } from "@/lib/use-locale";
 
 export default function GenderStepPage() {
   const router = useRouter();
   const supabase = createClient();
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [saving, setSaving] = useState<BabyGender | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +32,7 @@ export default function GenderStepPage() {
     setSaving(null);
 
     if (updateError) {
-      setError("Não deu para salvar agora. Tente de novo.");
+      setError(es ? "No fue posible guardar ahora. Intenta de nuevo." : "Não deu para salvar agora. Tente de novo.");
       return;
     }
 
@@ -42,10 +45,10 @@ export default function GenderStepPage() {
     >
       <div className="mx-auto w-full max-w-sm flex-1">
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Seu bebê é menino ou menina?
+          {es ? "¿Tu bebé es niño o niña?" : "Seu bebê é menino ou menina?"}
         </h1>
         <p className="mt-2 text-sm text-brown-700/70">
-          Usamos isso só para deixar o app com as cores do seu jeitinho.
+          {es ? "Usamos esto solo para dejar la app con los colores de tu estilo." : "Usamos isso só para deixar o app com as cores do seu jeitinho."}
         </p>
 
         <div className="mt-8 flex flex-col gap-3">
@@ -57,11 +60,11 @@ export default function GenderStepPage() {
           >
             <span className="text-4xl">👧</span>
             <div>
-              <p className="font-heading text-lg font-bold text-brown-800">Menina</p>
-              <p className="text-xs text-brown-700/60">Tema em tons de rosa</p>
+              <p className="font-heading text-lg font-bold text-brown-800">{es ? "Niña" : "Menina"}</p>
+              <p className="text-xs text-brown-700/60">{es ? "Tema en tonos de rosa" : "Tema em tons de rosa"}</p>
             </div>
             {saving === "female" && (
-              <span className="ml-auto text-xs font-semibold text-brown-700/50">Salvando...</span>
+              <span className="ml-auto text-xs font-semibold text-brown-700/50">{es ? "Guardando..." : "Salvando..."}</span>
             )}
           </button>
 
@@ -73,11 +76,11 @@ export default function GenderStepPage() {
           >
             <span className="text-4xl">👦</span>
             <div>
-              <p className="font-heading text-lg font-bold text-brown-800">Menino</p>
-              <p className="text-xs text-brown-700/60">Tema em tons de azul</p>
+              <p className="font-heading text-lg font-bold text-brown-800">{es ? "Niño" : "Menino"}</p>
+              <p className="text-xs text-brown-700/60">{es ? "Tema en tonos de azul" : "Tema em tons de azul"}</p>
             </div>
             {saving === "male" && (
-              <span className="ml-auto text-xs font-semibold text-brown-700/50">Salvando...</span>
+              <span className="ml-auto text-xs font-semibold text-brown-700/50">{es ? "Guardando..." : "Salvando..."}</span>
             )}
           </button>
         </div>

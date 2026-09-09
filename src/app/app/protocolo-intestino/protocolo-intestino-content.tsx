@@ -4,6 +4,7 @@ import { Clock, Salad } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { Chip } from "@/components/ui/chip";
 import { STOOL_LIGHT_CATEGORIES, LAXATIVE_RECIPES } from "@/lib/intestino";
+import { useLocale } from "@/lib/use-locale";
 
 const CATEGORY_STYLES: Record<
   string,
@@ -19,6 +20,8 @@ const CATEGORY_STYLES: Record<
 };
 
 export function ProtocoloIntestinoContent() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-7 px-4 py-6">
       <BackButton fallbackHref="/app/vip" />
@@ -29,16 +32,16 @@ export function ProtocoloIntestinoContent() {
           <Salad className="h-7 w-7 text-sage-600" strokeWidth={1.75} />
         </div>
         <h1 className="font-heading text-xl font-bold text-brown-800">
-          Alívio rápido e natural para o intestino do seu bebê.
+          {es ? "Alivio rápido y natural para el intestino de tu bebé." : "Alívio rápido e natural para o intestino do seu bebê."}
         </h1>
         <p className="max-w-[28ch] text-sm text-brown-700/90">
-          Saiba o que oferecer agora e o que evitar até o intestino voltar ao normal.
+          {es ? "Descubre qué ofrecer ahora y qué evitar hasta que el intestino vuelva a la normalidad." : "Saiba o que oferecer agora e o que evitar até o intestino voltar ao normal."}
         </p>
       </div>
 
       {/* Semáforo do Cocô */}
       <section className="flex flex-col gap-3">
-        <h2 className="font-heading text-base font-bold text-brown-800">O Semáforo do Cocô</h2>
+        <h2 className="font-heading text-base font-bold text-brown-800">{es ? "El Semáforo de la Caca" : "O Semáforo do Cocô"}</h2>
         <div className="flex flex-col gap-3">
           {STOOL_LIGHT_CATEGORIES.map((category) => {
             const style = CATEGORY_STYLES[category.key];
@@ -72,7 +75,7 @@ export function ProtocoloIntestinoContent() {
 
       {/* As 5 Receitas Laxativas */}
       <section className="flex flex-col gap-3">
-        <h2 className="font-heading text-base font-bold text-brown-800">As 5 Receitas Laxativas</h2>
+        <h2 className="font-heading text-base font-bold text-brown-800">{es ? "Las 5 Recetas Laxantes" : "As 5 Receitas Laxativas"}</h2>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
           {LAXATIVE_RECIPES.map((recipe) => (
             <article
@@ -96,8 +99,9 @@ export function ProtocoloIntestinoContent() {
       </section>
 
       <p className="text-center text-[11px] leading-relaxed text-brown-700/78">
-        Este conteúdo é educativo e não substitui orientação de um pediatra, especialmente em
-        casos de constipação persistente ou dor.
+        {es
+          ? "Este contenido es educativo y no sustituye la orientación de un pediatra, especialmente en casos de estreñimiento persistente o dolor."
+          : "Este conteúdo é educativo e não substitui orientação de um pediatra, especialmente em casos de constipação persistente ou dor."}
       </p>
     </main>
   );

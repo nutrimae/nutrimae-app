@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useLocale } from "@/lib/use-locale";
 
 const SESSION_KEY = "nutrimae:splash-shown";
 // A marca aparece sem bloquear a mãe: a abertura inteira dura menos de 1s.
@@ -13,6 +14,8 @@ const SKIP_SPLASH_PREFIXES = ["/oferta"];
 
 export function SplashScreen() {
   const pathname = usePathname();
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [phase, setPhase] = useState<"hidden" | "visible" | "fading">("hidden");
   const skip = SKIP_SPLASH_PREFIXES.some((prefix) => pathname?.startsWith(prefix));
 
@@ -63,7 +66,7 @@ export function SplashScreen() {
           />
         </div>
         <p className="animate-splash-text mt-2 text-sm font-medium tracking-wide text-brown-700/90">
-          Alimentação segura, com carinho
+          {es ? "Alimentación segura, con cariño" : "Alimentação segura, com carinho"}
         </p>
       </div>
 

@@ -34,20 +34,31 @@ import {
 } from "@/lib/community";
 import { getSeenReplyCounts } from "@/lib/community-notifications";
 import { BackButton } from "@/components/back-button";
+import { useLocale } from "@/lib/use-locale";
 
 type FilterMode = "novos" | "trending" | "pergunta" | "dica";
 
-const FILTERS: { key: FilterMode; emoji: string; label: string }[] = [
+const FILTERS_PT: { key: FilterMode; emoji: string; label: string }[] = [
   { key: "novos", emoji: "🆕", label: "Novos" },
   { key: "trending", emoji: "🔥", label: "Trending" },
   { key: "pergunta", emoji: "❓", label: "Perguntas" },
   { key: "dica", emoji: "💡", label: "Dicas" },
 ];
 
+const FILTERS_ES: { key: FilterMode; emoji: string; label: string }[] = [
+  { key: "novos", emoji: "🆕", label: "Nuevos" },
+  { key: "trending", emoji: "🔥", label: "Tendencia" },
+  { key: "pergunta", emoji: "❓", label: "Preguntas" },
+  { key: "dica", emoji: "💡", label: "Consejos" },
+];
+
 const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL;
 
 export function ClubFeed() {
   const supabase = useMemo(() => createClient(), []);
+  const { locale } = useLocale();
+  const es = locale === "es";
+  const FILTERS = es ? FILTERS_ES : FILTERS_PT;
 
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [faqs, setFaqs] = useState<CommunityFaq[]>([]);
@@ -155,8 +166,12 @@ export function ClubFeed() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-brown-800">Comunidade das Mães</h1>
-          <p className="mt-0.5 text-sm text-brown-700/90">Bem-vinda à comunidade de mães 💛</p>
+          <h1 className="font-heading text-2xl font-bold text-brown-800">
+            {es ? "Comunidad de Mamás" : "Comunidade das Mães"}
+          </h1>
+          <p className="mt-0.5 text-sm text-brown-700/90">
+            {es ? "Bienvenida a la comunidad de mamás 💛" : "Bem-vinda à comunidade de mães 💛"}
+          </p>
         </div>
         {isAdmin && (
           <Link
@@ -174,11 +189,20 @@ export function ClubFeed() {
           <span className="text-2xl">{COMMUNITY_BADGE_INFO[myBadge].emoji}</span>
           <div>
             <p className="font-semibold text-brown-800">
-              Você é {COMMUNITY_BADGE_INFO[myBadge].label} na comunidade!
+              {es
+                ? `¡Eres ${COMMUNITY_BADGE_INFO[myBadge].label} en la comunidad!`
+                : `Você é ${COMMUNITY_BADGE_INFO[myBadge].label} na comunidade!`}
             </p>
             <p className="text-xs text-brown-700/90">
-              {myPostCount} {myPostCount === 1 ? "post" : "posts"} · {myReplyCount}{" "}
-              {myReplyCount === 1 ? "resposta" : "respostas"}
+              {myPostCount} {es ? (myPostCount === 1 ? "post" : "posts") : (myPostCount === 1 ? "post" : "posts")} ·{" "}
+              {myReplyCount}{" "}
+              {es
+                ? myReplyCount === 1
+                  ? "respuesta"
+                  : "respuestas"
+                : myReplyCount === 1
+                  ? "resposta"
+                  : "respostas"}
             </p>
           </div>
         </div>
@@ -213,8 +237,12 @@ export function ClubFeed() {
         >
           <MessageSquare className="h-6 w-6 shrink-0" strokeWidth={2} />
           <div>
-            <p className="font-semibold">Grupo de WhatsApp da Comunidade</p>
-            <p className="text-xs text-white/80">Converse em tempo real com outras mães.</p>
+            <p className="font-semibold">
+              {es ? "Grupo de WhatsApp de la Comunidad" : "Grupo de WhatsApp da Comunidade"}
+            </p>
+            <p className="text-xs text-white/80">
+              {es ? "Conversa en tiempo real con otras mamás." : "Converse em tempo real com outras mães."}
+            </p>
           </div>
         </a>
       )}
@@ -228,7 +256,7 @@ export function ClubFeed() {
           >
             <span className="flex items-center gap-2 font-heading font-bold text-brown-800">
               <HelpCircle className="h-5 w-5" strokeWidth={2} />
-              Perguntas frequentes ({faqs.length})
+              {es ? `Preguntas frecuentes (${faqs.length})` : `Perguntas frequentes (${faqs.length})`}
             </span>
             <ChevronDown
               className={`h-5 w-5 text-brown-700 transition-transform ${faqOpen ? "rotate-180" : ""}`}
@@ -256,7 +284,7 @@ export function ClubFeed() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar por palavra-chave ou #hashtag"
+          placeholder={es ? "Buscar por palabra clave o #hashtag" : "Buscar por palavra-chave ou #hashtag"}
           className="min-h-12 w-full rounded-xl border-2 border-sage-100 bg-white pl-11 pr-4 text-base text-brown-800 outline-none focus:border-primary-500 focus:shadow-[0_0_0_4px_var(--color-primary-glow)]"
         />
       </div>
@@ -278,11 +306,11 @@ export function ClubFeed() {
 
       <Button onClick={() => setShowForm(true)} className="flex items-center justify-center gap-2">
         <Plus className="h-5 w-5" strokeWidth={2} />
-        Novo post
+        {es ? "Nuevo post" : "Novo post"}
       </Button>
 
       {loading ? (
-        <p className="text-center text-brown-700/86">Carregando...</p>
+        <p className="text-center text-brown-700/86">{es ? "Cargando..." : "Carregando..."}</p>
       ) : filteredPosts.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100">
@@ -290,11 +318,15 @@ export function ClubFeed() {
           </div>
           <p className="text-brown-700">
             {query || filter !== "novos"
-              ? "Nenhum post encontrado com esses filtros."
-              : "A comunidade ainda está começando. Seja a primeira a compartilhar!"}
+              ? es
+                ? "Ningún post encontrado con esos filtros."
+                : "Nenhum post encontrado com esses filtros."
+              : es
+                ? "La comunidad todavía está empezando. ¡Sé la primera en compartir!"
+                : "A comunidade ainda está começando. Seja a primeira a compartilhar!"}
           </p>
           <Button variant="brand" size="md" onClick={() => setShowForm(true)} className="w-auto px-6">
-            Criar primeiro post
+            {es ? "Crear primer post" : "Criar primeiro post"}
           </Button>
         </div>
       ) : (
@@ -326,13 +358,20 @@ export function ClubFeed() {
                   )}
                   <span className="flex items-center gap-1">
                     <MessageCircle className="h-3.5 w-3.5" strokeWidth={2} />
-                    {post.reply_count} {post.reply_count === 1 ? "resposta" : "respostas"}
+                    {post.reply_count}{" "}
+                    {es
+                      ? post.reply_count === 1
+                        ? "respuesta"
+                        : "respuestas"
+                      : post.reply_count === 1
+                        ? "resposta"
+                        : "respostas"}
                   </span>
                   <span>{formatRelativeDate(post.created_at)}</span>
                   {hasNew && (
                     <span className="ml-auto flex items-center gap-1 font-semibold text-terracotta-600">
                       <span className="h-2 w-2 rounded-full bg-terracotta-500" />
-                      Nova resposta
+                      {es ? "Nueva respuesta" : "Nova resposta"}
                     </span>
                   )}
                 </div>
@@ -358,12 +397,16 @@ function NewPostSheet({
   const [body, setBody] = useState("");
   const [category, setCategory] = useState<PostCategory>("geral");
   const [saving, setSaving] = useState(false);
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-brown-900/30" onClick={onClose}>
       <div className="w-full animate-fade-in-up rounded-t-3xl bg-cream p-6 pb-8" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-xl font-bold text-brown-800">Novo post</h2>
+          <h2 className="font-heading text-xl font-bold text-brown-800">
+            {es ? "Nuevo post" : "Novo post"}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -375,7 +418,9 @@ function NewPostSheet({
 
         <div className="flex flex-col gap-4">
           <div>
-            <label className="mb-2 block text-base font-semibold text-brown-700">Categoria</label>
+            <label className="mb-2 block text-base font-semibold text-brown-700">
+              {es ? "Categoría" : "Categoria"}
+            </label>
             <div className="flex gap-2">
               {(Object.keys(POST_CATEGORY_INFO) as PostCategory[]).map((key) => (
                 <button
@@ -393,21 +438,21 @@ function NewPostSheet({
           </div>
           <Input
             id="post-title"
-            label="Título"
-            placeholder="Sua dúvida em poucas palavras"
+            label={es ? "Título" : "Título"}
+            placeholder={es ? "Tu duda en pocas palabras" : "Sua dúvida em poucas palavras"}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <div>
             <label htmlFor="post-body" className="mb-2 block text-base font-semibold text-brown-700">
-              Detalhes
+              {es ? "Detalles" : "Detalhes"}
             </label>
             <textarea
               id="post-body"
               rows={4}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Conte mais sobre a situação..."
+              placeholder={es ? "Cuenta más sobre la situación..." : "Conte mais sobre a situação..."}
               className="w-full rounded-2xl border-2 border-sage-100 bg-white p-4 text-lg text-brown-800 outline-none focus:border-sage-400"
             />
           </div>
@@ -420,7 +465,7 @@ function NewPostSheet({
             }}
             disabled={saving || !title.trim() || !body.trim()}
           >
-            {saving ? "Publicando..." : "Publicar"}
+            {saving ? (es ? "Publicando..." : "Publicando...") : es ? "Publicar" : "Publicar"}
           </Button>
         </div>
       </div>

@@ -9,11 +9,14 @@ import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
 import { ALLERGEN_CHECKLIST, ALLERGEN_LABEL, getAllergenChecklist, toggleAllergenChecklist } from "@/lib/allergen-checklist";
 import type { Allergen } from "@/lib/recipes";
+import { useLocale } from "@/lib/use-locale";
 
 export default function AllergenChecklistPage() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const [selected, setSelected] = useState<Allergen[]>([]);
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   useEffect(() => {
     if (!activeBaby) return;
@@ -31,11 +34,12 @@ export default function AllergenChecklistPage() {
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Checklist de alergênicos
+          {es ? "Lista de verificación de alergénicos" : "Checklist de alergênicos"}
         </h1>
         <p className="mt-1 text-brown-700">
-          Marque os alimentos aos quais o seu bebê já reagiu ou que o pediatra pediu para
-          evitar. As receitas passam a esconder automaticamente qualquer item marcado.
+          {es
+            ? "Marque los alimentos a los que su bebé ya reaccionó o que el pediatra pidió evitar. Las recetas ocultarán automáticamente cualquier ítem marcado."
+            : "Marque os alimentos aos quais o seu bebê já reagiu ou que o pediatra pediu para evitar. As receitas passam a esconder automaticamente qualquer item marcado."}
         </p>
       </div>
 
@@ -46,7 +50,9 @@ export default function AllergenChecklistPage() {
         >
           <ChefHat className="h-5 w-5 shrink-0" strokeWidth={2} />
           <span className="font-semibold">
-            Ver receitas sem {selected.length === 1 ? "esse alérgeno" : `esses ${selected.length} alérgenos`}
+            {es
+              ? `Ver recetas sin ${selected.length === 1 ? "ese alérgeno" : `esos ${selected.length} alérgenos`}`
+              : `Ver receitas sem ${selected.length === 1 ? "esse alérgeno" : `esses ${selected.length} alérgenos`}`}
           </span>
         </Link>
       )}

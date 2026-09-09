@@ -34,6 +34,7 @@ export default function CardapioPage() {
   const supabase = useMemo(() => createClient(), []);
   const { showToast } = useToast();
   const { locale } = useLocale();
+  const es = locale === "es";
   const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
   const DAYS = useMemo(() => getDays(locale), [locale]);
   const MEAL_TYPES = useMemo(() => getMealTypes(locale), [locale]);
@@ -106,14 +107,14 @@ export default function CardapioPage() {
     setOverrides({});
     if (activeBaby) {
       await supabase.from("babies").update({ diet_filter: filter }).eq("id", activeBaby.id);
-      showToast("Filtro atualizado");
+      showToast(es ? "Filtro actualizado" : "Filtro atualizado");
     }
   }
 
   if (!activeBaby) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Carregando o cardápio...</p>
+        <p>{es ? "Cargando el menú..." : "Carregando o cardápio..."}</p>
       </main>
     );
   }
@@ -135,7 +136,7 @@ export default function CardapioPage() {
     const size = poolSize(ageBand, mealType, locale);
     const current = overrides[key] ?? dayIndex % size;
     setOverrides((prev) => ({ ...prev, [key]: (current + 1) % size }));
-    showToast("Sugestão trocada");
+    showToast(es ? "Sugerencia cambiada" : "Sugestão trocada");
   }
 
   return (
@@ -152,7 +153,7 @@ export default function CardapioPage() {
                 : "text-brown-700/90 hover:text-brown-800"
             }`}
           >
-            🍽️ Cardápio Semanal
+            {es ? "🍽️ Menú Semanal" : "🍽️ Cardápio Semanal"}
           </button>
           <button
             type="button"
@@ -163,7 +164,7 @@ export default function CardapioPage() {
                 : "text-brown-700/90 hover:text-brown-800"
             }`}
           >
-            🍱 Lanchinho de Creche
+            {es ? "🍱 Merienda de Guardería" : "🍱 Lanchinho de Creche"}
           </button>
         </div>
       )}
@@ -176,11 +177,15 @@ export default function CardapioPage() {
       ) : (
         <>
           <div>
-            <h1 className="font-heading text-2xl font-bold text-brown-800">Cardápio da semana</h1>
+            <h1 className="font-heading text-2xl font-bold text-brown-800">
+              {es ? "Menú de la semana" : "Cardápio da semana"}
+            </h1>
             <p className="mt-1 text-sm text-brown-700/90">{AGE_BAND_LABEL[ageBand]}</p>
             {hasDiario && (
               <p className="mt-1 text-sm text-sage-600">
-                Priorizando sabores que {activeBaby.name.split(" ")[0]} ainda não provou ✨
+                {es
+                  ? `Priorizando sabores que ${activeBaby.name.split(" ")[0]} todavía no probó ✨`
+                  : `Priorizando sabores que ${activeBaby.name.split(" ")[0]} ainda não provou ✨`}
               </p>
             )}
           </div>
@@ -210,7 +215,9 @@ export default function CardapioPage() {
               className="flex min-h-14 items-center gap-3 rounded-2xl bg-sage-50 px-4 text-sage-700"
             >
               <Salad className="h-5 w-5 shrink-0" strokeWidth={2} />
-              <span className="text-sm font-semibold">Ver guia de substituições</span>
+              <span className="text-sm font-semibold">
+                {es ? "Ver guía de sustituciones" : "Ver guia de substituições"}
+              </span>
             </Link>
           )}
 
@@ -218,7 +225,7 @@ export default function CardapioPage() {
             <div className="rounded-2xl bg-primary-100 p-4">
               <p className="mb-2 flex items-center gap-2 font-heading font-bold text-brown-800">
                 <Sparkles className="h-4 w-4 text-primary-600" strokeWidth={2} />
-                Pratinhos que você escolheu
+                {es ? "Platitos que elegiste" : "Pratinhos que você escolheu"}
               </p>
               <div className="flex flex-col gap-1">
                 {chosenPratinhos.map((p) => (
@@ -228,7 +235,7 @@ export default function CardapioPage() {
                       type="button"
                       onClick={() => {
                         setChosenPratinhoIds(removePratinhoFromCardapio(p.id));
-                        showToast("Pratinho removido");
+                        showToast(es ? "Platito eliminado" : "Pratinho removido");
                       }}
                       className="shrink-0"
                     >
@@ -238,7 +245,7 @@ export default function CardapioPage() {
                 ))}
               </div>
               <Link href="/app/pratinhos-divertidos" className="mt-2 block text-xs font-semibold text-primary-600">
-                Ver mais pratinhos divertidos →
+                {es ? "Ver más platitos divertidos →" : "Ver mais pratinhos divertidos →"}
               </Link>
             </div>
           )}
@@ -310,7 +317,9 @@ export default function CardapioPage() {
 
                   {isOpen && (
                     <div className="border-t border-sage-100 px-5 pb-5 pt-4">
-                      <p className="text-sm font-semibold text-brown-700">Modo de preparo</p>
+                      <p className="text-sm font-semibold text-brown-700">
+                        {es ? "Modo de preparación" : "Modo de preparo"}
+                      </p>
                       <p className="mt-1 text-brown-700">{suggestion.prep}</p>
 
                       <p className="mt-4 text-sm font-semibold text-brown-700">Ingredientes</p>
@@ -335,7 +344,7 @@ export default function CardapioPage() {
                         className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-sage-50 text-base font-semibold text-sage-700 active:bg-sage-100"
                       >
                         <RefreshCw className="h-4 w-4" strokeWidth={2} />
-                        Trocar sugestão
+                        {es ? "Cambiar sugerencia" : "Trocar sugestão"}
                       </button>
                     </div>
                   )}

@@ -3,8 +3,12 @@ import { Headphones, Clock } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { AUDIOBOOKS } from "@/lib/audiobooks";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 
-export default function AudiobooksPage() {
+export default async function AudiobooksPage() {
+  const locale = await getServerLocale();
+  const es = locale === "es";
+
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">
       <BackButton />
@@ -12,8 +16,9 @@ export default function AudiobooksPage() {
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">Audiobooks</h1>
         <p className="mt-1 text-brown-700">
-          Conteúdos rápidos para ouvir (ou ler) enquanto amamenta, dirige ou tem as mãos
-          ocupadas.
+          {es
+            ? "Contenidos rápidos para escuchar (o leer) mientras amamanta, conduce o tiene las manos ocupadas."
+            : "Conteúdos rápidos para ouvir (ou ler) enquanto amamenta, dirige ou tem as mãos ocupadas."}
         </p>
       </div>
 
@@ -33,7 +38,7 @@ export default function AudiobooksPage() {
               <p className="mt-1 flex items-center gap-1 text-xs text-brown-700/86">
                 <Clock className="h-3.5 w-3.5" strokeWidth={2} />
                 {book.estimatedMinutes} min
-                {!book.hasAudio && " · só leitura por enquanto"}
+                {!book.hasAudio && (es ? " · solo lectura por ahora" : " · só leitura por enquanto")}
               </p>
             </div>
           </Link>

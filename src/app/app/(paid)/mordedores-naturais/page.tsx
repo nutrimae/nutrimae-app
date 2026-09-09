@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle2, ChevronDown, Share2, ShieldAlert, Thermome
 import { BackButton } from "@/components/back-button";
 import { Chip } from "@/components/ui/chip";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
+import { useLocale } from "@/lib/use-locale";
 import {
   TEETHER_CATEGORY_LABEL,
   TEETHERS,
@@ -15,6 +16,8 @@ import {
 } from "@/lib/teethers";
 
 export default function MordedoresNaturaisPage() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [activeTeethingOnly, setActiveTeethingOnly] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showTable, setShowTable] = useState(false);
@@ -26,11 +29,17 @@ export default function MordedoresNaturaisPage() {
 
   function handleShare(teether: Teether) {
     const text = encodeURIComponent(
-      `🦷 ${teether.name} como mordedor natural\n\n` +
-        `Preparo: ${teether.prep}\n` +
-        `Duração máxima: ${teether.maxDurationMinutes} min\n` +
-        `Segurança: ${teether.safety}\n\n` +
-        `Guia completo de mordedores no NutriMãe 💚`,
+      es
+        ? `🦷 ${teether.name} como mordedor natural\n\n` +
+            `Preparación: ${teether.prep}\n` +
+            `Duración máxima: ${teether.maxDurationMinutes} min\n` +
+            `Seguridad: ${teether.safety}\n\n` +
+            `Guía completa de mordedores en NutriMãe 💚`
+        : `🦷 ${teether.name} como mordedor natural\n\n` +
+            `Preparo: ${teether.prep}\n` +
+            `Duração máxima: ${teether.maxDurationMinutes} min\n` +
+            `Segurança: ${teether.safety}\n\n` +
+            `Guia completo de mordedores no NutriMãe 💚`,
     );
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }
@@ -40,17 +49,22 @@ export default function MordedoresNaturaisPage() {
       <BackButton />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Mordedores Naturais</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">
+          {es ? "Mordedores Naturales" : "Mordedores Naturais"}
+        </h1>
         <p className="mt-1 text-brown-700">
-          15 opções naturais e seguras para aliviar o desconforto da erupção dos dentinhos.
+          {es
+            ? "15 opciones naturales y seguras para aliviar la molestia de la salida de los dientes."
+            : "15 opções naturais e seguras para aliviar o desconforto da erupção dos dentinhos."}
         </p>
       </div>
 
       <div className="flex items-start gap-3 rounded-2xl bg-terracotta-500/10 p-4">
         <ShieldAlert className="h-5 w-5 shrink-0 text-terracotta-600" strokeWidth={2} />
         <p className="text-sm text-brown-800">
-          Sempre supervisione o bebê enquanto ele usa qualquer mordedor, do início ao fim —
-          nunca deixe sozinho, mesmo por poucos segundos.
+          {es
+            ? "Siempre supervisa al bebé mientras usa cualquier mordedor, de principio a fin — nunca lo dejes solo, ni por pocos segundos."
+            : "Sempre supervisione o bebê enquanto ele usa qualquer mordedor, do início ao fim — nunca deixe sozinho, mesmo por poucos segundos."}
         </p>
       </div>
 
@@ -62,7 +76,13 @@ export default function MordedoresNaturaisPage() {
         }`}
       >
         <Thermometer className="h-5 w-5" strokeWidth={2} />
-        {activeTeethingOnly ? "Mostrando só os melhores para agora" : "Meu bebê tem teething agora"}
+        {activeTeethingOnly
+          ? es
+            ? "Mostrando solo los mejores para ahora"
+            : "Mostrando só os melhores para agora"
+          : es
+            ? "Mi bebé tiene salida de dientes ahora"
+            : "Meu bebê tem teething agora"}
       </button>
 
       <div className="flex flex-col gap-2">
@@ -91,18 +111,18 @@ export default function MordedoresNaturaisPage() {
                 <div className="flex flex-col gap-3 px-4 pb-4">
                   <div className="flex flex-wrap gap-2">
                     <Chip color="sage">🌡️ {teether.temperature}</Chip>
-                    <Chip color="sage">⏱️ até {teether.maxDurationMinutes} min por vez</Chip>
+                    <Chip color="sage">⏱️ {es ? "hasta" : "até"} {teether.maxDurationMinutes} min {es ? "por vez" : "por vez"}</Chip>
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wide text-sage-600">Preparo</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-sage-600">{es ? "Preparación" : "Preparo"}</p>
                     <p className="text-sm text-brown-800">{teether.prep}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wide text-sage-600">Como oferecer</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-sage-600">{es ? "Cómo ofrecer" : "Como oferecer"}</p>
                     <p className="text-sm text-brown-800">{teether.howToOffer}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wide text-sage-600">Benefícios</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-sage-600">{es ? "Beneficios" : "Benefícios"}</p>
                     <p className="text-sm text-brown-800">{teether.benefits}</p>
                   </div>
                   <div className="flex gap-2 rounded-2xl bg-yellow-100 p-3">
@@ -115,7 +135,7 @@ export default function MordedoresNaturaisPage() {
                     className="flex min-h-11 items-center justify-center gap-2 rounded-2xl border-2 border-sage-200 text-sm font-semibold text-sage-700"
                   >
                     <Share2 className="h-4 w-4" strokeWidth={2} />
-                    Compartilhar no WhatsApp
+                    {es ? "Compartir en WhatsApp" : "Compartilhar no WhatsApp"}
                   </button>
                 </div>
               )}
@@ -129,7 +149,13 @@ export default function MordedoresNaturaisPage() {
         onClick={() => setShowTable((v) => !v)}
         className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-sage-50 text-sm font-semibold text-sage-700"
       >
-        {showTable ? "Fechar tabela comparativa" : "Ver tabela comparativa: qual escolher?"}
+        {showTable
+          ? es
+            ? "Cerrar tabla comparativa"
+            : "Fechar tabela comparativa"
+          : es
+            ? "Ver tabla comparativa: ¿cuál elegir?"
+            : "Ver tabela comparativa: qual escolher?"}
       </button>
 
       {showTable && (
@@ -137,11 +163,11 @@ export default function MordedoresNaturaisPage() {
           <table className="w-full min-w-[480px] text-left text-xs">
             <thead>
               <tr className="text-brown-700/86">
-                <th className="p-2">Mordedor</th>
-                <th className="p-2">Categoria</th>
-                <th className="p-2">Idade mín.</th>
-                <th className="p-2">Duração</th>
-                <th className="p-2">Bom p/ crise ativa</th>
+                <th className="p-2">{es ? "Mordedor" : "Mordedor"}</th>
+                <th className="p-2">{es ? "Categoría" : "Categoria"}</th>
+                <th className="p-2">{es ? "Edad mín." : "Idade mín."}</th>
+                <th className="p-2">{es ? "Duración" : "Duração"}</th>
+                <th className="p-2">{es ? "Bueno p/ crisis activa" : "Bom p/ crise ativa"}</th>
               </tr>
             </thead>
             <tbody>
@@ -168,7 +194,7 @@ export default function MordedoresNaturaisPage() {
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-brown-800">
           <CheckCircle2 className="h-5 w-5 text-sage-600" strokeWidth={2} />
-          Sinais normais de teething
+          {es ? "Señales normales de la salida de dientes" : "Sinais normais de teething"}
         </h2>
         <div className="flex flex-col gap-2">
           {TEETHING_NORMAL_SIGNS.map((sign) => (
@@ -183,7 +209,7 @@ export default function MordedoresNaturaisPage() {
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-red-700">
           <AlertTriangle className="h-5 w-5" strokeWidth={2} />
-          Quando NÃO é só teething
+          {es ? "Cuando NO es solo la salida de dientes" : "Quando NÃO é só teething"}
         </h2>
         <div className="flex flex-col gap-2">
           {TEETHING_WARNING_SIGNS.map((sign) => (

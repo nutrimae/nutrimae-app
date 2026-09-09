@@ -3,13 +3,23 @@ import Image from "next/image";
 import { Check, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { totalStackedValue, type Product } from "@/lib/products";
+import type { Locale } from "@/lib/i18n/locale";
 
 function formatPrice(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export function UpgradeScreen({ product, checkoutHref }: { product: Product; checkoutHref?: string }) {
+export function UpgradeScreen({
+  product,
+  checkoutHref,
+  locale = "pt-BR",
+}: {
+  product: Product;
+  checkoutHref?: string;
+  locale?: Locale;
+}) {
   const total = totalStackedValue(product);
+  const es = locale === "es";
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-10">
@@ -23,13 +33,15 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
         />
         <div className="mb-2 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-amber-50 px-3 py-1">
           <Crown className="h-3.5 w-3.5 text-amber-600" strokeWidth={2} />
-          <span className="text-xs font-semibold text-amber-700">Conteúdo exclusivo</span>
+          <span className="text-xs font-semibold text-amber-700">{es ? "Contenido exclusivo" : "Conteúdo exclusivo"}</span>
         </div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Esse conteúdo é exclusivo
+          {es ? "Este contenido es exclusivo" : "Esse conteúdo é exclusivo"}
         </h1>
         <p className="mt-2 text-sm text-brown-700/90">
-          Desbloqueie {product.name.replace(" (assinatura)", "")} e tudo que vem junto.
+          {es ? "Desbloquea " : "Desbloqueie "}
+          {product.name.replace(" (assinatura)", "")}
+          {es ? " y todo lo que viene junto." : " e tudo que vem junto."}
         </p>
       </div>
 
@@ -45,7 +57,7 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
           </div>
           <span className="whitespace-nowrap text-sm text-brown-700/90">
             {formatPrice(product.regularPrice)}
-            {!product.oneTimePayment && "/mês"}
+            {!product.oneTimePayment && (es ? "/mes" : "/mês")}
           </span>
         </div>
 
@@ -58,8 +70,8 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
               <span className="text-sm text-brown-800">{item.label}</span>
             </div>
             <span className="whitespace-nowrap text-xs text-brown-700/82">
-              de <span className="line-through">{formatPrice(item.originalPrice)}</span>{" "}
-              por <span className="font-bold text-sage-600">GRÁTIS</span>
+              {es ? "de " : "de "}<span className="line-through">{formatPrice(item.originalPrice)}</span>{" "}
+              {es ? "por " : "por "}<span className="font-bold text-sage-600">{es ? "GRATIS" : "GRÁTIS"}</span>
             </span>
           </div>
         ))}
@@ -67,12 +79,12 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
         <div className="my-5 border-t border-dashed border-sage-200/60" />
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-brown-700/86">Total em valor</span>
+          <span className="text-sm text-brown-700/86">{es ? "Valor total" : "Total em valor"}</span>
           <span className="text-base text-brown-700/86 line-through">{formatPrice(total)}</span>
         </div>
         <div className="mt-1 flex items-center justify-between">
           <span className="font-heading text-base font-bold text-brown-800">
-            Você leva por
+            {es ? "Te lo llevas por" : "Você leva por"}
           </span>
           <span className="font-heading text-2xl font-bold text-primary-600">
             {formatPrice(product.price)}
@@ -83,20 +95,20 @@ export function UpgradeScreen({ product, checkoutHref }: { product: Product; che
 
       {checkoutHref ? (
         <Link href={checkoutHref}>
-          <Button variant="brand">Quero desbloquear</Button>
+          <Button variant="brand">{es ? "Quiero desbloquear" : "Quero desbloquear"}</Button>
         </Link>
       ) : (
         // Plano Mensal recorrente ainda não vendido publicamente (feature
         // flag desligada em offers.active) — sem checkout de verdade pra
         // linkar aqui ainda.
-        <Button disabled>Assinatura em breve por aqui</Button>
+        <Button disabled>{es ? "Suscripción disponible pronto" : "Assinatura em breve por aqui"}</Button>
       )}
 
       <Link
         href="/app"
         className="min-h-11 text-center text-sm font-semibold text-primary-600 transition-colors hover:text-primary-hover"
       >
-        Voltar para o início
+        {es ? "Volver al inicio" : "Voltar para o início"}
       </Link>
     </main>
   );

@@ -6,16 +6,17 @@ import { Moon, Clock, LifeBuoy } from "lucide-react";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { BackButton } from "@/components/back-button";
 import {
-  SLEEP_AGE_BAND_LABEL,
   computeSleepWindow,
   formatTime,
   windowProgressPercent,
-  RITUAL_AGE_BAND_LABEL,
-  RITUALS_BY_AGE,
-  SLEEP_HELP_TOPICS,
+  getSleepAgeBandLabel,
+  getRitualAgeBandLabel,
+  getRitualsByAge,
+  getSleepHelpTopics,
   type SleepAgeBand,
   type RitualAgeBand,
 } from "@/lib/sleep";
+import { useLocale } from "@/lib/use-locale";
 
 const BANDS: SleepAgeBand[] = ["0-3", "4-6", "7-12", "13+"];
 const RITUAL_BANDS: RitualAgeBand[] = ["6-8", "9-12", "13-18", "19-24"];
@@ -64,6 +65,8 @@ function CircularProgress({ percent }: { percent: number }) {
 }
 
 export function RotinaSonoContent() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [band, setBand] = useState<SleepAgeBand>("4-6");
   const [wakeTime, setWakeTime] = useState("07:00");
   const [now, setNow] = useState(() => new Date());
@@ -76,20 +79,24 @@ export function RotinaSonoContent() {
 
   const result = computeSleepWindow(band, wakeTime);
   const percent = windowProgressPercent(result, now);
+  const SLEEP_AGE_BAND_LABEL = getSleepAgeBandLabel(locale);
+  const RITUAL_AGE_BAND_LABEL = getRitualAgeBandLabel(locale);
+  const RITUALS_BY_AGE = getRitualsByAge(locale);
+  const SLEEP_HELP_TOPICS = getSleepHelpTopics(locale);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
       <BackButton />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Rotina do Sono & Calma</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">{es ? "Rutina de Sueño y Calma" : "Rotina do Sono & Calma"}</h1>
         <p className="mt-1 text-brown-700">
-          Calcule a janela de sono ideal e o melhor horário para a próxima soneca.
+          {es ? "Calcula la ventana de sueño ideal y el mejor horario para la próxima siesta." : "Calcule a janela de sono ideal e o melhor horário para a próxima soneca."}
         </p>
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-brown-700">Faixa etária</p>
+        <p className="mb-2 text-sm font-semibold text-brown-700">{es ? "Franja etaria" : "Faixa etária"}</p>
         <div className="grid grid-cols-2 gap-2">
           {BANDS.map((b) => (
             <button
@@ -108,7 +115,7 @@ export function RotinaSonoContent() {
 
       <div>
         <label htmlFor="wake-time" className="mb-2 block text-sm font-semibold text-brown-700">
-          Hora que o bebê acordou
+          {es ? "Hora en que el bebé se despertó" : "Hora que o bebê acordou"}
         </label>
         <input
           id="wake-time"
@@ -122,7 +129,7 @@ export function RotinaSonoContent() {
       <div className="rounded-3xl bg-white/80 p-6 text-center shadow-sm shadow-brown-900/5">
         <CircularProgress percent={percent} />
         <p className="mt-3 text-sm text-brown-700">
-          da janela de sono atual já passou
+          {es ? "de la ventana de sueño actual ya pasó" : "da janela de sono atual já passou"}
         </p>
       </div>
 
@@ -130,18 +137,18 @@ export function RotinaSonoContent() {
         <div className="flex items-center gap-3 rounded-2xl bg-sage-50 p-4">
           <Clock className="h-6 w-6 shrink-0 text-sage-600" strokeWidth={2} />
           <div>
-            <p className="text-sm text-brown-700/90">Iniciar o ritual às</p>
+            <p className="text-sm text-brown-700/90">{es ? "Iniciar el ritual a las" : "Iniciar o ritual às"}</p>
             <p className="font-heading text-lg font-bold text-brown-800">
-              {formatTime(result.ritualStartTime)}
+              {formatTime(result.ritualStartTime, locale)}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-peach-100 p-4">
           <Moon className="h-6 w-6 shrink-0 text-terracotta-600" strokeWidth={2} />
           <div>
-            <p className="text-sm text-brown-700/90">Próxima soneca por volta de</p>
+            <p className="text-sm text-brown-700/90">{es ? "Próxima siesta alrededor de" : "Próxima soneca por volta de"}</p>
             <p className="font-heading text-lg font-bold text-brown-800">
-              {formatTime(result.napTime)}
+              {formatTime(result.napTime, locale)}
             </p>
           </div>
         </div>
@@ -149,7 +156,7 @@ export function RotinaSonoContent() {
 
       <div className="border-t border-sage-100 pt-6">
         <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
-          Rituais de sono por idade
+          {es ? "Rituales de sueño por edad" : "Rituais de sono por idade"}
         </h2>
         <div className="mb-3 grid grid-cols-2 gap-2">
           {RITUAL_BANDS.map((b) => (
@@ -177,7 +184,7 @@ export function RotinaSonoContent() {
 
       <div className="border-t border-sage-100 pt-6">
         <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
-          Problema? Procure ajuda
+          {es ? "¿Problema? Busca ayuda" : "Problema? Procure ajuda"}
         </h2>
         <div className="flex flex-col gap-2">
           {SLEEP_HELP_TOPICS.map((topic) => (
@@ -190,7 +197,7 @@ export function RotinaSonoContent() {
         <Link href="/app/suporte" className="mt-3 block">
           <div className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-primary-500 text-sm font-semibold text-white">
             <LifeBuoy className="h-4 w-4" strokeWidth={2} />
-            Fale com a nossa equipe
+            {es ? "Habla con nuestro equipo" : "Fale com a nossa equipe"}
           </div>
         </Link>
       </div>

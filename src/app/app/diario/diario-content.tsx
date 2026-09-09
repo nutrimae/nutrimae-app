@@ -20,6 +20,7 @@ import {
   type FoodCategory,
   type DiaryFood,
 } from "@/lib/food-diary";
+import { useLocale } from "@/lib/use-locale";
 
 interface LogEntry {
   reaction: Reaction;
@@ -29,10 +30,25 @@ interface LogEntry {
 
 const CATEGORY_ORDER: FoodCategory[] = ["frutas", "legumes", "proteinas", "cereais"];
 
+const CATEGORY_LABEL_ES: Record<FoodCategory, string> = {
+  frutas: "Frutas",
+  legumes: "Verduras y hortalizas",
+  proteinas: "Proteínas",
+  cereais: "Cereales y granos",
+};
+
+const REACTION_LABEL_ES: Record<Reaction, string> = {
+  gostou: "Le gustó",
+  neutro: "Neutro",
+  nao_gostou: "No le gustó",
+};
+
 export function DiarioContent() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const { showToast } = useToast();
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [log, setLog] = useState<Record<string, LogEntry>>({});
   const [milestones, setMilestones] = useState<Record<string, string>>({});
@@ -150,7 +166,9 @@ export function DiarioContent() {
         setJustUpdated(true);
         setTimeout(() => setJustUpdated(false), 350);
         showToast(
-          `✓ Registrado! ${activeBaby.name.split(" ")[0]} explorou mais um sabor`,
+          es
+            ? `✓ ¡Registrado! ${activeBaby.name.split(" ")[0]} exploró un sabor más`
+            : `✓ Registrado! ${activeBaby.name.split(" ")[0]} explorou mais um sabor`,
         );
       }
     }
@@ -170,14 +188,14 @@ export function DiarioContent() {
         }),
       });
       if (!res.ok) {
-        showToast("Não deu para gerar o relatório agora. Tenta de novo em instantes.");
+        showToast(es ? "No fue posible generar el informe ahora. Intenta de nuevo en unos instantes." : "Não deu para gerar o relatório agora. Tenta de novo em instantes.");
         return;
       }
       const blob = await res.blob();
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = objectUrl;
-      a.download = `relatorio-pediatra-${activeBaby.name.split(" ")[0].toLowerCase()}.pdf`;
+      a.download = `${es ? "informe-pediatra" : "relatorio-pediatra"}-${activeBaby.name.split(" ")[0].toLowerCase()}.pdf`;
       a.click();
       a.remove();
       URL.revokeObjectURL(objectUrl);
@@ -196,7 +214,7 @@ export function DiarioContent() {
   if (!activeBaby) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Carregando o diário...</p>
+        <p>{es ? "Cargando el diario..." : "Carregando o diário..."}</p>
       </main>
     );
   }
@@ -207,11 +225,13 @@ export function DiarioContent() {
 
       <div>
         <h1 className="font-heading text-2xl font-bold text-brown-800">
-          Diário de {activeBaby.name}
+          {es ? `Diario de ${activeBaby.name}` : `Diário de ${activeBaby.name}`}
         </h1>
         <p className="mt-1 text-brown-700">
           {triedCount === 0 ? (
-            `Nenhum alimento registrado ainda. Vamos descobrir quais sabores ${activeBaby.name.split(" ")[0]} adora?`
+            es
+              ? `Ningún alimento registrado todavía. ¿Vamos a descubrir qué sabores le encantan a ${activeBaby.name.split(" ")[0]}?`
+              : `Nenhum alimento registrado ainda. Vamos descobrir quais sabores ${activeBaby.name.split(" ")[0]} adora?`
           ) : (
             <>
               <span
@@ -219,7 +239,7 @@ export function DiarioContent() {
               >
                 {triedCount}
               </span>{" "}
-              de {TOTAL_DIARY_FOODS} sabores provados
+              {es ? `de ${TOTAL_DIARY_FOODS} sabores probados` : `de ${TOTAL_DIARY_FOODS} sabores provados`}
             </>
           )}
         </p>
@@ -242,9 +262,9 @@ export function DiarioContent() {
         </span>
         <span className="min-w-0 flex-1">
           <strong className="block text-sm font-semibold text-brown-800">
-            {generatingReport ? "Gerando relatório..." : "Gerar relatório para o pediatra"}
+            {generatingReport ? (es ? "Generando informe..." : "Gerando relatório...") : es ? "Generar informe para el pediatra" : "Gerar relatório para o pediatra"}
           </strong>
-          <span className="mt-0.5 block text-xs text-brown-700/86">Resumo em PDF dos últimos 30 dias, pronto pra levar à consulta.</span>
+          <span className="mt-0.5 block text-xs text-brown-700/86">{es ? "Resumen en PDF de los últimos 30 días, listo para llevar a la consulta." : "Resumo em PDF dos últimos 30 dias, pronto pra levar à consulta."}</span>
         </span>
       </button>
 
@@ -259,9 +279,9 @@ export function DiarioContent() {
               <BookHeart className="h-7 w-7 text-primary-600" />
             </div>
             <div>
-              <p className="type-tiny font-semibold uppercase tracking-wider text-primary-600">Seu diario ja conta uma historia</p>
-              <h2 className="mt-1 font-heading text-lg font-bold leading-tight text-brown-800">Transforme os momentos de {activeBaby.name.split(" ")[0]} em um livro ilustrado</h2>
-              <p className="mt-1 text-xs text-brown-700/86">Veja uma previa personalizada</p>
+              <p className="type-tiny font-semibold uppercase tracking-wider text-primary-600">{es ? "Tu diario ya cuenta una historia" : "Seu diario ja conta uma historia"}</p>
+              <h2 className="mt-1 font-heading text-lg font-bold leading-tight text-brown-800">{es ? `Transforma los momentos de ${activeBaby.name.split(" ")[0]} en un libro ilustrado` : `Transforme os momentos de ${activeBaby.name.split(" ")[0]} em um livro ilustrado`}</h2>
+              <p className="mt-1 text-xs text-brown-700/86">{es ? "Mira una vista previa personalizada" : "Veja uma previa personalizada"}</p>
             </div>
           </div>
         </Link>
@@ -270,7 +290,7 @@ export function DiarioContent() {
       {CATEGORY_ORDER.map((category) => (
         <div key={category}>
           <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
-            {FOOD_CATEGORY_LABEL[category]}
+            {es ? CATEGORY_LABEL_ES[category] : FOOD_CATEGORY_LABEL[category]}
           </h2>
           <div className="grid grid-cols-2 gap-2">
             {DIARY_FOODS.filter((f) => f.category === category).map((food) => {
@@ -298,7 +318,7 @@ export function DiarioContent() {
       <div>
         <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-brown-800">
           <Sparkles className="h-5 w-5 text-terracotta-600" strokeWidth={2} />
-          Marcos alimentares
+          {es ? "Hitos alimentarios" : "Marcos alimentares"}
         </h2>
 
         {achievedMilestones.length > 0 && (
@@ -307,7 +327,7 @@ export function DiarioContent() {
               <li key={m.key}>
                 <p className="font-heading font-bold text-brown-800">{m.title}</p>
                 <p className="text-sm text-brown-700/90">
-                  {new Date(milestones[m.key] + "T00:00:00").toLocaleDateString("pt-BR")}
+                  {new Date(milestones[m.key] + "T00:00:00").toLocaleDateString(es ? "es" : "pt-BR")}
                 </p>
               </li>
             ))}
@@ -326,7 +346,7 @@ export function DiarioContent() {
                 <p className="font-semibold text-brown-800">{m.title}</p>
                 <p className="text-xs text-brown-700/86">{m.description}</p>
               </div>
-              <span className="shrink-0 text-sm font-semibold text-sage-600">Marcar</span>
+              <span className="shrink-0 text-sm font-semibold text-sage-600">{es ? "Marcar" : "Marcar"}</span>
             </button>
           ))}
         </div>
@@ -338,6 +358,7 @@ export function DiarioContent() {
           existing={log[registering.key]}
           onClose={() => setRegistering(null)}
           onSave={saveLogEntry}
+          es={es}
         />
       )}
     </main>
@@ -349,11 +370,13 @@ function RegisterFoodSheet({
   existing,
   onClose,
   onSave,
+  es,
 }: {
   food: DiaryFood;
   existing?: LogEntry;
   onClose: () => void;
   onSave: (food: DiaryFood, reaction: Reaction, photoFile: File | null) => Promise<void>;
+  es: boolean;
 }) {
   const [reaction, setReaction] = useState<Reaction>(existing?.reaction ?? "gostou");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -378,7 +401,7 @@ function RegisterFoodSheet({
           </button>
         </div>
 
-        <p className="mb-2 text-sm font-semibold text-brown-700">Como foi a reação?</p>
+        <p className="mb-2 text-sm font-semibold text-brown-700">{es ? "¿Cómo fue la reacción?" : "Como foi a reação?"}</p>
         <div className="mb-4 flex gap-2">
           {(Object.keys(REACTION_LABEL) as Reaction[]).map((r) => (
             <button
@@ -390,12 +413,12 @@ function RegisterFoodSheet({
               }`}
             >
               <span className="text-xl">{REACTION_EMOJI[r]}</span>
-              {REACTION_LABEL[r]}
+              {es ? REACTION_LABEL_ES[r] : REACTION_LABEL[r]}
             </button>
           ))}
         </div>
 
-        <p className="mb-2 text-sm font-semibold text-brown-700">Foto (opcional)</p>
+        <p className="mb-2 text-sm font-semibold text-brown-700">{es ? "Foto (opcional)" : "Foto (opcional)"}</p>
         <input
           type="file"
           accept="image/*"
@@ -413,7 +436,7 @@ function RegisterFoodSheet({
           className="flex items-center justify-center gap-2"
         >
           <Check className="h-5 w-5" strokeWidth={2} />
-          {saving ? "Salvando..." : "Salvar"}
+          {saving ? (es ? "Guardando..." : "Salvando...") : es ? "Guardar" : "Salvar"}
         </Button>
       </div>
     </div>

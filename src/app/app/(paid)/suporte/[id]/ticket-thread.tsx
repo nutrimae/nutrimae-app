@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/lib/use-locale";
 
 interface Message {
   id: string;
@@ -22,6 +23,8 @@ interface Ticket {
 
 export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAdminView: boolean }) {
   const supabase = useMemo(() => createClient(), []);
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [body, setBody] = useState("");
@@ -90,7 +93,7 @@ export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAd
   if (loading) {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
-        <p>Carregando conversa...</p>
+        <p>{es ? "Cargando conversación..." : "Carregando conversa..."}</p>
       </main>
     );
   }
@@ -102,7 +105,7 @@ export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAd
         className="flex min-h-10 w-fit items-center gap-2 text-sm font-semibold text-sage-600"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2} />
-        Voltar
+        {es ? "Volver" : "Voltar"}
       </Link>
 
       <div>
@@ -111,7 +114,7 @@ export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAd
           <p className="text-sm text-brown-700/90">{ticket.user_email}</p>
         )}
         <p className="text-xs text-brown-700/86">
-          {ticket?.status === "open" ? "Em aberto" : "Encerrado"}
+          {ticket?.status === "open" ? (es ? "Abierto" : "Em aberto") : es ? "Cerrado" : "Encerrado"}
         </p>
       </div>
 
@@ -127,7 +130,7 @@ export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAd
               }`}
             >
               <p className="text-xs font-semibold opacity-70">
-                {fromAdmin ? "Equipe NutriMãe" : "Você"}
+                {fromAdmin ? "Equipe NutriMãe" : es ? "Tú" : "Você"}
               </p>
               <p className="mt-0.5 whitespace-pre-wrap">{m.body}</p>
             </div>
@@ -140,11 +143,11 @@ export function TicketThread({ ticketId, isAdminView }: { ticketId: string; isAd
           rows={3}
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="Escreva sua mensagem..."
+          placeholder={es ? "Escribe tu mensaje..." : "Escreva sua mensagem..."}
           className="w-full rounded-2xl border-2 border-sage-100 bg-white p-4 text-lg text-brown-800 outline-none focus:border-sage-400"
         />
         <Button onClick={handleSend} disabled={sending || !body.trim()}>
-          {sending ? "Enviando..." : "Enviar"}
+          {sending ? (es ? "Enviando..." : "Enviando...") : es ? "Enviar" : "Enviar"}
         </Button>
       </div>
     </main>

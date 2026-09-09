@@ -13,6 +13,7 @@ import { useVipAccess } from "@/lib/use-vip-access";
 import type { BabyGender } from "@/lib/types";
 import { REGIONS, type Region } from "@/lib/regions";
 import { useRegion } from "@/lib/use-region";
+import { useLocale } from "@/lib/use-locale";
 
 export default function PerfilPage() {
   const router = useRouter();
@@ -20,6 +21,8 @@ export default function PerfilPage() {
   const supabase = useMemo(() => createClient(), []);
   const vipAccess = useVipAccess();
   const { region, setRegion } = useRegion();
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [email, setEmail] = useState("");
   const [creditoExpansaoCentavos, setCreditoExpansaoCentavos] = useState(0);
@@ -68,10 +71,11 @@ export default function PerfilPage() {
         .maybeSingle();
 
       if (sub) {
-        const offerName = (sub.offers as unknown as { name?: string } | null)?.name ?? "Assinatura";
+        const offerName = (sub.offers as unknown as { name?: string } | null)?.name ?? (es ? "Suscripción" : "Assinatura");
         setSubscription({ id: sub.id, status: sub.status, nextBillingAt: sub.next_billing_at, offerName });
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
   async function handleCancelSubscription() {
@@ -85,7 +89,7 @@ export default function PerfilPage() {
     });
     setCancelingSubscription(false);
     if (!res.ok) {
-      setCancelError("Não conseguimos cancelar agora. Tente de novo em instantes ou fale com o suporte.");
+      setCancelError(es ? "No pudimos cancelar ahora. Intenta de nuevo en unos instantes o habla con el soporte." : "Não conseguimos cancelar agora. Tente de novo em instantes ou fale com o suporte.");
       return;
     }
     setConfirmingCancel(false);
@@ -138,7 +142,7 @@ export default function PerfilPage() {
     const data = await res.json().catch(() => ({}));
     setSavingPhone(false);
     if (!res.ok) {
-      setPhoneError(data.message ?? "Não foi possível salvar o telefone.");
+      setPhoneError(data.message ?? (es ? "No fue posible guardar el teléfono." : "Não foi possível salvar o telefone."));
       return;
     }
     setPhoneNumber(data.phone_number ?? "");
@@ -155,7 +159,7 @@ export default function PerfilPage() {
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-6">
       <BackButton />
 
-      <h1 className="font-heading text-2xl font-bold text-brown-800">Perfil e configurações</h1>
+      <h1 className="font-heading text-2xl font-bold text-brown-800">{es ? "Perfil y configuración" : "Perfil e configurações"}</h1>
 
       {activeBaby && (
         <Link
@@ -163,29 +167,29 @@ export default function PerfilPage() {
           className="flex items-center gap-2 rounded-2xl bg-primary-100 p-4 text-primary-600"
         >
           <TrendingUp className="h-5 w-5 shrink-0" strokeWidth={2} />
-          <span className="font-semibold">Ver marcos do desenvolvimento</span>
+          <span className="font-semibold">{es ? "Ver hitos del desarrollo" : "Ver marcos do desenvolvimento"}</span>
         </Link>
       )}
 
       {activeBaby && (
         <div>
-          <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Dados do bebê</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Datos del bebé" : "Dados do bebê"}</h2>
           <div className="flex flex-col gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
             <Input
               id="baby-name-edit"
-              label="Nome"
+              label={es ? "Nombre" : "Nome"}
               value={babyName}
               onChange={(e) => setBabyName(e.target.value)}
             />
             <Input
               id="baby-birthdate-edit"
               type="date"
-              label="Data de nascimento"
+              label={es ? "Fecha de nacimiento" : "Data de nascimento"}
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
             />
             <div>
-              <p className="mb-2 text-base font-semibold text-brown-700">Menino ou menina?</p>
+              <p className="mb-2 text-base font-semibold text-brown-700">{es ? "¿Niño o niña?" : "Menino ou menina?"}</p>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -194,7 +198,7 @@ export default function PerfilPage() {
                     gender === "female" ? "bg-pink-400 text-white" : "bg-pink-50 text-brown-700"
                   }`}
                 >
-                  👧 Menina
+                  👧 {es ? "Niña" : "Menina"}
                 </button>
                 <button
                   type="button"
@@ -203,22 +207,22 @@ export default function PerfilPage() {
                     gender === "male" ? "bg-sky-400 text-white" : "bg-sky-50 text-brown-700"
                   }`}
                 >
-                  👦 Menino
+                  👦 {es ? "Niño" : "Menino"}
                 </button>
               </div>
             </div>
             <Button onClick={handleSaveBaby} disabled={savingBaby}>
-              {savingBaby ? "Salvando..." : babySaved ? "Salvo!" : "Salvar dados do bebê"}
+              {savingBaby ? (es ? "Guardando..." : "Salvando...") : babySaved ? (es ? "¡Guardado!" : "Salvo!") : es ? "Guardar datos del bebé" : "Salvar dados do bebê"}
             </Button>
           </div>
         </div>
       )}
 
       <div>
-        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Sua região</h2>
+        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Tu región" : "Sua região"}</h2>
         <div className="flex flex-col gap-2 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <p className="text-sm text-brown-700/90">
-            Usamos para priorizar alimentos e receitas da sua região no cardápio.
+            {es ? "Lo usamos para priorizar alimentos y recetas de tu región en el menú." : "Usamos para priorizar alimentos e receitas da sua região no cardápio."}
           </p>
           <div className="mt-1 flex flex-wrap gap-2">
             {REGIONS.map((r) => (
@@ -242,14 +246,14 @@ export default function PerfilPage() {
               onClick={() => setRegion(null)}
               className="mt-1 text-left text-sm font-medium text-brown-700/82"
             >
-              Limpar seleção
+              {es ? "Limpiar selección" : "Limpar seleção"}
             </button>
           )}
         </div>
       </div>
 
       <div>
-        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Dados da conta</h2>
+        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Datos de la cuenta" : "Dados da conta"}</h2>
         <div className="flex flex-col gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <div>
             <p className="text-sm font-semibold text-brown-700">E-mail</p>
@@ -260,72 +264,79 @@ export default function PerfilPage() {
               id="phone-number"
               type="tel"
               label="WhatsApp"
-              placeholder="DDD + número, ex.: 11987654321"
+              placeholder={es ? "Código + número, ej.: 11987654321" : "DDD + número, ex.: 11987654321"}
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
             <p className="mt-1 text-xs text-brown-700/86">
-              Usado pro NutriBot e, se sua conta for admin, pra receber os alertas do painel do negócio.
+              {es
+                ? "Se usa para el NutriBot y, si tu cuenta es admin, para recibir las alertas del panel del negocio."
+                : "Usado pro NutriBot e, se sua conta for admin, pra receber os alertas do painel do negócio."}
             </p>
             {phoneError && <p className="mt-1 text-xs font-semibold text-red-600">{phoneError}</p>}
             <Button onClick={handleSavePhone} disabled={savingPhone} className="mt-2 w-full">
-              {savingPhone ? "Salvando..." : phoneSaved ? "Salvo!" : "Salvar WhatsApp"}
+              {savingPhone ? (es ? "Guardando..." : "Salvando...") : phoneSaved ? (es ? "¡Guardado!" : "Salvo!") : es ? "Guardar WhatsApp" : "Salvar WhatsApp"}
             </Button>
           </div>
           <Input
             id="new-password"
             type="password"
-            label="Nova senha"
-            placeholder="Deixe em branco para não alterar"
+            label={es ? "Nueva contraseña" : "Nova senha"}
+            placeholder={es ? "Deja en blanco para no cambiar" : "Deixe em branco para não alterar"}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             minLength={6}
           />
           <Button onClick={handleSavePassword} disabled={savingPassword || newPassword.length < 6}>
-            {savingPassword ? "Salvando..." : passwordSaved ? "Senha atualizada!" : "Atualizar senha"}
+            {savingPassword ? (es ? "Guardando..." : "Salvando...") : passwordSaved ? (es ? "¡Contraseña actualizada!" : "Senha atualizada!") : es ? "Actualizar contraseña" : "Atualizar senha"}
           </Button>
         </div>
       </div>
 
       <div>
-        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Assinatura</h2>
+        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Suscripción" : "Assinatura"}</h2>
         {subscription ? (
           <div className="flex flex-col gap-3 rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
             {cancelRequested ? (
               <p>
-                Cancelamento enviado! Seu acesso continua ativo até o fim do ciclo já pago
-                {subscription.nextBillingAt
-                  ? ` (${new Date(subscription.nextBillingAt).toLocaleDateString("pt-BR")})`
-                  : ""}
-                , e não haverá nova cobrança depois disso.
+                {es
+                  ? `¡Cancelación enviada! Tu acceso sigue activo hasta el fin del ciclo ya pagado${subscription.nextBillingAt ? ` (${new Date(subscription.nextBillingAt).toLocaleDateString("es")})` : ""}, y no habrá ningún cobro nuevo después de eso.`
+                  : `Cancelamento enviado! Seu acesso continua ativo até o fim do ciclo já pago${subscription.nextBillingAt ? ` (${new Date(subscription.nextBillingAt).toLocaleDateString("pt-BR")})` : ""}, e não haverá nova cobrança depois disso.`}
               </p>
             ) : (
               <>
                 <p>
-                  Seu plano atual é o <strong className="text-brown-800">{subscription.offerName}</strong>, com
-                  cobrança recorrente.
+                  {es ? (
+                    <>Tu plan actual es el <strong className="text-brown-800">{subscription.offerName}</strong>, con cobro recurrente.</>
+                  ) : (
+                    <>Seu plano atual é o <strong className="text-brown-800">{subscription.offerName}</strong>, com cobrança recorrente.</>
+                  )}
                   {subscription.nextBillingAt && (
-                    <> Próxima cobrança em {new Date(subscription.nextBillingAt).toLocaleDateString("pt-BR")}.</>
+                    es ? (
+                      <> Próximo cobro el {new Date(subscription.nextBillingAt).toLocaleDateString("es")}.</>
+                    ) : (
+                      <> Próxima cobrança em {new Date(subscription.nextBillingAt).toLocaleDateString("pt-BR")}.</>
+                    )
                   )}
                 </p>
                 {confirmingCancel ? (
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold text-brown-800">
-                      Cancelar mesmo? Seu acesso continua até o fim do ciclo já pago, sem multa.
+                      {es ? "¿Cancelar de verdad? Tu acceso sigue hasta el fin del ciclo ya pagado, sin multa." : "Cancelar mesmo? Seu acesso continua até o fim do ciclo já pago, sem multa."}
                     </p>
                     {cancelError && <p className="text-red-600">{cancelError}</p>}
                     <div className="flex gap-2">
                       <Button variant="ghost" onClick={() => setConfirmingCancel(false)} className="flex-1">
-                        Voltar
+                        {es ? "Volver" : "Voltar"}
                       </Button>
                       <Button onClick={handleCancelSubscription} disabled={cancelingSubscription} className="flex-1">
-                        {cancelingSubscription ? "Cancelando..." : "Confirmar cancelamento"}
+                        {cancelingSubscription ? (es ? "Cancelando..." : "Cancelando...") : es ? "Confirmar cancelación" : "Confirmar cancelamento"}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <Button variant="ghost" onClick={() => setConfirmingCancel(true)}>
-                    Cancelar assinatura
+                    {es ? "Cancelar suscripción" : "Cancelar assinatura"}
                   </Button>
                 )}
               </>
@@ -333,16 +344,20 @@ export default function PerfilPage() {
           </div>
         ) : (
           <p className="rounded-2xl bg-sage-50 p-4 text-sm text-brown-700">
-            Seu plano atual é pagamento único — sem cobrança recorrente pra gerenciar. Dúvidas? Fale com o suporte.
+            {es
+              ? "Tu plan actual es pago único — sin cobro recurrente que gestionar. ¿Dudas? Habla con el soporte."
+              : "Seu plano atual é pagamento único — sem cobrança recorrente pra gerenciar. Dúvidas? Fale com o suporte."}
           </p>
         )}
         {creditoExpansaoCentavos > 0 && (
           <p className="mt-2 rounded-2xl bg-amber-50 p-4 text-sm text-brown-700">
-            Você tem{" "}
+            {es ? "Tienes" : "Você tem"}{" "}
             <strong className="text-brown-800">
-              {(creditoExpansaoCentavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {(creditoExpansaoCentavos / 100).toLocaleString(es ? "es" : "pt-BR", { style: "currency", currency: "BRL" })}
             </strong>{" "}
-            em créditos de expansões compradas — guardados pra quando lançarmos novidades de upgrade.
+            {es
+              ? "en créditos de expansiones compradas — guardados para cuando lancemos novedades de upgrade."
+              : "em créditos de expansões compradas — guardados pra quando lançarmos novidades de upgrade."}
           </p>
         )}
       </div>
@@ -356,8 +371,8 @@ export default function PerfilPage() {
             <Crown className="h-4 w-4 text-amber-300" strokeWidth={1.75} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-white">Área VIP</p>
-            <p className="text-xs text-white/50">SOS Desmame Noturno e Protocolo Intestino Livre</p>
+            <p className="text-sm font-semibold text-white">{es ? "Área VIP" : "Área VIP"}</p>
+            <p className="text-xs text-white/50">{es ? "SOS Destete Nocturno y Protocolo Intestino Libre" : "SOS Desmame Noturno e Protocolo Intestino Livre"}</p>
           </div>
         </Link>
       )}
@@ -367,12 +382,12 @@ export default function PerfilPage() {
         className="flex items-center gap-2 text-sm font-semibold text-brown-700/90"
       >
         <ShieldCheck className="h-4 w-4" strokeWidth={2} />
-        Política de Privacidade
+        {es ? "Política de Privacidad" : "Política de Privacidade"}
       </Link>
 
       <Button variant="ghost" onClick={handleSignOut} className="flex items-center justify-center gap-2">
         <LogOut className="h-5 w-5" strokeWidth={2} />
-        Sair
+        {es ? "Salir" : "Sair"}
       </Button>
     </main>
   );

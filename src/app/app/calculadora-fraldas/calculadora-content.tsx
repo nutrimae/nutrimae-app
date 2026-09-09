@@ -7,10 +7,13 @@ import { Input } from "@/components/ui/input";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { estimateDiapers, type DiaperEstimate } from "@/lib/diapers";
 import { BackButton } from "@/components/back-button";
+import { useLocale } from "@/lib/use-locale";
 
 type Status = "nascera" | "nasceu";
 
 export function CalculadoraFraldasContent() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [status, setStatus] = useState<Status>("nasceu");
   const [weight, setWeight] = useState("3.5");
   const [result, setResult] = useState<DiaperEstimate | null>(null);
@@ -38,9 +41,9 @@ export function CalculadoraFraldasContent() {
     pricePerDiaper < 0.8 ? "otimo" : pricePerDiaper <= 1.5 ? "moderado" : "caro";
 
   const priceLevelCopy = {
-    otimo: { label: "Ótimo preço! Aproveite 🎉", bg: "bg-sage-100", text: "text-sage-700" },
-    moderado: { label: "Preço moderado, compare sempre", bg: "bg-yellow-100", text: "text-yellow-800" },
-    caro: { label: "Está caro? Procure outras marcas", bg: "bg-red-100", text: "text-red-700" },
+    otimo: { label: es ? "¡Excelente precio! Aprovecha 🎉" : "Ótimo preço! Aproveite 🎉", bg: "bg-sage-100", text: "text-sage-700" },
+    moderado: { label: es ? "Precio moderado, compara siempre" : "Preço moderado, compare sempre", bg: "bg-yellow-100", text: "text-yellow-800" },
+    caro: { label: es ? "¿Está caro? Busca otras marcas" : "Está caro? Procure outras marcas", bg: "bg-red-100", text: "text-red-700" },
   }[priceLevel];
 
   return (
@@ -48,14 +51,14 @@ export function CalculadoraFraldasContent() {
       <BackButton />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">Calculadora de Fraldas</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">{es ? "Calculadora de Pañales" : "Calculadora de Fraldas"}</h1>
         <p className="mt-1 text-brown-700">
-          Uma estimativa para planejar as compras sem exagerar em nenhum tamanho.
+          {es ? "Una estimación para planear las compras sin excederte en ningún talle." : "Uma estimativa para planejar as compras sem exagerar em nenhum tamanho."}
         </p>
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-brown-700">O bebê já nasceu?</p>
+        <p className="mb-2 text-sm font-semibold text-brown-700">{es ? "¿El bebé ya nació?" : "O bebê já nasceu?"}</p>
         <div className="flex gap-2">
           <button
             type="button"
@@ -64,7 +67,7 @@ export function CalculadoraFraldasContent() {
               status === "nascera" ? "bg-sage-500 text-white" : "bg-sage-50 text-brown-700"
             }`}
           >
-            Ainda vai nascer
+            {es ? "Todavía va a nacer" : "Ainda vai nascer"}
           </button>
           <button
             type="button"
@@ -73,7 +76,7 @@ export function CalculadoraFraldasContent() {
               status === "nasceu" ? "bg-sage-500 text-white" : "bg-sage-50 text-brown-700"
             }`}
           >
-            Já nasceu
+            {es ? "Ya nació" : "Já nasceu"}
           </button>
         </div>
       </div>
@@ -82,7 +85,7 @@ export function CalculadoraFraldasContent() {
         id="weight"
         type="number"
         inputMode="decimal"
-        label={status === "nascera" ? "Peso estimado ao nascer (kg)" : "Peso atual do bebê (kg)"}
+        label={es ? (status === "nascera" ? "Peso estimado al nacer (kg)" : "Peso actual del bebé (kg)") : status === "nascera" ? "Peso estimado ao nascer (kg)" : "Peso atual do bebê (kg)"}
         value={weight}
         onChange={(e) => setWeight(e.target.value)}
         step="0.1"
@@ -90,7 +93,7 @@ export function CalculadoraFraldasContent() {
         max="30"
       />
 
-      <Button onClick={handleCalculate}>Calcular</Button>
+      <Button onClick={handleCalculate}>{es ? "Calcular" : "Calcular"}</Button>
 
       {result && (
         <>
@@ -98,10 +101,14 @@ export function CalculadoraFraldasContent() {
             <PiggyBank className="h-6 w-6 shrink-0 text-sage-600" strokeWidth={2} />
             <div>
               <p className="font-heading font-bold text-brown-800">
-                Economia estimada no 1º ano: R$ {result.estimatedSavingsMin} a R$ {result.estimatedSavingsMax}
+                {es
+                  ? `Ahorro estimado en el 1er año: R$ ${result.estimatedSavingsMin} a R$ ${result.estimatedSavingsMax}`
+                  : `Economia estimada no 1º ano: R$ ${result.estimatedSavingsMin} a R$ ${result.estimatedSavingsMax}`}
               </p>
               <p className="mt-1 text-sm text-brown-700">
-                Estimativa ilustrativa, comprando no tamanho certo e evitando desperdício.
+                {es
+                  ? "Estimación ilustrativa, comprando el talle correcto y evitando el desperdicio."
+                  : "Estimativa ilustrativa, comprando no tamanho certo e evitando desperdício."}
               </p>
             </div>
           </div>
@@ -109,18 +116,18 @@ export function CalculadoraFraldasContent() {
           <div className="flex items-start gap-3 rounded-2xl bg-red-100 p-4">
             <AlertTriangle className="h-6 w-6 shrink-0 text-red-600" strokeWidth={2} />
             <div>
-              <p className="font-heading font-bold text-red-700">Erro clássico</p>
+              <p className="font-heading font-bold text-red-700">{es ? "Error clásico" : "Erro clássico"}</p>
               <p className="mt-1 text-sm text-brown-800">
-                Comprar um estoque grande de um tamanho só (geralmente RN ou P) — o bebê cresce
-                rápido nos primeiros meses e sobra fralda parada. Compre pouco dos tamanhos
-                iniciais e mais do tamanho que dura mais tempo.
+                {es
+                  ? "Comprar un stock grande de un solo talle (generalmente RN o P) — el bebé crece rápido en los primeros meses y sobran pañales sin usar. Compra poco de los talles iniciales y más del talle que dura más tiempo."
+                  : "Comprar um estoque grande de um tamanho só (geralmente RN ou P) — o bebê cresce rápido nos primeiros meses e sobra fralda parada. Compre pouco dos tamanhos iniciais e mais do tamanho que dura mais tempo."}
               </p>
             </div>
           </div>
 
           <div>
             <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
-              Cronograma estimado por tamanho
+              {es ? "Cronograma estimado por talle" : "Cronograma estimado por tamanho"}
             </h2>
             <div className="flex flex-col gap-2">
               {result.schedule.map((row) => {
@@ -136,11 +143,11 @@ export function CalculadoraFraldasContent() {
                   >
                     <div className="flex items-center justify-between">
                       <p className="font-heading text-lg font-bold">
-                        Tamanho {row.label}
+                        {es ? "Talle" : "Tamanho"} {row.label}
                         {isHighlight && (
                           <span className="ml-2 inline-flex items-center gap-1 text-xs font-bold">
                             <Star className="h-3.5 w-3.5" strokeWidth={2} fill="currentColor" />
-                            foque aqui
+                            {es ? "enfócate aquí" : "foque aqui"}
                           </span>
                         )}
                       </p>
@@ -154,16 +161,16 @@ export function CalculadoraFraldasContent() {
                       }`}
                     >
                       <div>
-                        <p className="font-bold">{row.durationMonths} meses</p>
-                        <p className="text-xs opacity-80">duração</p>
+                        <p className="font-bold">{row.durationMonths} {es ? "meses" : "meses"}</p>
+                        <p className="text-xs opacity-80">{es ? "duración" : "duração"}</p>
                       </div>
                       <div>
-                        <p className="font-bold">{row.changesPerDay}/dia</p>
-                        <p className="text-xs opacity-80">trocas</p>
+                        <p className="font-bold">{row.changesPerDay}/{es ? "día" : "dia"}</p>
+                        <p className="text-xs opacity-80">{es ? "cambios" : "trocas"}</p>
                       </div>
                       <div>
-                        <p className="font-bold">{row.estimatedPacks} pacotes</p>
-                        <p className="text-xs opacity-80">estimado</p>
+                        <p className="font-bold">{row.estimatedPacks} {es ? "paquetes" : "pacotes"}</p>
+                        <p className="text-xs opacity-80">{es ? "estimado" : "estimado"}</p>
                       </div>
                     </div>
                   </div>
@@ -177,10 +184,10 @@ export function CalculadoraFraldasContent() {
       <div className="border-t border-sage-100 pt-6">
         <h2 className="mb-1 flex items-center gap-2 font-heading text-lg font-bold text-brown-800">
           <Calculator className="h-5 w-5 text-sage-600" strokeWidth={2} />
-          Vale a pena esse pacote?
+          {es ? "¿Vale la pena ese paquete?" : "Vale a pena esse pacote?"}
         </h2>
         <p className="mb-4 text-sm text-brown-700">
-          Preencha os dados do pacote que você está de olho e compare o preço por fralda.
+          {es ? "Completa los datos del paquete que tienes en la mira y compara el precio por pañal." : "Preencha os dados do pacote que você está de olho e compare o preço por fralda."}
         </p>
 
         <div className="flex flex-col gap-4">
@@ -188,8 +195,8 @@ export function CalculadoraFraldasContent() {
             id="pack-price"
             type="number"
             inputMode="decimal"
-            label="Preço do pacote (R$)"
-            placeholder="Ex.: 45,90"
+            label={es ? "Precio del paquete (R$)" : "Preço do pacote (R$)"}
+            placeholder={es ? "Ej.: 45,90" : "Ex.: 45,90"}
             value={packPrice}
             onChange={(e) => setPackPrice(e.target.value)}
           />
@@ -197,14 +204,14 @@ export function CalculadoraFraldasContent() {
             id="pack-count"
             type="number"
             inputMode="numeric"
-            label="Quantas fraldas vêm no pacote"
-            placeholder="Ex.: 40"
+            label={es ? "Cuántos pañales vienen en el paquete" : "Quantas fraldas vêm no pacote"}
+            placeholder={es ? "Ej.: 40" : "Ex.: 40"}
             value={packCount}
             onChange={(e) => setPackCount(e.target.value)}
           />
           <div>
             <label htmlFor="uses-per-day" className="mb-2 block text-base font-semibold text-brown-700">
-              Trocas por dia: {usesPerDay}
+              {es ? `Cambios por día: ${usesPerDay}` : `Trocas por dia: ${usesPerDay}`}
             </label>
             <input
               id="uses-per-day"
@@ -223,25 +230,25 @@ export function CalculadoraFraldasContent() {
             <div className="rounded-3xl bg-white/80 p-5 shadow-sm shadow-brown-900/5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-brown-700/86">Preço por fralda</p>
+                  <p className="text-xs text-brown-700/86">{es ? "Precio por pañal" : "Preço por fralda"}</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
                     R$ {pricePerDiaper.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-brown-700/86">Um pacote dura</p>
+                  <p className="text-xs text-brown-700/86">{es ? "Un paquete dura" : "Um pacote dura"}</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
-                    {Math.round(daysPerPack)} dias
+                    {Math.round(daysPerPack)} {es ? "días" : "dias"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-brown-700/86">Custo mensal</p>
+                  <p className="text-xs text-brown-700/86">{es ? "Costo mensual" : "Custo mensal"}</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
                     R$ {monthlyCost.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-brown-700/86">Custo no 1º ano</p>
+                  <p className="text-xs text-brown-700/86">{es ? "Costo en el 1er año" : "Custo no 1º ano"}</p>
                   <p className="font-heading text-xl font-bold text-brown-800">
                     R$ {yearlyCost.toFixed(2)}
                   </p>

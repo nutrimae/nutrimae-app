@@ -6,6 +6,7 @@ import { X, Check, Image as ImageIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getCroppedImageBlob } from "@/lib/crop-image";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/lib/use-locale";
 
 export function BabyPhotoUploadModal({
   babyId,
@@ -17,6 +18,8 @@ export function BabyPhotoUploadModal({
   onUploaded: (signedUrl: string) => void;
 }) {
   const supabase = createClient();
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -46,7 +49,7 @@ export function BabyPhotoUploadModal({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Sessão expirada");
+      if (!user) throw new Error(es ? "Sesión expirada" : "Sessão expirada");
 
       const blob = await getCroppedImageBlob(imageSrc, croppedAreaPixels);
       const path = `${user.id}/${babyId}.jpg`;
@@ -67,7 +70,7 @@ export function BabyPhotoUploadModal({
       }
       onClose();
     } catch {
-      setError("Não deu para salvar a foto agora. Tente de novo.");
+      setError(es ? "No fue posible guardar la foto ahora. Intenta de nuevo." : "Não deu para salvar a foto agora. Tente de novo.");
     } finally {
       setSaving(false);
     }
@@ -80,7 +83,7 @@ export function BabyPhotoUploadModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-xl font-bold text-brown-800">Foto do bebê</h2>
+          <h2 className="font-heading text-xl font-bold text-brown-800">{es ? "Foto del bebé" : "Foto do bebê"}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -93,7 +96,7 @@ export function BabyPhotoUploadModal({
         {!imageSrc ? (
           <label className="flex min-h-40 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary-300 bg-primary-100 text-center">
             <ImageIcon className="h-8 w-8 text-primary-600" strokeWidth={1.75} />
-            <span className="font-semibold text-brown-800">Selecionar foto</span>
+            <span className="font-semibold text-brown-800">{es ? "Seleccionar foto" : "Selecionar foto"}</span>
             <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
           </label>
         ) : (
@@ -112,7 +115,7 @@ export function BabyPhotoUploadModal({
               />
             </div>
 
-            <label className="mt-4 block text-sm font-semibold text-brown-700">Zoom</label>
+            <label className="mt-4 block text-sm font-semibold text-brown-700">{es ? "Zoom" : "Zoom"}</label>
             <input
               type="range"
               min={1}
@@ -128,10 +131,10 @@ export function BabyPhotoUploadModal({
             <div className="mt-4 flex flex-col gap-2">
               <Button onClick={handleSave} disabled={saving} className="flex items-center justify-center gap-2">
                 <Check className="h-5 w-5" strokeWidth={2} />
-                {saving ? "Salvando..." : "Salvar foto"}
+                {es ? (saving ? "Guardando..." : "Guardar foto") : (saving ? "Salvando..." : "Salvar foto")}
               </Button>
               <Button variant="ghost" onClick={() => setImageSrc(null)} disabled={saving}>
-                Escolher outra foto
+                {es ? "Elegir otra foto" : "Escolher outra foto"}
               </Button>
             </div>
           </>

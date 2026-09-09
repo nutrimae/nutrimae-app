@@ -22,6 +22,7 @@ import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { PDF_GUIDES } from "@/lib/pdf-guides";
 import { AUDIOBOOKS } from "@/lib/audiobooks";
+import { useLocale } from "@/lib/use-locale";
 import {
   clearDownloadHistory,
   downloadCountFor,
@@ -37,6 +38,8 @@ import {
 type FilterType = "todos" | "pdf" | "audiobook";
 
 export default function DownloadsPage() {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterType>("todos");
   const [history, setHistory] = useState<DownloadEntry[]>([]);
@@ -102,7 +105,9 @@ export default function DownloadsPage() {
   }
 
   function handleShare(title: string, url: string) {
-    const text = encodeURIComponent(`📥 ${title} — baixe no NutriMãe: ${url}`);
+    const text = encodeURIComponent(
+      es ? `📥 ${title} — descarga en NutriMãe: ${url}` : `📥 ${title} — baixe no NutriMãe: ${url}`,
+    );
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
     const next = shareCount + 1;
     setShareCount(next);
@@ -114,9 +119,13 @@ export default function DownloadsPage() {
       <BackButton />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-brown-800">📥 Downloads & Recursos Offline</h1>
+        <h1 className="font-heading text-2xl font-bold text-brown-800">
+          {es ? "📥 Descargas y Recursos Offline" : "📥 Downloads & Recursos Offline"}
+        </h1>
         <p className="mt-1 text-sm text-brown-700/90">
-          Guias reais em PDF, gerados a partir do conteúdo do app, prontos para levar com você.
+          {es
+            ? "Guías reales en PDF, generadas a partir del contenido de la app, listas para llevar contigo."
+            : "Guias reais em PDF, gerados a partir do conteúdo do app, prontos para levar com você."}
         </p>
       </div>
 
@@ -125,7 +134,7 @@ export default function DownloadsPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar recurso"
+          placeholder={es ? "Buscar recurso" : "Buscar recurso"}
           className="min-h-12 w-full rounded-xl border-2 border-sage-100 bg-white pl-11 pr-4 text-base text-brown-800 outline-none focus:border-primary-500 focus:shadow-[0_0_0_4px_var(--color-primary-glow)]"
         />
       </div>
@@ -139,7 +148,7 @@ export default function DownloadsPage() {
               filter === f ? "bg-sage-500 text-white" : "bg-sage-50 text-brown-700"
             }`}
           >
-            {f === "todos" ? "Todos" : f === "pdf" ? "PDFs" : "Audiobooks"}
+            {f === "todos" ? (es ? "Todos" : "Todos") : f === "pdf" ? "PDFs" : "Audiobooks"}
           </button>
         ))}
       </div>
@@ -148,43 +157,64 @@ export default function DownloadsPage() {
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-brown-800">
           <Package className="h-5 w-5 text-primary-600" strokeWidth={2} />
-          Pacote completo
+          {es ? "Paquete completo" : "Pacote completo"}
         </h2>
         <div className="rounded-2xl bg-primary-100 p-4">
-          <p className="font-semibold text-brown-800">Tudo em 1 arquivo (.zip)</p>
+          <p className="font-semibold text-brown-800">{es ? "Todo en 1 archivo (.zip)" : "Tudo em 1 arquivo (.zip)"}</p>
           <p className="mt-1 text-sm text-brown-700">
-            {PDF_GUIDES.length} PDFs + {AUDIOBOOKS.length} audiobooks (.mp3, quando disponível, + transcrição .txt) em um único ZIP.
+            {es
+              ? `${PDF_GUIDES.length} PDFs + ${AUDIOBOOKS.length} audiolibros (.mp3, cuando disponible, + transcripción .txt) en un único ZIP.`
+              : `${PDF_GUIDES.length} PDFs + ${AUDIOBOOKS.length} audiobooks (.mp3, quando disponível, + transcrição .txt) em um único ZIP.`}
           </p>
           <button
             type="button"
-            onClick={() => handleDownload("/api/downloads/zip", "nutrimae-recursos.zip", "zip-tudo", "Pacote completo", "zip")}
+            onClick={() =>
+              handleDownload(
+                "/api/downloads/zip",
+                "nutrimae-recursos.zip",
+                "zip-tudo",
+                es ? "Paquete completo" : "Pacote completo",
+                "zip",
+              )
+            }
             disabled={loadingId === "zip-tudo"}
             className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary-500 text-sm font-bold text-white disabled:opacity-60"
           >
             <Download className="h-4 w-4" strokeWidth={2} />
-            {loadingId === "zip-tudo" ? "Gerando ZIP..." : "BAIXAR TUDO AGORA"}
+            {loadingId === "zip-tudo" ? (es ? "Generando ZIP..." : "Gerando ZIP...") : es ? "DESCARGAR TODO AHORA" : "BAIXAR TUDO AGORA"}
           </button>
           <div className="mt-2 flex gap-2">
             <button
               type="button"
-              onClick={() => handleDownload("/api/downloads/zip?only=pdfs", "nutrimae-pdfs.zip", "zip-pdfs", "Só PDFs", "zip")}
+              onClick={() =>
+                handleDownload("/api/downloads/zip?only=pdfs", "nutrimae-pdfs.zip", "zip-pdfs", es ? "Solo PDFs" : "Só PDFs", "zip")
+              }
               disabled={loadingId === "zip-pdfs"}
               className="min-h-10 flex-1 rounded-xl bg-white/70 text-xs font-semibold text-brown-700 disabled:opacity-60"
             >
-              {loadingId === "zip-pdfs" ? "Gerando..." : "Só PDFs"}
+              {loadingId === "zip-pdfs" ? (es ? "Generando..." : "Gerando...") : es ? "Solo PDFs" : "Só PDFs"}
             </button>
             <button
               type="button"
-              onClick={() => handleDownload("/api/downloads/zip?only=audiobooks", "nutrimae-audiobooks.zip", "zip-audio", "Só Audiobooks", "zip")}
+              onClick={() =>
+                handleDownload(
+                  "/api/downloads/zip?only=audiobooks",
+                  "nutrimae-audiobooks.zip",
+                  "zip-audio",
+                  es ? "Solo Audiolibros" : "Só Audiobooks",
+                  "zip",
+                )
+              }
               disabled={loadingId === "zip-audio"}
               className="min-h-10 flex-1 rounded-xl bg-white/70 text-xs font-semibold text-brown-700 disabled:opacity-60"
             >
-              {loadingId === "zip-audio" ? "Gerando..." : "Só Audiobooks"}
+              {loadingId === "zip-audio" ? (es ? "Generando..." : "Gerando...") : es ? "Solo Audiolibros" : "Só Audiobooks"}
             </button>
           </div>
           <p className="mt-2 text-xs text-brown-700/86">
-            Funciona em Windows, Mac, iOS e Android (qualquer leitor de PDF). Para Kindle, veja a
-            seção de dispositivos abaixo.
+            {es
+              ? "Funciona en Windows, Mac, iOS y Android (cualquier lector de PDF). Para Kindle, mira la sección de dispositivos abajo."
+              : "Funciona em Windows, Mac, iOS e Android (qualquer leitor de PDF). Para Kindle, veja a seção de dispositivos abaixo."}
           </p>
         </div>
       </section>
@@ -192,7 +222,7 @@ export default function DownloadsPage() {
       {/* Seção 2 — PDFs individuais */}
       {filteredGuides.length > 0 && (
         <section>
-          <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Guias em PDF</h2>
+          <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Guías en PDF" : "Guias em PDF"}</h2>
           <div className="flex flex-col gap-2">
             {filteredGuides.map((guide) => {
               const rating = ratings[guide.slug] ?? 0;
@@ -206,7 +236,13 @@ export default function DownloadsPage() {
                       <p className="font-semibold text-brown-800">{guide.title}</p>
                       <p className="mt-0.5 text-sm text-brown-700/90">{guide.description}</p>
                       <p className="mt-1 text-xs text-brown-700/82">
-                        {count > 0 ? `Você baixou ${count}x` : "Ainda não baixado"}
+                        {count > 0
+                          ? es
+                            ? `Descargaste ${count}x`
+                            : `Você baixou ${count}x`
+                          : es
+                            ? "Aún no descargado"
+                            : "Ainda não baixado"}
                       </p>
                     </div>
                   </div>
@@ -233,7 +269,7 @@ export default function DownloadsPage() {
                       className="flex min-h-10 flex-1 items-center justify-center gap-1 rounded-xl bg-primary-500 text-xs font-bold text-white disabled:opacity-60"
                     >
                       <Download className="h-3.5 w-3.5" strokeWidth={2} />
-                      {isLoading ? "Gerando..." : "Baixar"}
+                      {isLoading ? (es ? "Generando..." : "Gerando...") : es ? "Descargar" : "Baixar"}
                     </button>
                     <a
                       href={`/api/pdf/${guide.slug}`}
@@ -242,7 +278,7 @@ export default function DownloadsPage() {
                       className="flex min-h-10 flex-1 items-center justify-center gap-1 rounded-xl bg-sage-50 text-xs font-semibold text-sage-700"
                     >
                       <Eye className="h-3.5 w-3.5" strokeWidth={2} />
-                      Preview
+                      {es ? "Vista previa" : "Preview"}
                     </a>
                     <button
                       type="button"
@@ -264,7 +300,7 @@ export default function DownloadsPage() {
         <section>
           <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-brown-800">
             <Headphones className="h-5 w-5 text-primary-600" strokeWidth={2} />
-            Audiobooks
+            {es ? "Audiolibros" : "Audiobooks"}
           </h2>
           <div className="mt-2 flex flex-col gap-2">
             {filteredAudiobooks.map((book) => {
@@ -276,12 +312,19 @@ export default function DownloadsPage() {
                   <p className="font-semibold text-brown-800">{book.title}</p>
                   <p className="mt-0.5 text-sm text-brown-700/90">{book.subtitle}</p>
                   <p className="mt-1 text-xs text-brown-700/82">
-                    {count > 0 ? `Você baixou ${count}x` : "Ainda não baixado"}
+                    {count > 0
+                      ? es
+                        ? `Descargaste ${count}x`
+                        : `Você baixou ${count}x`
+                      : es
+                        ? "Aún no descargado"
+                        : "Ainda não baixado"}
                   </p>
                   {!book.hasAudio && (
                     <p className="mt-1 rounded-xl bg-yellow-100 p-2 text-xs text-brown-800">
-                      A narração em áudio deste conteúdo ainda está em produção — baixe a
-                      transcrição para ler offline.
+                      {es
+                        ? "La narración en audio de este contenido todavía está en producción — descarga la transcripción para leer sin conexión."
+                        : "A narração em áudio deste conteúdo ainda está em produção — baixe a transcrição para ler offline."}
                     </p>
                   )}
                   <div className="mt-3 flex gap-2">
@@ -301,7 +344,7 @@ export default function DownloadsPage() {
                         className="flex min-h-10 flex-1 items-center justify-center gap-1 rounded-xl bg-primary-500 text-xs font-bold text-white disabled:opacity-60"
                       >
                         <Download className="h-3.5 w-3.5" strokeWidth={2} />
-                        {isLoadingAudio ? "Baixando..." : "Baixar áudio (.mp3)"}
+                        {isLoadingAudio ? (es ? "Descargando..." : "Baixando...") : es ? "Descargar audio (.mp3)" : "Baixar áudio (.mp3)"}
                       </button>
                     )}
                     <button
@@ -323,13 +366,13 @@ export default function DownloadsPage() {
                       }`}
                     >
                       <Download className="h-3.5 w-3.5" strokeWidth={2} />
-                      {isLoading ? "Gerando..." : "Transcrição (.txt)"}
+                      {isLoading ? (es ? "Generando..." : "Gerando...") : es ? "Transcripción (.txt)" : "Transcrição (.txt)"}
                     </button>
                     <Link
                       href={`/app/audiobooks/${book.id}`}
                       className="flex min-h-10 items-center justify-center rounded-xl bg-sage-50 px-3 text-xs font-semibold text-sage-700"
                     >
-                      Ler no app
+                      {es ? "Leer en la app" : "Ler no app"}
                     </Link>
                   </div>
                 </div>
@@ -341,27 +384,45 @@ export default function DownloadsPage() {
 
       {/* Seção 4 — Acesso em outros dispositivos */}
       <section>
-        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Acesso em outros dispositivos</h2>
+        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">
+          {es ? "Acceso en otros dispositivos" : "Acesso em outros dispositivos"}
+        </h2>
         <div className="flex flex-col gap-2">
           <DeviceGuide
             icon={<KindleIcon className="h-5 w-5 text-primary-600" strokeWidth={2} />}
             title="Kindle"
-            text="Envie o PDF por e-mail para o seu endereço @kindle.com (recurso oficial 'Send to Kindle' da Amazon) — ele converte automaticamente. Alternativa: use o app gratuito Calibre no computador para converter PDF em .mobi/.azw3 manualmente."
+            text={
+              es
+                ? "Envía el PDF por correo a tu dirección @kindle.com (función oficial 'Send to Kindle' de Amazon) — se convierte automáticamente. Alternativa: usa la app gratuita Calibre en la computadora para convertir PDF a .mobi/.azw3 manualmente."
+                : "Envie o PDF por e-mail para o seu endereço @kindle.com (recurso oficial 'Send to Kindle' da Amazon) — ele converte automaticamente. Alternativa: use o app gratuito Calibre no computador para converter PDF em .mobi/.azw3 manualmente."
+            }
           />
           <DeviceGuide
             icon={<Smartphone className="h-5 w-5 text-primary-600" strokeWidth={2} />}
-            title="Smartphone (iOS/Android)"
-            text="Abra o PDF baixado com o Google Play Books, Apple Books, ou qualquer leitor de PDF do celular — a maioria abre diretamente pela pasta de Downloads."
+            title={es ? "Smartphone (iOS/Android)" : "Smartphone (iOS/Android)"}
+            text={
+              es
+                ? "Abre el PDF descargado con Google Play Books, Apple Books, o cualquier lector de PDF del celular — la mayoría abre directamente desde la carpeta de Descargas."
+                : "Abra o PDF baixado com o Google Play Books, Apple Books, ou qualquer leitor de PDF do celular — a maioria abre diretamente pela pasta de Downloads."
+            }
           />
           <DeviceGuide
             icon={<Monitor className="h-5 w-5 text-primary-600" strokeWidth={2} />}
-            title="Computador (Windows/Mac/Linux)"
-            text="Windows e Linux já abrem PDF no navegador ou em leitores gratuitos como o Adobe Acrobat Reader. No Mac, o app Preview (Pré-visualização) já vem instalado e abre PDFs nativamente."
+            title={es ? "Computadora (Windows/Mac/Linux)" : "Computador (Windows/Mac/Linux)"}
+            text={
+              es
+                ? "Windows y Linux ya abren PDF en el navegador o en lectores gratuitos como Adobe Acrobat Reader. En Mac, la app Vista Previa ya viene instalada y abre PDFs de forma nativa."
+                : "Windows e Linux já abrem PDF no navegador ou em leitores gratuitos como o Adobe Acrobat Reader. No Mac, o app Preview (Pré-visualização) já vem instalado e abre PDFs nativamente."
+            }
           />
           <DeviceGuide
             icon={<Printer className="h-5 w-5 text-primary-600" strokeWidth={2} />}
-            title="Impressão"
-            text="Em casa: imprima direto do leitor de PDF (Ctrl+P ou Cmd+P), frente e verso para economizar papel. Em gráfica: leve o PDF em um pendrive ou envie por e-mail para encadernação tipo brochura."
+            title={es ? "Impresión" : "Impressão"}
+            text={
+              es
+                ? "En casa: imprime directo desde el lector de PDF (Ctrl+P o Cmd+P), a doble cara para ahorrar papel. En imprenta: lleva el PDF en un pendrive o envíalo por correo para encuadernación tipo folleto."
+                : "Em casa: imprima direto do leitor de PDF (Ctrl+P ou Cmd+P), frente e verso para economizar papel. Em gráfica: leve o PDF em um pendrive ou envie por e-mail para encadernação tipo brochura."
+            }
           />
         </div>
       </section>
@@ -370,22 +431,22 @@ export default function DownloadsPage() {
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold text-brown-800">
           <History className="h-5 w-5 text-primary-600" strokeWidth={2} />
-          Gerenciar meus downloads
+          {es ? "Administrar mis descargas" : "Gerenciar meus downloads"}
         </h2>
         <div className="rounded-2xl bg-sage-50 p-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-brown-700">Total de downloads</span>
+            <span className="text-brown-700">{es ? "Total de descargas" : "Total de downloads"}</span>
             <span className="font-bold text-brown-800">{stats.count}</span>
           </div>
           <div className="mt-1 flex items-center justify-between text-sm">
-            <span className="text-brown-700">Espaço usado (neste dispositivo)</span>
+            <span className="text-brown-700">{es ? "Espacio usado (en este dispositivo)" : "Espaço usado (neste dispositivo)"}</span>
             <span className="font-bold text-brown-800">{formatBytes(stats.totalBytes)}</span>
           </div>
         </div>
 
         {history.length === 0 ? (
           <p className="mt-3 text-center text-sm text-brown-700/86">
-            Nenhum download registrado ainda neste dispositivo.
+            {es ? "Ningún descarga registrada aún en este dispositivo." : "Nenhum download registrado ainda neste dispositivo."}
           </p>
         ) : (
           <div className="mt-3 flex flex-col gap-2">
@@ -394,7 +455,7 @@ export default function DownloadsPage() {
                 <div>
                   <p className="font-semibold text-brown-800">{entry.title}</p>
                   <p className="text-xs text-brown-700/86">
-                    {new Date(entry.downloadedAt).toLocaleDateString("pt-BR")} · {formatBytes(entry.sizeBytes)}
+                    {new Date(entry.downloadedAt).toLocaleDateString(es ? "es-ES" : "pt-BR")} · {formatBytes(entry.sizeBytes)}
                   </p>
                 </div>
                 <button type="button" onClick={() => setHistory(removeDownloadEntry(i))}>
@@ -407,7 +468,7 @@ export default function DownloadsPage() {
               onClick={() => setHistory(clearDownloadHistory())}
               className="mt-1 min-h-10 rounded-xl bg-red-100 text-xs font-semibold text-red-700"
             >
-              Limpar histórico
+              {es ? "Limpiar historial" : "Limpar histórico"}
             </button>
           </div>
         )}
@@ -415,34 +476,41 @@ export default function DownloadsPage() {
 
       {/* Seção 6 — Compartilhamento */}
       <section>
-        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">Compartilhar</h2>
+        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Compartir" : "Compartilhar"}</h2>
         <div className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <p className="text-sm text-brown-700">
-            Compartilhe esses recursos com outras mães. Os links exigem login no NutriMãe — o
-            conteúdo é para uso pessoal e familiar, não redistribua os arquivos publicamente.
+            {es
+              ? "Comparte estos recursos con otras mamás. Los enlaces requieren iniciar sesión en NutriMãe — el contenido es para uso personal y familiar, no redistribuyas los archivos públicamente."
+              : "Compartilhe esses recursos com outras mães. Os links exigem login no NutriMãe — o conteúdo é para uso pessoal e familiar, não redistribua os arquivos publicamente."}
           </p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
-              onClick={() => handleShare("Recursos do NutriMãe", `${window.location.origin}/app/downloads`)}
+              onClick={() =>
+                handleShare(es ? "Recursos de NutriMãe" : "Recursos do NutriMãe", `${window.location.origin}/app/downloads`)
+              }
               className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-2xl bg-sage-500 text-sm font-semibold text-white"
             >
               <Share2 className="h-4 w-4" strokeWidth={2} />
               WhatsApp
             </button>
             <a
-              href={`mailto:?subject=${encodeURIComponent("Recursos do NutriMãe")}&body=${encodeURIComponent(
-                `Olha esses guias que eu encontrei: ${origin}/app/downloads`,
+              href={`mailto:?subject=${encodeURIComponent(
+                es ? "Recursos de NutriMãe" : "Recursos do NutriMãe",
+              )}&body=${encodeURIComponent(
+                es
+                  ? `Mira estas guías que encontré: ${origin}/app/downloads`
+                  : `Olha esses guias que eu encontrei: ${origin}/app/downloads`,
               )}`}
               className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-2xl bg-sage-50 text-sm font-semibold text-sage-700"
             >
               <Mail className="h-4 w-4" strokeWidth={2} />
-              E-mail
+              {es ? "Correo" : "E-mail"}
             </a>
           </div>
           {shareCount > 0 && (
             <p className="mt-2 text-center text-xs text-brown-700/82">
-              Você compartilhou {shareCount}x neste dispositivo.
+              {es ? `Compartiste ${shareCount}x en este dispositivo.` : `Você compartilhou ${shareCount}x neste dispositivo.`}
             </p>
           )}
         </div>

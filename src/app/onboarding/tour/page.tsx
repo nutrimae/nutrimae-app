@@ -6,6 +6,7 @@ import Image from "next/image";
 import { CalendarDays, Search, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
+import { useLocale } from "@/lib/use-locale";
 
 const slides = [
   {
@@ -31,10 +32,27 @@ const slides = [
   },
 ];
 
+const slidesEs = [
+  {
+    title: "Menú de la semana",
+    text: "Sugerencias de comidas pensadas para la fase de tu bebé, día a día.",
+  },
+  {
+    title: "Búsqueda de cortes y alimentos",
+    text: "Descubre rápidamente si un alimento es seguro y cómo ofrecerlo.",
+  },
+  {
+    title: "Botón de emergencia",
+    text: "Orientaciones inmediatas para atragantamientos, a un toque de distancia.",
+  },
+];
+
 export default function TourPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [babyName, setBabyName] = useState("");
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   useEffect(() => {
     const fetchBaby = async () => {
@@ -63,12 +81,14 @@ export default function TourPage() {
   }
 
   const slide = slides[step];
-  let currentTitle = slide.title;
-  let currentText = slide.text;
-  
+  let currentTitle = es ? slidesEs[step].title : slide.title;
+  let currentText = es ? slidesEs[step].text : slide.text;
+
   if (step === slides.length - 1 && babyName) {
-    currentTitle = "Tudo pronto!";
-    currentText = `A rotina e o cardápio de ${babyName} já estão organizados.`;
+    currentTitle = es ? "¡Todo listo!" : "Tudo pronto!";
+    currentText = es
+      ? `La rutina y el menú de ${babyName} ya están organizados.`
+      : `A rotina e o cardápio de ${babyName} já estão organizados.`;
   }
 
   const Icon = slide.icon;
@@ -83,7 +103,7 @@ export default function TourPage() {
           onClick={finish}
           className="min-h-11 px-2 text-sm font-semibold text-brown-700/40 transition-colors hover:text-brown-700/60"
         >
-          Pular
+          {es ? "Saltar" : "Pular"}
         </button>
       </div>
 
@@ -119,7 +139,9 @@ export default function TourPage() {
           ))}
         </div>
         <Button onClick={next} variant="brand">
-          {step === slides.length - 1 ? "Começar a usar" : "Próximo"}
+          {es
+            ? (step === slides.length - 1 ? "Comenzar a usar" : "Siguiente")
+            : (step === slides.length - 1 ? "Começar a usar" : "Próximo")}
         </Button>
       </div>
     </main>

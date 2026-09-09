@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEntitlementStatus } from "@/lib/entitlements";
 import { PRODUCTS, type ProductKey } from "@/lib/products";
 import { UpgradeScreen } from "@/components/upgrade-screen";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 
 /**
  * Gate reutilizável para qualquer módulo pago individual (Diário do Bebê,
@@ -50,7 +51,14 @@ export async function ModuleGate({
       .eq("active", true)
       .maybeSingle();
 
-    return <UpgradeScreen product={PRODUCTS[productKey]} checkoutHref={offer ? `/checkout/${offer.slug}` : undefined} />;
+    const locale = await getServerLocale();
+    return (
+      <UpgradeScreen
+        product={PRODUCTS[productKey]}
+        checkoutHref={offer ? `/checkout/${offer.slug}` : undefined}
+        locale={locale}
+      />
+    );
   }
 
   return <>{children}</>;

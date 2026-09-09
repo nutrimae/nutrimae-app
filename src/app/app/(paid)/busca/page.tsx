@@ -19,6 +19,7 @@ export default function BuscaPage() {
   const [selected, setSelected] = useState<FoodItem | null>(null);
   const { region } = useRegion();
   const { locale } = useLocale();
+  const es = locale === "es";
   const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
 
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : 0;
@@ -55,7 +56,7 @@ export default function BuscaPage() {
             setQuery(e.target.value);
             setSelected(null);
           }}
-          placeholder="Buscar alimento (ex: uva, cenoura, frango)"
+          placeholder={es ? "Buscar alimento (ej: uva, zanahoria, pollo)" : "Buscar alimento (ex: uva, cenoura, frango)"}
           className="min-h-16 w-full rounded-2xl border-2 border-sage-100 bg-white pl-12 pr-12 text-lg text-brown-800 placeholder:text-brown-700/78 outline-none focus:border-sage-400"
         />
         {query && (
@@ -98,13 +99,16 @@ export default function BuscaPage() {
           </div>
         ) : (
           <p className="mt-4 text-center text-brown-700/90">
-            Não encontramos &ldquo;{query}&rdquo; ainda. Em caso de dúvida sobre um
-            alimento novo, converse com o pediatra do seu bebê.
+            {es
+              ? <>No encontramos &ldquo;{query}&rdquo; todavía. Si tienes dudas sobre un alimento nuevo, habla con el pediatra de tu bebé.</>
+              : <>Não encontramos &ldquo;{query}&rdquo; ainda. Em caso de dúvida sobre um alimento novo, converse com o pediatra do seu bebê.</>}
           </p>
         )
       ) : (
         <p className="mt-4 text-center text-brown-700/90">
-          Digite o nome de um alimento para ver o corte recomendado.
+          {es
+            ? "Escribe el nombre de un alimento para ver el corte recomendado."
+            : "Digite o nome de um alimento para ver o corte recomendado."}
         </p>
       )}
 
@@ -131,6 +135,7 @@ function FoodDetail({
   onBack: () => void;
 }) {
   const { locale } = useLocale();
+  const es = locale === "es";
   const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
   const [modalOpen, setModalOpen] = useState(false);
   const [dbVideo, setDbVideo] = useState<{
@@ -197,7 +202,7 @@ function FoodDetail({
         onClick={onBack}
         className="mb-4 min-h-10 text-sm font-semibold text-sage-600"
       >
-        ← Voltar aos resultados
+        {es ? "← Volver a los resultados" : "← Voltar aos resultados"}
       </button>
 
       {/* Video Player at the top before text (Prompt D) */}
@@ -234,11 +239,19 @@ function FoodDetail({
         <ListenButton
           contentType="food"
           contentId={food.id}
-          text={[
-            `${food.name}.`,
-            `Corte recomendado para ${AGE_BAND_LABEL[ageBand]}: ${food.cuts[ageBand]}`,
-            food.warning ? `Atenção: ${food.warning}` : "",
-          ].filter(Boolean).join(" ")}
+          text={
+            es
+              ? [
+                  `${food.name}.`,
+                  `Corte recomendado para ${AGE_BAND_LABEL[ageBand]}: ${food.cuts[ageBand]}`,
+                  food.warning ? `Atención: ${food.warning}` : "",
+                ].filter(Boolean).join(" ")
+              : [
+                  `${food.name}.`,
+                  `Corte recomendado para ${AGE_BAND_LABEL[ageBand]}: ${food.cuts[ageBand]}`,
+                  food.warning ? `Atenção: ${food.warning}` : "",
+                ].filter(Boolean).join(" ")
+          }
         />
 
         {/* Community video contribution trigger */}
@@ -248,7 +261,11 @@ function FoodDetail({
           className="flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-sage-200 bg-sage-50/60 px-4 text-xs font-semibold text-sage-700 active:bg-sage-100"
         >
           <Video className="h-4 w-4 text-sage-600" />
-          <span>Enviar vídeo do seu bebê comendo {food.name}</span>
+          <span>
+            {es
+              ? `Enviar video de tu bebé comiendo ${food.name}`
+              : `Enviar vídeo do seu bebê comendo ${food.name}`}
+          </span>
         </button>
       </div>
 
@@ -266,12 +283,16 @@ function FoodDetail({
 }
 
 function FoodPrepSection({ foodId }: { foodId: string }) {
+  const { locale } = useLocale();
+  const es = locale === "es";
   const guide = getFoodPrepGuide(foodId);
   if (!guide) return null;
 
   return (
     <div className="mt-6 border-t border-sage-100 pt-5">
-      <p className="mb-3 font-heading text-lg font-bold text-brown-800">Modo de preparo completo</p>
+      <p className="mb-3 font-heading text-lg font-bold text-brown-800">
+        {es ? "Modo de preparación completo" : "Modo de preparo completo"}
+      </p>
 
       <ol className="flex flex-col gap-3">
         {guide.steps.map((step, i) => (
@@ -283,7 +304,7 @@ function FoodPrepSection({ foodId }: { foodId: string }) {
               <p className="font-semibold text-brown-800">{step.action}</p>
             </div>
             <p className="mt-2 pl-10 text-sm text-brown-700">
-              <span className="font-semibold text-sage-700">Por quê: </span>
+              <span className="font-semibold text-sage-700">{es ? "Por qué: " : "Por quê: "}</span>
               {step.why}
             </p>
           </li>
@@ -294,14 +315,14 @@ function FoodPrepSection({ foodId }: { foodId: string }) {
         <div className="flex gap-3 rounded-2xl bg-primary-100 p-4">
           <Snowflake className="h-5 w-5 shrink-0 text-primary-600" strokeWidth={2} />
           <div>
-            <p className="font-semibold text-brown-800">Congelamento</p>
+            <p className="font-semibold text-brown-800">{es ? "Congelación" : "Congelamento"}</p>
             <p className="mt-0.5 text-sm text-brown-700">{guide.freezing}</p>
           </div>
         </div>
         <div className="flex gap-3 rounded-2xl bg-peach-100 p-4">
           <Sun className="h-5 w-5 shrink-0 text-terracotta-600" strokeWidth={2} />
           <div>
-            <p className="font-semibold text-brown-800">Descongelamento</p>
+            <p className="font-semibold text-brown-800">{es ? "Descongelación" : "Descongelamento"}</p>
             <p className="mt-0.5 text-sm text-brown-700">{guide.thawing}</p>
           </div>
         </div>

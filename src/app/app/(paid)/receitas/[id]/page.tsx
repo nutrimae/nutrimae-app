@@ -24,6 +24,7 @@ export default function RecipeDetailPage() {
   const { activeBaby } = useActiveBaby();
   const supabase = useMemo(() => createClient(), []);
   const { locale } = useLocale();
+  const es = locale === "es";
   const AGE_BAND_LABEL = useMemo(() => getAgeBandLabel(locale), [locale]);
   const ALLERGEN_LABEL = useMemo(() => getAllergenLabel(locale), [locale]);
   const RECIPE_MEAL_TYPE_LABEL = useMemo(() => getRecipeMealTypeLabel(locale), [locale]);
@@ -43,7 +44,7 @@ export default function RecipeDetailPage() {
     return (
       <main className="mx-auto flex w-full max-w-sm flex-col gap-4 px-4 py-8 text-center text-brown-700">
         <BackButton fallbackHref="/app/receitas" />
-        <p>Receita não encontrada.</p>
+        <p>{es ? "Receta no encontrada." : "Receita não encontrada."}</p>
       </main>
     );
   }
@@ -53,13 +54,13 @@ export default function RecipeDetailPage() {
     const lines = [
       `🍽️ ${recipe.title}`,
       "",
-      "Ingredientes:",
+      es ? "Ingredientes:" : "Ingredientes:",
       ...recipe.ingredients.map((i) => `• ${i}`),
       "",
-      "Modo de preparo:",
+      es ? "Modo de preparación:" : "Modo de preparo:",
       ...recipe.steps.map((s, i) => `${i + 1}. ${s}`),
       "",
-      "Receita do NutriMãe 💚",
+      es ? "Receta de NutriMãe 💚" : "Receita do NutriMãe 💚",
     ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
@@ -93,7 +94,7 @@ export default function RecipeDetailPage() {
           </span>
           <span className="flex items-center gap-1">
             <ChefHat className="h-4 w-4" strokeWidth={2} />
-            {recipe.difficulty === "facil" ? "Fácil" : "Médio"}
+            {recipe.difficulty === "facil" ? "Fácil" : es ? "Medio" : "Médio"}
           </span>
         </div>
       </div>
@@ -113,11 +114,14 @@ export default function RecipeDetailPage() {
           <p className="text-sm text-brown-800">
             {recipe.allergens.some((a) => checklistAllergens.includes(a)) ? (
               <span className="font-semibold text-red-700">
-                Contém item do seu checklist de alergênicos.{" "}
+                {es
+                  ? "Contiene un ítem de tu checklist de alergénicos. "
+                  : "Contém item do seu checklist de alergênicos. "}
               </span>
             ) : null}
-            Contém: {recipe.allergens.map((a) => ALLERGEN_LABEL[a]).join(", ")}. Só ofereça se já
-            tiver testado cada um desses alimentos individualmente antes.
+            {es
+              ? `Contiene: ${recipe.allergens.map((a) => ALLERGEN_LABEL[a]).join(", ")}. Solo ofrécelo si ya probaste cada uno de estos alimentos individualmente antes.`
+              : `Contém: ${recipe.allergens.map((a) => ALLERGEN_LABEL[a]).join(", ")}. Só ofereça se já tiver testado cada um desses alimentos individualmente antes.`}
           </p>
         </div>
       )}
@@ -131,7 +135,7 @@ export default function RecipeDetailPage() {
           }`}
         >
           <Heart className="h-5 w-5" strokeWidth={2} fill={isFavorite ? "currentColor" : "none"} />
-          {isFavorite ? "Salva" : "Salvar"}
+          {es ? (isFavorite ? "Guardada" : "Guardar") : isFavorite ? "Salva" : "Salvar"}
         </button>
         <button
           type="button"
@@ -171,7 +175,9 @@ export default function RecipeDetailPage() {
       </section>
 
       <section>
-        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">Modo de preparo</h2>
+        <h2 className="mb-2 font-heading text-lg font-bold text-brown-800">
+          {es ? "Modo de preparación" : "Modo de preparo"}
+        </h2>
         <ol className="flex flex-col gap-3">
           {recipe.steps.map((step, i) => (
             <li key={step} className="flex gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
@@ -186,12 +192,21 @@ export default function RecipeDetailPage() {
         <ListenButton
           contentType="recipe"
           contentId={recipe.id}
-          text={[
-            `${recipe.title}.`,
-            `Ingredientes: ${recipe.ingredients.join(", ")}.`,
-            "Modo de preparo:",
-            ...recipe.steps.map((s, i) => `Passo ${i + 1}: ${s}`),
-          ].join(" ")}
+          text={
+            es
+              ? [
+                  `${recipe.title}.`,
+                  `Ingredientes: ${recipe.ingredients.join(", ")}.`,
+                  "Modo de preparación:",
+                  ...recipe.steps.map((s, i) => `Paso ${i + 1}: ${s}`),
+                ].join(" ")
+              : [
+                  `${recipe.title}.`,
+                  `Ingredientes: ${recipe.ingredients.join(", ")}.`,
+                  "Modo de preparo:",
+                  ...recipe.steps.map((s, i) => `Passo ${i + 1}: ${s}`),
+                ].join(" ")
+          }
           className="mt-3"
         />
       </section>

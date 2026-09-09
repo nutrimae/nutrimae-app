@@ -2,9 +2,10 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/lib/use-locale";
 
 export function BackButton({
-  label = "Voltar",
+  label,
   fallbackHref = "/app/mais",
   className = "",
 }: {
@@ -13,6 +14,8 @@ export function BackButton({
   className?: string;
 }) {
   const router = useRouter();
+  const { locale } = useLocale();
+  const resolvedLabel = label ?? (locale === "es" ? "Volver" : "Voltar");
 
   return (
     <button
@@ -27,7 +30,7 @@ export function BackButton({
       className={`flex min-h-10 w-fit items-center gap-1.5 text-sm font-semibold text-primary-600 transition-colors hover:text-primary-hover ${className}`}
     >
       <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-      {label}
+      {resolvedLabel}
     </button>
   );
 }

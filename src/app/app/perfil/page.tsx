@@ -11,10 +11,9 @@ import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/back-button";
 import { useVipAccess } from "@/lib/use-vip-access";
 import type { BabyGender } from "@/lib/types";
-import { REGIONS, type Region } from "@/lib/regions";
+import { LATAM_REGIONS } from "@/lib/latam-regions";
 import { useRegion } from "@/lib/use-region";
 import { useLocale } from "@/lib/use-locale";
-import { LanguageSwitcher } from "@/components/language-switcher";
 
 export default function PerfilPage() {
   const router = useRouter();
@@ -22,7 +21,7 @@ export default function PerfilPage() {
   const supabase = useMemo(() => createClient(), []);
   const vipAccess = useVipAccess();
   const { region, setRegion } = useRegion();
-  const { locale, setLocale } = useLocale();
+  const { locale } = useLocale();
   const es = locale === "es";
 
   const [email, setEmail] = useState("");
@@ -220,23 +219,13 @@ export default function PerfilPage() {
       )}
 
       <div>
-        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Idioma" : "Idioma"}</h2>
-        <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
-          <p className="text-sm text-brown-700/90">
-            {es ? "Elige el idioma del aplicativo." : "Escolha o idioma do aplicativo."}
-          </p>
-          <LanguageSwitcher locale={locale} onChange={setLocale} />
-        </div>
-      </div>
-
-      <div>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Tu región" : "Sua região"}</h2>
         <div className="flex flex-col gap-2 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <p className="text-sm text-brown-700/90">
             {es ? "Lo usamos para priorizar alimentos y recetas de tu región en el menú." : "Usamos para priorizar alimentos e receitas da sua região no cardápio."}
           </p>
           <div className="mt-1 flex flex-wrap gap-2">
-            {REGIONS.map((r) => (
+            {LATAM_REGIONS.map((r) => (
               <button
                 key={r.key}
                 type="button"

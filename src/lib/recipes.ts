@@ -1,5 +1,6 @@
 import type { AgeBand } from "@/lib/menu";
 import type { Region } from "@/lib/regions";
+import type { LatamRegion } from "@/lib/latam-regions";
 import type { Locale } from "@/lib/i18n/locale";
 
 export type RecipeMealType = "cafe" | "almoco" | "lanche" | "ceia";
@@ -90,7 +91,7 @@ export interface Recipe {
   steps: string[];
   allergens: Allergen[];
   /** Regiões de origem — pode pertencer a mais de uma. Ausente = receita nacional. */
-  regiao?: Region[];
+  regiao?: (Region | LatamRegion)[];
   /** Status de revisão para receitas novas. Receitas sem esse campo são consideradas aprovadas. */
   revisao?: "pendente" | "aprovado";
   /** Adequado para marmitas/lancheiras de creche/escola */
@@ -1448,7 +1449,7 @@ export function searchRecipes(params: {
   mealType?: RecipeMealType;
   excludeAllergens?: Allergen[];
   blwOnly?: boolean;
-  region?: Region | null;
+  region?: Region | LatamRegion | null;
 }): Recipe[] {
   const { query, ageBand, mealType, excludeAllergens, blwOnly, region } = params;
   const q = query?.trim().toLowerCase() ?? "";

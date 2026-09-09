@@ -5,33 +5,22 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
-import { REGIONS, type Region } from "@/lib/regions";
+import type { Region } from "@/lib/regions";
 import { LATAM_REGIONS, type LatamRegion } from "@/lib/latam-regions";
-import { useLocale } from "@/lib/use-locale";
 
 const COPY = {
-  "pt-BR": {
-    title: "De qual região do Brasil vocês são?",
-    subtitle: "Assim priorizamos alimentos e receitas da sua região. Totalmente opcional!",
-    saving: "Salvando...",
-    continue: "Continuar",
-    skip: "Pular",
-  },
-  es: {
-    title: "¿De qué región de Latinoamérica son?",
-    subtitle: "Así priorizamos alimentos y recetas típicas de tu región. ¡Totalmente opcional!",
-    saving: "Guardando...",
-    continue: "Continuar",
-    skip: "Omitir",
-  },
+  title: "¿De qué región de Latinoamérica son?",
+  subtitle: "Así priorizamos alimentos y recetas típicas de tu región. ¡Totalmente opcional!",
+  saving: "Guardando...",
+  continue: "Continuar",
+  skip: "Omitir",
 } as const;
 
 export default function RegionStepPage() {
   const router = useRouter();
   const supabase = createClient();
-  const { locale } = useLocale();
-  const t = COPY[locale];
-  const options = locale === "es" ? LATAM_REGIONS : REGIONS;
+  const t = COPY;
+  const options = LATAM_REGIONS;
   const [selected, setSelected] = useState<Region | LatamRegion | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -47,8 +36,7 @@ export default function RegionStepPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      const column = locale === "es" ? "latam_region" : "region";
-      await supabase.from("profiles").update({ [column]: selected }).eq("user_id", user.id);
+      await supabase.from("profiles").update({ latam_region: selected }).eq("user_id", user.id);
     }
 
     setLoading(false);

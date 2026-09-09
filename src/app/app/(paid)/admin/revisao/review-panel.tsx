@@ -9,16 +9,19 @@ import { getPendingFoods, type FoodItem } from "@/lib/foods";
 import { getPendingRecipes, type Recipe } from "@/lib/recipes";
 import { getPendingLunchboxSafetyClaims } from "@/lib/lunchbox";
 import { REGION_LABEL, type Region } from "@/lib/regions";
+import { LATAM_REGION_LABEL, type LatamRegion } from "@/lib/latam-regions";
 
 type ReviewAction = "aprovado" | "rejeitado";
 type ContentType = "food" | "recipe" | "guideline";
 type PriorityFilter = "all" | "alta" | "normal";
 
+const REGIAO_LABEL: Record<Region | LatamRegion, string> = { ...REGION_LABEL, ...LATAM_REGION_LABEL };
+
 interface PendingItem {
   contentType: ContentType;
   id: string;
   name: string;
-  regiao?: Region[];
+  regiao?: (Region | LatamRegion)[];
   priority: "normal" | "alta";
   warning?: string;
 }
@@ -186,7 +189,7 @@ export function ReviewPanel() {
                     <p className="mt-1.5 font-heading text-lg font-bold text-brown-800">{item.name}</p>
                     {item.regiao && item.regiao.length > 0 && (
                       <p className="mt-0.5 text-sm text-brown-700/90">
-                        Região: {item.regiao.map((r) => REGION_LABEL[r]).join(", ")}
+                        Região: {item.regiao.map((r) => REGIAO_LABEL[r]).join(", ")}
                       </p>
                     )}
                     {item.warning && (

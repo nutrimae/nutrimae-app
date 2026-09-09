@@ -5,7 +5,7 @@ export const LOCALES: { key: Locale; label: string; flag: string }[] = [
   { key: "es", label: "Español (Latinoamérica)", flag: "🌎" },
 ];
 
-export const DEFAULT_LOCALE: Locale = "pt-BR";
+export const DEFAULT_LOCALE: Locale = "es";
 
 export function isLocale(value: string | null | undefined): value is Locale {
   return value === "pt-BR" || value === "es";

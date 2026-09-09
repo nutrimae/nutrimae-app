@@ -4,26 +4,16 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { useLocale } from "@/lib/use-locale";
 
 const COPY = {
-  "pt-BR": {
-    title: "Bem-vinda ao NutriMãe",
-    subtitle: "Vamos deixar tudo pronto para acompanhar a introdução alimentar do seu bebê, com calma.",
-    cta: "Vamos começar",
-  },
-  es: {
-    title: "Bienvenida a NutriMãe",
-    subtitle: "Vamos a dejar todo listo para acompañar la introducción alimentaria de tu bebé, con calma.",
-    cta: "Empezar",
-  },
+  title: "Bienvenida a NutriMãe",
+  subtitle: "Vamos a dejar todo listo para acompañar la introducción alimentaria de tu bebé, con calma.",
+  cta: "Empezar",
 } as const;
 
 export default function WelcomePage() {
   const router = useRouter();
-  const { locale, setLocale } = useLocale();
-  const t = COPY[locale];
+  const t = COPY;
 
   return (
     <main
@@ -31,10 +21,6 @@ export default function WelcomePage() {
       style={{ background: "linear-gradient(180deg, #fff5f7 0%, #fdf9f3 40%, #f2f5ee 100%)" }}
     >
       <div className="absolute inset-0 dot-pattern opacity-15" />
-
-      <div className="relative flex justify-end">
-        <LanguageSwitcher locale={locale} onChange={setLocale} />
-      </div>
 
       <div className="relative flex flex-1 flex-col items-center justify-center text-center">
         <div className="animate-splash-logo mb-4">

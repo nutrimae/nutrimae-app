@@ -1,5 +1,6 @@
 import type { AgeBand } from "@/lib/menu";
 import type { Region } from "@/lib/regions";
+import type { LatamRegion } from "@/lib/latam-regions";
 
 export interface FoodItem {
   id: string;
@@ -9,7 +10,7 @@ export interface FoodItem {
   cuts: Record<AgeBand, string>;
   warning?: string;
   /** Regiões onde este alimento é tradicional (ausente ou vazio = nacional). */
-  regiao?: Region[];
+  regiao?: (Region | LatamRegion)[];
   /** Status de revisão para novos alimentos regionais. Alimentos sem esse campo são considerados aprovados. */
   revisao?: "pendente" | "aprovado";
   /** Prioridade de revisão — "alta" para alimentos com risco de segurança específico. */
@@ -582,7 +583,7 @@ function normalize(str: string): string {
     .trim();
 }
 
-export function searchFoods(query: string, userRegion?: Region | null): FoodItem[] {
+export function searchFoods(query: string, userRegion?: Region | LatamRegion | null): FoodItem[] {
   const q = normalize(query);
   if (!q) return [];
 

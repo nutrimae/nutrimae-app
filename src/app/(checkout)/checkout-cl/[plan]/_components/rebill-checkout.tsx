@@ -77,10 +77,11 @@ export function RebillCheckout({
     }
 
     function onReady() {
-      // O "ready" dispara assim que o componente termina de montar a sessão,
-      // mas o iframe dos campos do cartão ainda leva um instante para pintar
-      // — sem essa folga o skeleton some antes dos campos aparecerem.
-      setTimeout(() => setFormReady(true), 400);
+      // O "ready" dispara assim que o componente monta a sessão, mas o
+      // iframe dos campos do cartão ainda demora pra pintar de verdade —
+      // a duração varia bastante conforme a rede do cliente, então usamos
+      // uma folga generosa em vez de confiar no timing exato do evento.
+      setTimeout(() => setFormReady(true), 2000);
     }
 
     el.addEventListener("success", onSuccess);

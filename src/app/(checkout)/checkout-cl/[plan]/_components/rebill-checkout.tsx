@@ -29,7 +29,12 @@ export function RebillCheckout({
 
   useEffect(() => {
     let cancelled = false;
-    import("rebill").then(() => {
+    Promise.all([import("rebill"), import("rebill/config")]).then(([, { setAssetsURL }]) => {
+      // Por padrão o SDK busca seus ícones/loaders de unpkg.com — em redes
+      // mais lentas isso demora vários segundos e deixa os campos do cartão
+      // em branco nesse meio-tempo. Servimos os mesmos assets pelo nosso
+      // próprio domínio (copiados em public/rebill-assets).
+      setAssetsURL("/rebill-assets/");
       if (!cancelled) setSdkReady(true);
     });
     return () => {
@@ -78,11 +83,9 @@ export function RebillCheckout({
 
     function onReady() {
       // O "ready" dispara assim que o componente monta a sessão, mas o
-      // SDK ainda busca vários ícones/assets próprios (rebill.svg,
-      // chevron-down.svg, loader-card-v2.json...) antes de pintar os campos
-      // de verdade — em redes mais lentas isso passa fácil de 5s. Usamos
-      // uma folga generosa em vez de confiar no timing exato do evento.
-      setTimeout(() => setFormReady(true), 5000);
+      // iframe dos campos do cartão ainda leva um instante para pintar
+      // — sem essa folga o skeleton some antes dos campos aparecerem.
+      setTimeout(() => setFormReady(true), 500);
     }
 
     el.addEventListener("success", onSuccess);

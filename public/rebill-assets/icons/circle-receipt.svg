@@ -1,0 +1,10 @@
+<svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo circular -->
+  <circle cx="14" cy="14" r="13.33" fill="#C4C8CF"/>
+
+  <!-- Icono documento centrado -->
+  <g transform="translate(8,7)">
+    <path d="M3.83464 4.16732H8.16797M3.83464 6.83398H5.5013M10.8346 13.1673V2.16732C10.8346 1.43094 10.2377 0.833984 9.5013 0.833984H2.5013C1.76492 0.833984 1.16797 1.43094 1.16797 2.16732V13.1673L2.89019 11.6673L4.44575 13.1673L6.0013 11.6673L7.55686 13.1673L9.11241 11.6673L10.8346 13.1673Z"
+      stroke="#FAFAFA" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

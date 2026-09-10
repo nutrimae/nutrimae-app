@@ -56,6 +56,11 @@
         "value": "#ec4899",
         "createdAt": "2026-09-09T15:33:23.760Z",
         "reason": "reused from existing pt-BR LUNCHBOX_GROUPS entry, mirrored for ES locale variant"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#dc2626",
+        "createdAt": "2026-09-10T14:56:09.774Z"
       }
     ]
   }

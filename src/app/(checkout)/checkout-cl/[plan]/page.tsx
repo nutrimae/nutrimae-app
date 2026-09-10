@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { RebillCheckout } from "./_components/rebill-checkout";
+import { StripeCheckout } from "./_components/stripe-checkout";
 
 const PLAN_INFO = {
   basico: {
@@ -18,5 +18,5 @@ export default async function CheckoutClPage({ params }: { params: Promise<{ pla
   const { plan } = await params;
   if (plan !== "basico" && plan !== "completo") notFound();
 
-  return <RebillCheckout plan={plan} info={PLAN_INFO[plan]} />;
+  return <StripeCheckout plan={plan} info={PLAN_INFO[plan]} />;
 }

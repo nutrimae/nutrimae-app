@@ -130,7 +130,7 @@ const REACTION_LABEL_PT: Record<Reaction, string> = {
 };
 
 const CLINICAL_DISCLAIMER =
-  "Este relatório resume os registros feitos pela família no app NutriMãe e não constitui avaliação nutricional ou médica. Serve como apoio para a consulta com o profissional que acompanha o bebê.";
+  "Este relatório resume os registros feitos pela família no app NutriMama e não constitui avaliação nutricional ou médica. Serve como apoio para a consulta com o profissional que acompanha o bebê.";
 
 function formatDateBr(iso: string): string {
   return new Date(`${iso}T00:00:00`).toLocaleDateString("pt-BR");
@@ -166,7 +166,7 @@ export function RelatorioPediatraPdf({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.brand}>NutriMãe</Text>
+        <Text style={styles.brand}>NutriMama</Text>
         <Text style={styles.h1}>Relatório para o pediatra</Text>
 
         <View style={styles.metaRow}>

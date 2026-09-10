@@ -26,7 +26,7 @@ export function UpgradeScreen({
       <div className="flex flex-col items-center text-center">
         <Image
           src="/nutrimae-logo.png"
-          alt="NutriMãe"
+          alt="NutriMama"
           width={100}
           height={100}
           className="mb-3 h-20 w-20 object-contain drop-shadow-[0_8px_20px_rgba(255,107,157,0.2)]"

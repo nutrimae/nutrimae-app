@@ -183,7 +183,7 @@ export default function AppHomePage() {
         </div>
         <div className="flex items-center gap-2">
           <Link href="/app/suporte" aria-label={es ? "Notificaciones" : "Notificações"} className="relative flex h-11 w-11 touch-manipulation items-center justify-center rounded-full active:bg-primary-50"><Bell className="h-5 w-5 text-brown-700" strokeWidth={1.8} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary-500 ring-2 ring-cream" /></Link>
-          <Image src="/nutrimae-logo.png" alt="NutriMãe" width={42} height={42} priority className="h-10 w-10 object-contain" />
+          <Image src="/nutrimae-logo.png" alt="NutriMama" width={42} height={42} priority className="h-10 w-10 object-contain" />
         </div>
       </section>
 

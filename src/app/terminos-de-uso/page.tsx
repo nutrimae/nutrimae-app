@@ -21,14 +21,14 @@ export default function TerminosDeUsoPage() {
 
       <div className="flex flex-col gap-4 text-brown-800">
         <p>
-          Al comprar o usar NutriMãe, aceptas estos Términos de Uso. Léelos con calma —
+          Al comprar o usar NutriMama, aceptas estos Términos de Uso. Léelos con calma —
           resumen de forma simple lo que puedes esperar de nosotros y lo que esperamos de ti.
         </p>
 
         <section>
-          <h2 className="font-heading text-lg font-bold text-brown-800">Qué es NutriMãe</h2>
+          <h2 className="font-heading text-lg font-bold text-brown-800">Qué es NutriMama</h2>
           <p className="mt-1">
-            NutriMãe es una herramienta digital de organización y planificación de la rutina
+            NutriMama es una herramienta digital de organización y planificación de la rutina
             alimentaria de bebés y niños pequeños: menús por etapa, guías de cortes y
             texturas, listas de compras y contenido de apoyo. No es un servicio médico ni
             reemplaza la orientación de un pediatra o nutricionista — siempre consulta a un
@@ -41,7 +41,7 @@ export default function TerminosDeUsoPage() {
             Acceso y pago
           </h2>
           <p className="mt-1">
-            El acceso a los planes de NutriMãe se libera automáticamente después de la
+            El acceso a los planes de NutriMama se libera automáticamente después de la
             confirmación del pago, mediante un pago único que da acceso de por vida al
             contenido del plan adquirido. Los datos de acceso se envían al correo
             electrónico usado en la compra.
@@ -54,7 +54,7 @@ export default function TerminosDeUsoPage() {
           </h2>
           <p className="mt-1">
             Ofrecemos 7 días de garantía incondicional a partir de la fecha de la compra. Si
-            NutriMãe no tiene sentido para tu rutina, te devolvemos el valor pagado, sin
+            NutriMama no tiene sentido para tu rutina, te devolvemos el valor pagado, sin
             necesidad de justificar el motivo — solo escríbenos por el Canal de Soporte
             dentro de la app o al correo de contacto.
           </p>
@@ -63,7 +63,7 @@ export default function TerminosDeUsoPage() {
         <section>
           <h2 className="font-heading text-lg font-bold text-brown-800">Uso permitido</h2>
           <p className="mt-1">
-            El contenido de NutriMãe es para tu uso personal y familiar. No está permitido
+            El contenido de NutriMama es para tu uso personal y familiar. No está permitido
             revender, redistribuir ni compartir públicamente el contenido de la app.
           </p>
         </section>
@@ -73,7 +73,7 @@ export default function TerminosDeUsoPage() {
             Cambios en el servicio
           </h2>
           <p className="mt-1">
-            Podemos actualizar o mejorar el contenido y las funciones de NutriMãe con el
+            Podemos actualizar o mejorar el contenido y las funciones de NutriMama con el
             tiempo. Los cambios no afectan el acceso ya liberado para quien ya compró el
             plan.
           </p>

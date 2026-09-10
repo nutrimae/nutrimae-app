@@ -243,7 +243,7 @@ export default function ListaComprasPage() {
       }
       lines.push("");
     }
-    lines.push(es ? "Generada en NutriMãe 💚" : "Gerada em NutriMãe 💚");
+    lines.push(es ? "Generada en NutriMama 💚" : "Gerada em NutriMama 💚");
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }

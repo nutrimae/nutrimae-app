@@ -58,7 +58,7 @@ export function SplashScreen() {
         <div className="animate-splash-heartbeat relative">
           <Image
             src="/nutrimae-logo.png"
-            alt="NutriMãe"
+            alt="NutriMama"
             width={280}
             height={280}
             priority

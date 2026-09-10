@@ -7,9 +7,9 @@ const CATEGORIES: BlwCategory[] = ["frutas", "vegetais", "proteina", "graos", "l
 
 export function GuiaBlwPdf() {
   return (
-    <Document title="Guia de Cortes BLW — NutriMãe">
+    <Document title="Guia de Cortes BLW — NutriMama">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMãe</Text>
+        <Text style={pdfStyles.brand}>NutriMama</Text>
         <Text style={pdfStyles.h1}>Guia de Cortes BLW</Text>
         <Text style={pdfStyles.subtitle}>
           Baby-Led Weaning: tamanho, preparo e segurança para 30 alimentos.

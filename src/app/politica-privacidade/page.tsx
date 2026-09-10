@@ -23,7 +23,7 @@ export default function PoliticaPrivacidadePage() {
 
       <div className="flex flex-col gap-4 text-brown-800">
         <p>
-          En NutriMãe nos tomamos en serio la privacidad de tu familia y tratamos tus datos
+          En NutriMama nos tomamos en serio la privacidad de tu familia y tratamos tus datos
           conforme a la Ley N° 21.719 sobre Protección de Datos Personales de Chile y a las
           demás leyes de protección de datos aplicables en tu país.
         </p>

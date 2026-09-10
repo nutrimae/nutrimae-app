@@ -106,7 +106,7 @@ const NAO_CONGELA_BEM_ES = [
 function Label({ alimento, data, es }: { alimento: string; data: string; es: boolean }) {
   return (
     <div className="flex min-h-20 flex-col justify-center rounded-xl border-2 border-dashed border-sage-300 bg-white p-3 text-center">
-      <p className="text-[11px] font-bold uppercase tracking-wide text-sage-600">NutriMãe</p>
+      <p className="text-[11px] font-bold uppercase tracking-wide text-sage-600">NutriMama</p>
       <p className="mt-1 font-heading text-sm font-bold text-brown-800">
         {alimento || (es ? "Nombre del alimento" : "Nome do alimento")}
       </p>

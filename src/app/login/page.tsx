@@ -105,7 +105,7 @@ export default function LoginPage() {
         <header className="mb-8 flex flex-col items-center text-center">
           <Image
             src="/nutrimae-logo.png"
-            alt="NutriMãe"
+            alt="NutriMama"
             width={200}
             height={200}
             priority

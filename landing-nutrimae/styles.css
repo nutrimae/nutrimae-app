@@ -186,6 +186,74 @@ section { padding: 40px 0; }
 .btn--checkout:hover { background: var(--color-primary-abyss); }
 
 /* =====================================================
+   BARRA DE OFERTA FIXA — sempre visível depois do hero, pra oferta
+   ficar clara na página inteira (não só lá embaixo no bloco-6).
+   ===================================================== */
+.sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  padding-bottom: calc(10px + var(--safe-bottom));
+  background: var(--color-white);
+  box-shadow: 0 -6px 24px rgba(43, 42, 46, 0.12);
+  transform: translateY(120%);
+  transition: transform 0.3s ease;
+}
+
+.sticky-cta.is-visible { transform: translateY(0); }
+
+.sticky-cta__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sticky-cta__plan {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sticky-cta__price {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.sticky-cta__price small {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--color-text-medium);
+  margin-left: 4px;
+}
+
+.sticky-cta__btn {
+  width: auto;
+  min-height: 44px;
+  padding: 0 20px;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .sticky-cta { padding: 12px 24px; }
+  .sticky-cta__plan { font-size: 0.74rem; }
+  .sticky-cta__price { font-size: 1.15rem; }
+}
+
+/* =====================================================
    NAV
    ===================================================== */
 .site-nav {
@@ -459,6 +527,28 @@ section { padding: 40px 0; }
 .vsl-hook.is-visible {
   transform: translate(-50%, 0);
   opacity: 1;
+}
+
+/* Vídeo do app na hero, no lugar da VSL desativada (2026-09-10) — ver
+   comentário equivalente em index.html. Container simples, sem depender
+   do backdrop de telefones usado em .product-demo-stage mais abaixo. */
+.hero__demo-frame {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  aspect-ratio: 9 / 16;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--color-text-dark);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero__demo-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .video-wrapper { width: 100%; }
@@ -989,6 +1079,17 @@ section { padding: 40px 0; }
   gap: 24px;
 }
 
+.updates-banner__eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .updates-banner__copy h2 {
   font-family: var(--font-heading);
   font-size: 1.3rem;
@@ -1141,6 +1242,16 @@ section { padding: 40px 0; }
    BLOCO 5 — DEMONSTRAÇÃO BUSCÁVEL
    ===================================================== */
 .sample { background: var(--color-white); }
+
+.sample__eyebrow {
+  margin-bottom: 8px;
+  color: var(--color-primary-dark);
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
 
 .food-search-wrapper {
   position: relative;
@@ -1646,6 +1757,271 @@ section { padding: 40px 0; }
 /* =====================================================
    OFERTA — toggle Mensal / Anual
    ===================================================== */
+/* =====================================================
+   REVELAÇÃO DE DESCONTO (potecitos) — antes da oferta
+   Adaptado do mecanismo de peças de quebra-cabeça do projeto Mente em
+   Cores (mesmas classes de estado is-fitting/is-selected/is-other/
+   is-revealed), com um visual próprio da NutriMãe (potecitos de papinha).
+   Ver revealOfferJar() em script.js.
+   ===================================================== */
+.jar-reveal {
+  background: linear-gradient(180deg, var(--color-bg) 0%, #FFF1F6 100%);
+  text-align: center;
+}
+
+.jar-reveal__eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--color-primary-dark);
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.jar-reveal__subtitle {
+  max-width: 420px;
+  margin: 0 auto;
+  font-size: 0.9rem;
+  color: var(--color-text-medium);
+  line-height: 1.55;
+}
+
+.jar-shelf {
+  max-width: 480px;
+  margin: 24px auto 0;
+  padding: 22px 12px 18px;
+  background: radial-gradient(rgba(43, 42, 46, 0.08) 0.8px, transparent 0.8px);
+  background-size: 14px 14px;
+  border: 1px solid rgba(43, 42, 46, 0.08);
+  border-radius: var(--radius-lg);
+}
+
+.jar-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.jar-place {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Balão "presente encontrado" — só aparece sobre a colher escolhida. */
+.jar-piece__gift {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  z-index: 2;
+  transform: translate(-50%, 8px);
+  white-space: nowrap;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--color-primary-dark);
+  color: var(--color-white);
+  font-size: 0.66rem;
+  font-weight: 800;
+  box-shadow: 0 8px 16px rgba(43, 42, 46, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.jar-place.is-chosen .jar-piece__gift {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.jar-piece {
+  position: relative;
+  width: 100%;
+  max-width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  padding: 14px 8px;
+  margin-top: 22px;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.jar-piece:not(:disabled):hover { transform: translateY(-3px); }
+
+.jar-piece:disabled { cursor: default; }
+.jar-piece.is-other { opacity: 0.65; transform: scale(0.96); }
+
+.jar-piece.is-selected {
+  transform: scale(1.05);
+  background: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.jar-piece__jar {
+  display: block;
+  width: 44px;
+  height: 80px;
+  overflow: visible;
+  transition: transform 0.5s ease;
+}
+
+.jar-piece.is-revealing .jar-piece__jar { animation: jar-bounce 0.9s ease-in-out infinite; }
+
+.jar-piece__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.jar-piece__badge.is-discount { background: var(--color-primary-dark); font-size: 0.68rem; }
+
+.jar-piece__badge.is-bonus {
+  background: rgba(168, 197, 160, 0.3);
+  color: #4C6B46;
+  font-size: 0.62rem;
+}
+
+.jar-piece__hint {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--color-text-medium);
+  text-align: center;
+}
+
+.jar-progress {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-medium);
+}
+
+.jar-shelf.is-revealed .jar-progress { color: var(--color-primary-dark); }
+
+.jar-reveal__terms {
+  max-width: 420px;
+  margin: 14px auto 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-medium);
+}
+
+.jar-reveal__skip {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@keyframes jar-bounce {
+  0%, 100% { transform: translateY(-8%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+}
+
+/* Cadeado do Plan Completo — desbloqueado ao revelar o desconto acima. */
+.plan-card__content {
+  transition: filter 0.6s ease, opacity 0.6s ease;
+}
+
+.plan-card-single.is-locked .plan-card__content {
+  filter: blur(5px);
+  opacity: 0.45;
+  user-select: none;
+  pointer-events: none;
+}
+
+.plan-card__discount-pill {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 2px 8px;
+  background: #E4F1E8;
+  color: var(--color-success);
+  font-size: 0.72rem;
+  font-weight: 800;
+  border-radius: 999px;
+}
+
+.plan-card__saving {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--color-success);
+}
+
+.plan-card__lock-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 22px;
+  background: rgba(255, 245, 249, 0.92);
+  border-radius: var(--radius-lg);
+  transition: opacity 0.4s ease, transform 0.5s ease;
+}
+
+.plan-card__lock-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 8px;
+  background: var(--color-white);
+  border: 1px solid rgba(192, 45, 96, 0.2);
+  border-radius: 18px;
+  color: var(--color-primary-dark);
+  box-shadow: 0 6px 16px rgba(43, 42, 46, 0.1);
+}
+
+.plan-card__lock-layer strong {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  line-height: 1.3;
+  color: var(--color-text-dark);
+}
+
+.plan-card__lock-layer p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text-medium);
+  max-width: 240px;
+  margin-bottom: 4px;
+}
+
+.plan-card-single:not(.is-locked) .plan-card__lock-layer {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px) scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jar-shelf *, .plan-card__content, .plan-card__lock-layer { animation: none !important; transition: none !important; }
+}
+
 .offer {
   background: var(--color-white);
   color: var(--color-text-dark);

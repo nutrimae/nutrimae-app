@@ -79,7 +79,7 @@ export function BabySwitcher() {
         <Link href="/app" className="shrink-0">
           <Image
             src="/nutrimae-logo.png"
-            alt="NutriMãe"
+            alt="NutriMama"
             width={40}
             height={40}
             className="h-9 w-9 object-contain"

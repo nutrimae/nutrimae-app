@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/server";
 
 const PLAN_INFO = {
-  basico: { name: "NutriMãe — Plan Básico", amount: 3990 },
-  completo: { name: "NutriMãe — Plan Completo", amount: 9900 },
+  basico: { name: "NutriMama — Plan Básico", amount: 3990 },
+  completo: { name: "NutriMama — Plan Completo", amount: 9900 },
 } as const;
 
 /**

@@ -85,7 +85,7 @@ export default function MaisPage() {
         <h1 className="font-heading text-2xl font-bold text-brown-800">{es ? "Más" : "Mais"}</h1>
         <Image
           src="/nutrimae-logo.png"
-          alt="NutriMãe"
+          alt="NutriMama"
           width={40}
           height={40}
           className="h-8 w-8 object-contain opacity-60"

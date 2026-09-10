@@ -176,7 +176,7 @@ export function PostDetail({ postId }: { postId: string }) {
             {reply.is_official && (
               <span className="mb-1 flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-sage-700">
                 <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-                {es ? "Respuesta oficial NutriMãe" : "Resposta oficial NutriMãe"}
+                {es ? "Respuesta oficial NutriMama" : "Resposta oficial NutriMama"}
               </span>
             )}
             <p className="text-brown-800">{reply.body}</p>
@@ -207,7 +207,7 @@ export function PostDetail({ postId }: { postId: string }) {
               onChange={(e) => setAsOfficial(e.target.checked)}
               className="h-5 w-5 rounded accent-sage-500"
             />
-            {es ? "Marcar como respuesta oficial NutriMãe" : "Marcar como resposta oficial NutriMãe"}
+            {es ? "Marcar como respuesta oficial NutriMama" : "Marcar como resposta oficial NutriMama"}
           </label>
         )}
         <Button onClick={handleReply} disabled={sending || !replyBody.trim()}>

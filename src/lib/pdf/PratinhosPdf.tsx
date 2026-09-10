@@ -8,9 +8,9 @@ const BANDS: AgeBand[] = ["6-7", "8-9", "10-12", "13-24"];
 
 export function PratinhosPdf() {
   return (
-    <Document title="Pratinhos Divertidos — NutriMãe">
+    <Document title="Pratinhos Divertidos — NutriMama">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMãe</Text>
+        <Text style={pdfStyles.brand}>NutriMama</Text>
         <Text style={pdfStyles.h1}>Pratinhos Divertidos</Text>
         <Text style={pdfStyles.subtitle}>
           30 ideias de apresentação colorida para deixar a refeição mais convidativa.

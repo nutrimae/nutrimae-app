@@ -21,7 +21,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "O conteúdo é validado por profissionais de saúde?",
-    a: "O NutriMãe é um material de organização e planejamento da rotina alimentar. Ele serve como apoio prático no dia a dia, mas não substitui a orientação do pediatra ou do nutricionista que acompanha o seu bebê. Em caso de alergia, restrição alimentar ou qualquer dúvida específica sobre o desenvolvimento dele, consulte sempre o profissional responsável.",
+    a: "O NutriMama é um material de organização e planejamento da rotina alimentar. Ele serve como apoio prático no dia a dia, mas não substitui a orientação do pediatra ou do nutricionista que acompanha o seu bebê. Em caso de alergia, restrição alimentar ou qualquer dúvida específica sobre o desenvolvimento dele, consulte sempre o profissional responsável.",
   },
   {
     q: "Existe mensalidade ou cobrança recorrente?",

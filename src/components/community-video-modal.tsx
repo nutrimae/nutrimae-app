@@ -288,9 +288,9 @@ export function CommunityVideoModal({
                 />
                 <label htmlFor="terms_consent" className="text-xs text-brown-800 leading-snug cursor-pointer">
                   {es ? (
-                    <>Declaro que soy la persona responsable legal del bebé y <strong>autorizo expresamente el uso de la imagen/video</strong> en la aplicación NutriMãe exclusivamente para fines educativos de introducción alimentaria.</>
+                    <>Declaro que soy la persona responsable legal del bebé y <strong>autorizo expresamente el uso de la imagen/video</strong> en la aplicación NutriMama exclusivamente para fines educativos de introducción alimentaria.</>
                   ) : (
-                    <>Declaro que sou o(a) responsável legal pelo bebê e <strong>autorizo expressamente o uso da imagem/vídeo</strong> no aplicativo NutriMãe exclusivamente para fins educativos de introdução alimentar.</>
+                    <>Declaro que sou o(a) responsável legal pelo bebê e <strong>autorizo expressamente o uso da imagem/vídeo</strong> no aplicativo NutriMama exclusivamente para fins educativos de introdução alimentar.</>
                   )}
                 </label>
               </div>
@@ -310,8 +310,8 @@ export function CommunityVideoModal({
                   <p className="font-bold text-brown-800">{es ? "TÉRMINO DE CESIÓN Y AUTORIZACIÓN DE USO DE IMAGEN" : "TERMO DE CESSÃO E AUTORIZAÇÃO DE USO DE IMAGEM"}</p>
                   <p className="mt-1">
                     {es
-                      ? "Por el presente instrumento, la persona responsable declara que tiene la patria potestad/guarda del(a) menor y autoriza, a título gratuito y de forma no exclusiva, la exhibición del video enviado en la plataforma NutriMãe. El video pasará por moderación previa y no será comercializado individualmente. La persona responsable podrá, en cualquier momento, revocar este consentimiento y solicitar la eliminación definitiva del contenido a través de los canales de soporte o eliminación en la app."
-                      : "Pelo presente instrumento, a pessoa responsável declara que detém o pátrio poder/guarda do(a) menor e autoriza, a título gratuito e de forma não exclusiva, a exibição do vídeo enviado na plataforma NutriMãe. O vídeo passará por moderação prévia e não será comercializado individualmente. A responsável poderá, a qualquer tempo, revogar este consentimento e solicitar a exclusão definitiva do conteúdo através dos canais de suporte ou exclusão no app."}
+                      ? "Por el presente instrumento, la persona responsable declara que tiene la patria potestad/guarda del(a) menor y autoriza, a título gratuito y de forma no exclusiva, la exhibición del video enviado en la plataforma NutriMama. El video pasará por moderación previa y no será comercializado individualmente. La persona responsable podrá, en cualquier momento, revocar este consentimiento y solicitar la eliminación definitiva del contenido a través de los canales de soporte o eliminación en la app."
+                      : "Pelo presente instrumento, a pessoa responsável declara que detém o pátrio poder/guarda do(a) menor e autoriza, a título gratuito e de forma não exclusiva, a exibição do vídeo enviado na plataforma NutriMama. O vídeo passará por moderação prévia e não será comercializado individualmente. A responsável poderá, a qualquer tempo, revogar este consentimento e solicitar a exclusão definitiva do conteúdo através dos canais de suporte ou exclusão no app."}
                   </p>
                 </div>
               )}

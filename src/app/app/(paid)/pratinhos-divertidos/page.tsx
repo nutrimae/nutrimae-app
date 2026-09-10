@@ -67,14 +67,14 @@ export default function PratinhosDivertidosPage() {
           "",
           ...pratinho.ingredients.map((i) => `• ${i}`),
           "",
-          "Generada en NutriMãe 💚",
+          "Generada en NutriMama 💚",
         ]
       : [
           `🛒 Lista de compras — ${pratinho.title}`,
           "",
           ...pratinho.ingredients.map((i) => `• ${i}`),
           "",
-          "Gerada em NutriMãe 💚",
+          "Gerada em NutriMama 💚",
         ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
@@ -91,7 +91,7 @@ export default function PratinhosDivertidosPage() {
           "Modo de preparación:",
           ...pratinho.steps.map((s, i) => `${i + 1}. ${s}`),
           "",
-          "Platito de NutriMãe 💚",
+          "Platito de NutriMama 💚",
         ]
       : [
           `🍽️ ${pratinho.title}`,
@@ -102,7 +102,7 @@ export default function PratinhosDivertidosPage() {
           "Modo de preparo:",
           ...pratinho.steps.map((s, i) => `${i + 1}. ${s}`),
           "",
-          "Pratinho do NutriMãe 💚",
+          "Pratinho do NutriMama 💚",
         ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");

@@ -1,14 +1,14 @@
 {
-  "name": "NutriMãe",
-  "short_name": "NutriMãe",
-  "description": "Apoio calmo e acolhedor para a introdução alimentar do seu bebê.",
+  "name": "NutriMama",
+  "short_name": "NutriMama",
+  "description": "Apoyo cálido y organizado para la introducción alimentaria de tu bebé.",
   "start_url": "/app",
   "id": "/app",
   "display": "standalone",
   "background_color": "#fdf9f3",
   "theme_color": "#fdf9f3",
   "orientation": "portrait",
-  "lang": "pt-BR",
+  "lang": "es-CL",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },

@@ -21,7 +21,7 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "NutriMãe",
+  title: "NutriMama",
   description: "Apoio calmo e acolhedor para a introdução alimentar do seu bebê.",
   manifest: "/manifest.json",
   icons: {
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "NutriMãe",
+    title: "NutriMama",
   },
 };
 

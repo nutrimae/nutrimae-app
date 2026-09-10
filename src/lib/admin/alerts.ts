@@ -49,7 +49,7 @@ export async function checkThresholdsAndAlert(admin: AdminClient, metrics: Admin
     const direction = threshold.comparison === "above" ? "acima de" : "abaixo de";
     crossed.push({
       metricKey: threshold.metric_key,
-      message: `🚨 NutriMãe admin: "${threshold.label}" está em ${value} — ${direction} o limite configurado (${threshold.threshold_value}).`,
+      message: `🚨 NutriMama admin: "${threshold.label}" está em ${value} — ${direction} o limite configurado (${threshold.threshold_value}).`,
     });
   }
   if (crossed.length === 0) return { alerted };

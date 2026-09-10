@@ -19,7 +19,7 @@ type PlanChoice = "completo" | "basico";
 /**
  * Toggle Básico/Completo — ver memória feedback-landing-pricing-toggle:
  * manter botões de alternância, não cards estáticos. Os dois são pagamento
- * único, vitalício, sem mensalidade (pivô de 2026-09-08: NutriMãe deixou de
+ * único, vitalício, sem mensalidade (pivô de 2026-09-08: NutriMama deixou de
  * vender assinatura recorrente — ver migração
  * 202609080001_planos_basico_completo.sql). Completo segue pré-selecionado
  * por converter melhor (bônus embutido + parcelamento).

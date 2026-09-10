@@ -33,7 +33,7 @@ export async function grantAccessForStripePayment(admin: AdminClient, payment: S
     {
       user_id: userId,
       product_id: "nutrimae_assinatura",
-      product_name: plan === "basico" ? "NutriMãe — Plan Básico" : "NutriMãe — Plan Completo",
+      product_name: plan === "basico" ? "NutriMama — Plan Básico" : "NutriMama — Plan Completo",
       status: "active",
       canceled_at: null,
     },

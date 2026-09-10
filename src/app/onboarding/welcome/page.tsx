@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
 
 const COPY = {
-  title: "Bienvenida a NutriMãe",
+  title: "Bienvenida a NutriMama",
   subtitle: "Vamos a dejar todo listo para acompañar la introducción alimentaria de tu bebé, con calma.",
   cta: "Empezar",
 } as const;
@@ -26,7 +26,7 @@ export default function WelcomePage() {
         <div className="animate-splash-logo mb-4">
           <Image
             src="/nutrimae-logo.png"
-            alt="NutriMãe"
+            alt="NutriMama"
             width={240}
             height={240}
             priority

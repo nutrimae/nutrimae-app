@@ -6,7 +6,7 @@ export function About() {
       <div className="mx-auto max-w-[260px] overflow-hidden rounded-3xl border border-sage-100/80 shadow-strong">
         <Image
           src="/persona/camille_historia_01.jpg"
-          alt="Camille, especialista por trás do NutriMãe, na cozinha de casa"
+          alt="Camille, especialista por trás do NutriMama, na cozinha de casa"
           width={800}
           height={1421}
           className="h-auto w-full"
@@ -29,7 +29,7 @@ export function About() {
       </p>
       <p className="mt-3 text-sm leading-relaxed text-brown-700">
         Imagine a cena: a hora da refeição se aproxima, a geladeira está aberta e aquela receita que você
-        salvou desapareceu entre tantas mensagens. É para facilitar esses momentos que o NutriMãe reúne
+        salvou desapareceu entre tantas mensagens. É para facilitar esses momentos que o NutriMama reúne
         cardápios por fase, guia visual de cortes, receitas e substituições em um só lugar — até a lista de
         compras pode seguir direto para o WhatsApp.
       </p>

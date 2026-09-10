@@ -222,7 +222,7 @@ export function ClubFeed() {
             <div>
               <p className="flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-primary-600">
                 <Megaphone className="h-3 w-3" strokeWidth={2.5} />
-                NutriMãe
+                NutriMama
               </p>
               <p className="mt-0.5 text-sm font-semibold text-brown-800">{a.title}</p>
               <p className="mt-0.5 text-xs text-brown-700/90">{a.text}</p>

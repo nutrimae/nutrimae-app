@@ -16,7 +16,7 @@ const COLUMNS = [
     points: ["Opinião solta, sem fonte", "Rola pra cima e some", "Difícil de achar de novo quando precisa"],
   },
   {
-    title: "NutriMãe",
+    title: "NutriMama",
     negative: false,
     points: [
       "Organizado pela fase que você escolheu acima",

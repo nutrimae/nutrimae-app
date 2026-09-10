@@ -36,7 +36,7 @@ export function Testimonial() {
     <section className="mx-auto w-full max-w-sm px-5 py-8 text-center">
       <p className="text-xs font-bold uppercase tracking-widest text-primary-500">Direto do WhatsApp</p>
       <h2 className="mt-1 font-heading text-xl font-extrabold leading-snug text-brown-900">
-        Quem já está usando o NutriMãe
+        Quem já está usando o NutriMama
       </h2>
 
       <div className="relative mt-5">

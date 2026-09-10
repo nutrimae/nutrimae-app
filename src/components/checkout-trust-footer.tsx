@@ -12,7 +12,7 @@ export function CheckoutTrustFooter() {
       <p className="flex items-center gap-1.5 text-xs font-semibold text-sage-600">
         <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} /> Compra 100% segura
       </p>
-      <p className="text-[11px] text-brown-700/60">NutriMãe · CNPJ 68.580.891/0001-36</p>
+      <p className="text-[11px] text-brown-700/60">NutriMama · CNPJ 68.580.891/0001-36</p>
     </div>
   );
 }

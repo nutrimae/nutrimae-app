@@ -60,7 +60,7 @@ export default function RecipeDetailPage() {
       es ? "Modo de preparación:" : "Modo de preparo:",
       ...recipe.steps.map((s, i) => `${i + 1}. ${s}`),
       "",
-      es ? "Receta de NutriMãe 💚" : "Receita do NutriMãe 💚",
+      es ? "Receta de NutriMama 💚" : "Receita do NutriMama 💚",
     ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");

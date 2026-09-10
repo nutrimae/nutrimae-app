@@ -95,8 +95,8 @@ export default function AudiobookDetailPage() {
     if (!book) return;
     const text = encodeURIComponent(
       es
-        ? `🎧 ${book.title} — ${book.subtitle}\n\nEscúchalo ahora en NutriMãe.`
-        : `🎧 ${book.title} — ${book.subtitle}\n\nOuça agora no NutriMãe.`,
+        ? `🎧 ${book.title} — ${book.subtitle}\n\nEscúchalo ahora en NutriMama.`
+        : `🎧 ${book.title} — ${book.subtitle}\n\nOuça agora no NutriMama.`,
     );
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   }

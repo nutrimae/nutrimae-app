@@ -6,9 +6,9 @@ import { FOODS } from "@/lib/foods";
 
 export function PreparoAlimentosPdf() {
   return (
-    <Document title="Modo de Preparo dos Alimentos — NutriMãe">
+    <Document title="Modo de Preparo dos Alimentos — NutriMama">
       <Page size="A4" style={pdfStyles.page}>
-        <Text style={pdfStyles.brand}>NutriMãe</Text>
+        <Text style={pdfStyles.brand}>NutriMama</Text>
         <Text style={pdfStyles.h1}>Modo de Preparo dos Alimentos</Text>
         <Text style={pdfStyles.subtitle}>
           Passo a passo detalhado, com a razão de segurança de cada etapa, além de

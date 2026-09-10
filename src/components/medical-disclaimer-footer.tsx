@@ -9,7 +9,7 @@ export function MedicalDisclaimerFooter() {
     <div className="mx-auto mt-4 flex max-w-sm flex-col items-center gap-2 px-4">
       <Image
         src="/nutrimae-logo.png"
-        alt="NutriMãe"
+        alt="NutriMama"
         width={32}
         height={32}
         className="h-6 w-6 object-contain opacity-40"

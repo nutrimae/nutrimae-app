@@ -63,8 +63,8 @@ export default async function CheckoutOfferPage({
 
       <div className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 pt-8">
         <div className="flex items-center justify-center gap-2">
-          <Image src="/nutrimae-logo.png" alt="NutriMãe" width={32} height={32} className="h-8 w-8 object-contain" />
-          <span className="font-heading text-sm font-bold tracking-tight text-brown-900">NutriMãe</span>
+          <Image src="/nutrimae-logo.png" alt="NutriMama" width={32} height={32} className="h-8 w-8 object-contain" />
+          <span className="font-heading text-sm font-bold tracking-tight text-brown-900">NutriMama</span>
         </div>
 
         {(offerSlug === "nutrimae-anual" || offerSlug === "nutrimae-basico") && (

@@ -27,14 +27,14 @@ export default function UtensiliosRecomendadosPage() {
           "",
           ...essentials.map((u) => `• ${u.emoji} ${u.name}`),
           "",
-          "Lista completa en NutriMãe 💚",
+          "Lista completa en NutriMama 💚",
         ]
       : [
           "🧺 Utensílios essenciais para a introdução alimentar",
           "",
           ...essentials.map((u) => `• ${u.emoji} ${u.name}`),
           "",
-          "Lista completa no NutriMãe 💚",
+          "Lista completa no NutriMama 💚",
         ];
     const text = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");

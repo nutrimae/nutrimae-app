@@ -27,7 +27,7 @@ export default function AcessoPendentePage() {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-gradient-to-b from-primary-50 via-cream to-sage-50 px-6 py-10">
       <section className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-strong">
-        <Image src="/nutrimae-logo.png" alt="NutriMãe" width={112} height={112} priority className="mx-auto h-24 w-24 object-contain" />
+        <Image src="/nutrimae-logo.png" alt="NutriMama" width={112} height={112} priority className="mx-auto h-24 w-24 object-contain" />
         <span className="mx-auto mt-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-600"><Clock3 className="h-6 w-6" /></span>
         <h1 className="mt-4 text-2xl font-bold text-brown-800">Acesso aguardando liberação</h1>
         <p className="mt-3 text-sm leading-relaxed text-brown-700/65">

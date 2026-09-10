@@ -130,7 +130,7 @@ export default async function UpsellPage({
   return (
     <main className="min-h-dvh bg-cream pb-10">
       <div className="sticky top-0 z-50 bg-sage-500 px-4 py-3 text-center text-sm font-semibold text-white">
-        🎉 ¡Tu compra de NutriMãe está confirmada! Antes de continuar, mira una oferta exclusiva de esta página.
+        🎉 ¡Tu compra de NutriMama está confirmada! Antes de continuar, mira una oferta exclusiva de esta página.
       </div>
 
       <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6">

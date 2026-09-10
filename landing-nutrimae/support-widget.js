@@ -13,10 +13,10 @@
     '</button>',
     '<aside class="support-widget" role="dialog" aria-modal="false" aria-labelledby="support-widget-title" aria-hidden="true">',
       '<header class="support-widget__hero">',
-        '<img class="support-widget__brand" src="assets/logo-192.webp" width="52" height="52" alt="NutriMãe">',
+        '<img class="support-widget__brand" src="assets/logo-192.webp" width="52" height="52" alt="NutriMama">',
         '<button class="support-widget__close" type="button" aria-label="Fechar atendimento">×</button>',
         '<h2 class="support-widget__title" id="support-widget-title">Oi! Como podemos ajudar? 💗</h2>',
-        '<p class="support-widget__subtitle">Consulte respostas rápidas ou escreva para a equipe NutriMãe.</p>',
+        '<p class="support-widget__subtitle">Consulte respostas rápidas ou escreva para a equipe NutriMama.</p>',
       '</header>',
       '<div class="support-widget__body">',
         '<div class="support-widget__view" data-support-view="home">',
@@ -27,7 +27,7 @@
           '</button>',
           '<a class="support-widget__card" href="https://app.nutrimae.app/app/suporte">',
             '<span class="support-widget__card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M18 19h-2v-6h4v4a2 2 0 0 1-2 2ZM6 19H4a2 2 0 0 1-2-2v-4h4v6Z"/><path d="M18 19c0 2-2 3-5 3"/></svg></span>',
-            '<span class="support-widget__card-copy"><span class="support-widget__card-title">Já tenho acesso ao NutriMãe</span><span class="support-widget__card-text">Abra a central de suporte do app e acompanhe suas mensagens.</span></span>',
+            '<span class="support-widget__card-copy"><span class="support-widget__card-title">Já tenho acesso ao NutriMama</span><span class="support-widget__card-text">Abra a central de suporte do app e acompanhe suas mensagens.</span></span>',
             '<span class="support-widget__card-arrow" aria-hidden="true">›</span>',
           '</a>',
           '<a class="support-widget__card" href="faq.html">',
@@ -113,7 +113,7 @@
     var name = String(data.get('name') || '').trim();
     var email = String(data.get('email') || '').trim();
     var message = String(data.get('message') || '').trim();
-    var subject = 'Suporte NutriMãe — mensagem de ' + name;
+    var subject = 'Suporte NutriMama — mensagem de ' + name;
     var body = ['Nome: ' + name, 'E-mail para resposta: ' + email, '', 'Mensagem:', message].join('\n');
 
     status.textContent = 'Abrindo seu aplicativo de e-mail para concluir o envio…';

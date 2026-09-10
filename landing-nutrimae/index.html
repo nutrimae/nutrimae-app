@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NutriMãe — Menú, Cortes y Recetas en un Solo Lugar</title>
+<title>NutriMama — Menú, Cortes y Recetas en un Solo Lugar</title>
 <meta name="description" content="Menú semanal, guía visual de cortes, recetas y lista de compras organizados por etapa — directo en el celular.">
 <meta name="theme-color" content="#FF4D8D">
 
-<meta property="og:title" content="NutriMãe — Menú, Cortes y Recetas en un Solo Lugar">
+<meta property="og:title" content="NutriMama — Menú, Cortes y Recetas en un Solo Lugar">
 <meta property="og:description" content="Planifica la semana y consulta cortes, recetas y lista de compras directo en el celular.">
 <meta property="og:image" content="assets/logo.png">
 <meta property="og:type" content="website">
@@ -22,8 +22,9 @@
 
 <link rel="stylesheet" href="styles.min.css">
 
-<!-- VTurb: preload/dns-prefetch pro player da VSL carregar o mais rápido
-     possível (gerado no painel VTurb, player "VSL CORRIGIDA.mp4"). -->
+<!-- VTurb: preload/dns-prefetch pro player da VSL — comentado junto com a
+     VSL (2026-09-10, teste sem vídeo de vendas). Reverter junto com o
+     bloco comentado em bloco-1 no <body>.
 <script>!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);</script>
 <link rel="preload" href="https://scripts.converteai.net/54b9e6c8-4189-4c2b-9a5c-18b090a590f3/players/6a9ed5398a73aedfe2926121/v4/player.js" as="script">
 <link rel="preload" href="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js" as="script">
@@ -32,8 +33,9 @@
 <link rel="dns-prefetch" href="https://scripts.converteai.net">
 <link rel="dns-prefetch" href="https://images.converteai.net">
 <link rel="dns-prefetch" href="https://license.vturb.com">
+-->
 
-<!-- Meta Pixel (NutriMãe, id 2114096239178681) -->
+<!-- Meta Pixel (NutriMama, id 2114096239178681) -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -55,18 +57,31 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 </head>
 <body>
 
+<!-- ===================== BARRA DE OFERTA FIXA (2026-09-10) =====================
+     Pedido explícito: a oferta tem que estar clara na página inteira, não
+     só lá embaixo no bloco-6. Aparece assim que o hero sai da tela (ver
+     IntersectionObserver em script.js) e segue o plano selecionado no
+     toggle — mesmo padrão que existia antes (removido em cddbe1e),
+     reconstruído aqui de forma enxuta. -->
+<div class="sticky-cta" id="sticky-cta">
+  <div class="sticky-cta__info">
+    <span class="sticky-cta__plan">NutriMama — Plan Completo</span>
+    <span class="sticky-cta__price" id="sticky-cta-price">$9.900 <small>pago único</small></span>
+  </div>
+  <button type="button" class="btn btn--primary sticky-cta__btn" id="sticky-cta-btn">Ver oferta</button>
+</div>
+
 <!-- ===================== NAV ===================== -->
 <nav class="site-nav" id="site-nav">
   <div class="site-nav__inner">
-    <a href="index.html" aria-label="Página de inicio de NutriMãe">
+    <a href="index.html" aria-label="Página de inicio de NutriMama">
       <picture>
         <source type="image/webp" srcset="assets/logo-192.webp 192w" sizes="44px">
-        <img src="assets/logo.png" alt="NutriMãe" class="site-nav__logo" width="1239" height="1270" loading="lazy" decoding="async">
+        <img src="assets/logo.png" alt="NutriMama" class="site-nav__logo" width="1200" height="1200" loading="lazy" decoding="async">
       </picture>
     </a>
     <div class="site-nav__links" id="site-menu">
-      <a href="#como-funciona">Cómo funciona</a>
-      <a href="#recursos">Recursos</a>
+      <a href="#mecanismo">Cómo funciona</a>
       <a href="#bloco-6">Planes</a>
       <a href="#depoimentos">Testimonios</a>
       <a href="faq.html">Preguntas</a>
@@ -90,9 +105,13 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
     <div class="hero__media" style="grid-area: media;">
 
-      <!-- VÍDEO VSL — player VTurb (troca o antigo facade do YouTube).
-           O <script> injeta o player.js de forma assíncrona; o preload no
-           <head> já deixa esses arquivos "quentes" antes daqui. -->
+      <!-- VSL desativada pro teste de impulso (2026-09-10) — a mãe acredita
+           que o vídeo de vendas trava a decisão de compra por impulso.
+           Bloco original comentado abaixo, não apagado: reverter é só
+           tirar do comentário e restaurar o vsl-hook + a IIFE de tracking
+           equivalente em script.js. No lugar, mostra o vídeo real do app
+           (mesmo asset do bloco product-proof--discovery mais abaixo), pra
+           ela já ver o produto de verdade em vez de assistir a um pitch.
       <vturb-smartplayer id="vid-6a9ed5398a73aedfe2926121" style="display: block; margin: 0 auto; width: 100%;">
         <div class="vturb-player-placeholder" style="position: relative; width: 100%; padding: 56.25% 0 0; z-index: 0; background-color: black;"></div>
       </vturb-smartplayer>
@@ -102,10 +121,13 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
         s.async = true;
         document.head.appendChild(s);
       </script>
-
-      <!-- Mini-gancho de reengajamento: aparece e some sozinho em pontos
-           específicos do vídeo (ver vslHook em script.js). -->
       <div class="vsl-hook" id="vsl-hook" aria-live="polite"></div>
+      -->
+      <div class="hero__demo-frame">
+        <video class="hero__demo-video" muted autoplay loop playsinline preload="auto" poster="assets/product-demo-poster.webp?v=20260819-2" aria-label="Demostración en video de la aplicación NutriMama en el celular">
+          <source src="assets/product-demo.mp4?v=20260819-2" type="video/mp4">
+        </video>
+      </div>
     </div>
 
     <p class="hero__subtitle" style="grid-area: subtitle;">Planifica la semana, consulta el corte indicado y lleva la lista de compras al WhatsApp — directo en el celular.</p>
@@ -132,346 +154,53 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
   </div>
 </section>
 
-<!-- ===================== BÔNUS LIBERADO NO VÍDEO (revelação progressiva) ===================== -->
-<section class="video-unlock" id="video-unlock">
-  <div class="container">
-    <div class="video-unlock__card" id="video-unlock-card">
-      <div class="video-unlock__locked" id="video-unlock-locked">
-        <div class="video-unlock__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
-        </div>
-        <p class="video-unlock__label">Bono liberado a medida que ves el video de arriba</p>
-        <div class="video-unlock__track"><div class="video-unlock__fill" id="video-unlock-fill"></div></div>
-      </div>
-      <div class="video-unlock__unlocked" id="video-unlock-unlocked" hidden>
-        <p class="video-unlock__badge">✨ Bono desbloqueado</p>
-        <p class="video-unlock__title">Cómo adaptar cualquier receta cuando falta un ingrediente</p>
-        <p class="video-unlock__text">Abre la guía de sustituciones de la etapa de tu bebé y cambia el alimento indicado — sin perder el valor nutricional de la comida.</p>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- ===================== RESTRUTURAÇÃO DO FUNIL (2026-09-10) =====================
+     Substitui as 13 seções antigas (demo buscável, prévia do app, prova em
+     vídeo, para quem é, recursos, seletor de fase, S.O.S., como funciona,
+     atualizações, comunidade, objeções) por uma estrutura mais enxuta,
+     inspirada num funil de referência (Miro, "Funil Híbrido"): mecanismo
+     → diferenciação/inimigo comum → antes/depois → prova social → (depois
+     disso, sem alterar) a história da Camille → colheres → oferta.
 
-<!-- ===================== PRÉVIA REAL DO APP ===================== -->
-<section class="app-preview">
-  <div class="container">
-    <picture>
-      <source type="image/webp" srcset="assets/entregavel-384.webp 384w, assets/entregavel-768.webp 768w" sizes="(max-width: 480px) calc(100vw - 40px), 340px">
-      <img src="assets/entregavel.png" alt="Pantalla de la app NutriMãe con menú, guía visual de cortes y organización por etapa" class="app-preview__img" width="872" height="1698" loading="lazy" decoding="async">
-    </picture>
-    <button class="btn btn--primary btn--large app-preview__cta" data-anchor-cta="app-preview">Quiero esto en mi celular</button>
-  </div>
-</section>
+     Regra explícita do dono do produto: o ÚNICO lugar onde a visitante vê
+     o entregável (o app) é o vídeo curto no hero — nenhuma seção abaixo
+     repete captura de tela ou vídeo do produto, pra não gastar essa carta
+     duas vezes. Chat simulado com a expert foi decidido para NÃO entrar
+     (ver conversa) — o próprio código já tinha removido antes uma seção de
+     "chat encenado" por não ser real, e replicar isso pareceria uma DM
+     fabricada endereçada à visitante.
+     ============================================================= -->
 
-<!-- ===================== DEMONSTRAÇÃO REAL DO PRODUTO ===================== -->
-<section class="product-proof product-proof--discovery" aria-labelledby="product-proof-title-1">
-  <div class="container product-proof__content">
-    <p class="product-proof__eyebrow">Demostración real</p>
-    <h2 class="section-title" id="product-proof-title-1">Mira cómo funciona NutriMãe por dentro</h2>
-    <p class="product-proof__text">Una vista previa del producto en el celular, con guías, menús y consultas organizadas en pocos toques.</p>
-    <div class="product-demo-stage">
-      <img class="product-demo-stage__backdrop" src="assets/product-side-phones.webp" alt="Pantallas de NutriMãe con el inicio de la aplicación y la identidad visual de la marca" width="1280" height="720" loading="lazy" decoding="async">
-      <div class="product-demo__frame">
-        <video class="product-demo__video" muted autoplay loop playsinline preload="none" poster="assets/product-demo-poster.webp?v=20260819-2" data-product-demo data-demo-placement="descoberta" aria-label="Demostración en video de la aplicación NutriMãe en el celular central">
-          <source data-src="assets/product-demo.mp4?v=20260819-2" type="video/mp4">
-        </video>
-      </div>
-    </div>
-    <p class="product-proof__caption">Video real de NutriMãe • sin simulación</p>
-  </div>
-</section>
-
-<!-- ===================== PARA QUEM É ===================== -->
-<section id="para-quem" class="audience">
-  <div class="container">
-    <h2 class="section-title">Para quién es NutriMãe</h2>
-
-    <div class="audience__grid">
-      <div class="audience-card">
-        <div class="audience-card__icon" aria-hidden="true">👩</div>
-        <p class="audience-card__title">Mamás con la rutina apretada</p>
-        <p class="audience-card__text">Que quieren practicidad sin renunciar a la organización.</p>
-      </div>
-      <div class="audience-card">
-        <div class="audience-card__icon" aria-hidden="true">👶</div>
-        <p class="audience-card__title">Bebés de 6 meses a 2 años</p>
-        <p class="audience-card__text">Menús y cortes por etapa, desde la introducción alimentaria.</p>
-      </div>
-      <div class="audience-card">
-        <div class="audience-card__icon" aria-hidden="true">🗂️</div>
-        <p class="audience-card__title">Familias que buscan organización</p>
-        <p class="audience-card__text">Todo planificado con anticipación, sin conjeturas.</p>
-      </div>
-      <div class="audience-card">
-        <div class="audience-card__icon" aria-hidden="true">🤍</div>
-        <p class="audience-card__title">Mamás que quieren tranquilidad</p>
-        <p class="audience-card__text">Todo pensado para facilitar el día a día con el bebé.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== RECURSOS (Tudo o que você precisa) ===================== -->
-<section id="recursos" class="features">
-  <div class="container">
-    <h2 class="section-title">Todo lo que necesitas, en un solo lugar</h2>
-
-    <div class="features__grid">
-      <div class="feature-card">
-        <div class="feature-card__icon" aria-hidden="true">📅</div>
-        <p class="feature-card__title">Menú por etapa</p>
-        <p class="feature-card__text">Sugerencias semanales organizadas por la franja de edad seleccionada.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon" aria-hidden="true">✂️</div>
-        <p class="feature-card__title">Guía visual de cortes</p>
-        <p class="feature-card__text">Consulta formatos y maneras de ofrecer cada alimento en cada etapa.</p>
-      </div>
-      <div class="feature-card feature-card--whatsapp">
-        <span class="feature-card__ribbon">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.7.8-.8 1-.1.2-.3.2-.6.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5.1-.1.2-.3.4-.4.1-.1.2-.2.2-.4.1-.1 0-.3 0-.4 0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.2 1.5.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.2-.1-.4-.2z"/></svg>
-          Exporta a WhatsApp
-        </span>
-        <div class="feature-card__icon" aria-hidden="true">🛒</div>
-        <p class="feature-card__title">Lista de compras lista</p>
-        <p class="feature-card__text">Genera tu lista de la semana y compártela por WhatsApp en 1 toque.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon" aria-hidden="true">🍽️</div>
-        <p class="feature-card__title">Recetas prácticas</p>
-        <p class="feature-card__text">Pensadas para facilitar la preparación y variar las comidas de la semana.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon" aria-hidden="true">⚠️</div>
-        <p class="feature-card__title">Lista de verificación de alergénicos</p>
-        <p class="feature-card__text">Sabe qué observar al introducir cada alimento nuevo.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon" aria-hidden="true">🎧</div>
-        <p class="feature-card__title">Audiolibros y contenidos</p>
-        <p class="feature-card__text">Aprende a tu ritmo, escuchando mientras te ocupas de la rutina.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon" aria-hidden="true">💬</div>
-        <p class="feature-card__title">Comunidad de mamás</p>
-        <p class="feature-card__text">Comparte experiencias con otras mamás y con el equipo de NutriMãe.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon" aria-hidden="true">🔄</div>
-        <p class="feature-card__title">Novedades cada semana</p>
-        <p class="feature-card__text">Nuevos menús, recetas y materiales, sin costo adicional.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== BLOCO 2: SELETOR DE FASE (funcional) ===================== -->
-<section id="fase" class="phase-selector">
-  <div class="container">
-    <h2 class="section-title">¿En qué etapa están?</h2>
-    <p class="phase-selector__subtitle">La tarjeta de abajo cambia según la etapa elegida.</p>
-
-    <div class="quiz__options" id="age-options">
-      <button class="option-btn" data-age="vai-comecar">Todavía voy a empezar</button>
-      <button class="option-btn selected" data-age="6-meses">6 meses</button>
-      <button class="option-btn" data-age="7-9-meses">7 a 9 meses</button>
-      <button class="option-btn" data-age="10-12-meses">10 a 12+ meses</button>
-    </div>
-
-    <button class="phase-selector__cta" id="age-cta">Ver plan de 6 meses</button>
-  </div>
-</section>
-
-<!-- ===================== BLOCO 6: DEMONSTRAÇÃO BUSCÁVEL ===================== -->
-<section id="bloco-demo" class="sample">
-  <div class="container">
-    <h2 class="section-title">Mira cómo funciona la guía de cortes</h2>
-
-    <div class="food-search-wrapper">
-      <svg class="food-search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="food-search" class="food-search-input" placeholder="Busca: plátano, palta o frutilla" autocomplete="off">
-    </div>
-    <p class="food-search-hint food-search-hint--hidden" id="food-search-hint">Esta demostración tiene solo 3 alimentos de ejemplo. En el acceso completo, la búsqueda cubre toda la guía.</p>
-
-    <!-- CONTEÚDO TÉCNICO: confirme com a sua equipe de conteúdo os dados de
-         idade, corte e modo de oferta de cada alimento antes de publicar. -->
-    <div class="food-card food-card--unlocked">
-      <div class="food-card__badge">Ejemplo liberado</div>
-      <div class="food-card__image" id="food-result-emoji" aria-hidden="true">🍓</div>
-      <h3 class="food-card__name" id="food-result-name">Frutilla</h3>
-      <ul class="food-card__details">
-        <li><strong>Franja de edad:</strong> <span id="food-result-age">a partir de los 6 meses</span></li>
-        <li><strong>Corte indicado:</strong> <span id="food-result-cut">Entera, sin el cáliz</span></li>
-        <li><strong>Cómo ofrecer:</strong> <span id="food-result-how">En la mano del bebé, sentado y supervisado</span></li>
-      </ul>
-    </div>
-
-    <div class="food-grid">
-      <div class="food-card food-card--locked">
-        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍊</div>
-        <div class="lock-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
-        </div>
-        <span class="food-card__name">Naranja</span>
-      </div>
-      <div class="food-card food-card--locked">
-        <div class="food-card__image food-card__image--blur" aria-hidden="true">🥕</div>
-        <div class="lock-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
-        </div>
-        <span class="food-card__name">Zanahoria</span>
-      </div>
-      <div class="food-card food-card--locked">
-        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍠</div>
-        <div class="lock-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
-        </div>
-        <span class="food-card__name">Camote</span>
-      </div>
-      <div class="food-card food-card--locked">
-        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍚</div>
-        <div class="lock-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
-        </div>
-        <span class="food-card__name">Arroz con porotos</span>
-      </div>
-      <div class="food-card food-card--locked">
-        <div class="food-card__image food-card__image--blur" aria-hidden="true">🍐</div>
-        <div class="lock-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>
-        </div>
-        <span class="food-card__name">Pera</span>
-      </div>
-    </div>
-
-    <p class="sample__note">Este es solo un ejemplo. En el acceso completo, cada alimento viene con la franja de edad, el corte indicado y el modo de ofrecer.</p>
-  </div>
-</section>
-
-<!-- ===================== BLOCO 3: MANUAL S.O.S. ===================== -->
-<section class="sos-highlight">
-  <div class="container">
-    <div class="sos-card">
-      <div class="sos-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      </div>
-      <h2 class="sos-card__title">El Manual S.O.S. es gratuito y siempre lo será</h2>
-      <p class="sos-card__text">Es una guía de orientación rápida — para que no tengas que preocuparte sola. Está disponible para cualquier persona, sin necesidad de suscripción.</p>
-      <!-- APP_URL: ajuste em script.js para o domínio real do app antes de publicar. -->
-      <a href="https://app.nutrimae.app/sos" id="sos-link" class="sos-card__link">Conocer el Manual S.O.S.</a>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== BLOCO 10: COMO FUNCIONA ===================== -->
-<section id="como-funciona" class="journey">
-  <div class="container">
-    <h2 class="section-title">Cómo funciona</h2>
-
-    <ol class="journey__steps">
-      <li class="journey__step">
-        <span class="journey__number">1</span>
-        <div>
-          <p class="journey__title">Crea tu cuenta</p>
-          <p class="journey__text">Registro rápido, en menos de 1 minuto.</p>
-        </div>
-      </li>
-      <li class="journey__step">
-        <span class="journey__number">2</span>
-        <div>
-          <p class="journey__title">Elige la etapa del bebé</p>
-          <p class="journey__text">La misma etapa que ya viste funcionando aquí arriba.</p>
-        </div>
-      </li>
-      <li class="journey__step">
-        <span class="journey__number">3</span>
-        <div>
-          <p class="journey__title">Recibe tu plan</p>
-          <p class="journey__text">Menú y cortes listos, directo en el celular.</p>
-        </div>
-      </li>
-      <li class="journey__step">
-        <span class="journey__number">4</span>
-        <div>
-          <p class="journey__title">Sigue las novedades</p>
-          <p class="journey__text">Contenido actualizado cada semana, incluido en el mismo acceso.</p>
-        </div>
-      </li>
-    </ol>
-  </div>
-</section>
-
-<!-- ===================== DEPOIMENTOS REAIS (carrossel de prints do WhatsApp) ===================== -->
-<section id="depoimentos" class="testimonials">
-  <div class="container testimonials-carousel-wrap">
-    <p class="section-title section-title--small">Directo de WhatsApp</p>
-    <h2 class="testimonials-carousel__title">Quiénes ya están usando NutriMãe</h2>
-
-    <div class="testimonials-carousel">
-      <div class="testimonials-carousel__frame">
-        <img id="depoimento-img" src="assets/depoimentos/depoimento_1.jpg" alt="Captura de un testimonio real recibido por WhatsApp">
-      </div>
-      <button type="button" class="testimonials-carousel__arrow testimonials-carousel__arrow--prev" onclick="moveDepoimento(-1)" aria-label="Testimonio anterior">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <button type="button" class="testimonials-carousel__arrow testimonials-carousel__arrow--next" onclick="moveDepoimento(1)" aria-label="Siguiente testimonio">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-    </div>
-
-    <div id="depoimento-dots" class="testimonials-carousel__dots"></div>
-    <p class="testimonials-carousel__hint">Desliza hacia el lado para ver más testimonios ✦</p>
-
-    <button class="mid-cta" data-anchor-cta="depoimentos">Quiero tener esa organización también</button>
-  </div>
-</section>
-
-<!-- ===================== ATUALIZAÇÕES TODA SEMANA ===================== -->
-<section class="updates-banner">
+<!-- ===================== MECANISMO (sem repetir o vídeo do hero) ===================== -->
+<section class="updates-banner" id="mecanismo">
   <div class="container updates-banner__grid">
     <div class="updates-banner__copy">
-      <h2>Contenido que acompaña cada etapa de la rutina</h2>
-      <p>Nuevos menús, recetas y materiales entran en el mismo acceso, sin tener que comprar archivos separados.</p>
+      <p class="updates-banner__eyebrow">Sin promesas vacías</p>
+      <h2>Esto no es magia, es un sistema simple</h2>
+      <p>Elegís la etapa de tu bebé una vez y el resto queda organizado solo, semana a semana.</p>
       <ul class="updates-banner__list">
-        <li><span class="check-icon">✓</span> Nuevos menús cada semana</li>
-        <li><span class="check-icon">✓</span> Recetas prácticas siempre actualizadas</li>
-        <li><span class="check-icon">✓</span> Contenidos exclusivos nuevos</li>
+        <li><span class="check-icon">✓</span> El menú de la semana se arma según la etapa elegida</li>
+        <li><span class="check-icon">✓</span> Cada alimento ya viene con el corte y el modo de ofrecer</li>
+        <li><span class="check-icon">✓</span> La lista de compras se genera sola y va directo a WhatsApp</li>
+        <li><span class="check-icon">✓</span> Nuevos menús y recetas entran cada semana, sin costo adicional</li>
       </ul>
     </div>
     <div class="updates-banner__mocks">
-      <div class="mini-mock"><span>📅</span>Nuevos menús</div>
-      <div class="mini-mock"><span>🍽️</span>Recetas prácticas</div>
-      <div class="mini-mock"><span>🎧</span>Contenidos nuevos</div>
+      <div class="mini-mock"><span>📅</span>Menú por etapa</div>
+      <div class="mini-mock"><span>✂️</span>Corte y modo de ofrecer</div>
+      <div class="mini-mock"><span>🛒</span>Lista a WhatsApp</div>
     </div>
   </div>
 </section>
 
-<!-- ===================== COMUNIDADE DE MÃES (depoimento em destaque) ===================== -->
-<section class="community-spotlight">
-  <div class="container community-spotlight__grid">
-    <div class="community-spotlight__copy">
-      <h2>Intercambios reales para una rutina <span class="text-primary">más organizada</span></h2>
-      <p>Comparte experiencias y consulta conversaciones de otras mamás y del equipo de NutriMãe.</p>
-    </div>
-    <!-- Depoimento real, um dos 10 enviados — não é conteúdo inventado. -->
-    <div class="testimonial-card community-spotlight__testimonial">
-      <p class="testimonial-card__quote">"Quería tener una referencia para consultar cuando surgiera alguna duda durante esta etapa. NutriMãe terminó siendo un apoyo en mi organización del día a día."</p>
-      <div class="testimonial-card__person">
-        <span class="testimonial-card__avatar" aria-hidden="true"><img src="assets/testimonial-fernanda-lima.webp" alt="" loading="lazy" width="42" height="42"></span>
-        <p class="testimonial-card__author">Fernanda Lima <span>— mamá de Clara, 14 meses</span></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== POR QUE ESCOLHER (comparação) ===================== -->
+<!-- ===================== DIFERENCIACIÓN / INIMIGO EM COMUM (compara com a bagunça de informação solta, não com concorrente nomeado) ===================== -->
 <section class="comparison">
   <div class="container">
-    <h2 class="section-title">¿Por qué elegir <span class="text-primary">NutriMãe</span>?</h2>
+    <h2 class="section-title">¿Por qué elegir <span class="text-primary">NutriMama</span>?</h2>
 
     <div class="comparison__table">
       <div class="comparison__col comparison__col--yes">
-        <h3>Con NutriMãe</h3>
+        <h3>Con NutriMama</h3>
         <ul>
           <li>Todo en un solo lugar</li>
           <li>Organizado por la etapa del bebé</li>
@@ -496,43 +225,62 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
   </div>
 </section>
 
-<!-- ===================== OBJEÇÕES (complementa os depoimentos) ===================== -->
-<!--
-  Este bloco é tratamento de objeção direto, não depoimento: cada card é uma
-  pergunta comum respondida com um fato verificável sobre o produto
-  (garantia, segurança de pagamento, como funciona) — complementa, não
-  substitui, os depoimentos reais do bloco anterior.
--->
-<section class="objections">
+<!-- ===================== ANTES vs DESPUÉS (lista de benefícios) ===================== -->
+<section class="comparison comparison--before-after">
   <div class="container">
-    <h2 class="section-title">Resuelve tus dudas antes de comprar</h2>
+    <h2 class="section-title">Así cambia tu semana con NutriMama</h2>
 
-    <div class="objections__grid">
-      <div class="objection-card">
-        <p class="objection-card__q">¿Cuánto tiempo toma consultar la app?</p>
-        <p class="objection-card__a">Menús y cortes quedan organizados por etapa para una consulta rápida en el celular.</p>
+    <div class="comparison__table">
+      <div class="comparison__col comparison__col--no">
+        <h3>Sin NutriMama</h3>
+        <ul>
+          <li>Buscar recetas nuevas en internet cada día</li>
+          <li>Tratar de recordar qué corte es seguro para la edad</li>
+          <li>Anotar la lista de compras a mano</li>
+          <li>Repetir las mismas comidas por falta de ideas</li>
+        </ul>
       </div>
-      <div class="objection-card">
-        <p class="objection-card__q">¿Qué hace diferente a NutriMãe de materiales sueltos?</p>
-        <p class="objection-card__a">El contenido queda reunido en la app y organizado por la etapa elegida, con búsqueda y actualizaciones en el mismo acceso.</p>
-      </div>
-      <div class="objection-card">
-        <p class="objection-card__q">¿La aplicación es fácil de usar?</p>
-        <p class="objection-card__a">La navegación fue diseñada para llegar a los alimentos y menús en pocos toques.</p>
-      </div>
-      <div class="objection-card">
-        <p class="objection-card__q">¿Cómo funcionan las restricciones y alergénicos?</p>
-        <p class="objection-card__a">La guía señala alergénicos comunes. Las restricciones específicas deben ser acompañadas por el pediatra o nutricionista responsable.</p>
-      </div>
-      <div class="objection-card">
-        <p class="objection-card__q">¿Cómo funciona la garantía?</p>
-        <p class="objection-card__a">7 días de garantía incondicional. Sin formularios largos, sin necesidad de justificar.</p>
-      </div>
-      <div class="objection-card">
-        <p class="objection-card__q">¿Cómo se protege el pago?</p>
-        <p class="objection-card__a">El pago se procesa en un entorno protegido. La Política de Privacidad explica cómo se tratan los datos.</p>
+      <div class="comparison__col comparison__col--yes">
+        <h3>Con NutriMama</h3>
+        <ul>
+          <li>Menú semanal ya organizado por etapa</li>
+          <li>Guía de corte seguro para cada alimento</li>
+          <li>Lista de compras lista para WhatsApp</li>
+          <li>Recetas e ideas nuevas cada semana</li>
+        </ul>
       </div>
     </div>
+
+    <button class="mid-cta" data-anchor-cta="antes-despues">Quiero esta rutina para mi semana</button>
+  </div>
+</section>
+
+<!-- ===================== DEPOIMENTOS REAIS (carrossel de prints do WhatsApp) =====================
+     Seção mantida pequena por pedido do dono do produto — os prints atuais
+     são um placeholder até ele mandar os novos testemunhos por WhatsApp
+     pra substituir aqui (mesmo carrossel, só trocar as imagens em
+     assets/depoimentos/). -->
+<section id="depoimentos" class="testimonials">
+  <div class="container testimonials-carousel-wrap">
+    <p class="section-title section-title--small">Directo de WhatsApp</p>
+    <h2 class="testimonials-carousel__title">Quiénes ya están usando NutriMama</h2>
+
+    <div class="testimonials-carousel">
+      <div class="testimonials-carousel__frame">
+        <img id="depoimento-img" src="assets/depoimentos/depoimento_1.jpg" alt="Captura de un testimonio real recibido por WhatsApp">
+      </div>
+      <button type="button" class="testimonials-carousel__arrow testimonials-carousel__arrow--prev" onclick="moveDepoimento(-1)" aria-label="Testimonio anterior">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="testimonials-carousel__arrow testimonials-carousel__arrow--next" onclick="moveDepoimento(1)" aria-label="Siguiente testimonio">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div id="depoimento-dots" class="testimonials-carousel__dots"></div>
+    <p class="testimonials-carousel__hint">Desliza hacia el lado para ver más testimonios ✦</p>
+
+    <button class="mid-cta" data-anchor-cta="depoimentos">Quiero tener esa organización también</button>
   </div>
 </section>
 
@@ -540,7 +288,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 <section id="bloco-autoridade" class="persona-story">
   <div class="container persona-story__grid">
     <div class="persona-story__img">
-      <img src="assets/persona/camille_historia_01.jpg" alt="Camille, la especialista detrás de NutriMãe, en la cocina de su casa" width="800" height="1421" loading="lazy" decoding="async">
+      <img src="assets/persona/camille_historia_01.jpg" alt="Camille, la especialista detrás de NutriMama, en la cocina de su casa" width="800" height="1421" loading="lazy" decoding="async">
     </div>
     <div class="persona-story__copy">
       <p class="persona-story__caption">Cercanía detrás de cada platito</p>
@@ -551,7 +299,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
       </p>
       <p class="persona-story__text">
         Imagina la escena: se acerca la hora de comer, el refrigerador está abierto y esa receta que
-        guardaste desapareció entre tantos mensajes. Para facilitar esos momentos, NutriMãe reúne
+        guardaste desapareció entre tantos mensajes. Para facilitar esos momentos, NutriMama reúne
         menús por etapa, guía visual de cortes, recetas y sustituciones en un solo lugar — incluso la lista de
         compras puede ir directo a WhatsApp.
       </p>
@@ -565,12 +313,88 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 </section>
 
 <!-- ===================== OFERTA (Básico + Completo) =====================
-     Pivô de 2026-09-08: NutriMãe não vende mais assinatura recorrente —
+     Pivô de 2026-09-08: NutriMama não vende mais assinatura recorrente —
      os dois planos são pagamento único, acesso vitalício (ver migração
      202609080001_planos_basico_completo.sql). O botão "Começar agora"
      segue o plano selecionado no toggle (ver selectPlanToggle em
      script.js). Preços em CLP (Chile) — placeholder até o dLocal Go ser
      aprovado e o checkout real ser conectado (ver AGENTS.md / conversa). -->
+<!-- ===================== REVELAÇÃO DE DESCONTO (colheres) =====================
+     Mecânica de gamificação (2026-09-10, visual refeito em seguida a
+     partir de um protótipo gerado no Lovable — ver
+     LOVABLE_PROMPT_potecitos.md): a mãe escolhe uma colher e revela um
+     desconto real e fixo (57,31%, sempre o mesmo — não é sorteio, ver
+     disclosure abaixo), desbloqueando o Plan Completo logo adiante.
+     Baseado no mecanismo de "peças de quebra-cabeça" do projeto Mente em
+     Cores, com visual próprio da NutriMama (colheres de bebê, com balão
+     "presente encontrado" e badge-pílula abaixo do ícone — layout mais
+     seguro contra overflow do que o texto sobreposto na versão anterior
+     dos potecitos). Ver chooseJar() / STORAGE_KEY em script.js. -->
+<section id="tu-descuento" class="jar-reveal">
+  <div class="container">
+    <span class="jar-reveal__eyebrow">Un regalito para ti</span>
+    <h2 class="section-title">Elige tu cuchara y descubre tu descuento especial</h2>
+    <p class="jar-reveal__subtitle">Cada mamá recibe una condición especial. Elige una cuchara para revelar la tuya.</p>
+
+    <div class="jar-shelf">
+      <div class="jar-choices" id="jar-choices" aria-label="Elige una cuchara">
+        <div class="jar-place">
+          <span class="jar-piece__gift">¡Tu regalo especial! 🎁</span>
+          <button type="button" class="jar-piece" data-jar-index="0" aria-controls="plan-card-completo">
+            <svg class="jar-piece__jar" viewBox="0 0 64 120" aria-hidden="true">
+              <defs><linearGradient id="spoon-grad-0" x1="0" y1="0" x2=".6" y2="1">
+                <stop offset="0%" stop-color="#FF7FB0"/><stop offset="100%" stop-color="#C02D60"/>
+              </linearGradient></defs>
+              <rect x="26" y="48" width="12" height="66" rx="6" fill="url(#spoon-grad-0)"/>
+              <ellipse cx="32" cy="30" rx="20" ry="26" fill="url(#spoon-grad-0)"/>
+              <ellipse cx="32" cy="32" rx="13" ry="18" fill="#FBF6EF" opacity=".45"/>
+              <ellipse cx="24" cy="18" rx="4" ry="7" fill="#fff" opacity=".55" transform="rotate(-18 24 18)"/>
+            </svg>
+            <span class="jar-piece__badge">?</span>
+            <span class="jar-piece__hint">Toca y descubre</span>
+          </button>
+        </div>
+        <div class="jar-place">
+          <span class="jar-piece__gift">¡Tu regalo especial! 🎁</span>
+          <button type="button" class="jar-piece" data-jar-index="1" aria-controls="plan-card-completo">
+            <svg class="jar-piece__jar" viewBox="0 0 64 120" aria-hidden="true">
+              <defs><linearGradient id="spoon-grad-1" x1="0" y1="0" x2=".6" y2="1">
+                <stop offset="0%" stop-color="#BCD8B5"/><stop offset="100%" stop-color="#7BA873"/>
+              </linearGradient></defs>
+              <rect x="26" y="48" width="12" height="66" rx="6" fill="url(#spoon-grad-1)"/>
+              <ellipse cx="32" cy="30" rx="20" ry="26" fill="url(#spoon-grad-1)"/>
+              <ellipse cx="32" cy="32" rx="13" ry="18" fill="#FBF6EF" opacity=".45"/>
+              <ellipse cx="24" cy="18" rx="4" ry="7" fill="#fff" opacity=".55" transform="rotate(-18 24 18)"/>
+            </svg>
+            <span class="jar-piece__badge">?</span>
+            <span class="jar-piece__hint">Toca y descubre</span>
+          </button>
+        </div>
+        <div class="jar-place">
+          <span class="jar-piece__gift">¡Tu regalo especial! 🎁</span>
+          <button type="button" class="jar-piece" data-jar-index="2" aria-controls="plan-card-completo">
+            <svg class="jar-piece__jar" viewBox="0 0 64 120" aria-hidden="true">
+              <defs><linearGradient id="spoon-grad-2" x1="0" y1="0" x2=".6" y2="1">
+                <stop offset="0%" stop-color="#F3E3C8"/><stop offset="100%" stop-color="#D9BC8F"/>
+              </linearGradient></defs>
+              <rect x="26" y="48" width="12" height="66" rx="6" fill="url(#spoon-grad-2)"/>
+              <ellipse cx="32" cy="30" rx="20" ry="26" fill="url(#spoon-grad-2)"/>
+              <ellipse cx="32" cy="32" rx="13" ry="18" fill="#FBF6EF" opacity=".45"/>
+              <ellipse cx="24" cy="18" rx="4" ry="7" fill="#fff" opacity=".55" transform="rotate(-18 24 18)"/>
+            </svg>
+            <span class="jar-piece__badge">?</span>
+            <span class="jar-piece__hint">Toca y descubre</span>
+          </button>
+        </div>
+      </div>
+      <output class="jar-progress" id="jar-progress">Elige una cuchara para desbloquear el Plan Completo.</output>
+    </div>
+
+    <p class="jar-reveal__terms">La misma condición está disponible en cualquier cuchara que elijas. No es un sorteo.</p>
+    <a class="jar-reveal__skip" href="#plan-card-basico" id="jar-skip-link">Prefiero empezar con el Básico</a>
+  </div>
+</section>
+
 <section id="bloco-6" class="offer">
   <div class="container">
     <h2 class="offer__title">Empieza a organizar la alimentación de tu bebé hoy</h2>
@@ -578,7 +402,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
     <div class="pricing-toggle" role="tablist">
       <button type="button" class="pricing-toggle__btn" id="toggle-basico" data-plan-toggle="basico" role="tab" aria-selected="false">Básico</button>
-      <button type="button" class="pricing-toggle__btn is-active" id="toggle-completo" data-plan-toggle="completo" role="tab" aria-selected="true">Completo <span class="pricing-toggle__badge">ahorra $34.900</span></button>
+      <button type="button" class="pricing-toggle__btn is-active" id="toggle-completo" data-plan-toggle="completo" role="tab" aria-selected="true">Completo <span class="pricing-toggle__badge">ahorra $13.424</span></button>
     </div>
 
     <div class="plan-card-single" id="plan-card-basico" hidden>
@@ -593,21 +417,31 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
       </ul>
     </div>
 
-    <div class="plan-card-single plan-card-single--featured" id="plan-card-completo">
-      <span class="plan-card__badge">MÁS ELEGIDO</span>
-      <p class="plan-card__label">Plan Completo · de por vida</p>
-      <div class="plan-card__price-box">
-        <p class="plan-card__old">De <span>$44.900</span> por</p>
-        <p class="plan-card__price">3x <span class="plan-card__price-de">de</span> $3.300</p>
-        <p class="plan-card__cash">o $9.900 al contado</p>
+    <div class="plan-card-single plan-card-single--featured is-locked" id="plan-card-completo" data-locked="true" tabindex="-1">
+      <div class="plan-card__content">
+        <span class="plan-card__badge">MÁS ELEGIDO</span>
+        <p class="plan-card__label">Plan Completo · de por vida</p>
+        <div class="plan-card__price-box">
+          <p class="plan-card__old">De <span>$23.324</span> por <strong class="plan-card__discount-pill">57,31% OFF</strong></p>
+          <p class="plan-card__cash">$9.900 <span>al contado</span></p>
+          <p class="plan-card__saving">Ahorras $13.424</p>
+        </div>
+        <p class="plan-card__note">Tarjeta de crédito o débito · sin mensualidades</p>
+        <ul class="offer-checklist">
+          <li><span class="check-icon">✓</span> Todo NutriMama, acceso de por vida</li>
+          <li><span class="check-icon">✓</span> <strong>BONO:</strong> Manual S.O.S. Destete Nocturno incluido (gratis)</li>
+          <li><span class="check-icon">✓</span> Actualizaciones y nuevos menús cada semana</li>
+          <li><span class="check-icon">✓</span> 7 días de garantía incondicional</li>
+        </ul>
       </div>
-      <p class="plan-card__note">Tarjeta de crédito o débito · sin mensualidades</p>
-      <ul class="offer-checklist">
-        <li><span class="check-icon">✓</span> Todo NutriMãe, acceso de por vida</li>
-        <li><span class="check-icon">✓</span> <strong>BONO:</strong> Manual S.O.S. Destete Nocturno incluido (gratis)</li>
-        <li><span class="check-icon">✓</span> Actualizaciones y nuevos menús cada semana</li>
-        <li><span class="check-icon">✓</span> 7 días de garantía incondicional</li>
-      </ul>
+      <div class="plan-card__lock-layer" id="plan-card-lock-layer">
+        <span class="plan-card__lock-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </span>
+        <strong>Tu Plan Completo está<br>a un potecito de distancia.</strong>
+        <p>Elige un potecito arriba para revelar tu descuento y desbloquear este plan.</p>
+        <button type="button" class="btn btn--primary" id="plan-card-lock-cta">Elegir mi potecito</button>
+      </div>
     </div>
 
     <ul class="trust-strip">
@@ -620,7 +454,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
 
     <p class="offer__guarantee">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
-      Accede a NutriMãe por 7 días. Si no tiene sentido para tu rutina, te devolvemos el valor, sin preguntas.
+      Accede a NutriMama por 7 días. Si no tiene sentido para tu rutina, te devolvemos el valor, sin preguntas.
     </p>
 
     <p class="offer__recurrence">Pago único, sin mensualidad — el acceso es de por vida.</p>
@@ -635,14 +469,14 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
     <!-- Esta pergunta fica sempre visível, sem precisar clicar no "+" —
          é uma resposta de confiança, não deve ficar escondida. -->
     <div class="faq-note">
-      <p class="faq-note__question">¿NutriMãe reemplaza el acompañamiento profesional?</p>
-      <p class="faq-note__answer">No. NutriMãe organiza menús, cortes e información para consultar en el día a día. No reemplaza la orientación del pediatra o nutricionista. En caso de alergia, restricción alimentaria o duda específica sobre el desarrollo, consulta al profesional responsable.</p>
+      <p class="faq-note__question">¿NutriMama reemplaza el acompañamiento profesional?</p>
+      <p class="faq-note__answer">No. NutriMama organiza menús, cortes e información para consultar en el día a día. No reemplaza la orientación del pediatra o nutricionista. En caso de alergia, restricción alimentaria o duda específica sobre el desarrollo, consulta al profesional responsable.</p>
     </div>
 
     <div class="faq-list">
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false">
-          ¿Para qué edad está indicado NutriMãe?
+          ¿Para qué edad está indicado NutriMama?
           <span class="faq-toggle" aria-hidden="true">+</span>
         </button>
         <div class="faq-answer">
@@ -696,7 +530,7 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
           <span class="faq-toggle" aria-hidden="true">+</span>
         </button>
         <div class="faq-answer">
-          <p>Sí, puedes hablar con el equipo de NutriMãe directo por la app o por el correo de contacto en el pie de esta página.</p>
+          <p>Sí, puedes hablar con el equipo de NutriMama directo por la app o por el correo de contacto en el pie de esta página.</p>
         </div>
       </div>
 
@@ -736,23 +570,22 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
   <div class="rich-footer__inner">
     <div class="rich-footer__grid">
       <div class="rich-footer__brand">
-        <a class="rich-footer__logo" href="index.html" aria-label="NutriMãe — inicio">
+        <a class="rich-footer__logo" href="index.html" aria-label="NutriMama — inicio">
           <img src="assets/logo-192.webp" width="56" height="56" alt="" loading="lazy" decoding="async">
-          <span>NutriMãe</span>
+          <span>NutriMama</span>
         </a>
         <p>Organización, claridad y practicidad para consultar la alimentación del bebé en el día a día.</p>
       </div>
 
       <nav class="rich-footer__column" aria-label="Producto">
         <h2>Producto</h2>
-        <a href="index.html#como-funciona">Cómo funciona</a>
-        <a href="index.html#recursos">Recursos</a>
-        <a href="index.html#bloco-demo">Demostración</a>
+        <a href="index.html#mecanismo">Cómo funciona</a>
+        <a href="index.html#depoimentos">Testimonios</a>
         <a href="index.html#bloco-6">Planes</a>
       </nav>
 
-      <nav class="rich-footer__column" aria-label="NutriMãe">
-        <h2>NutriMãe</h2>
+      <nav class="rich-footer__column" aria-label="NutriMama">
+        <h2>NutriMama</h2>
         <a href="sobre.html">Nosotros</a>
         <a href="faq.html">Preguntas</a>
         <a href="https://app.nutrimae.app/sos">Manual S.O.S.</a>
@@ -768,15 +601,15 @@ src="https://www.facebook.com/tr?id=2114096239178681&ev=PageView&noscript=1"
       </nav>
     </div>
 
-    <p class="rich-footer__disclaimer">NutriMãe es una herramienta de organización y planificación de la rutina alimentaria. No reemplaza la orientación médica o nutricional profesional.</p>
+    <p class="rich-footer__disclaimer">NutriMama es una herramienta de organización y planificación de la rutina alimentaria. No reemplaza la orientación médica o nutricional profesional.</p>
 
     <div class="rich-footer__bottom">
       <div class="rich-footer__legal">
-        <p>© 2026 NutriMãe. Todos los derechos reservados.</p>
+        <p>© 2026 NutriMama. Todos los derechos reservados.</p>
         <p>CNPJ: <strong>68.580.891/0001-36</strong></p>
       </div>
 
-      <a class="rich-footer__instagram" href="https://www.instagram.com/nutr.imae/" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de NutriMãe">
+      <a class="rich-footer__instagram" href="https://www.instagram.com/nutr.imae/" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de NutriMama">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" class="rich-footer__instagram-dot"></circle></svg>
         <span>Instagram</span>
       </a>

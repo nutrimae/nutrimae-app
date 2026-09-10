@@ -67,7 +67,7 @@ export interface Product {
 export const PRODUCTS: Record<ProductKey, Product> = {
   nutrimae_assinatura: {
     key: "nutrimae_assinatura",
-    name: "NutriMãe — Plano Básico",
+    name: "NutriMama — Plano Básico",
     price: 19.9,
     regularPrice: 29.9,
     priceNote: "pagamento único, acesso vitalício",

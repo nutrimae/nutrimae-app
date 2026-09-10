@@ -80,7 +80,7 @@ export function AssistantChat() {
             <Bot className="h-5 w-5" strokeWidth={2.25} />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">Assistente NutriMãe</p>
+            <p className="text-sm font-bold text-white">Assistente NutriMama</p>
             <p className="text-xs text-white/85">respostas automáticas · não é uma pessoa real</p>
           </div>
         </div>

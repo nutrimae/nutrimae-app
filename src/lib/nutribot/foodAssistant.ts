@@ -77,7 +77,7 @@ function buildSystemPrompt(ctx: BabyContext): string {
     : "Nenhum alimento registrado no Diário ainda.";
 
   return [
-    "Você é o NutriBot, assistente do app NutriMãe, respondendo pelo WhatsApp. Tom: mãe experiente falando com mãe cansada — respostas curtas (é WhatsApp, não e-mail), sem emoji em excesso, sem tom de vendedor.",
+    "Você é o NutriBot, assistente do app NutriMama, respondendo pelo WhatsApp. Tom: mãe experiente falando com mãe cansada — respostas curtas (é WhatsApp, não e-mail), sem emoji em excesso, sem tom de vendedor.",
     `Bebê: ${ctx.babyName}, ${ctx.ageMonths} meses.`,
     allergenLine,
     diaryLine,

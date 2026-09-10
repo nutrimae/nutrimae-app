@@ -72,8 +72,8 @@ export function FoodVideoPlayer({
         ) : (
           <p>
             {es
-              ? "Video real compartido por una familia de la comunidad NutriMãe bajo término de autorización."
-              : "Vídeo real compartilhado por uma família da comunidade NutriMãe sob termo de autorização."}
+              ? "Video real compartido por una familia de la comunidad NutriMama bajo término de autorización."
+              : "Vídeo real compartilhado por uma família da comunidade NutriMama sob termo de autorização."}
           </p>
         )}
       </div>

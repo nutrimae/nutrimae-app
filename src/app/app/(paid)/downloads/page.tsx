@@ -106,7 +106,7 @@ export default function DownloadsPage() {
 
   function handleShare(title: string, url: string) {
     const text = encodeURIComponent(
-      es ? `📥 ${title} — descarga en NutriMãe: ${url}` : `📥 ${title} — baixe no NutriMãe: ${url}`,
+      es ? `📥 ${title} — descarga en NutriMama: ${url}` : `📥 ${title} — baixe no NutriMama: ${url}`,
     );
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
     const next = shareCount + 1;
@@ -480,14 +480,14 @@ export default function DownloadsPage() {
         <div className="rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
           <p className="text-sm text-brown-700">
             {es
-              ? "Comparte estos recursos con otras mamás. Los enlaces requieren iniciar sesión en NutriMãe — el contenido es para uso personal y familiar, no redistribuyas los archivos públicamente."
-              : "Compartilhe esses recursos com outras mães. Os links exigem login no NutriMãe — o conteúdo é para uso pessoal e familiar, não redistribua os arquivos publicamente."}
+              ? "Comparte estos recursos con otras mamás. Los enlaces requieren iniciar sesión en NutriMama — el contenido es para uso personal y familiar, no redistribuyas los archivos públicamente."
+              : "Compartilhe esses recursos com outras mães. Os links exigem login no NutriMama — o conteúdo é para uso pessoal e familiar, não redistribua os arquivos publicamente."}
           </p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
               onClick={() =>
-                handleShare(es ? "Recursos de NutriMãe" : "Recursos do NutriMãe", `${window.location.origin}/app/downloads`)
+                handleShare(es ? "Recursos de NutriMama" : "Recursos do NutriMama", `${window.location.origin}/app/downloads`)
               }
               className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-2xl bg-sage-500 text-sm font-semibold text-white"
             >
@@ -496,7 +496,7 @@ export default function DownloadsPage() {
             </button>
             <a
               href={`mailto:?subject=${encodeURIComponent(
-                es ? "Recursos de NutriMãe" : "Recursos do NutriMãe",
+                es ? "Recursos de NutriMama" : "Recursos do NutriMama",
               )}&body=${encodeURIComponent(
                 es
                   ? `Mira estas guías que encontré: ${origin}/app/downloads`

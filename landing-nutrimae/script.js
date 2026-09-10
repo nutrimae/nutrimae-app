@@ -1,5 +1,5 @@
 /* =====================================================
-   NutriMãe — Landing Page (/oferta, versão estática)
+   NutriMama — Landing Page (/oferta, versão estática)
    Interatividade (JavaScript vanilla, sem dependências)
 
    ATENÇÃO: index.html carrega script.min.js (minificado), não este
@@ -48,7 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
      isso não depende de código. O bloco abaixo é um espelho desses
      eventos usando o Pixel que já está instalado nesta página, para
      não depender de outra configuração além desta aqui.
+
+     PAUSADO (2026-09-10): VSL desativada pro teste de impulso, os
+     elementos abaixo não existem mais no DOM. Bloco mantido comentado
+     (não apagado) pra reverter ser só remover o /* * /.
      --------------------------------------------------- */
+  /*
   (function () {
     var PIXEL_MILESTONES = [10, 25, 50, 75];
     var UNLOCK_AT_PERCENT = 30;
@@ -133,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (unlockLocked || vslHook) waitForPlayer(40);
   })();
+  */
 
   /* ---------------------------------------------------
      Depoimentos: carrossel de prints reais do WhatsApp
@@ -470,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       trackEvent('QuizCompleted', entryQuizAnswers);
       trackStandardEvent('Lead', {
-        content_name: 'Quiz de abertura NutriMãe',
+        content_name: 'Quiz de abertura NutriMama',
         phase: entryQuizAnswers.age,
         priority: entryQuizAnswers.priority,
         support: entryQuizAnswers.support
@@ -499,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var messages = [
           'Organizando uma experiência para ' + ageLabel + '...',
           priorityMessages[entryQuizAnswers.priority] || 'Organizando os recursos mais úteis...',
-          'Preparando sua prévia do NutriMãe...'
+          'Preparando sua prévia do NutriMama...'
         ];
 
         entryQuizLoadingText.textContent = messages[0];
@@ -943,7 +949,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------------------------------------------------
      BLOCO 11: Oferta — Plano Completo/Básico + Checkout
      --------------------------------------------------- */
-  // Pivô de 2026-09-08: NutriMãe não vende mais assinatura recorrente —
+  // Pivô de 2026-09-08: NutriMama não vende mais assinatura recorrente —
   // Básico e Completo são os dois planos, ambos pagamento único vitalício
   // (offers.active=true, ver migração
   // 202609080001_planos_basico_completo.sql). O botão de compra segue o
@@ -954,6 +960,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var planCardCompleto = document.getElementById('plan-card-completo');
   var selectedPlan = 'completo';
   var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
+  var stickyCtaPlan = document.querySelector('.sticky-cta__plan');
+  var stickyCtaPrice = document.getElementById('sticky-cta-price');
 
   function selectPlanToggle(plan) {
     selectedPlan = plan;
@@ -973,6 +981,12 @@ document.addEventListener('DOMContentLoaded', function () {
         ? 'Quiero el Básico por $3.990'
         : 'Quiero el Completo por $9.900';
     }
+    if (stickyCtaPlan) stickyCtaPlan.textContent = showBasico ? 'NutriMama — Plan Básico' : 'NutriMama — Plan Completo';
+    if (stickyCtaPrice) {
+      stickyCtaPrice.innerHTML = showBasico
+        ? '$3.990 <small>pago único</small>'
+        : '$9.900 <small>pago único</small>';
+    }
   }
 
   if (toggleBasico) {
@@ -985,6 +999,159 @@ document.addEventListener('DOMContentLoaded', function () {
   if (ctaCheckoutDynamic) {
     ctaCheckoutDynamic.textContent = 'Quiero el Completo por $9.900';
   }
+
+  /* ---------------------------------------------------
+     Barra de oferta fixa — visível assim que o hero sai da tela, pra
+     oferta ficar clara na página inteira (pedido explícito do dono do
+     produto), some de novo se ela rolar de volta pro topo.
+     --------------------------------------------------- */
+  var stickyCta = document.getElementById('sticky-cta');
+  var stickyCtaBtn = document.getElementById('sticky-cta-btn');
+  var heroSection = document.getElementById('bloco-1');
+
+  safeObserve(heroSection, function (entries) {
+    entries.forEach(function (entry) {
+      if (stickyCta) stickyCta.classList.toggle('is-visible', !entry.isIntersecting);
+    });
+  }, { threshold: 0, rootMargin: '-64px 0px 0px 0px' });
+
+  if (stickyCtaBtn) {
+    stickyCtaBtn.addEventListener('click', function () {
+      trackEvent('StickyCtaClick', { plan: selectedPlan });
+      scrollToSection('bloco-6');
+    });
+  }
+
+  /* ---------------------------------------------------
+     BLOCO 11: Oferta — Revelação de desconto (colheres)
+     --------------------------------------------------- */
+  // Mecânica de gamificação (2026-09-10, visual refeito a partir de um
+  // protótipo gerado no Lovable — ver LOVABLE_PROMPT_potecitos.md): a mãe
+  // escolhe uma colher e revela um desconto real e FIXO (sempre 57,31%,
+  // não é sorteio — ver .jar-reveal__terms no HTML), desbloqueando o Plan
+  // Completo. Preço original $23.324 e preço à vista $9.900 confirmados
+  // pelo dono do produto; a economia ($13.424) é derivada desses valores.
+  (function () {
+    var DISCOUNT_LABEL = '57,31% OFF';
+    var SAVING_LABEL = '$13.424';
+    var STORAGE_KEY = 'nutrimae:offer-reveal:v1';
+    var BONUS_LABELS = ['Bono SOS incluido', 'Actualizaciones gratis'];
+
+    var jarButtons = Array.prototype.slice.call(document.querySelectorAll('.jar-piece'));
+    var jarShelf = document.getElementById('jar-choices') ? document.getElementById('jar-choices').closest('.jar-shelf') : null;
+    var jarProgress = document.getElementById('jar-progress');
+    var lockCta = document.getElementById('plan-card-lock-cta');
+    var jarSkipLink = document.getElementById('jar-skip-link');
+    var chosen = false;
+    var pendingTimeouts = [];
+
+    if (!jarButtons.length || !planCardCompleto) return;
+
+    function reducedMotion() {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function setBadge(button, text, variant) {
+      var badge = button.querySelector('.jar-piece__badge');
+      var hint = button.querySelector('.jar-piece__hint');
+      if (badge) {
+        badge.textContent = text;
+        badge.classList.remove('is-discount', 'is-bonus');
+        if (variant) badge.classList.add(variant);
+      }
+      if (hint) hint.textContent = variant === 'is-discount' ? 'Tu cuchara ✨' : variant === 'is-bonus' ? 'También es tuyo' : 'Toca y descubre';
+    }
+
+    function unlockCompletePlan() {
+      planCardCompleto.classList.remove('is-locked');
+      planCardCompleto.setAttribute('data-locked', 'false');
+      trackEvent('OfferJarUnlocked', { discount: DISCOUNT_LABEL });
+    }
+
+    function finishReveal(index, skipAnimation) {
+      var otherCount = 0;
+      jarButtons.forEach(function (button, i) {
+        button.disabled = true;
+        button.classList.remove('is-revealing');
+        var place = button.closest('.jar-place');
+        if (i === index) {
+          button.classList.add('is-selected');
+          if (place) place.classList.add('is-chosen');
+          setBadge(button, DISCOUNT_LABEL, 'is-discount');
+        } else {
+          button.classList.add('is-other');
+          setBadge(button, '✓ ' + BONUS_LABELS[otherCount % BONUS_LABELS.length], 'is-bonus');
+          otherCount++;
+        }
+      });
+      if (jarShelf) jarShelf.classList.add('is-revealed');
+      if (jarProgress) jarProgress.textContent = 'Tu descuento fue aplicado al Plan Completo abajo.';
+      unlockCompletePlan();
+
+      if (!skipAnimation) {
+        var focusDelay = window.setTimeout(function () {
+          planCardCompleto.focus({ preventScroll: true });
+          planCardCompleto.scrollIntoView({ behavior: reducedMotion() ? 'instant' : 'smooth', block: 'nearest' });
+        }, 50);
+        pendingTimeouts.push(focusDelay);
+      }
+    }
+
+    function chooseJar(index) {
+      if (chosen) return;
+      chosen = true;
+      trackEvent('OfferJarSelected', { jar: index + 1 });
+
+      var button = jarButtons[index];
+      button.classList.add('is-revealing');
+      setBadge(button, '…', null);
+      if (jarProgress) jarProgress.textContent = 'Preparando tu sorpresa…';
+
+      var delay = reducedMotion() ? 0 : 1000;
+      var revealTimeout = window.setTimeout(function () {
+        finishReveal(index, false);
+        try { window.sessionStorage.setItem(STORAGE_KEY, String(index)); } catch (e) {}
+        trackEvent('OfferJarRevealed', { jar: index + 1, discount: DISCOUNT_LABEL, saving: SAVING_LABEL });
+      }, delay);
+      pendingTimeouts.push(revealTimeout);
+    }
+
+    jarButtons.forEach(function (button, index) {
+      button.addEventListener('click', function () { chooseJar(index); });
+    });
+
+    if (lockCta) {
+      lockCta.addEventListener('click', function () {
+        var firstJar = jarButtons.filter(function (b) { return !b.disabled; })[0];
+        if (firstJar) firstJar.focus({ preventScroll: true });
+        var target = document.getElementById('tu-descuento');
+        if (target) target.scrollIntoView({ behavior: reducedMotion() ? 'instant' : 'smooth', block: 'start' });
+      });
+    }
+
+    if (jarSkipLink) {
+      // O card do Básico fica com `hidden` por padrão (toggle inicia em
+      // "completo" — ver selectPlanToggle acima), então um <a href="#...">
+      // simples não rolaria pra lugar nenhum. Troca o toggle antes de rolar.
+      jarSkipLink.addEventListener('click', function (event) {
+        event.preventDefault();
+        trackEvent('OfferJarSkip');
+        selectPlanToggle('basico');
+        var target = document.getElementById('plan-card-basico');
+        if (target) target.scrollIntoView({ behavior: reducedMotion() ? 'instant' : 'smooth', block: 'center' });
+      });
+    }
+
+    // Já revelado nesta sessão: aplica o estado final sem animação, sem
+    // permitir escolher de novo (mesmo padrão do offer-puzzle.tsx).
+    try {
+      var stored = window.sessionStorage.getItem(STORAGE_KEY);
+      if (stored !== null && /^[0-2]$/.test(stored)) {
+        chosen = true;
+        finishReveal(Number(stored), true);
+      }
+    } catch (e) { /* a experiência também funciona sem sessionStorage */ }
+  })();
 
   // Chile/CLP vía Rebill (sandbox — cuenta pendiente de activación, ver
   // conversación con el equipo): checkout propio en app.nutrimae.app,
@@ -1098,54 +1265,14 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ---------------------------------------------------
-     Parallax leve no fundo da demonstração do produto — só transform,
-     só enquanto o elemento está na tela (liga/desliga o listener de
-     scroll via IntersectionObserver pra não gastar CPU à toa no resto
-     da página), com throttle por requestAnimationFrame. Sem libs.
-     --------------------------------------------------- */
-  var parallaxBackdrop = document.querySelector('.product-demo-stage__backdrop');
-  var parallaxReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (parallaxBackdrop && !parallaxReducedMotion && supportsIO) {
-    var parallaxTicking = false;
-    var parallaxActive = false;
-
-    function updateParallax() {
-      parallaxTicking = false;
-      if (!parallaxActive) return;
-      var rect = parallaxBackdrop.parentElement.getBoundingClientRect();
-      var viewportH = window.innerHeight || document.documentElement.clientHeight;
-      var progress = (viewportH - rect.top) / (viewportH + rect.height);
-      var offset = (progress - 0.5) * 24;
-      parallaxBackdrop.style.transform = 'translateY(' + offset.toFixed(1) + 'px)';
-    }
-
-    function requestParallaxTick() {
-      if (!parallaxTicking) {
-        parallaxTicking = true;
-        window.requestAnimationFrame(updateParallax);
-      }
-    }
-
-    safeObserve(parallaxBackdrop.parentElement, function (entries) {
-      entries.forEach(function (entry) {
-        parallaxActive = entry.isIntersecting;
-        if (parallaxActive) requestParallaxTick();
-      });
-    }, { threshold: 0 });
-
-    window.addEventListener('scroll', requestParallaxTick, { passive: true });
-  }
-
-  /* ---------------------------------------------------
      Revelação ao rolar — cards e títulos de seção entram com um
      fade-up sutil ao alcançar a tela (ver CSS: .is-visible). Sem suporte
      a IntersectionObserver, tudo já nasce visível via CSS puro.
      --------------------------------------------------- */
   var revealSelector = [
-    '.feature-card', '.audience-card', '.objection-card', '.faq-item',
-    '.journey__step', '.comparison__col', '.sos-card',
-    '.mini-mock', '.plan-card-single', '.community-spotlight__testimonial',
-    '.app-preview__img', '.persona-story__img', '.persona-story__copy',
+    '.faq-item', '.comparison__col',
+    '.mini-mock', '.plan-card-single',
+    '.persona-story__img', '.persona-story__copy',
     'section .section-title'
   ].join(', ');
   var revealTargets = document.querySelectorAll(revealSelector);

@@ -43,6 +43,25 @@ const OFFER_CODE_TO_PLAN: Record<string, HotmartPlan> = {
   razluwie: "basico",
 };
 
+// Order bumps (2026-09-11): produtos próprios no Hotmart, vendidos como
+// checkbox extra no checkout do Plan Completo/Básico — cada compra de bump
+// chega como um evento de webhook SEPARADO (transação própria, mesmo e-mail
+// do comprador), não como item de uma única compra como no fluxo Pagar.me.
+// Por isso são tratados à parte do OFFER_CODE_TO_PLAN acima: um bump NUNCA
+// concede nutrimae_assinatura, só o(s) produto(s) do próprio bump — quem
+// comprou o bump já tem (ou está comprando junto) o plano principal.
+const BUMP_OFFER_CODE_TO_PRODUCTS: Record<string, { productId: string; productName: string }[]> = {
+  // NutriMama - Congelamiento y Descongelamiento (produto 8504295)
+  r4370ko3: [{ productId: "batch_cooking", productName: "Congelamiento y Descongelamiento" }],
+  // NutriMama - SOS Destete + Intestino Libre (produto 8504348) — um bump
+  // só que libera os dois módulos internos (mesma regra do bônus do
+  // Completo, que já tem sos_desmame_noturno como ProductKey próprio).
+  "2zj5er2c": [
+    { productId: "sos_desmame_noturno", productName: "SOS Destete Nocturno" },
+    { productId: "protocolo_intestino_livre", productName: "Protocolo Intestino Libre" },
+  ],
+};
+
 interface HotmartPurchaseLike {
   transaction: string;
   status: string;
@@ -68,6 +87,26 @@ export async function grantAccessForHotmartPayment(admin: AdminClient, purchase:
   if (!email) throw new Error(`Compra Hotmart ${purchase.transaction} sem e-mail do comprador`);
 
   const offerCode = purchase.offer?.code;
+
+  const bumpProducts = offerCode ? BUMP_OFFER_CODE_TO_PRODUCTS[offerCode] : undefined;
+  if (bumpProducts) {
+    const { userId } = await findOrCreateUser(admin, email);
+    for (const product of bumpProducts) {
+      await admin.from("user_products").upsert(
+        {
+          user_id: userId,
+          product_id: product.productId,
+          product_name: product.productName,
+          status: "active",
+          canceled_at: null,
+        },
+        { onConflict: "user_id,product_id" },
+      );
+    }
+    await reportPurchaseToMeta(purchase, email);
+    return { userId };
+  }
+
   const plan = (offerCode && OFFER_CODE_TO_PLAN[offerCode]) || "completo";
 
   const { userId } = await findOrCreateUser(admin, email);

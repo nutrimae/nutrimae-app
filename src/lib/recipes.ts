@@ -1480,12 +1480,14 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "abobora-frango-pure",
-    title: "Puré de zapallo con pollo desmenuzado",
+    // "calabaza" (no "zapallo", regionalismo de Chile/Argentina) para que se
+    // reconozca también en México, Colombia, Perú y Ecuador.
+    title: "Puré de calabaza con pollo desmenuzado",
     ageBand: "6-7",
     mealType: "almoco",
     prepTimeMinutes: 25,
     difficulty: "medio",
-    ingredients: ["100g de zapallo camote", "50g de pechuga de pollo cocida", "1 cucharadita de aceite de oliva"],
+    ingredients: ["100g de calabaza camote", "50g de pechuga de pollo cocida", "1 cucharadita de aceite de oliva"],
     steps: [
       "Cocina el zapallo en cubos al vapor hasta que quede bien blando (unos 15 minutos).",
       "Cocina el pollo en agua hasta que esté bien cocido y desmenúzalo bien fino.",
@@ -1677,12 +1679,12 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "abobora-carne-arroz-grosso",
-    title: "Puré espeso de zapallo con carne molida y arroz",
+    title: "Puré espeso de calabaza con carne molida y arroz",
     ageBand: "8-9",
     mealType: "almoco",
     prepTimeMinutes: 30,
     difficulty: "medio",
-    ingredients: ["100g de zapallo camote", "50g de carne molida magra", "2 cucharadas de arroz cocido"],
+    ingredients: ["100g de calabaza camote", "50g de carne molida magra", "2 cucharadas de arroz cocido"],
     steps: [
       "Cocina el zapallo al vapor hasta que quede blando y aplástalo de forma gruesa.",
       "Cocina bien la carne molida, sin sal.",
@@ -1831,12 +1833,14 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "pao-abacate-cubos",
-    title: "Cubos de pan integral con pasta de palta",
+    // "aguacate" (no "palta", término de Chile/Perú) para reconocerse también
+    // en México, Colombia y Ecuador.
+    title: "Cubos de pan integral con pasta de aguacate",
     ageBand: "10-12",
     mealType: "cafe",
     prepTimeMinutes: 5,
     difficulty: "facil",
-    ingredients: ["1 rebanada de pan integral", "1/4 de palta madura"],
+    ingredients: ["1 rebanada de pan integral", "1/4 de aguacate maduro"],
     steps: [
       "Aplasta la palta hasta formar una pasta lisa.",
       "Unta la pasta sobre la rebanada de pan.",
@@ -1908,12 +1912,14 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "iogurte-granola-morango",
-    title: "Yogur con granola fina y frutilla picada",
+    // "fresa" (no "frutilla", regionalismo de Chile/Argentina) para
+    // reconocerse en los 5 países.
+    title: "Yogur con granola fina y fresa picada",
     ageBand: "10-12",
     mealType: "lanche",
     prepTimeMinutes: 5,
     difficulty: "facil",
-    ingredients: ["3 cucharadas de yogur natural entero", "1 cucharadita de granola sin azúcar, bien triturada", "2 frutillas picadas"],
+    ingredients: ["3 cucharadas de yogur natural entero", "1 cucharadita de granola sin azúcar, bien triturada", "2 fresas picadas"],
     steps: [
       "Pica las frutillas en trozos bien pequeños.",
       "Mezcla el yogur con la granola triturada.",
@@ -2101,7 +2107,7 @@ export const RECIPES_ES: Recipe[] = [
     mealType: "lanche",
     prepTimeMinutes: 8,
     difficulty: "facil",
-    ingredients: ["1/2 manzana", "1/2 plátano", "3 frutillas", "3 cucharadas de yogur natural"],
+    ingredients: ["1/2 manzana", "1/2 banana", "3 fresas", "3 cucharadas de yogur natural"],
     steps: [
       "Pica todas las frutas en trozos pequeños y seguros para la edad.",
       "Mezcla las frutas en un tazón.",
@@ -2190,12 +2196,12 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "papinha-abacate-puro",
-    title: "Papilla de palta pura",
+    title: "Papilla de aguacate puro",
     ageBand: "6-7",
     mealType: "lanche",
     prepTimeMinutes: 5,
     difficulty: "facil",
-    ingredients: ["1/2 palta madura"],
+    ingredients: ["1/2 aguacate maduro"],
     steps: [
       "Retira la pulpa de la palta madura.",
       "Aplasta bien con un tenedor hasta formar un puré liso.",
@@ -2235,12 +2241,12 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "pure-abobora-lentilha-cominho",
-    title: "Puré de zapallo con lentejas y comino",
+    title: "Puré de calabaza con lentejas y comino",
     ageBand: "6-7",
     mealType: "almoco",
     prepTimeMinutes: 25,
     difficulty: "medio",
-    ingredients: ["100g de zapallo camote", "2 cucharadas de lentejas cocidas", "1 pizca de comino"],
+    ingredients: ["100g de calabaza camote", "2 cucharadas de lentejas cocidas", "1 pizca de comino"],
     steps: [
       "Cocina el zapallo al vapor hasta que quede bien blando.",
       "Aplasta el zapallo con las lentejas ya cocidas.",
@@ -2360,7 +2366,7 @@ export const RECIPES_ES: Recipe[] = [
     mealType: "lanche",
     prepTimeMinutes: 8,
     difficulty: "facil",
-    ingredients: ["1/2 manzana cocida", "1/2 plátano", "3 frutillas", "yogur natural"],
+    ingredients: ["1/2 manzana cocida", "1/2 banana", "3 fresas", "yogur natural"],
     steps: [
       "Corta todas las frutas en trozos pequeños y seguros para la edad.",
       "Mezcla en un tazón.",
@@ -2430,12 +2436,12 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "risoto-simples-abobora",
-    title: "Risotto simple de zapallo",
+    title: "Risotto simple de calabaza",
     ageBand: "13-24",
     mealType: "almoco",
     prepTimeMinutes: 30,
     difficulty: "medio",
-    ingredients: ["arroz arbóreo", "100g de zapallo en cubos", "caldo de verduras casero"],
+    ingredients: ["arroz arbóreo", "100g de calabaza en cubos", "caldo de verduras casero"],
     steps: [
       "Sofríe el zapallo en cubos hasta que empiece a ablandarse.",
       "Agrega el arroz y ve incorporando el caldo de a poco, revolviendo siempre.",
@@ -2554,12 +2560,14 @@ export const RECIPES_ES: Recipe[] = [
   // Nordeste (4)
   {
     id: "feijao-corda-abobora",
-    title: "Poroto caupí con zapallo aplastado",
+    title: "Poroto caupí con calabaza aplastada",
     ageBand: "6-7",
     mealType: "almoco",
     prepTimeMinutes: 45,
     difficulty: "medio",
-    ingredients: ["50g de poroto caupí (dejar en remojo 8h)", "100g de zapallo (jerimum)", "1 cucharadita de aceite de oliva"],
+    // "(jerimum)" era un regionalismo del portugués de Brasil que quedó sin
+    // traducir en el texto en español — se retira.
+    ingredients: ["50g de poroto caupí (dejar en remojo 8h)", "100g de calabaza", "1 cucharadita de aceite de oliva"],
     steps: [
       "Deja el poroto caupí en remojo por 8 horas, cambiando el agua.",
       "Cocina a presión por 20 minutos hasta que quede bien blando.",
@@ -2573,12 +2581,12 @@ export const RECIPES_ES: Recipe[] = [
   },
   {
     id: "pure-jerimum-carne",
-    title: "Puré de zapallo (jerimum) con carne molida",
+    title: "Puré de calabaza con carne molida",
     ageBand: "8-9",
     mealType: "almoco",
     prepTimeMinutes: 30,
     difficulty: "medio",
-    ingredients: ["150g de zapallo (jerimum)", "50g de carne molida magra (posta)", "1 cucharadita de aceite de oliva"],
+    ingredients: ["150g de calabaza", "50g de carne molida magra (posta)", "1 cucharadita de aceite de oliva"],
     steps: [
       "Cocina el zapallo al vapor hasta que quede bien blando.",
       "Cocina la carne molida en agua hasta que quede completamente cocida, escurriendo la grasa.",

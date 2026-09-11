@@ -588,7 +588,12 @@ export const FOODS_ES: FoodItem[] = [
   {
     id: "banana",
     name: "Banana",
-    aliases: ["guineo"],
+    // "banano" (Colombia/Ecuador) é sinônimo direto. NÃO incluímos "plátano"
+    // aqui: em vários desses países (Caribe/Centroamérica em especial)
+    // "plátano" costuma se referir ao plátano macho (plantain) — um alimento
+    // diferente, que precisa sempre ser cozido — então usá-lo como alias
+    // dessa banana comum guiaria a busca pro corte errado.
+    aliases: ["guineo", "banano"],
     emoji: "🍌",
     cuts: {
       "6-7": "Bien madura, triturada, o en bastón grueso del tamaño de la mano (BLW).",

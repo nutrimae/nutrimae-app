@@ -14,6 +14,8 @@ import type { BabyGender } from "@/lib/types";
 import { LATAM_REGIONS } from "@/lib/latam-regions";
 import { useRegion } from "@/lib/use-region";
 import { useLocale } from "@/lib/use-locale";
+import { COUNTRIES } from "@/lib/i18n/country";
+import { useCountry } from "@/lib/use-country";
 
 export default function PerfilPage() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function PerfilPage() {
   const supabase = useMemo(() => createClient(), []);
   const vipAccess = useVipAccess();
   const { region, setRegion } = useRegion();
+  const { country, setCountry } = useCountry();
   const { locale } = useLocale();
   const es = locale === "es";
 
@@ -217,6 +220,31 @@ export default function PerfilPage() {
           </div>
         </div>
       )}
+
+      <div>
+        <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Tu país" : "Seu país"}</h2>
+        <div className="flex flex-col gap-2 rounded-2xl bg-white/80 p-4 shadow-sm shadow-brown-900/5">
+          <p className="text-sm text-brown-700/90">
+            {es ? "Usamos tu país para mostrarte precios y checkout correctos." : "Usamos seu país para mostrar preços e checkout corretos."}
+          </p>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {COUNTRIES.map((c) => (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() => setCountry(c.key)}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${
+                  country === c.key
+                    ? "bg-primary-500 text-white"
+                    : "bg-sage-50 text-brown-700"
+                }`}
+              >
+                <span>{c.flag}</span> {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div>
         <h2 className="mb-3 font-heading text-lg font-bold text-brown-800">{es ? "Tu región" : "Sua região"}</h2>

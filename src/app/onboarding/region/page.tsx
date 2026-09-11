@@ -5,38 +5,41 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
-import type { Region } from "@/lib/regions";
-import { LATAM_REGIONS, type LatamRegion } from "@/lib/latam-regions";
+import { COUNTRIES, DEFAULT_COUNTRY, COUNTRY_TO_LATAM_REGION, type Country } from "@/lib/i18n/country";
 
 const COPY = {
-  title: "¿De qué región de Latinoamérica son?",
-  subtitle: "Así priorizamos alimentos y recetas típicas de tu región. ¡Totalmente opcional!",
+  title: "¿De qué país eres?",
+  subtitle: "Así te mostramos precios, alimentos y recetas de tu país. Puedes cambiarlo después en tu perfil.",
   saving: "Guardando...",
   continue: "Continuar",
-  skip: "Omitir",
 } as const;
 
 export default function RegionStepPage() {
   const router = useRouter();
   const supabase = createClient();
   const t = COPY;
-  const options = LATAM_REGIONS;
-  const [selected, setSelected] = useState<Region | LatamRegion | null>(null);
+  // Pré-seleciona Chile (mercado já lançado) em vez de deixar vazio — country
+  // importa pro checkout/precificação futuro, então este step sempre grava um
+  // valor, sem opção de "Omitir" como o antigo step de região tinha.
+  const [selected, setSelected] = useState<Country>(DEFAULT_COUNTRY);
   const [loading, setLoading] = useState(false);
 
   async function handleContinue() {
-    if (!selected) {
-      router.push("/onboarding/tour");
-      return;
-    }
-
     setLoading(true);
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (user) {
-      await supabase.from("profiles").update({ latam_region: selected }).eq("user_id", user.id);
+      // Grava country (granularidade que interessa pro checkout) e, junto,
+      // a latam_region correspondente — inferida a partir do país — pra não
+      // perder a priorização de receitas/alimentos que já usa LatamRegion
+      // (ver src/lib/i18n/country.ts, COUNTRY_TO_LATAM_REGION). Assim a
+      // usuária responde uma pergunta só (o país, com bandeira).
+      await supabase
+        .from("profiles")
+        .update({ country: selected, latam_region: COUNTRY_TO_LATAM_REGION[selected] })
+        .eq("user_id", user.id);
     }
 
     setLoading(false);
@@ -57,19 +60,19 @@ export default function RegionStepPage() {
         </p>
 
         <div className="mt-8 flex flex-col gap-3">
-          {options.map((r) => (
+          {COUNTRIES.map((c) => (
             <button
-              key={r.key}
+              key={c.key}
               type="button"
-              onClick={() => setSelected(selected === r.key ? null : r.key)}
+              onClick={() => setSelected(c.key)}
               className={`flex min-h-14 items-center gap-3 rounded-2xl px-5 text-left text-lg font-semibold transition-colors ${
-                selected === r.key
+                selected === c.key
                   ? "bg-primary-500 text-white shadow-md"
                   : "bg-white/80 text-brown-800 shadow-sm shadow-brown-900/5"
               }`}
             >
-              <span className="text-2xl">{r.emoji}</span>
-              <span>{r.label}</span>
+              <span className="text-2xl">{c.flag}</span>
+              <span>{c.label}</span>
             </button>
           ))}
         </div>
@@ -79,7 +82,7 @@ export default function RegionStepPage() {
         <ProgressDots step={4} total={6} />
         <div className="mt-6 flex flex-col gap-3">
           <Button onClick={handleContinue} disabled={loading} variant="brand">
-            {loading ? t.saving : selected ? t.continue : t.skip}
+            {loading ? t.saving : t.continue}
           </Button>
         </div>
       </div>

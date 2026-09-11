@@ -59,6 +59,8 @@ export async function GET(
   // Texto a narrar vem do query param (exatamente o texto da tela)
   const { searchParams } = new URL(request.url);
   const text = searchParams.get("text");
+  const localeParam = searchParams.get("locale");
+  const locale: "pt-BR" | "es" = localeParam === "es" ? "es" : "pt-BR";
 
   if (!text) {
     return NextResponse.json({ error: "missing_text" }, { status: 400 });
@@ -67,7 +69,9 @@ export async function GET(
     return NextResponse.json({ error: "text_too_long" }, { status: 400 });
   }
 
-  const hash = contentHash(text);
+  // Hash inclui o locale: mesmo contentId em pt-BR e es tem texto (e voz)
+  // diferentes, então precisam de entradas de cache distintas.
+  const hash = contentHash(`${locale}:${text}`);
   const adminSupabase = createAdminClient();
 
   // Verificar cache
@@ -89,7 +93,7 @@ export async function GET(
 
   // Cache miss ou hash diferente (texto foi editado) — gerar novo áudio
   try {
-    const audioBuffer = await synthesizeSpeech(text);
+    const audioBuffer = await synthesizeSpeech(text, locale);
     const storagePath = `${contentType}/${contentId}-${hash}.mp3`;
 
     // Upload para Supabase Storage

@@ -1,8 +1,12 @@
 import crypto from "node:crypto";
 
 // Google Cloud Text-to-Speech configuration
-const TTS_VOICE = "pt-BR-Wavenet-A";
-const TTS_LANGUAGE = "pt-BR";
+// es-US é a variante latino-americana da Google (não es-ES, que soa
+// espanhol da Espanha) — a mais próxima disponível pro sotaque chileno/LATAM.
+const TTS_VOICES = {
+  "pt-BR": { voice: "pt-BR-Wavenet-A", language: "pt-BR" },
+  es: { voice: "es-US-Wavenet-A", language: "es-US" },
+} as const;
 const TTS_SPEAKING_RATE = 0.95;
 const TTS_API_URL = "https://texttospeech.googleapis.com/v1/text:synthesize";
 
@@ -20,11 +24,13 @@ export function contentHash(text: string): string {
  * REGRA DE SEGURANÇA: o texto passado aqui DEVE ser exatamente
  * o texto aprovado/revisado exibido na tela. Nunca uma paráfrase.
  */
-export async function synthesizeSpeech(text: string): Promise<Buffer> {
+export async function synthesizeSpeech(text: string, locale: "pt-BR" | "es" = "pt-BR"): Promise<Buffer> {
   const apiKey = process.env.GOOGLE_TTS_API_KEY;
   if (!apiKey) {
     throw new Error("GOOGLE_TTS_API_KEY não configurada.");
   }
+
+  const { voice, language } = TTS_VOICES[locale];
 
   const response = await fetch(`${TTS_API_URL}?key=${apiKey}`, {
     method: "POST",
@@ -32,8 +38,8 @@ export async function synthesizeSpeech(text: string): Promise<Buffer> {
     body: JSON.stringify({
       input: { text },
       voice: {
-        languageCode: TTS_LANGUAGE,
-        name: TTS_VOICE,
+        languageCode: language,
+        name: voice,
       },
       audioConfig: {
         audioEncoding: "MP3",

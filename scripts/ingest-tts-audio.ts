@@ -31,28 +31,31 @@ interface Item {
   contentType: string;
   contentId: string;
   text: string;
+  locale: "pt-BR" | "es";
 }
 
 async function buildItems(): Promise<Item[]> {
   const sosPage = await import("../src/app/sos/page");
   const alergiaPage = await import("../src/app/app/(paid)/alergia/page");
 
-  const engasgoText = (steps: typeof sosPage.INFANT_STEPS) =>
-    steps.map((s, i) => `Passo ${i + 1}: ${s.title}. ${s.text}`).join(" ");
+  // "es" porque é o locale ao vivo hoje (só Chile — ver nota em generate-tts.ts).
+  const engasgoText = (steps: { title: string; text: string }[]) =>
+    steps.map((s, i) => `Paso ${i + 1}: ${s.title}. ${s.text}`).join(" ");
 
   return [
-    { file: "sos_engasgo-infant.mp3", contentType: "sos", contentId: "engasgo-infant", text: engasgoText(sosPage.INFANT_STEPS) },
-    { file: "sos_engasgo-child.mp3", contentType: "sos", contentId: "engasgo-child", text: engasgoText(sosPage.CHILD_STEPS) },
-    { file: "sos_reflex.mp3", contentType: "sos", contentId: "reflex", text: sosPage.REFLEX_TEXT },
-    { file: "sos_gag-info.mp3", contentType: "sos", contentId: "gag-info", text: sosPage.GAG_INFO_TEXT },
-    { file: "sos_allergy.mp3", contentType: "sos", contentId: "allergy", text: sosPage.ALLERGY_SOS_TEXT },
-    { file: "sos_gut.mp3", contentType: "sos", contentId: "gut", text: sosPage.GUT_TEXT },
-    { file: "sos_fever.mp3", contentType: "sos", contentId: "fever", text: sosPage.FEVER_TEXT },
+    { file: "sos_engasgo-infant.mp3", contentType: "sos", contentId: "engasgo-infant", text: engasgoText(sosPage.getInfantSteps(true)), locale: "es" },
+    { file: "sos_engasgo-child.mp3", contentType: "sos", contentId: "engasgo-child", text: engasgoText(sosPage.getChildSteps(true)), locale: "es" },
+    { file: "sos_reflex.mp3", contentType: "sos", contentId: "reflex", text: sosPage.getReflexText(true), locale: "es" },
+    { file: "sos_gag-info.mp3", contentType: "sos", contentId: "gag-info", text: sosPage.getGagInfoText(true), locale: "es" },
+    { file: "sos_allergy.mp3", contentType: "sos", contentId: "allergy", text: sosPage.getAllergySosText(true), locale: "es" },
+    { file: "sos_gut.mp3", contentType: "sos", contentId: "gut", text: sosPage.getGutText(true), locale: "es" },
+    { file: "sos_fever.mp3", contentType: "sos", contentId: "fever", text: sosPage.getFeverText(true), locale: "es" },
     {
       file: "allergy_guia-alergia.mp3",
       contentType: "allergy",
       contentId: "guia-alergia",
       text: `Sinais de alergia alimentar. Depois de introduzir um alimento novo, observe o bebê por 3 a 5 dias antes de oferecer outro alimento novo. Sinais leves, observar: ${alergiaPage.MILD_SIGNS.join(". ")}. Sinais de alerta grave, atendimento imediato: ${alergiaPage.SEVERE_SIGNS.join(". ")}.`,
+      locale: "pt-BR",
     },
   ];
 }
@@ -72,7 +75,7 @@ async function main() {
       continue;
     }
 
-    const hash = contentHash(item.text);
+    const hash = contentHash(`${item.locale}:${item.text}`);
     const storagePath = `${item.contentType}/${item.contentId}-${hash}.mp3`;
     const audio = fs.readFileSync(filePath);
 

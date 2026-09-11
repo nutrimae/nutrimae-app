@@ -65,7 +65,7 @@ export function ListenButton({ contentType, contentId, text, className = "" }: L
     setState("loading");
 
     try {
-      const url = `/api/tts/${encodeURIComponent(contentType)}/${encodeURIComponent(contentId)}?text=${encodeURIComponent(text)}`;
+      const url = `/api/tts/${encodeURIComponent(contentType)}/${encodeURIComponent(contentId)}?text=${encodeURIComponent(text)}&locale=${encodeURIComponent(locale)}`;
 
       if (!audioRef.current) {
         audioRef.current = new Audio();

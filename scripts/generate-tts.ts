@@ -24,6 +24,7 @@ interface ContentItem {
   contentType: string;
   contentId: string;
   text: string;
+  locale?: "pt-BR" | "es";
 }
 
 async function collectContent(): Promise<ContentItem[]> {
@@ -82,18 +83,22 @@ async function collectContent(): Promise<ContentItem[]> {
   // S.O.S. — conteúdo público, offline-first: é aqui que pré-gerar importa
   // mais (nunca esperar a API do Google TTS numa emergência, e o
   // service-worker do S.O.S. só serve áudio que já esteja em cache).
+  //
+  // Pré-gera em "es" porque é o locale ao vivo hoje (só Chile, sem
+  // assinante BR ativo — ver 2026-09-10). Os textos e a seleção de voz
+  // (es-US) vêm de src/app/sos/page.tsx e src/lib/tts.ts.
   const sosPage = await import("../src/app/sos/page");
-  const engasgoText = (steps: typeof sosPage.INFANT_STEPS) =>
-    steps.map((s, i) => `Passo ${i + 1}: ${s.title}. ${s.text}`).join(" ");
+  const engasgoText = (steps: { title: string; text: string }[]) =>
+    steps.map((s, i) => `Paso ${i + 1}: ${s.title}. ${s.text}`).join(" ");
 
   items.push(
-    { contentType: "sos", contentId: "engasgo-infant", text: engasgoText(sosPage.INFANT_STEPS) },
-    { contentType: "sos", contentId: "engasgo-child", text: engasgoText(sosPage.CHILD_STEPS) },
-    { contentType: "sos", contentId: "reflex", text: sosPage.REFLEX_TEXT },
-    { contentType: "sos", contentId: "gag-info", text: sosPage.GAG_INFO_TEXT },
-    { contentType: "sos", contentId: "allergy", text: sosPage.ALLERGY_SOS_TEXT },
-    { contentType: "sos", contentId: "gut", text: sosPage.GUT_TEXT },
-    { contentType: "sos", contentId: "fever", text: sosPage.FEVER_TEXT },
+    { contentType: "sos", contentId: "engasgo-infant", text: engasgoText(sosPage.getInfantSteps(true)), locale: "es" },
+    { contentType: "sos", contentId: "engasgo-child", text: engasgoText(sosPage.getChildSteps(true)), locale: "es" },
+    { contentType: "sos", contentId: "reflex", text: sosPage.getReflexText(true), locale: "es" },
+    { contentType: "sos", contentId: "gag-info", text: sosPage.getGagInfoText(true), locale: "es" },
+    { contentType: "sos", contentId: "allergy", text: sosPage.getAllergySosText(true), locale: "es" },
+    { contentType: "sos", contentId: "gut", text: sosPage.getGutText(true), locale: "es" },
+    { contentType: "sos", contentId: "fever", text: sosPage.getFeverText(true), locale: "es" },
   );
 
   // Guia de Alergia (paga) — mesmo texto exibido em src/app/app/(paid)/alergia/page.tsx.
@@ -118,7 +123,11 @@ async function main() {
   let errors = 0;
 
   for (const item of items) {
-    const hash = contentHash(item.text);
+    const locale = item.locale ?? "pt-BR";
+    // Precisa bater com o hash calculado em src/app/api/tts/.../route.ts
+    // (inclui o locale, já que o mesmo contentId pode ter texto/voz
+    // diferentes em pt-BR e es).
+    const hash = contentHash(`${locale}:${item.text}`);
 
     // Check cache
     const { data: cached } = await supabase
@@ -134,8 +143,8 @@ async function main() {
     }
 
     try {
-      console.log(`  Gerando: [${item.contentType}] ${item.contentId}...`);
-      const audio = await synthesizeSpeech(item.text);
+      console.log(`  Gerando: [${item.contentType}] ${item.contentId} (${locale})...`);
+      const audio = await synthesizeSpeech(item.text, locale);
       const path = `${item.contentType}/${item.contentId}-${hash}.mp3`;
 
       await supabase.storage.from("tts-audio").upload(path, audio, {

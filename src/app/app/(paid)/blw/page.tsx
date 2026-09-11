@@ -6,10 +6,10 @@ import { AlertTriangle, CheckCircle2, ChevronDown, ShieldAlert, XCircle } from "
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import {
-  BLW_CATEGORY_LABEL,
-  BLW_FOODS,
-  BLW_FORBIDDEN_FOODS,
-  BLW_GOLDEN_RULES,
+  getBlwCategoryLabel,
+  getBlwFoods,
+  getBlwForbiddenFoods,
+  getBlwGoldenRules,
   type BlwCategory,
 } from "@/lib/blw";
 import { useLocale } from "@/lib/use-locale";
@@ -76,12 +76,15 @@ export default function BlwPage() {
 
 function FoodsTab({ es }: { es: boolean }) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const locale = es ? "es" : "pt-BR";
+  const BLW_CATEGORY_LABEL = useMemo(() => getBlwCategoryLabel(locale), [locale]);
+  const BLW_FOODS = useMemo(() => getBlwFoods(locale), [locale]);
 
   const byCategory = useMemo(() => {
     const map = new Map<BlwCategory, typeof BLW_FOODS>();
     for (const cat of CATEGORIES) map.set(cat, BLW_FOODS.filter((f) => f.category === cat));
     return map;
-  }, []);
+  }, [BLW_FOODS]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -188,6 +191,10 @@ function SizeTab({ es }: { es: boolean }) {
 }
 
 function SafetyTab({ es }: { es: boolean }) {
+  const locale = es ? "es" : "pt-BR";
+  const BLW_GOLDEN_RULES = useMemo(() => getBlwGoldenRules(locale), [locale]);
+  const BLW_FORBIDDEN_FOODS = useMemo(() => getBlwForbiddenFoods(locale), [locale]);
+
   return (
     <div className="flex flex-col gap-6">
       <section>

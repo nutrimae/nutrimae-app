@@ -20,11 +20,11 @@ function formatTime(seconds: number): string {
 
 export default function AudiobookDetailPage() {
   const params = useParams<{ id: string }>();
-  const book = getAudiobook(params.id);
-  const { showToast } = useToast();
-  const audioRef = useRef<HTMLAudioElement>(null);
   const { locale } = useLocale();
   const es = locale === "es";
+  const book = getAudiobook(params.id, locale);
+  const { showToast } = useToast();
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const [speed, setSpeed] = useState(1);
   const [volume, setVolume] = useState(1);

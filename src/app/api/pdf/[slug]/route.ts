@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { createClient } from "@/lib/supabase/server";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 import { getPdfGuide } from "@/lib/pdf-guides";
 import { readStaticPdf } from "@/lib/pdf/static-pdfs";
 import { GuiaDefinitivoPdf } from "@/lib/pdf/GuiaDefinitivoPdf";
@@ -12,18 +13,19 @@ import { PratinhosPdf } from "@/lib/pdf/PratinhosPdf";
 import { MordedoresPdf } from "@/lib/pdf/MordedoresPdf";
 import { PreparoAlimentosPdf } from "@/lib/pdf/PreparoAlimentosPdf";
 import { UtensiliosPdf } from "@/lib/pdf/UtensiliosPdf";
+import type { Locale } from "@/lib/i18n/locale";
 
 export const runtime = "nodejs";
 
-const DOCUMENTS: Record<string, () => ReactElement> = {
-  "guia-definitivo": () => GuiaDefinitivoPdf(),
-  receitas: () => ReceitasPdf(),
-  "guia-blw": () => GuiaBlwPdf(),
-  "checklist-alergenicos": () => ChecklistAlergenicosPdf(),
-  "pratinhos-divertidos": () => PratinhosPdf(),
-  "mordedores-naturais": () => MordedoresPdf(),
-  "preparo-alimentos": () => PreparoAlimentosPdf(),
-  "utensilios-recomendados": () => UtensiliosPdf(),
+const DOCUMENTS: Record<string, (locale: Locale) => ReactElement> = {
+  "guia-definitivo": (locale) => GuiaDefinitivoPdf({ locale }),
+  receitas: (locale) => ReceitasPdf({ locale }),
+  "guia-blw": (locale) => GuiaBlwPdf({ locale }),
+  "checklist-alergenicos": (locale) => ChecklistAlergenicosPdf({ locale }),
+  "pratinhos-divertidos": (locale) => PratinhosPdf({ locale }),
+  "mordedores-naturais": (locale) => MordedoresPdf({ locale }),
+  "preparo-alimentos": (locale) => PreparoAlimentosPdf({ locale }),
+  "utensilios-recomendados": (locale) => UtensiliosPdf({ locale }),
 };
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -50,9 +52,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
   }
 
 
+  const locale = await getServerLocale();
   const staticBuffer = await readStaticPdf(slug);
   const buffer = staticBuffer ?? (DOCUMENTS[slug]
-    ? await renderToBuffer(DOCUMENTS[slug]() as Parameters<typeof renderToBuffer>[0])
+    ? await renderToBuffer(DOCUMENTS[slug](locale) as Parameters<typeof renderToBuffer>[0])
     : null);
 
   if (!buffer) {

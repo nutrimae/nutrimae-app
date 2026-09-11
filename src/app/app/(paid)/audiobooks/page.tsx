@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Headphones, Clock } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
-import { AUDIOBOOKS } from "@/lib/audiobooks";
+import { getAudiobooks } from "@/lib/audiobooks";
 import { getServerLocale } from "@/lib/i18n/get-server-locale";
 
 export default async function AudiobooksPage() {
   const locale = await getServerLocale();
   const es = locale === "es";
+  const AUDIOBOOKS = getAudiobooks(locale);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-5 px-4 py-6">

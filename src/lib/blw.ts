@@ -80,3 +80,82 @@ export const BLW_FORBIDDEN_FOODS: string[] = [
 export function getBlwFood(id: string): BlwFood | undefined {
   return BLW_FOODS.find((f) => f.id === id);
 }
+
+// ─── Versão em espanhol ───
+export const BLW_CATEGORY_LABEL_ES: Record<BlwCategory, string> = {
+  frutas: "Frutas",
+  vegetais: "Verduras",
+  proteina: "Proteína",
+  graos: "Granos",
+  laticinios: "Lácteos",
+};
+
+export const BLW_FOODS_ES: BlwFood[] = [
+  { id: "banana", name: "Plátano", emoji: "🍌", category: "frutas", minAgeMonths: 6, sizeGuide: "Bastón del tamaño de dos dedos juntos, con un poco de cáscara en la punta para servir de mango.", prep: "Corta a la mitad a lo largo y deja un trozo de cáscara para que el bebé lo sostenga sin que se resbale." },
+  { id: "maca", name: "Manzana", emoji: "🍎", category: "frutas", minAgeMonths: 6, sizeGuide: "Bastón grueso, del tamaño de tu dedo índice.", prep: "Cocina al vapor hasta que ablande bien (un tenedor debe entrar sin esfuerzo) antes de cortar en bastón." },
+  { id: "pera", name: "Pera", emoji: "🍐", category: "frutas", minAgeMonths: 6, sizeGuide: "Bastón grueso, del tamaño de tu dedo índice.", prep: "Si está bien madura, puedes ofrecerla cruda en bastón; si está firme, cocina al vapor por 6 minutos." },
+  { id: "mamao", name: "Papaya", emoji: "🧡", category: "frutas", minAgeMonths: 6, sizeGuide: "Bastón ancho, del tamaño de dos dedos.", prep: "Retira semillas y cáscara; corta en bastón ancho — la pulpa madura ya es lo bastante blanda cruda." },
+  { id: "manga", name: "Mango", emoji: "🥭", category: "frutas", minAgeMonths: 6, sizeGuide: "Bastón ancho, del tamaño de dos dedos.", prep: "Pela y corta en bastón a lo largo de la pulpa, dejando la cáscara o el carozo como apoyo para sostener." },
+  { id: "morango", name: "Frutilla", emoji: "🍓", category: "frutas", minAgeMonths: 8, sizeGuide: "Cortada a la mitad (nunca entera) para frutillas grandes; entera solo si es muy pequeña.", prep: "Lava bien y corta a la mitad a lo largo." },
+  { id: "abacate", name: "Palta", emoji: "🥑", category: "frutas", minAgeMonths: 6, sizeGuide: "Tajada gruesa, del tamaño de dos dedos.", prep: "Corta en tajadas gruesas con la cáscara de un lado, funcionando como mango antideslizante." },
+  { id: "melancia", name: "Sandía", emoji: "🍉", category: "frutas", minAgeMonths: 8, sizeGuide: "Bastón ancho sin semillas, del tamaño de dos dedos.", prep: "Retira todas las semillas visibles y corta en bastones anchos y firmes." },
+  { id: "cenoura", name: "Zanahoria", emoji: "🥕", category: "vegetais", minAgeMonths: 6, sizeGuide: "Bastón del tamaño de tu dedo índice.", prep: "Cocina al vapor por 15-20 min hasta que quede bien blanda — nunca la ofrezcas cruda en esta etapa." },
+  { id: "batata-doce", name: "Camote", emoji: "🍠", category: "vegetais", minAgeMonths: 6, sizeGuide: "Bastón del tamaño de tu dedo índice.", prep: "Corta en bastones antes de cocinar al vapor por 15-20 min, hasta que quede bien blando." },
+  { id: "batata", name: "Papa", emoji: "🥔", category: "vegetais", minAgeMonths: 6, sizeGuide: "Bastón del tamaño de tu dedo índice.", prep: "Corta en bastones antes de cocinar en agua hasta que quede bien blanda (unos 15 min)." },
+  { id: "abobrinha", name: "Zapallo italiano", emoji: "🥒", category: "vegetais", minAgeMonths: 6, sizeGuide: "Bastón ancho, del tamaño de dos dedos.", prep: "Corta en bastones y cocina al vapor por 8-10 min hasta que quede bien blando." },
+  { id: "brocolis", name: "Brócoli", emoji: "🥦", category: "vegetais", minAgeMonths: 6, sizeGuide: "Ramitos grandes con el tallo como mango natural.", prep: "Cocina al vapor por 6-8 min hasta que quede bien blando; el tallo funciona como agarre." },
+  { id: "pepino", name: "Pepino", emoji: "🥒", category: "vegetais", minAgeMonths: 10, sizeGuide: "Bastón ancho, del tamaño de dos dedos.", prep: "Retira las semillas si son grandes y corta en bastones anchos y firmes." },
+  { id: "couve-flor", name: "Coliflor", emoji: "🥦", category: "vegetais", minAgeMonths: 6, sizeGuide: "Ramitos grandes con el tallo como mango natural.", prep: "Cocina al vapor por 8 min hasta que quede bien blanda." },
+  { id: "frango", name: "Pollo", emoji: "🍗", category: "proteina", minAgeMonths: 6, sizeGuide: "Tira larga y ancha, del tamaño de dos dedos.", prep: "Cocina hasta que quede bien blando y corta en tiras gruesas a favor de la fibra, fáciles de morder y chupar." },
+  { id: "carne-moida", name: "Carne molida", emoji: "🍖", category: "proteina", minAgeMonths: 6, sizeGuide: "Albóndiga o bollito aplastado, del tamaño de la palma de la mano del bebé.", prep: "Moldea en bollitos aplastados y cocina bien — la forma facilita sostenerlo mejor que la carne suelta." },
+  { id: "peixe", name: "Pescado", emoji: "🐟", category: "proteina", minAgeMonths: 6, sizeGuide: "Trozo ancho y blando, del tamaño de dos dedos.", prep: "Cocina al vapor y palpa cuidadosamente en busca de espinas antes de servir en trozos." },
+  { id: "ovo", name: "Huevo", emoji: "🥚", category: "proteina", minAgeMonths: 6, sizeGuide: "Tira de tortilla, del tamaño de tu dedo índice.", prep: "Haz una tortilla firme y corta en tiras largas, fáciles de sostener." },
+  { id: "feijao", name: "Poroto", emoji: "🫘", category: "proteina", minAgeMonths: 8, sizeGuide: "Granos enteros y blandos, servidos en puñado.", prep: "Cocina hasta que se deshaga fácil con el tenedor; los granos blandos ya son seguros para tomar con la mano." },
+  { id: "grao-de-bico", name: "Garbanzo", emoji: "🟡", category: "proteina", minAgeMonths: 8, sizeGuide: "Granos enteros y bien blandos, servidos en puñado.", prep: "Cocina hasta que quede bien blando; aplasta levemente entre los dedos para confirmar que se deshace fácil." },
+  { id: "pao", name: "Pan integral", emoji: "🍞", category: "graos", minAgeMonths: 6, sizeGuide: "Tira larga, del tamaño de dos dedos.", prep: "Usa pan blando, sin corteza dura, cortado en tiras largas." },
+  { id: "macarrao", name: "Fideos tornillo", emoji: "🍝", category: "graos", minAgeMonths: 8, sizeGuide: "Tornillos grandes, cocidos bien blandos.", prep: "Cocina hasta que quede bien blando (más allá del punto al dente) — la forma de tornillo ya es fácil de tomar con la mano." },
+  { id: "bolinho-arroz", name: "Bolita de arroz", emoji: "🍚", category: "graos", minAgeMonths: 8, sizeGuide: "Bollito aplastado, del tamaño de la palma de la mano del bebé.", prep: "Moldea el arroz bien cocido en bollitos aplastados y pásalos por un sartén antiadherente para que firmen." },
+  { id: "mingau-bastao", name: "Papilla de avena firme", emoji: "🌾", category: "graos", minAgeMonths: 6, sizeGuide: "Bastón firme, del tamaño de dos dedos.", prep: "Prepara una papilla bien espesa, deja enfriar en un molde hasta que firme, y corta en bastones." },
+  { id: "cuscuz-milho", name: "Cuchuflí de maíz", emoji: "🟨", category: "graos", minAgeMonths: 8, sizeGuide: "Tajada firme, del tamaño de dos dedos.", prep: "Prepáralo bien firme (más agua absorbida), deja enfriar en un molde y corta en tajadas gruesas." },
+  { id: "queijo-minas", name: "Queso fresco", emoji: "🧀", category: "laticinios", minAgeMonths: 6, sizeGuide: "Bastoncito ancho, del tamaño de dos dedos.", prep: "Corta en bastoncitos anchos — el queso fresco es lo bastante blando para aplastarse en la boca con facilidad." },
+  { id: "queijo-cottage", name: "Queso cottage", emoji: "🥣", category: "laticinios", minAgeMonths: 6, sizeGuide: "Ofrecido a cuchara o en bolita grande.", prep: "Sírvelo solo o mezclado con fruta aplastada; la textura en granos ya es segura para esta etapa." },
+  { id: "iogurte-natural", name: "Yogur natural entero", emoji: "🥣", category: "laticinios", minAgeMonths: 6, sizeGuide: "Ofrecido a cuchara, dejando que el bebé explore solo.", prep: "Ofrécelo puro, sin azúcar, en una cuchara curva de silicona para que el bebé practique llevarla a la boca." },
+  { id: "iogurte-grego", name: "Yogur griego natural", emoji: "🥣", category: "laticinios", minAgeMonths: 6, sizeGuide: "Ofrecido a cuchara, textura más espesa.", prep: "La consistencia más firme ayuda al bebé a controlar mejor la cucharada." },
+];
+
+export const BLW_GOLDEN_RULES_ES: BlwSafetyRule[] = [
+  { title: "Siempre sentado derecho", text: "El bebé debe estar sentado con apoyo a 90 grados, nunca reclinado o acostado, para que la vía aérea quede alineada." },
+  { title: "Siempre supervisado", text: "Nunca dejes al bebé comer solo, ni por pocos segundos. Mantente a distancia de un brazo todo el tiempo." },
+  { title: "Espera las señales de estar listo", text: "Sentarse sin apoyo, perder el reflejo de extrusión de la lengua y mostrar interés por la comida son las tres señales que indican que el bebé está listo." },
+  { title: "Deja al bebé al mando", text: "No fuerces la comida hacia la boca del bebé — el método se trata de autonomía. Él decide qué, cuánto y si va a comer." },
+  { title: "Un alimento nuevo a la vez", text: "Igual que en la introducción tradicional, ofrece un alimento a la vez en los primeros días para identificar reacciones." },
+  { title: "Confía en el reflejo de náusea", text: "Las náuseas leves con ruido (gag) son el cuerpo aprendiendo — no es motivo de pánico, revisa la diferencia en la pestaña de seguridad." },
+];
+
+export const BLW_FORBIDDEN_FOODS_ES: string[] = [
+  "Uva, tomate cherry o aceituna enteros — córtalos siempre en cuartos.",
+  "Maní o nueces enteros — riesgo altísimo de atragantamiento hasta los 4-5 años.",
+  "Palomitas de maíz — una de las mayores causas de atragantamiento grave en niños pequeños.",
+  "Miel antes de 1 año — riesgo de botulismo infantil.",
+  "Sal y azúcar agregados antes de 1 año.",
+  "Trozos de carne fibrosos o con grasa dura, difíciles de masticar.",
+  "Vienesa o longaniza en rodajas — siempre córtala a lo largo, o evítala.",
+  "Alimentos duros y quebradizos, como zanahoria cruda o manzana cruda en trozos grandes.",
+  "Caramelos, chicles y dulces en general.",
+];
+
+export function getBlwCategoryLabel(locale: "pt-BR" | "es" = "es"): Record<BlwCategory, string> {
+  return locale === "pt-BR" ? BLW_CATEGORY_LABEL : BLW_CATEGORY_LABEL_ES;
+}
+
+export function getBlwFoods(locale: "pt-BR" | "es" = "es"): BlwFood[] {
+  return locale === "pt-BR" ? BLW_FOODS : BLW_FOODS_ES;
+}
+
+export function getBlwGoldenRules(locale: "pt-BR" | "es" = "es"): BlwSafetyRule[] {
+  return locale === "pt-BR" ? BLW_GOLDEN_RULES : BLW_GOLDEN_RULES_ES;
+}
+
+export function getBlwForbiddenFoods(locale: "pt-BR" | "es" = "es"): string[] {
+  return locale === "pt-BR" ? BLW_FORBIDDEN_FOODS : BLW_FORBIDDEN_FOODS_ES;
+}

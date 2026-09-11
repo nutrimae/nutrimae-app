@@ -4,9 +4,10 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import JSZip from "jszip";
 import { readFile } from "node:fs/promises";
 import { createClient } from "@/lib/supabase/server";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 import { PDF_GUIDES } from "@/lib/pdf-guides";
 import { readStaticPdf } from "@/lib/pdf/static-pdfs";
-import { AUDIOBOOKS } from "@/lib/audiobooks";
+import { getAudiobooks } from "@/lib/audiobooks";
 import { staticAudioPath } from "@/lib/audio/static-audio";
 import { GuiaDefinitivoPdf } from "@/lib/pdf/GuiaDefinitivoPdf";
 import { ReceitasPdf } from "@/lib/pdf/ReceitasPdf";
@@ -16,23 +17,22 @@ import { PratinhosPdf } from "@/lib/pdf/PratinhosPdf";
 import { MordedoresPdf } from "@/lib/pdf/MordedoresPdf";
 import { PreparoAlimentosPdf } from "@/lib/pdf/PreparoAlimentosPdf";
 import { UtensiliosPdf } from "@/lib/pdf/UtensiliosPdf";
+import type { Locale } from "@/lib/i18n/locale";
 
 export const runtime = "nodejs";
 
-const DOCUMENTS: Record<string, () => ReactElement> = {
-  "guia-definitivo": () => GuiaDefinitivoPdf(),
-  receitas: () => ReceitasPdf(),
-  "guia-blw": () => GuiaBlwPdf(),
-  "checklist-alergenicos": () => ChecklistAlergenicosPdf(),
-  "pratinhos-divertidos": () => PratinhosPdf(),
-  "mordedores-naturais": () => MordedoresPdf(),
-  "preparo-alimentos": () => PreparoAlimentosPdf(),
-  "utensilios-recomendados": () => UtensiliosPdf(),
+const DOCUMENTS: Record<string, (locale: Locale) => ReactElement> = {
+  "guia-definitivo": (locale) => GuiaDefinitivoPdf({ locale }),
+  receitas: (locale) => ReceitasPdf({ locale }),
+  "guia-blw": (locale) => GuiaBlwPdf({ locale }),
+  "checklist-alergenicos": (locale) => ChecklistAlergenicosPdf({ locale }),
+  "pratinhos-divertidos": (locale) => PratinhosPdf({ locale }),
+  "mordedores-naturais": (locale) => MordedoresPdf({ locale }),
+  "preparo-alimentos": (locale) => PreparoAlimentosPdf({ locale }),
+  "utensilios-recomendados": (locale) => UtensiliosPdf({ locale }),
 };
 
-function transcriptText(id: string): string {
-  const book = AUDIOBOOKS.find((a) => a.id === id);
-  if (!book) return "";
+function transcriptText(book: { title: string; subtitle: string; transcript: { text: string }[] }): string {
   return [
     book.title,
     book.subtitle,
@@ -60,6 +60,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
+  const locale = await getServerLocale();
   const zip = new JSZip();
 
   if (only !== "audiobooks") {
@@ -67,7 +68,7 @@ export async function GET(request: Request) {
       const staticBuffer = await readStaticPdf(guide.slug);
       const buildDocument = DOCUMENTS[guide.slug];
       const buffer = staticBuffer ?? (buildDocument
-        ? await renderToBuffer(buildDocument() as Parameters<typeof renderToBuffer>[0])
+        ? await renderToBuffer(buildDocument(locale) as Parameters<typeof renderToBuffer>[0])
         : null);
       if (!buffer) continue;
       zip.file(`pdfs/nutrimae-${guide.slug}.pdf`, buffer);
@@ -75,8 +76,8 @@ export async function GET(request: Request) {
   }
 
   if (only !== "pdfs") {
-    for (const book of AUDIOBOOKS) {
-      zip.file(`audiobooks/${book.id}-transcricao.txt`, transcriptText(book.id));
+    for (const book of getAudiobooks(locale)) {
+      zip.file(`audiobooks/${book.id}-transcricao.txt`, transcriptText(book));
       if (book.hasAudio) {
         try {
           const audioBuffer = await readFile(staticAudioPath(book.id)!);

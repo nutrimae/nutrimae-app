@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 import { getAudiobook } from "@/lib/audiobooks";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -13,7 +14,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const book = getAudiobook(id);
+  const locale = await getServerLocale();
+  const book = getAudiobook(id, locale);
   if (!book) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }

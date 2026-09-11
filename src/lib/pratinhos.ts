@@ -412,8 +412,413 @@ export const PRATINHOS: Pratinho[] = [
 
 export const TOTAL_PRATINHOS = PRATINHOS.length;
 
-export function searchPratinhos(params: { ageBand?: AgeBand; color?: string }): Pratinho[] {
-  return PRATINHOS.filter((p) => {
+// ─── Versão em espanhol ───
+export const PRATINHOS_ES: Pratinho[] = [
+  // ---------- 6-7 meses ----------
+  {
+    id: "arco-iris-suave",
+    title: "Plato Arcoíris Suave",
+    ageBand: "6-7",
+    colors: ["amarillo", "naranjo", "verde"],
+    ingredients: ["1/2 plátano aplastado", "3 cucharadas de zanahoria cocida aplastada", "3 cucharadas de brócoli cocido aplastado"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina la zanahoria y el brócoli al vapor hasta que queden bien blandos.",
+      "Aplasta cada alimento por separado, sin mezclar.",
+      "Dispón los tres colores uno al lado del otro en el plato, en montoncitos separados.",
+    ],
+  },
+  {
+    id: "trio-doce-frutas",
+    title: "Trío Dulce de Frutas",
+    ageBand: "6-7",
+    colors: ["naranjo", "verde", "amarillo"],
+    ingredients: ["3 cucharadas de mango aplastado", "3 cucharadas de pera cocida aplastada", "3 cucharadas de papaya aplastada"],
+    prepTimeMinutes: 12,
+    steps: [
+      "Cocina la pera al vapor hasta que quede bien blanda.",
+      "Aplasta cada fruta por separado.",
+      "Sirve las tres en montoncitos de colores en el plato.",
+    ],
+  },
+  {
+    id: "verde-e-laranja",
+    title: "Verde y Naranjo",
+    ageBand: "6-7",
+    colors: ["verde", "naranjo"],
+    ingredients: ["4 cucharadas de zapallo italiano cocido aplastado", "4 cucharadas de camote cocido aplastado"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina las dos verduras al vapor hasta que queden bien blandas.",
+      "Aplasta cada una por separado.",
+      "Sirve la mitad del plato de cada color.",
+    ],
+  },
+  {
+    id: "proteina-gentil",
+    title: "Plato Proteína Gentil",
+    ageBand: "6-7",
+    colors: ["blanco", "naranjo"],
+    ingredients: ["3 cucharadas de pollo cocido y deshilachado bien fino", "4 cucharadas de puré de zapallo"],
+    prepTimeMinutes: 25,
+    steps: [
+      "Cocina el pollo hasta que quede bien blando y deshilacha bien fino.",
+      "Cocina el zapallo al vapor y hazlo puré.",
+      "Sirve el pollo sobre el puré, formando dos texturas visibles.",
+    ],
+  },
+  {
+    id: "colors-frutas-vermelhas",
+    title: "Colores de Frutos Rojos",
+    ageBand: "6-7",
+    colors: ["rojo", "amarillo"],
+    ingredients: ["3 frutillas aplastadas", "1/2 plátano aplastado"],
+    prepTimeMinutes: 8,
+    steps: [
+      "Aplasta bien la frutilla, sin trozos grandes.",
+      "Aplasta el plátano por separado.",
+      "Dispón uno al lado del otro, creando contraste de color.",
+    ],
+  },
+  {
+    id: "trio-legumes-classico",
+    title: "Trío de Verduras Clásico",
+    ageBand: "6-7",
+    colors: ["naranjo", "amarillo", "verde"],
+    ingredients: ["3 cucharadas de zanahoria cocida aplastada", "3 cucharadas de papa cocida aplastada", "3 cucharadas de zapallo italiano cocido aplastado"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina las tres verduras al vapor hasta que queden bien blandas.",
+      "Aplasta cada una por separado.",
+      "Sirve en tres montoncitos formando un triángulo en el plato.",
+    ],
+  },
+  {
+    id: "cafe-colorido-aveia",
+    title: "Desayuno Colorido de Avena",
+    ageBand: "6-7",
+    colors: ["beige", "amarillo"],
+    ingredients: ["2 cucharadas de avena cocida con leche materna o fórmula", "1/2 plátano aplastado", "1 pizca de canela"],
+    prepTimeMinutes: 10,
+    steps: [
+      "Cocina la avena hasta formar una papilla cremosa.",
+      "Aplasta el plátano y mézclalo recién al momento de servir, para mantener los colores separados visualmente.",
+      "Espolvorea una pizca de canela por encima.",
+    ],
+  },
+  {
+    id: "pure-duo-mamae",
+    title: "Puré Dúo de Mamá",
+    ageBand: "6-7",
+    colors: ["verde", "blanco"],
+    ingredients: ["4 cucharadas de brócoli cocido aplastado", "3 cucharadas de queso cottage"],
+    prepTimeMinutes: 15,
+    steps: [
+      "Cocina el brócoli al vapor hasta que quede bien blando y aplástalo.",
+      "Deja el queso cottage puro, sin mezclar.",
+      "Sirve uno al lado del otro en el plato.",
+    ],
+  },
+
+  // ---------- 8-9 meses ----------
+  {
+    id: "carinha-feliz-frutas",
+    title: "Carita Feliz de Frutas",
+    ageBand: "8-9",
+    colors: ["amarillo", "rojo", "morado"],
+    ingredients: ["2 rodajas de plátano (ojos)", "1 frutilla cortada a la mitad (boca)", "3 uvas cortadas en cuartos (cejas)"],
+    prepTimeMinutes: 10,
+    steps: [
+      "Corta el plátano en rodajas gruesas para los ojos.",
+      "Corta la frutilla a la mitad para formar la boca sonriente.",
+      "Corta las uvas en cuartos y ordénalas como cejas — nunca sirvas uva entera.",
+    ],
+  },
+  {
+    id: "trem-de-vegetais",
+    title: "Tren de Verduras",
+    ageBand: "8-9",
+    colors: ["naranjo", "verde", "amarillo"],
+    ingredients: ["zanahoria cocida en rodajas gruesas", "zapallo italiano cocido en rodajas gruesas", "camote cocido en rodajas gruesas"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina las verduras hasta que queden bien blandas y córtalas en rodajas gruesas.",
+      "Dispón las rodajas en fila, simulando los vagones de un tren.",
+      "Aplasta levemente cada rodaja para facilitar si el bebé todavía no muerde bien.",
+    ],
+  },
+  {
+    id: "arco-iris-3-cores",
+    title: "Arcoíris de 3 Colores",
+    ageBand: "8-9",
+    colors: ["rojo", "amarillo", "verde"],
+    ingredients: ["frutilla en trozos pequeños", "mango en trozos pequeños", "zapallo italiano cocido en trozos pequeños"],
+    prepTimeMinutes: 15,
+    steps: [
+      "Corta cada alimento en trozos pequeños y blandos.",
+      "Dispón en tres filas curvas, imitando un arcoíris.",
+      "Sirve a temperatura ambiente.",
+    ],
+  },
+  {
+    id: "proteina-e-cor",
+    title: "Plato Proteína y Color",
+    ageBand: "8-9",
+    colors: ["blanco", "naranjo", "amarillo"],
+    ingredients: ["pollo deshilachado en hebras gruesas", "zanahoria cocida en trozos pequeños", "arroz bien cocido"],
+    prepTimeMinutes: 25,
+    steps: [
+      "Cocina el pollo y deshilacha en hebras un poco más gruesas.",
+      "Cocina la zanahoria hasta que quede bien blanda y córtala en trozos pequeños.",
+      "Sirve los tres alimentos en secciones separadas del plato.",
+    ],
+  },
+  {
+    id: "sol-amarelo",
+    title: "Sol Amarillo",
+    ageBand: "8-9",
+    colors: ["amarillo", "blanco"],
+    ingredients: ["mango en trozos pequeños", "plátano en trozos pequeños", "queso cottage en el centro"],
+    prepTimeMinutes: 10,
+    steps: [
+      "Corta el mango y el plátano en trozos pequeños y blandos.",
+      "Dispón en círculo alrededor del plato, como rayos de sol.",
+      "Coloca el queso cottage en el centro, formando el 'sol'.",
+    ],
+  },
+  {
+    id: "jardim-verde",
+    title: "Jardín Verde",
+    ageBand: "8-9",
+    colors: ["verde"],
+    ingredients: ["brócoli cocido en ramitos pequeños", "zapallo italiano cocido en trozos pequeños", "arveja bien cocida y aplastada"],
+    prepTimeMinutes: 15,
+    steps: [
+      "Cocina todas las verduras hasta que queden bien blandas.",
+      "Aplasta levemente la arveja para facilitar la masticación.",
+      "Dispón formando un pequeño 'jardín' en el plato.",
+    ],
+  },
+  {
+    id: "doce-trio-frutas",
+    title: "Dulce Trío de Frutas",
+    ageBand: "8-9",
+    colors: ["verde", "rojo", "morado"],
+    ingredients: ["pera en trozos pequeños", "manzana cocida en trozos pequeños", "uva cortada en cuartos"],
+    prepTimeMinutes: 15,
+    steps: [
+      "Cocina la manzana al vapor hasta que quede blanda y córtala en trozos.",
+      "Corta la pera madura en trozos pequeños.",
+      "Corta la uva siempre en cuartos — nunca la sirvas entera.",
+    ],
+  },
+
+  // ---------- 10-12 meses ----------
+  {
+    id: "rostinho-divertido",
+    title: "Carita Divertida",
+    ageBand: "10-12",
+    colors: ["blanco", "naranjo", "verde"],
+    ingredients: ["arroz cocido (cara)", "2 rodajas de zanahoria (ojos)", "arveja cocida (nariz y boca)"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Moldea el arroz cocido en forma de cara en el centro del plato.",
+      "Usa rodajas de zanahoria cocida como ojos.",
+      "Usa arvejas bien cocidas para formar la nariz y la boca sonriente.",
+    ],
+  },
+  {
+    id: "trilha-de-cores",
+    title: "Sendero de Colores",
+    ageBand: "10-12",
+    colors: ["naranjo", "verde", "amarillo", "rojo"],
+    ingredients: ["zanahoria cocida en cubos", "zapallo italiano cocido en cubos", "camote cocido en cubos", "tomate sin piel en cubos"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina todas las verduras hasta que queden blandas y córtalas en cubos pequeños.",
+      "Dispón en un sendero ondulado en el plato, alternando los colores.",
+      "Sirve tibio o a temperatura ambiente.",
+    ],
+  },
+  {
+    id: "arco-iris-completo",
+    title: "Plato Arcoíris Completo",
+    ageBand: "10-12",
+    colors: ["rojo", "naranjo", "amarillo", "verde", "morado"],
+    ingredients: ["frutilla en trozos", "zanahoria cocida en trozos", "mango en trozos", "brócoli cocido en trozos", "uva cortada en cuartos"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Prepara cada alimento en trozos pequeños y seguros.",
+      "Dispón en curva, siguiendo el orden de los colores del arcoíris.",
+      "Sirve de inmediato para mantener los colores vivos.",
+    ],
+  },
+  {
+    id: "sanduiche-colorido-cubos",
+    title: "Sándwich Colorido en Cubos",
+    ageBand: "10-12",
+    colors: ["beige", "verde", "rojo"],
+    ingredients: ["1 rebanada de pan integral", "pasta de palta", "tomate sin piel picado bien fino"],
+    prepTimeMinutes: 8,
+    steps: [
+      "Aplasta la palta hasta formar una pasta lisa y úntala en el pan.",
+      "Pica el tomate bien fino y distribúyelo encima.",
+      "Corta en cubos pequeños y fáciles de tomar.",
+    ],
+  },
+  {
+    id: "mix-proteina-divertido",
+    title: "Mix Proteína Divertido",
+    ageBand: "10-12",
+    colors: ["blanco", "amarillo", "rojo"],
+    ingredients: ["pollo deshilachado en trozos", "queso en cubos pequeños", "tomate sin piel en trozos pequeños"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina el pollo y deshilacha en trozos pequeños.",
+      "Corta el queso en cubos blandos y pequeños.",
+      "Dispón los tres alimentos por separado, formando tres colores distintos.",
+    ],
+  },
+  {
+    id: "espetinhos-de-frutas",
+    title: "Brochetas de Frutas (sin palito)",
+    ageBand: "10-12",
+    colors: ["rojo", "amarillo", "verde"],
+    ingredients: ["frutilla en trozos", "plátano en rodajas", "melón en cubos pequeños"],
+    prepTimeMinutes: 10,
+    steps: [
+      "Corta todas las frutas en trozos pequeños y blandos.",
+      "Organiza en filas alternando los colores, sin usar palito real — solo la disposición visual.",
+      "Sirve frío en los días más calurosos.",
+    ],
+  },
+  {
+    id: "prato-fazendinha",
+    title: "Plato Granjita",
+    ageBand: "10-12",
+    colors: ["verde", "naranjo", "amarillo"],
+    ingredients: ["brócoli cocido en ramitos (árboles)", "zanahoria cocida en bastones (cerco)", "puré de camote (tierra)"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina las verduras hasta que queden bien blandas.",
+      "Dispón el puré de camote en la base del plato como 'tierra'.",
+      "Clava los ramitos de brócoli parados como árboles y alinea los bastones de zanahoria como cerco.",
+    ],
+  },
+
+  // ---------- 13-24 meses ----------
+  {
+    id: "prato-carinha-familia",
+    title: "Plato Carita de la Familia",
+    ageBand: "13-24",
+    colors: ["blanco", "café", "verde"],
+    ingredients: ["arroz cocido (cara)", "porotos cocidos (pelo)", "poroto verde picado (ojos y boca)"],
+    prepTimeMinutes: 25,
+    steps: [
+      "Moldea el arroz en forma de cara redonda en el plato.",
+      "Usa los porotos para dibujar el pelo en la parte de arriba.",
+      "Usa trocitos de poroto verde cocido para los ojos y la boca.",
+    ],
+  },
+  {
+    id: "arco-iris-familia",
+    title: "Arcoíris Completo de la Familia",
+    ageBand: "13-24",
+    colors: ["rojo", "naranjo", "amarillo", "verde", "morado"],
+    ingredients: ["frutilla en trozos", "zanahoria cocida en trozos", "choclo cocido", "brócoli cocido en trozos", "betarraga cocida en cubos"],
+    prepTimeMinutes: 25,
+    steps: [
+      "Cocina cada verdura por separado hasta que quede blanda.",
+      "Corta todo en trozos del tamaño seguro para la edad.",
+      "Dispón en curva, en el orden de los colores del arcoíris.",
+    ],
+  },
+  {
+    id: "mini-sanduiches-coloridos",
+    title: "Mini Sándwiches Coloridos",
+    ageBand: "13-24",
+    colors: ["beige", "verde", "rojo", "amarillo"],
+    ingredients: ["pan integral", "queso", "pechuga de pavo", "pepino en láminas finas"],
+    prepTimeMinutes: 10,
+    steps: [
+      "Arma el sándwich intercalando queso, pavo y pepino.",
+      "Corta en cuatro mini triángulos o cuadrados.",
+      "Sirve con los trozos de colores visibles en los bordes.",
+    ],
+  },
+  {
+    id: "espetinhos-frutas-reais",
+    title: "Brochetas de Frutas (palito de silicona)",
+    ageBand: "13-24",
+    colors: ["rojo", "amarillo", "verde", "morado"],
+    ingredients: ["frutilla", "plátano", "melón", "uva cortada a la mitad"],
+    prepTimeMinutes: 12,
+    steps: [
+      "Corta las frutas en trozos del tamaño de un dedo.",
+      "Si usas palito, prefiere uno de silicona romo, especial para niños, y supervisa todo el tiempo.",
+      "Alterna los colores al armar la brocheta.",
+    ],
+  },
+  {
+    id: "prato-trem-vagoes",
+    title: "Plato Tren de Vagones",
+    ageBand: "13-24",
+    colors: ["naranjo", "verde", "amarillo", "rojo"],
+    ingredients: ["zanahoria en rodajas", "zapallo italiano en rodajas", "camote en rodajas", "tomate en rodajas"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Cocina las verduras hasta que queden blandas y córtalas en rodajas.",
+      "Dispón en fila, cada verdura representando un vagón del tren.",
+      "Usa un trozo de queso redondo como 'rueda' entre los vagones.",
+    ],
+  },
+  {
+    id: "salada-divertida-picada",
+    title: "Ensalada Divertida Picada",
+    ageBand: "13-24",
+    colors: ["verde", "rojo", "amarillo"],
+    ingredients: ["lechuga picada bien fina", "tomate sin piel picado", "choclo cocido"],
+    prepTimeMinutes: 10,
+    steps: [
+      "Pica la lechuga bien fina para facilitar la masticación.",
+      "Pica el tomate sin piel en trozos pequeños.",
+      "Mezcla con el choclo cocido y sirve en porción pequeña.",
+    ],
+  },
+  {
+    id: "prato-bandeira",
+    title: "Plato Bandera",
+    ageBand: "13-24",
+    colors: ["verde", "amarillo", "azul"],
+    ingredients: ["brócoli cocido en trozos (franja verde)", "mango en cubos (franja amarilla)", "arándano o uva morada cortada (franja azul/morada)"],
+    prepTimeMinutes: 20,
+    steps: [
+      "Prepara cada alimento en trozos pequeños y seguros.",
+      "Dispón en tres franjas rectas, una al lado de la otra en el plato.",
+      "Sirve como una 'bandera' colorida y divertida.",
+    ],
+  },
+  {
+    id: "muffin-e-frutas",
+    title: "Muffin y Frutas de Colores",
+    ageBand: "13-24",
+    colors: ["naranjo", "rojo", "amarillo"],
+    ingredients: ["1 muffin de zanahoria casero", "frutilla en trozos", "mango en cubos"],
+    prepTimeMinutes: 10,
+    steps: [
+      "Corta el muffin en trozos pequeños.",
+      "Corta las frutas en trozos del tamaño seguro para la edad.",
+      "Dispón alrededor del muffin, creando un plato colorido y completo.",
+    ],
+  },
+];
+
+export function getPratinhos(locale: "pt-BR" | "es" = "es"): Pratinho[] {
+  return locale === "pt-BR" ? PRATINHOS : PRATINHOS_ES;
+}
+
+export function searchPratinhos(params: { ageBand?: AgeBand; color?: string }, locale: "pt-BR" | "es" = "es"): Pratinho[] {
+  return getPratinhos(locale).filter((p) => {
     if (params.ageBand && p.ageBand !== params.ageBand) return false;
     if (params.color && !p.colors.includes(params.color)) return false;
     return true;

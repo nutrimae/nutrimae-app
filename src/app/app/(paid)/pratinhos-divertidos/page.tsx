@@ -8,7 +8,7 @@ import { ageInMonths } from "@/lib/age";
 import { ageBandForMonths, getAgeBandLabel, type AgeBand } from "@/lib/menu";
 import { BackButton } from "@/components/back-button";
 import { Chip } from "@/components/ui/chip";
-import { PRATINHOS, TOTAL_PRATINHOS, type Pratinho } from "@/lib/pratinhos";
+import { getPratinhos, TOTAL_PRATINHOS, type Pratinho } from "@/lib/pratinhos";
 import {
   addPratinhoToCardapio,
   getChosenPratinhoIds,
@@ -42,9 +42,10 @@ export default function PratinhosDivertidosPage() {
     setRatings(getPratinhoRatings());
   }, []);
 
+  const PRATINHOS = useMemo(() => getPratinhos(locale), [locale]);
   const results = useMemo(
     () => PRATINHOS.filter((p) => ageBand === "todas" || p.ageBand === ageBand),
-    [ageBand],
+    [ageBand, PRATINHOS],
   );
 
   function handleFavorite(id: string) {

@@ -56,6 +56,61 @@ export const PDF_GUIDES: PdfGuideInfo[] = [
   },
 ];
 
+export const PDF_GUIDES_ES: PdfGuideInfo[] = [
+  {
+    slug: "guia-definitivo",
+    title: "Guía Definitiva de la Introducción Alimentaria",
+    description: "Primeros 7 días, progresión por edad y seguridad alimentaria.",
+    emoji: "📖",
+  },
+  {
+    slug: "receitas",
+    title: "Recetas Completas",
+    description: "Todas las recetas por rango de edad, con ingredientes y preparación.",
+    emoji: "🍽️",
+  },
+  {
+    slug: "guia-blw",
+    title: "Guía de Cortes BLW",
+    description: "30 alimentos con tamaño, preparación y seguridad para Baby-Led Weaning.",
+    emoji: "✋",
+  },
+  {
+    slug: "checklist-alergenicos",
+    title: "Checklist de Alergénicos",
+    description: "Los 14 alérgenos de declaración obligatoria, para marcar e imprimir.",
+    emoji: "⚠️",
+  },
+  {
+    slug: "pratinhos-divertidos",
+    title: "Platitos Divertidos",
+    description: "30 ideas de presentación colorida por rango de edad.",
+    emoji: "🎨",
+  },
+  {
+    slug: "mordedores-naturais",
+    title: "Mordedores Naturales",
+    description: "15 opciones naturales y señales de dentición.",
+    emoji: "🦷",
+  },
+  {
+    slug: "preparo-alimentos",
+    title: "Modo de Preparación de los Alimentos",
+    description: "Paso a paso de preparación, congelación y descongelación.",
+    emoji: "🔪",
+  },
+  {
+    slug: "utensilios-recomendados",
+    title: "Utensilios Recomendados",
+    description: "Qué ayuda en la rutina y qué buscar al comprar.",
+    emoji: "🧺",
+  },
+];
+
+export function getPdfGuides(locale: "pt-BR" | "es" = "es"): PdfGuideInfo[] {
+  return locale === "pt-BR" ? PDF_GUIDES : PDF_GUIDES_ES;
+}
+
 export function getPdfGuide(slug: string): PdfGuideInfo | undefined {
   return PDF_GUIDES.find((g) => g.slug === slug);
 }

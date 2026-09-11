@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { createClient } from "@/lib/supabase/server";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 import { formatAge } from "@/lib/age";
-import { DIARY_FOODS, type Reaction } from "@/lib/food-diary";
-import { ALLERGEN_CHECKLIST, ALLERGEN_LABEL } from "@/lib/allergen-checklist";
+import { getDiaryFoods, type Reaction } from "@/lib/food-diary";
+import { ALLERGEN_CHECKLIST, getAllergenLabel } from "@/lib/allergen-checklist";
 import type { Allergen } from "@/lib/recipes";
 import { RelatorioPediatraPdf, type RelatorioPediatraFoodRow } from "@/lib/pdf/RelatorioPediatraPdf";
 
 export const runtime = "nodejs";
 
 const KNOWN_ALLERGEN_IDS = new Set(ALLERGEN_CHECKLIST.map((a) => a.id));
-const FOOD_NAME_BY_KEY = new Map(DIARY_FOODS.map((f) => [f.key, f.name]));
 
 interface RequestBody {
   babyId?: unknown;
@@ -31,6 +31,11 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const locale = await getServerLocale();
+  const es = locale === "es";
+  const FOOD_NAME_BY_KEY = new Map(getDiaryFoods(locale).map((f) => [f.key, f.name]));
+  const ALLERGEN_LABEL = getAllergenLabel(locale);
 
   const { data: baby } = await supabase
     .from("babies")
@@ -59,14 +64,15 @@ export async function POST(request: Request) {
 
   const knownAllergens = allergenIds.map((id) => ALLERGEN_LABEL[id]).filter(Boolean);
 
-  const brFormat = (d: Date) => d.toLocaleDateString("pt-BR");
+  const dateFormat = (d: Date) => d.toLocaleDateString(es ? "es-CL" : "pt-BR");
   const document = RelatorioPediatraPdf({
+    locale,
     babyName: baby.name,
-    ageLabel: formatAge(baby.birth_date),
-    periodLabel: `${brFormat(periodStart)} a ${brFormat(periodEnd)}`,
+    ageLabel: formatAge(baby.birth_date, locale),
+    periodLabel: `${dateFormat(periodStart)} a ${dateFormat(periodEnd)}`,
     foods,
     knownAllergens,
-    generatedAtLabel: brFormat(periodEnd),
+    generatedAtLabel: dateFormat(periodEnd),
   });
   const buffer = await renderToBuffer(document as Parameters<typeof renderToBuffer>[0]);
 

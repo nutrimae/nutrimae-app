@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
-import { PDF_GUIDES } from "@/lib/pdf-guides";
-import { AUDIOBOOKS } from "@/lib/audiobooks";
+import { getPdfGuides } from "@/lib/pdf-guides";
+import { getAudiobooks } from "@/lib/audiobooks";
 import { useLocale } from "@/lib/use-locale";
 import {
   clearDownloadHistory,
@@ -60,6 +60,9 @@ export default function DownloadsPage() {
     return { count: history.length, totalBytes };
   }, [history]);
 
+  const PDF_GUIDES = useMemo(() => getPdfGuides(locale), [locale]);
+  const AUDIOBOOKS = useMemo(() => getAudiobooks(locale), [locale]);
+
   const filteredGuides = useMemo(() => {
     const q = query.trim().toLowerCase();
     return PDF_GUIDES.filter((g) => {
@@ -67,7 +70,7 @@ export default function DownloadsPage() {
       if (q && !g.title.toLowerCase().includes(q) && !g.description.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [query, filter]);
+  }, [query, filter, PDF_GUIDES]);
 
   const filteredAudiobooks = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -76,7 +79,7 @@ export default function DownloadsPage() {
       if (q && !a.title.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [query, filter]);
+  }, [query, filter, AUDIOBOOKS]);
 
   async function handleDownload(url: string, filename: string, id: string, title: string, type: DownloadEntry["type"]) {
     setLoadingId(id);

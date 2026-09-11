@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEntitlementStatus } from "@/lib/entitlements";
 import { PRODUCTS } from "@/lib/products";
 import { UpgradeScreen } from "@/components/upgrade-screen";
+import { getServerLocale } from "@/lib/i18n/get-server-locale";
 
 // Cardápio, Cortes Seguros, Lista de Compras, Guia de Alergia, Club das
 // Mães e Suporte são todos liberados pela mesma assinatura — um único gate
@@ -32,7 +33,8 @@ export default async function PaidLayout({ children }: { children: React.ReactNo
   const status = await getEntitlementStatus(supabase, user.id, "nutrimae_assinatura");
 
   if (status !== "active") {
-    return <UpgradeScreen product={PRODUCTS.nutrimae_assinatura} />;
+    const locale = await getServerLocale();
+    return <UpgradeScreen product={PRODUCTS.nutrimae_assinatura} locale={locale} />;
   }
 
   return <>{children}</>;

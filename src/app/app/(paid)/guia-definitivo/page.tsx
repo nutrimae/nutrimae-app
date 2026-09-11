@@ -8,20 +8,23 @@ import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer"
 import { BackButton } from "@/components/back-button";
 import { Chip } from "@/components/ui/chip";
 import { useLocale } from "@/lib/use-locale";
-import { FIRST_WEEK_DAYS, PROGRESSION_STAGES, SAFETY_RULES } from "@/lib/introduction-guide";
+import { getFirstWeekDays, getProgressionStages, getSafetyRules } from "@/lib/introduction-guide";
 
 export default function GuiaDefinitivoPage() {
   const { locale } = useLocale();
   const es = locale === "es";
   const { activeBaby } = useActiveBaby();
   const months = activeBaby ? ageInMonths(activeBaby.birth_date) : null;
+  const FIRST_WEEK_DAYS = useMemo(() => getFirstWeekDays(locale), [locale]);
+  const PROGRESSION_STAGES = useMemo(() => getProgressionStages(locale), [locale]);
+  const SAFETY_RULES = useMemo(() => getSafetyRules(locale), [locale]);
 
   const currentStageIndex = useMemo(() => {
     if (months === null) return -1;
     return PROGRESSION_STAGES.findIndex(
       (stage) => months >= stage.fromMonth && months <= stage.toMonth,
     );
-  }, [months]);
+  }, [months, PROGRESSION_STAGES]);
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-8 px-4 py-6">

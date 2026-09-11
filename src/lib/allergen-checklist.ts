@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ALLERGEN_LABEL, type Allergen } from "@/lib/recipes";
+import { ALLERGEN_LABEL, getAllergenLabel, type Allergen } from "@/lib/recipes";
+import type { Locale } from "@/lib/i18n/locale";
 
 export interface AllergenInfo {
   id: Allergen;
@@ -25,7 +26,30 @@ export const ALLERGEN_CHECKLIST: AllergenInfo[] = [
   { id: "tremoco", description: "Tremoço e derivados (comum em farinhas alternativas)." },
 ];
 
-export { ALLERGEN_LABEL };
+// Versão em espanhol — mesma lista de alérgenos (padrão internacional, não
+// específico da ANVISA), mas sem citar legislação brasileira.
+export const ALLERGEN_CHECKLIST_ES: AllergenInfo[] = [
+  { id: "leite", description: "Leche de vaca y derivados (queso, yogur, mantequilla)." },
+  { id: "ovo", description: "Huevo de gallina y derivados." },
+  { id: "gluten", description: "Trigo, centeno, cebada, avena y derivados." },
+  { id: "amendoim", description: "Maní y productos que lo contengan, como mantequilla de maní." },
+  { id: "castanhas", description: "Castaña de Pará, castaña de cajú (marañón), nueces, almendras, avellana, pistacho." },
+  { id: "peixe", description: "Pescados de cualquier especie." },
+  { id: "crustaceos", description: "Camarón, cangrejo, langosta y similares." },
+  { id: "moluscos", description: "Mejillón, ostra, calamar, pulpo y similares." },
+  { id: "soja", description: "Soya y derivados, como salsa de soya y tofu." },
+  { id: "gergelim", description: "Semilla de sésamo y aceite de sésamo." },
+  { id: "mostarda", description: "Mostaza y derivados." },
+  { id: "aipo", description: "Apio y derivados." },
+  { id: "sulfitos", description: "Sulfitos en concentración mayor a 10mg/kg (conservante común en frutas secas)." },
+  { id: "tremoco", description: "Altramuz (lupino) y derivados (común en harinas alternativas)." },
+];
+
+export function getAllergenChecklistItems(locale: Locale = "es"): AllergenInfo[] {
+  return locale === "pt-BR" ? ALLERGEN_CHECKLIST : ALLERGEN_CHECKLIST_ES;
+}
+
+export { ALLERGEN_LABEL, getAllergenLabel };
 
 /**
  * Checklist de alergênicos por bebê, na tabela `baby_allergens` — não é

@@ -7,10 +7,13 @@ import { Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "@/lib/use-locale";
 
 export default function SetPasswordPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+  const { locale } = useLocale();
+  const es = locale === "es";
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -61,11 +64,11 @@ export default function SetPasswordPage() {
     setError(null);
 
     if (password.length < 6) {
-      setError("A senha precisa ter pelo menos 6 caracteres.");
+      setError(es ? "La contraseña debe tener al menos 6 caracteres." : "A senha precisa ter pelo menos 6 caracteres.");
       return;
     }
     if (password !== confirm) {
-      setError("As senhas não coincidem.");
+      setError(es ? "Las contraseñas no coinciden." : "As senhas não coincidem.");
       return;
     }
 
@@ -77,13 +80,13 @@ export default function SetPasswordPage() {
         // quando a sessão do convite/recuperação ainda não foi capturada do
         // #hash) em vez de só devolver { error } — sem o try/finally aqui,
         // o botão ficava travado em "loading" pra sempre nesse caso.
-        setError("Não deu para salvar a senha agora. Tente de novo em instantes.");
+        setError(es ? "No se pudo guardar la contraseña ahora. Inténtalo de nuevo en unos instantes." : "Não deu para salvar a senha agora. Tente de novo em instantes.");
         return;
       }
       router.push("/");
       router.refresh();
     } catch {
-      setError("Sua sessão de convite expirou. Volte pro e-mail e peça um novo link.");
+      setError(es ? "Tu sesión de invitación venció. Vuelve al correo y pide un nuevo link." : "Sua sessão de convite expirou. Volte pro e-mail e peça um novo link.");
     } finally {
       setLoading(false);
     }
@@ -97,12 +100,16 @@ export default function SetPasswordPage() {
             <Heart className="h-8 w-8 text-sage-600" strokeWidth={1.75} />
           </div>
           <h1 className="font-heading text-2xl font-bold text-brown-800">
-            Bem-vinda ao NutriMama
+            {es ? "Bienvenida a NutriMama" : "Bem-vinda ao NutriMama"}
           </h1>
           <p className="mt-2 text-brown-700">
             {linkExpired
-              ? "Esse link expirou antes de você abrir (acontece quando o e-mail escaneia o link primeiro)."
-              : "Sua conta já está pronta. Crie uma senha para continuar."}
+              ? es
+                ? "Ese link venció antes de que lo abrieras (pasa cuando el correo escanea el link primero)."
+                : "Esse link expirou antes de você abrir (acontece quando o e-mail escaneia o link primeiro)."
+              : es
+                ? "Tu cuenta ya está lista. Crea una contraseña para continuar."
+                : "Sua conta já está pronta. Crie uma senha para continuar."}
           </p>
         </div>
 
@@ -111,17 +118,17 @@ export default function SetPasswordPage() {
             href="/login"
             className="flex min-h-14 items-center justify-center rounded-2xl bg-sage-500 px-6 font-heading text-base font-bold text-white"
           >
-            Pedir um novo link
+            {es ? "Pedir un nuevo link" : "Pedir um novo link"}
           </Link>
         ) : !sessionReady ? (
-          <p className="text-center text-brown-700">Confirmando seu acesso...</p>
+          <p className="text-center text-brown-700">{es ? "Confirmando tu acceso..." : "Confirmando seu acesso..."}</p>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input
               id="password"
               type="password"
               autoComplete="new-password"
-              label="Nova senha"
+              label={es ? "Nueva contraseña" : "Nova senha"}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -132,7 +139,7 @@ export default function SetPasswordPage() {
               id="confirm-password"
               type="password"
               autoComplete="new-password"
-              label="Confirme a senha"
+              label={es ? "Confirma la contraseña" : "Confirme a senha"}
               placeholder="••••••••"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
@@ -143,7 +150,7 @@ export default function SetPasswordPage() {
             {error && <p className="text-sm font-medium text-terracotta-600">{error}</p>}
 
             <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar e continuar"}
+              {loading ? (es ? "Guardando..." : "Salvando...") : es ? "Guardar y continuar" : "Salvar e continuar"}
             </Button>
           </form>
         )}

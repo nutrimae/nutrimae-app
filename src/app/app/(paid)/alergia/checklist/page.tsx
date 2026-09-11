@@ -7,7 +7,7 @@ import { BackButton } from "@/components/back-button";
 import { MedicalDisclaimerFooter } from "@/components/medical-disclaimer-footer";
 import { useActiveBaby } from "@/components/active-baby-context";
 import { createClient } from "@/lib/supabase/client";
-import { ALLERGEN_CHECKLIST, ALLERGEN_LABEL, getAllergenChecklist, toggleAllergenChecklist } from "@/lib/allergen-checklist";
+import { getAllergenChecklistItems, getAllergenLabel, getAllergenChecklist, toggleAllergenChecklist } from "@/lib/allergen-checklist";
 import type { Allergen } from "@/lib/recipes";
 import { useLocale } from "@/lib/use-locale";
 
@@ -58,7 +58,7 @@ export default function AllergenChecklistPage() {
       )}
 
       <div className="flex flex-col gap-2">
-        {ALLERGEN_CHECKLIST.map((item) => {
+        {getAllergenChecklistItems(locale).map((item) => {
           const isChecked = selected.includes(item.id);
           return (
             <button
@@ -78,7 +78,7 @@ export default function AllergenChecklistPage() {
               </span>
               <div>
                 <p className={`font-semibold ${isChecked ? "text-terracotta-700" : "text-brown-800"}`}>
-                  {ALLERGEN_LABEL[item.id]}
+                  {getAllergenLabel(locale)[item.id]}
                 </p>
                 <p className="mt-0.5 text-sm text-brown-700/80">{item.description}</p>
               </div>

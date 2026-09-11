@@ -1153,21 +1153,21 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) { /* a experiência também funciona sem sessionStorage */ }
   })();
 
-  // Chile/CLP vía Rebill (sandbox — cuenta pendiente de activación, ver
-  // conversación con el equipo): checkout propio en app.nutrimae.app,
-  // usando el componente <rebill-checkout> embebido (mismo look del
-  // checkout Pagar.me/BRL, ver src/app/(checkout)/checkout-cl/[plan]/),
-  // en vez del link hospedado en pay.rebill.com.
+  // Checkout hospedado pelo próprio Hotmart (substituiu Stripe/Rebill em
+  // 2026-09-11) — dá acesso nativo a todos os meios de pagamento locais do
+  // Chile (não só cartão), sem precisar manter checkout próprio. Os
+  // códigos de oferta abaixo são os preços JÁ corrigidos para o IVA de 19%
+  // do Chile (preço base ÷ 1,19), validados no checkout mostrando
+  // exatamente $9.900 / $3.990 com "IVA incluido" — ver
+  // src/lib/webhooks/grant-access-hotmart.ts para o mapeamento completo
+  // (inclui os códigos antigos, sem a correção de IVA, como fallback).
+  var HOTMART_CHECKOUT_URL = {
+    completo: 'https://pay.hotmart.com/E8499889N?off=5laftq57',
+    basico: 'https://pay.hotmart.com/N8502012G?off=jbqhhgxn',
+  };
+
   function goToOffer(plan) {
-    var params = new URLSearchParams(window.location.search);
-    try {
-      var consent = window.localStorage.getItem('nutrimae:tracking-consent:v1');
-      if (consent === 'analytics' || consent === 'marketing' || consent === 'denied') {
-        params.set('consent', consent);
-      }
-    } catch (e) {}
-    var query = params.toString();
-    window.location.href = APP_URL + '/checkout-cl/' + plan + (query ? '?' + query : '');
+    window.location.href = HOTMART_CHECKOUT_URL[plan] || HOTMART_CHECKOUT_URL.completo;
   }
 
   function goToCheckout() {

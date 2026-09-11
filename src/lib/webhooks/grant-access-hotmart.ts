@@ -6,10 +6,20 @@ type AdminClient = ReturnType<typeof createAdminClient>;
 export type HotmartPlan = "basico" | "completo";
 
 // Código da oferta ("off") criado no painel Hotmart → plano interno.
-// "Plan Completo" (produto 8499889, CLP 9.900, pagamento à vista) e
-// "Plan Básico" (produto 8502012, CLP 3.990, pagamento à vista) — ambos
-// criados em 2026-09-11, mesmo webhook "nutrimaec" cobre os dois produtos.
+// "Plan Completo" (produto 8499889) e "Plan Básico" (produto 8502012) —
+// ambos criados em 2026-09-11, mesmo webhook "nutrimaec" cobre os dois
+// produtos. zuqnvssu/waf4nyql eram os preços-base originais (CLP 9.900 /
+// 3.990), mas o Hotmart soma 19% de IVA do Chile EM CIMA do preço
+// configurado — então o preço final ao cliente ficava 9.900*1,19=11.781 /
+// 3.990*1,19=4.748, acima do que anunciamos em toda a landing/criativos.
+// 5laftq57/jbqhhgxn são os preços corrigidos (base ÷ 1,19 = 8.319/3.353)
+// criados para compensar o IVA, validados no checkout com país=Chile
+// mostrando exatamente $9.900 / $3.990 (IVA incluído). São os códigos que
+// devem ir nos links de checkout do site — os antigos ficam mapeados só
+// por segurança, caso algum link velho ainda circule.
 const OFFER_CODE_TO_PLAN: Record<string, HotmartPlan> = {
+  "5laftq57": "completo",
+  "jbqhhgxn": "basico",
   zuqnvssu: "completo",
   waf4nyql: "basico",
 };

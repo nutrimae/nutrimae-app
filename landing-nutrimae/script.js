@@ -1154,20 +1154,70 @@ document.addEventListener('DOMContentLoaded', function () {
   })();
 
   // Checkout hospedado pelo próprio Hotmart (substituiu Stripe/Rebill em
-  // 2026-09-11) — dá acesso nativo a todos os meios de pagamento locais do
-  // Chile (não só cartão), sem precisar manter checkout próprio. Os
-  // códigos de oferta abaixo são os preços JÁ corrigidos para o IVA de 19%
-  // do Chile (preço base ÷ 1,19), validados no checkout mostrando
-  // exatamente $9.900 / $3.990 com "IVA incluido" — ver
-  // src/lib/webhooks/grant-access-hotmart.ts para o mapeamento completo
-  // (inclui os códigos antigos, sem a correção de IVA, como fallback).
+  // 2026-09-11) — dá acesso nativo a todos os meios de pagamento locais de
+  // cada país (não só cartão), sem precisar manter checkout próprio. Cada
+  // país tem sua própria oferta/moeda no Hotmart (preços já ajustados pra
+  // imposto local onde o Hotmart soma em cima do valor configurado — ver
+  // src/lib/webhooks/grant-access-hotmart.ts pro detalhe de cada um e o
+  // mapeamento completo de códigos, incluindo os antigos do Chile mantidos
+  // por segurança). Todos validados no checkout mostrando o valor exato
+  // anunciado antes de entrar aqui.
   var HOTMART_CHECKOUT_URL = {
-    completo: 'https://pay.hotmart.com/E8499889N?off=5laftq57',
-    basico: 'https://pay.hotmart.com/N8502012G?off=jbqhhgxn',
+    completo: {
+      cl: 'https://pay.hotmart.com/E8499889N?off=5laftq57',
+      mx: 'https://pay.hotmart.com/E8499889N?off=bm01x9ht',
+      co: 'https://pay.hotmart.com/E8499889N?off=33hupbas',
+      pe: 'https://pay.hotmart.com/E8499889N?off=syy8cao1',
+      ec: 'https://pay.hotmart.com/E8499889N?off=pl35q3q0',
+    },
+    basico: {
+      cl: 'https://pay.hotmart.com/N8502012G?off=jbqhhgxn',
+      mx: 'https://pay.hotmart.com/N8502012G?off=js7w15hw',
+      co: 'https://pay.hotmart.com/N8502012G?off=tpp73th9',
+      pe: 'https://pay.hotmart.com/N8502012G?off=0kyqa0re',
+      ec: 'https://pay.hotmart.com/N8502012G?off=razluwie',
+    },
   };
+  var COUNTRY_STORAGE_KEY = 'nutrimae:country';
+
+  // Geolocalização por IP (best-effort, com timeout curto) só pra escolher
+  // qual oferta/moeda do Hotmart abrir — nunca bloqueia o clique por muito
+  // tempo, e qualquer falha (timeout, CORS, serviço fora do ar) cai no
+  // Chile, que é o mercado principal hoje. Resultado fica em sessionStorage
+  // pra não repetir a chamada a cada clique.
+  function detectCountry(callback) {
+    var cached;
+    try { cached = sessionStorage.getItem(COUNTRY_STORAGE_KEY); } catch (e) {}
+    if (cached) { callback(cached); return; }
+
+    var settled = false;
+    var timer = setTimeout(function () {
+      if (settled) return;
+      settled = true;
+      callback('cl');
+    }, 1500);
+
+    fetch('https://ipapi.co/country/').then(function (res) { return res.text(); }).then(function (code) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      var country = (code || '').trim().toLowerCase();
+      if (['mx', 'co', 'pe', 'ec', 'cl'].indexOf(country) === -1) country = 'cl';
+      try { sessionStorage.setItem(COUNTRY_STORAGE_KEY, country); } catch (e) {}
+      callback(country);
+    }).catch(function () {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      callback('cl');
+    });
+  }
 
   function goToOffer(plan) {
-    window.location.href = HOTMART_CHECKOUT_URL[plan] || HOTMART_CHECKOUT_URL.completo;
+    var urls = HOTMART_CHECKOUT_URL[plan] || HOTMART_CHECKOUT_URL.completo;
+    detectCountry(function (country) {
+      window.location.href = urls[country] || urls.cl;
+    });
   }
 
   function goToCheckout() {

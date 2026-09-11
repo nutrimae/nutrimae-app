@@ -10,20 +10,37 @@ export type HotmartPlan = "basico" | "completo";
 // Código da oferta ("off") criado no painel Hotmart → plano interno.
 // "Plan Completo" (produto 8499889) e "Plan Básico" (produto 8502012) —
 // ambos criados em 2026-09-11, mesmo webhook "nutrimaec" cobre os dois
-// produtos. zuqnvssu/waf4nyql eram os preços-base originais (CLP 9.900 /
-// 3.990), mas o Hotmart soma 19% de IVA do Chile EM CIMA do preço
-// configurado — então o preço final ao cliente ficava 9.900*1,19=11.781 /
-// 3.990*1,19=4.748, acima do que anunciamos em toda a landing/criativos.
-// 5laftq57/jbqhhgxn são os preços corrigidos (base ÷ 1,19 = 8.319/3.353)
-// criados para compensar o IVA, validados no checkout com país=Chile
-// mostrando exatamente $9.900 / $3.990 (IVA incluído). São os códigos que
-// devem ir nos links de checkout do site — os antigos ficam mapeados só
-// por segurança, caso algum link velho ainda circule.
+// produtos. zuqnvssu/waf4nyql eram os preços-base originais do Chile (CLP
+// 9.900/3.990), mas o Hotmart soma o imposto local EM CIMA do preço
+// configurado — então o preço final ao cliente ficava acima do anunciado.
+// 5laftq57/jbqhhgxn são os preços corrigidos pro Chile (base ÷ 1,19),
+// validados no checkout mostrando exatamente $9.900 / $3.990 (IVA incluído).
+//
+// Expansão LATAM (2026-09-11): México, Colômbia, Peru e Equador, cada um
+// com sua própria oferta/moeda. México soma 16% de IVA em cima do preço
+// (mesmo comportamento do Chile) — preço configurado já é base ÷ 1,16.
+// Colômbia, Peru e Equador NÃO somam imposto em cima do preço configurado
+// (confirmado testando o checkout com o seletor de país) — o valor
+// configurado é o valor final, sem correção. Todos validados no checkout
+// antes de entrar aqui.
 const OFFER_CODE_TO_PLAN: Record<string, HotmartPlan> = {
+  // Chile
   "5laftq57": "completo",
   "jbqhhgxn": "basico",
   zuqnvssu: "completo",
   waf4nyql: "basico",
+  // México
+  bm01x9ht: "completo",
+  js7w15hw: "basico",
+  // Colômbia
+  "33hupbas": "completo",
+  tpp73th9: "basico",
+  // Peru
+  syy8cao1: "completo",
+  "0kyqa0re": "basico",
+  // Equador
+  pl35q3q0: "completo",
+  razluwie: "basico",
 };
 
 interface HotmartPurchaseLike {

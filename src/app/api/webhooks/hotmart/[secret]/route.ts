@@ -13,12 +13,10 @@ import { claimWebhookEvent, finalizeWebhookEvent } from "@/lib/webhooks/log-even
  * produto 8499889, com HOTMART_WEBHOOK_SECRET (este segmento da URL,
  * escolhido por nós) e HOTMART_HOTTOK (o token mostrado pelo Hotmart).
  *
- * IMPORTANTE: o formato exato do payload abaixo (nomes dos campos em
- * `data`) foi escrito de memória a partir da doc pública do Hotmart
- * (developers.hotmart.com/docs/pt-BR/webhooks) e AINDA NÃO foi validado
- * contra uma notificação real — assim que o Hotmart mandar o primeiro
- * webhook de teste, conferir `payload` salvo em webhook_logs e ajustar os
- * caminhos se necessário, antes de confiar nisso em produção.
+ * Formato do payload confirmado contra o teste oficial de configuração do
+ * Hotmart (2026-09-11, ver payload salvo em webhook_logs) — só o valor de
+ * data.purchase.status precisou de ajuste ("COMPLETED", não "COMPLETE";
+ * ver grant-access-hotmart.ts).
  */
 export async function POST(request: Request, { params }: { params: Promise<{ secret: string }> }) {
   const { secret } = await params;

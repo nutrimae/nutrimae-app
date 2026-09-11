@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/progress-dots";
-import { COUNTRIES, DEFAULT_COUNTRY, COUNTRY_TO_LATAM_REGION, type Country } from "@/lib/i18n/country";
+import { useCountry } from "@/lib/use-country";
+import { COUNTRIES, DEFAULT_COUNTRY, type Country } from "@/lib/i18n/country";
 
 const COPY = {
   title: "¿De qué país eres?",
@@ -16,7 +16,7 @@ const COPY = {
 
 export default function RegionStepPage() {
   const router = useRouter();
-  const supabase = createClient();
+  const { setCountry } = useCountry();
   const t = COPY;
   // Pré-seleciona Chile (mercado já lançado) em vez de deixar vazio — country
   // importa pro checkout/precificação futuro, então este step sempre grava um
@@ -26,21 +26,13 @@ export default function RegionStepPage() {
 
   async function handleContinue() {
     setLoading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user) {
-      // Grava country (granularidade que interessa pro checkout) e, junto,
-      // a latam_region correspondente — inferida a partir do país — pra não
-      // perder a priorização de receitas/alimentos que já usa LatamRegion
-      // (ver src/lib/i18n/country.ts, COUNTRY_TO_LATAM_REGION). Assim a
-      // usuária responde uma pergunta só (o país, com bandeira).
-      await supabase
-        .from("profiles")
-        .update({ country: selected, latam_region: COUNTRY_TO_LATAM_REGION[selected] })
-        .eq("user_id", user.id);
-    }
+    // setCountry() passa por /api/profile/country (client admin) — "profiles"
+    // não tem policy de update pro client autenticado direto, um update()
+    // daqui falharia em silêncio (0 linhas, sem erro) exatamente como o bug
+    // histórico de profiles.locale travado em pt-BR. A rota também já grava
+    // a latam_region inferida (ver COUNTRY_TO_LATAM_REGION), então a
+    // priorização de receitas/alimentos continua sincronizada.
+    await setCountry(selected);
 
     setLoading(false);
     router.push("/onboarding/tour");

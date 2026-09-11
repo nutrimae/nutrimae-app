@@ -75,11 +75,11 @@ export const MENU_POOL_ES: Pool = {
       },
       {
         id: "es-6-7-almoco-regional-mexico-1",
-        title: "Papilla de elote con calabaza",
-        description: "Elote y calabaza cocidos y bien triturados — sabor típico mexicano.",
-        prep: "Cocine los granos de elote y la calabaza al vapor hasta que estén muy blandos. Licúe con un poco de agua de cocción hasta lograr una papilla lisa, colando si quedan cáscaras.",
+        title: "Papilla de choclo con calabaza",
+        description: "Choclo y calabaza cocidos y bien triturados — dulce y suave.",
+        prep: "Cocine los granos de choclo y la calabaza al vapor hasta que estén muy blandos. Licúe con un poco de agua de cocción hasta lograr una papilla lisa, colando si quedan cáscaras.",
         ingredients: [
-          { name: "Elote", category: "feira" },
+          { name: "Choclo", category: "feira" },
           { name: "Calabaza", category: "feira" },
         ],
         regiao: ["mexico"],
@@ -87,7 +87,7 @@ export const MENU_POOL_ES: Pool = {
       {
         id: "es-6-7-almoco-regional-andina-1",
         title: "Papilla de quinua con zapallo",
-        description: "Quinua bien cocida con zapallo triturado — clásico andino.",
+        description: "Quinua bien cocida con zapallo triturado — nutritiva y suave.",
         prep: "Lave bien la quinua y cocine 15 minutos hasta que esté muy blanda. Cocine el zapallo al vapor. Triture todo junto hasta lograr una papilla suave.",
         ingredients: [
           { name: "Quinua", category: "mercado" },
@@ -331,7 +331,7 @@ export const MENU_POOL_ES: Pool = {
       {
         id: "es-10-12-cafe-regional-mexico-1",
         title: "Atole de maíz con huevo picado",
-        description: "Atole bien espeso, con huevo picado — clásico mexicano.",
+        description: "Atole bien espeso, con huevo picado — nutritivo y reconfortante.",
         prep: "Prepare el atole de maíz bien espeso con leche o agua. Cocine el huevo y píquelo fino. Mezcle todo con un chorrito de aceite.",
         ingredients: [
           { name: "Harina de maíz para atole", category: "mercado" },

@@ -5,12 +5,13 @@ type AdminClient = ReturnType<typeof createAdminClient>;
 
 export type HotmartPlan = "basico" | "completo";
 
-// Código da oferta ("off") criado no painel Hotmart → plano interno. O
-// "Plan Completo" (produto 8499889, CLP 9.900) já existe com o código
-// zuqnvssu — ver conversa de 2026-09-11. Adicionar aqui o código do
-// "Plan Básico" assim que ele for criado no Hotmart.
+// Código da oferta ("off") criado no painel Hotmart → plano interno.
+// "Plan Completo" (produto 8499889, CLP 9.900, pagamento à vista) e
+// "Plan Básico" (produto 8502012, CLP 3.990, pagamento à vista) — ambos
+// criados em 2026-09-11, mesmo webhook "nutrimaec" cobre os dois produtos.
 const OFFER_CODE_TO_PLAN: Record<string, HotmartPlan> = {
   zuqnvssu: "completo",
+  waf4nyql: "basico",
 };
 
 interface HotmartPurchaseLike {

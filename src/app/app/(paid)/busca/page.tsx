@@ -285,7 +285,7 @@ function FoodDetail({
 function FoodPrepSection({ foodId }: { foodId: string }) {
   const { locale } = useLocale();
   const es = locale === "es";
-  const guide = getFoodPrepGuide(foodId);
+  const guide = getFoodPrepGuide(foodId, locale);
   if (!guide) return null;
 
   return (

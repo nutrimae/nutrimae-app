@@ -960,8 +960,6 @@ document.addEventListener('DOMContentLoaded', function () {
   var planCardCompleto = document.getElementById('plan-card-completo');
   var selectedPlan = 'completo';
   var ctaCheckoutDynamic = document.getElementById('cta-checkout-dynamic');
-  var stickyCtaPlan = document.querySelector('.sticky-cta__plan');
-  var stickyCtaPrice = document.getElementById('sticky-cta-price');
 
   function selectPlanToggle(plan) {
     selectedPlan = plan;
@@ -981,12 +979,6 @@ document.addEventListener('DOMContentLoaded', function () {
         ? 'Quiero el Básico por $3.990'
         : 'Quiero el Completo por $9.900';
     }
-    if (stickyCtaPlan) stickyCtaPlan.textContent = showBasico ? 'NutriMama — Plan Básico' : 'NutriMama — Plan Completo';
-    if (stickyCtaPrice) {
-      stickyCtaPrice.innerHTML = showBasico
-        ? '$3.990 <small>pago único</small>'
-        : '$9.900 <small>pago único</small>';
-    }
   }
 
   if (toggleBasico) {
@@ -998,28 +990,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (ctaCheckoutDynamic) {
     ctaCheckoutDynamic.textContent = 'Quiero el Completo por $9.900';
-  }
-
-  /* ---------------------------------------------------
-     Barra de oferta fixa — visível assim que o hero sai da tela, pra
-     oferta ficar clara na página inteira (pedido explícito do dono do
-     produto), some de novo se ela rolar de volta pro topo.
-     --------------------------------------------------- */
-  var stickyCta = document.getElementById('sticky-cta');
-  var stickyCtaBtn = document.getElementById('sticky-cta-btn');
-  var heroSection = document.getElementById('bloco-1');
-
-  safeObserve(heroSection, function (entries) {
-    entries.forEach(function (entry) {
-      if (stickyCta) stickyCta.classList.toggle('is-visible', !entry.isIntersecting);
-    });
-  }, { threshold: 0, rootMargin: '-64px 0px 0px 0px' });
-
-  if (stickyCtaBtn) {
-    stickyCtaBtn.addEventListener('click', function () {
-      trackEvent('StickyCtaClick', { plan: selectedPlan });
-      scrollToSection('bloco-6');
-    });
   }
 
   /* ---------------------------------------------------

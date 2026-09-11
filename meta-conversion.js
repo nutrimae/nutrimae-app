@@ -38,8 +38,9 @@ function sha256(value) {
  * @param {string} [params.userAgent] - user-agent de quem comprou, capturado no checkout
  * @param {string} [params.fbc] - cookie _fbc do Pixel (clique de anúncio), capturado no checkout — maior sinal de correspondência que existe
  * @param {string} [params.fbp] - cookie _fbp do Pixel (navegador), capturado no checkout
+ * @param {string} [params.currency] - moeda ISO da venda (ex.: "BRL", "CLP"). Default "BRL" pro fluxo Pagar.me existente.
  */
-async function sendMetaEvent({ eventName, eventId, email, phone, amountCents, clientIp, userAgent, fbc, fbp }) {
+async function sendMetaEvent({ eventName, eventId, email, phone, amountCents, clientIp, userAgent, fbc, fbp, currency }) {
   const accessToken = process.env.META_ACCESS_TOKEN;
   const pixelId = process.env.META_PIXEL_ID;
   if (!accessToken || !pixelId) {
@@ -55,7 +56,7 @@ async function sendMetaEvent({ eventName, eventId, email, phone, amountCents, cl
   if (fbc) userData.setFbc(fbc);
   if (fbp) userData.setFbp(fbp);
 
-  const customData = new CustomData().setCurrency("BRL");
+  const customData = new CustomData().setCurrency(currency ?? "BRL");
   if (typeof amountCents === "number") customData.setValue(amountCents / 100);
 
   const event = new ServerEvent()
@@ -74,8 +75,8 @@ async function sendMetaEvent({ eventName, eventId, email, phone, amountCents, cl
   return request.execute();
 }
 
-function sendPurchaseEvent({ email, phone, orderId, amountCents, clientIp, userAgent, fbc, fbp }) {
-  return sendMetaEvent({ eventName: "Purchase", eventId: orderId, email, phone, amountCents, clientIp, userAgent, fbc, fbp });
+function sendPurchaseEvent({ email, phone, orderId, amountCents, clientIp, userAgent, fbc, fbp, currency }) {
+  return sendMetaEvent({ eventName: "Purchase", eventId: orderId, email, phone, amountCents, clientIp, userAgent, fbc, fbp, currency });
 }
 
 function sendInitiateCheckoutEvent({ email, phone, orderId, amountCents, clientIp, userAgent, fbc, fbp }) {

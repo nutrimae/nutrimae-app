@@ -38,8 +38,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ sec
         transaction: string;
         status: string;
         offer?: { code?: string };
+        price?: { value?: number; currency_value?: string };
       };
-      buyer?: { email?: string };
+      buyer?: { email?: string; checkout_phone?: string };
     };
   };
 
@@ -58,6 +59,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ sec
         transaction: parsed.data.purchase.transaction,
         status: parsed.data.purchase.status,
         offer: parsed.data.purchase.offer,
+        price: parsed.data.purchase.price,
         buyer: parsed.data.buyer,
       });
     }

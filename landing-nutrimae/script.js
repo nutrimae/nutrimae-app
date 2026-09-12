@@ -1132,20 +1132,30 @@ document.addEventListener('DOMContentLoaded', function () {
   // mapeamento completo de códigos, incluindo os antigos do Chile mantidos
   // por segurança). Todos validados no checkout mostrando o valor exato
   // anunciado antes de entrar aqui.
+  //
+  // IMPORTANTE (2026-09-11): os HotLinks antigos (E8499889N / N8502012G,
+  // gerados direto na tela do produto) NÃO carregam a página do Checkout
+  // Builder — caem num caminho de renderização legado que ignora Order
+  // Bump, Exit Popup etc., mesmo com a página "Em Branco" definida como
+  // padrão e sem nenhuma página específica por oferta cadastrada. O link
+  // que de fato usa a página do builder é o "link da página" (código
+  // gerado pelo próprio Checkout Builder, em "Copiar link"), com o off=
+  // do país anexado — confirmado nos 10 links abaixo (5 países x 2
+  // planos): bump aparece e o preço final bate com o configurado.
   var HOTMART_CHECKOUT_URL = {
     completo: {
-      cl: 'https://pay.hotmart.com/E8499889N?off=5laftq57',
-      mx: 'https://pay.hotmart.com/E8499889N?off=bm01x9ht',
-      co: 'https://pay.hotmart.com/E8499889N?off=33hupbas',
-      pe: 'https://pay.hotmart.com/E8499889N?off=syy8cao1',
-      ec: 'https://pay.hotmart.com/E8499889N?off=pl35q3q0',
+      cl: 'https://pay.hotmart.com/E107566439S?off=5laftq57&checkoutMode=10',
+      mx: 'https://pay.hotmart.com/E107566439S?off=bm01x9ht&checkoutMode=10',
+      co: 'https://pay.hotmart.com/E107566439S?off=33hupbas&checkoutMode=10',
+      pe: 'https://pay.hotmart.com/E107566439S?off=syy8cao1&checkoutMode=10',
+      ec: 'https://pay.hotmart.com/E107566439S?off=pl35q3q0&checkoutMode=10',
     },
     basico: {
-      cl: 'https://pay.hotmart.com/N8502012G?off=jbqhhgxn',
-      mx: 'https://pay.hotmart.com/N8502012G?off=js7w15hw',
-      co: 'https://pay.hotmart.com/N8502012G?off=tpp73th9',
-      pe: 'https://pay.hotmart.com/N8502012G?off=0kyqa0re',
-      ec: 'https://pay.hotmart.com/N8502012G?off=razluwie',
+      cl: 'https://pay.hotmart.com/Q107570858N?off=jbqhhgxn&checkoutMode=10',
+      mx: 'https://pay.hotmart.com/Q107570858N?off=js7w15hw&checkoutMode=10',
+      co: 'https://pay.hotmart.com/Q107570858N?off=tpp73th9&checkoutMode=10',
+      pe: 'https://pay.hotmart.com/Q107570858N?off=0kyqa0re&checkoutMode=10',
+      ec: 'https://pay.hotmart.com/Q107570858N?off=razluwie&checkoutMode=10',
     },
   };
   var COUNTRY_STORAGE_KEY = 'nutrimae:country';

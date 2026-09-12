@@ -1193,10 +1193,28 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Repassa o UTM que trouxe a visitante (do clique no anúncio) pro checkout
+  // do Hotmart. Sem isso, o Hotmart nunca sabe de qual campanha/anúncio veio
+  // a venda, e ferramentas como UTMify não conseguem calcular ROI por
+  // campanha — só viam a venda "solta", sem origem.
+  function appendUtmParams(url) {
+    var utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    var incoming = new URLSearchParams(window.location.search);
+    var hasUtm = utmKeys.some(function (k) { return incoming.get(k); });
+    if (!hasUtm) return url;
+    var separator = url.indexOf('?') === -1 ? '?' : '&';
+    var parts = [];
+    utmKeys.forEach(function (k) {
+      var v = incoming.get(k);
+      if (v) parts.push(k + '=' + encodeURIComponent(v));
+    });
+    return url + separator + parts.join('&');
+  }
+
   function goToOffer(plan) {
     var urls = HOTMART_CHECKOUT_URL[plan] || HOTMART_CHECKOUT_URL.completo;
     detectCountry(function (country) {
-      window.location.href = urls[country] || urls.cl;
+      window.location.href = appendUtmParams(urls[country] || urls.cl);
     });
   }
 

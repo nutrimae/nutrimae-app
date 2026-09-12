@@ -16,6 +16,11 @@
  *                          Eventos Manager.
  *   META_TEST_EVENT_CODE (opcional) — código de teste do Events Manager,
  *                          só enquanto estiver validando no modo de teste.
+ *
+ * pixelId/accessToken também podem ser passados por chamada (sobrescrevem
+ * as env vars acima) — usado por grant-access-hotmart.ts pra mandar pro
+ * pixel da NutriMama LATAM em vez do pixel BR do Pagar.me, sem misturar
+ * os dois sinais de conversão no mesmo Pixel.
  */
 /* eslint-disable @typescript-eslint/no-require-imports -- script Node solto, fora do bundle da app, roda direto com `node`. */
 const bizSdk = require("facebook-nodejs-business-sdk");
@@ -40,9 +45,9 @@ function sha256(value) {
  * @param {string} [params.fbp] - cookie _fbp do Pixel (navegador), capturado no checkout
  * @param {string} [params.currency] - moeda ISO da venda (ex.: "BRL", "CLP"). Default "BRL" pro fluxo Pagar.me existente.
  */
-async function sendMetaEvent({ eventName, eventId, email, phone, amountCents, clientIp, userAgent, fbc, fbp, currency }) {
-  const accessToken = process.env.META_ACCESS_TOKEN;
-  const pixelId = process.env.META_PIXEL_ID;
+async function sendMetaEvent({ eventName, eventId, email, phone, amountCents, clientIp, userAgent, fbc, fbp, currency, pixelId: pixelIdOverride, accessToken: accessTokenOverride }) {
+  const accessToken = accessTokenOverride ?? process.env.META_ACCESS_TOKEN;
+  const pixelId = pixelIdOverride ?? process.env.META_PIXEL_ID;
   if (!accessToken || !pixelId) {
     throw new Error("META_ACCESS_TOKEN / META_PIXEL_ID ausentes — configure as variáveis de ambiente antes de chamar isto.");
   }
@@ -75,8 +80,8 @@ async function sendMetaEvent({ eventName, eventId, email, phone, amountCents, cl
   return request.execute();
 }
 
-function sendPurchaseEvent({ email, phone, orderId, amountCents, clientIp, userAgent, fbc, fbp, currency }) {
-  return sendMetaEvent({ eventName: "Purchase", eventId: orderId, email, phone, amountCents, clientIp, userAgent, fbc, fbp, currency });
+function sendPurchaseEvent({ email, phone, orderId, amountCents, clientIp, userAgent, fbc, fbp, currency, pixelId, accessToken }) {
+  return sendMetaEvent({ eventName: "Purchase", eventId: orderId, email, phone, amountCents, clientIp, userAgent, fbc, fbp, currency, pixelId, accessToken });
 }
 
 function sendInitiateCheckoutEvent({ email, phone, orderId, amountCents, clientIp, userAgent, fbc, fbp }) {

@@ -149,12 +149,20 @@ export async function grantAccessForHotmartPayment(admin: AdminClient, purchase:
  * nunca lança: a liberação de acesso (já feita acima) é o que importa de
  * verdade, rastreamento de anúncio não pode derrubar o webhook.
  *
+ * Usa META_PIXEL_ID_HOTMART/META_ACCESS_TOKEN_HOTMART (pixel dedicado da
+ * NutriMama LATAM, criado 2026-09-12) em vez das vars META_PIXEL_ID/
+ * META_ACCESS_TOKEN "padrão" (essas continuam exclusivas do fluxo Pagar.me/
+ * BR) — produto, país e idioma diferentes não devem compartilhar o mesmo
+ * Pixel, senão o sinal de conversão de um contamina o aprendizado do outro.
+ *
  * Não temos fbc/fbp/IP/user-agent aqui (o checkout roda inteiro no domínio
  * do Hotmart, não no nosso) — a correspondência no Meta fica só por
  * e-mail/telefone (hasheados), pior que a do fluxo BR mas ainda funcional.
  */
 async function reportPurchaseToMeta(purchase: HotmartPurchaseLike, email: string) {
-  if (!process.env.META_ACCESS_TOKEN || !process.env.META_PIXEL_ID) return;
+  const accessToken = process.env.META_ACCESS_TOKEN_HOTMART;
+  const pixelId = process.env.META_PIXEL_ID_HOTMART;
+  if (!accessToken || !pixelId) return;
   try {
     const amountCents =
       typeof purchase.price?.value === "number" ? Math.round(purchase.price.value * 100) : undefined;
@@ -164,6 +172,8 @@ async function reportPurchaseToMeta(purchase: HotmartPurchaseLike, email: string
       orderId: `hotmart_${purchase.transaction}`,
       amountCents,
       currency: purchase.price?.currency_value ?? "CLP",
+      pixelId,
+      accessToken,
     });
   } catch (err) {
     console.error("[hotmart-webhook] falha ao reportar compra pro Meta (acesso já foi liberado normalmente)", err);

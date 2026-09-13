@@ -27,7 +27,12 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<!-- Carregamento não-bloqueante: a fonte só é usada em elementos decorativos
+     (assinatura tipo "Con cariño, Camila"), não em texto crítico do primeiro
+     render — não vale travar a pintura inicial da página esperando ela. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap"></noscript>
 
 <link rel="stylesheet" href="styles.min.css">
 
@@ -72,7 +77,7 @@ src="https://www.facebook.com/tr?id=1066345826107868&ev=PageView&noscript=1"
     <a href="index.html" aria-label="Página de inicio de NutriMama">
       <picture>
         <source type="image/webp" srcset="assets/logo-192.webp 192w" sizes="44px">
-        <img src="assets/logo.png" alt="NutriMama" class="site-nav__logo" width="1200" height="1200" loading="lazy" decoding="async">
+        <img src="assets/logo.png" alt="NutriMama" class="site-nav__logo" width="1200" height="1200" loading="eager" decoding="async">
       </picture>
     </a>
     <div class="site-nav__links" id="site-menu">
@@ -263,7 +268,7 @@ src="https://www.facebook.com/tr?id=1066345826107868&ev=PageView&noscript=1"
 
     <div class="testimonials-carousel">
       <div class="testimonials-carousel__frame">
-        <img id="depoimento-img" src="assets/depoimentos/depoimento_1.jpg" alt="Captura de un testimonio real recibido por WhatsApp">
+        <img id="depoimento-img" src="assets/depoimentos/depoimento_1.jpg" alt="Captura de un testimonio real recibido por WhatsApp" width="640" height="960" loading="lazy" decoding="async">
       </div>
       <button type="button" class="testimonials-carousel__arrow testimonials-carousel__arrow--prev" onclick="moveDepoimento(-1)" aria-label="Testimonio anterior">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
@@ -615,7 +620,7 @@ src="https://www.facebook.com/tr?id=1066345826107868&ev=PageView&noscript=1"
   </div>
 </footer>
 
-<script src="script.min.js"></script>
+<script src="script.min.js" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

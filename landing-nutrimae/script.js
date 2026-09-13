@@ -1219,7 +1219,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function goToCheckout() {
-    trackEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
+    // trackStandardEvent (fbq('track', ...)), não trackEvent (fbq('trackCustom', ...))
+    // -- InitiateCheckout é evento padrão do Meta. Mandar via trackCustom faz o nome
+    // aparecer igual no console, mas o Meta/UTMify não reconhece como conversão padrão
+    // do funil (fica de fora do relatório de ICs, mesmo com cliques reais acontecendo).
+    trackStandardEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
     goToOffer(selectedPlan);
   }
 
@@ -1349,6 +1353,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  trackEvent('ViewContent', { page: 'oferta' });
+  // Idem InitiateCheckout acima: ViewContent também é evento padrão do Meta.
+  trackStandardEvent('ViewContent', { page: 'oferta' });
 
 });

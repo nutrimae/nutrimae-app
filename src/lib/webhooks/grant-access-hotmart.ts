@@ -1,7 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase/admin";
 import { findOrCreateUser } from "@/lib/webhooks/find-or-create-user";
-// eslint-disable-next-line @typescript-eslint/no-require-imports -- meta-conversion.js é CommonJS solto na raiz do repo (mesmo padrão do webhooks/pagarme/route.ts).
-const { sendPurchaseEvent } = require("../../../meta-conversion.js");
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -103,7 +101,6 @@ export async function grantAccessForHotmartPayment(admin: AdminClient, purchase:
         { onConflict: "user_id,product_id" },
       );
     }
-    await reportPurchaseToMeta(purchase, email);
     return { userId };
   }
 
@@ -135,47 +132,15 @@ export async function grantAccessForHotmartPayment(admin: AdminClient, purchase:
     );
   }
 
-  await reportPurchaseToMeta(purchase, email);
-
   return { userId };
 }
 
-/**
- * Purchase pro Meta via Conversions API — mesmo padrão do webhook do
- * Pagar.me (ver src/app/api/webhooks/pagarme/route.ts), que já manda esse
- * evento pro fluxo BR. Sem isso, o Pixel só via InitiateCheckout (client-side,
- * no clique do botão) pras compras do Hotmart — o algoritmo do Meta nunca
- * aprendia quem de fato pagou, só quem clicou em comprar. Best-effort e
- * nunca lança: a liberação de acesso (já feita acima) é o que importa de
- * verdade, rastreamento de anúncio não pode derrubar o webhook.
- *
- * Usa META_PIXEL_ID_HOTMART/META_ACCESS_TOKEN_HOTMART (pixel dedicado da
- * NutriMama LATAM, criado 2026-09-12) em vez das vars META_PIXEL_ID/
- * META_ACCESS_TOKEN "padrão" (essas continuam exclusivas do fluxo Pagar.me/
- * BR) — produto, país e idioma diferentes não devem compartilhar o mesmo
- * Pixel, senão o sinal de conversão de um contamina o aprendizado do outro.
- *
- * Não temos fbc/fbp/IP/user-agent aqui (o checkout roda inteiro no domínio
- * do Hotmart, não no nosso) — a correspondência no Meta fica só por
- * e-mail/telefone (hasheados), pior que a do fluxo BR mas ainda funcional.
- */
-async function reportPurchaseToMeta(purchase: HotmartPurchaseLike, email: string) {
-  const accessToken = process.env.META_ACCESS_TOKEN_HOTMART;
-  const pixelId = process.env.META_PIXEL_ID_HOTMART;
-  if (!accessToken || !pixelId) return;
-  try {
-    const amountCents =
-      typeof purchase.price?.value === "number" ? Math.round(purchase.price.value * 100) : undefined;
-    await sendPurchaseEvent({
-      email,
-      phone: purchase.buyer?.checkout_phone ?? undefined,
-      orderId: `hotmart_${purchase.transaction}`,
-      amountCents,
-      currency: purchase.price?.currency_value ?? "CLP",
-      pixelId,
-      accessToken,
-    });
-  } catch (err) {
-    console.error("[hotmart-webhook] falha ao reportar compra pro Meta (acesso já foi liberado normalmente)", err);
-  }
-}
+// Nota (2026-09-12): o evento de Compra pro Meta NÃO é mais reportado por
+// aqui. O próprio Hotmart manda esse evento nativamente (Pixel de
+// Rastreamento -> Configurar envio via WEB + API de Conversão, configurado
+// pra todos os 4 produtos com o pixel dedicado META_PIXEL_ID_HOTMART).
+// A integração nativa do Hotmart tem fbc/fbp reais do navegador da
+// compradora (o webhook daqui nunca teve isso) e já faz a deduplicação
+// entre o pixel client-side e a API de Conversões dela mesma. Reportar o
+// mesmo evento por aqui TAMBÉM contaria a venda em dobro pro Meta, sem
+// nenhum jeito de deduplicar entre os dois sistemas.

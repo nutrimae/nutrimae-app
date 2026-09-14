@@ -1354,6 +1354,31 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Idem InitiateCheckout acima: ViewContent também é evento padrão do Meta.
-  trackStandardEvent('ViewContent', { page: 'oferta' });
+  // Bug corrigido (2026-09-13): antes disparava incondicionalmente aqui no
+  // DOMContentLoaded, ou seja, em TODO carregamento de página — mesmo pra
+  // quem nunca rolou até a oferta. Isso inflava o ViewContent (quase 1:1 com
+  // PageView no Events Manager) e o deixava inútil como sinal de intenção.
+  // Agora só dispara uma vez, quando #bloco-6 realmente entra na tela.
+  var ofertaSection = document.getElementById('bloco-6');
+  if (ofertaSection) {
+    if (!supportsIO) {
+      trackStandardEvent('ViewContent', { page: 'oferta' });
+    } else {
+      var ofertaObserver = null;
+      try {
+        ofertaObserver = new IntersectionObserver(function (entries, obs) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              trackStandardEvent('ViewContent', { page: 'oferta' });
+              obs.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        ofertaObserver.observe(ofertaSection);
+      } catch (e) {
+        trackStandardEvent('ViewContent', { page: 'oferta' });
+      }
+    }
+  }
 
 });

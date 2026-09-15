@@ -1219,11 +1219,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function goToCheckout() {
-    // trackStandardEvent (fbq('track', ...)), não trackEvent (fbq('trackCustom', ...))
-    // -- InitiateCheckout é evento padrão do Meta. Mandar via trackCustom faz o nome
-    // aparecer igual no console, mas o Meta/UTMify não reconhece como conversão padrão
-    // do funil (fica de fora do relatório de ICs, mesmo com cliques reais acontecendo).
-    trackStandardEvent('InitiateCheckout', { plan: selectedPlan, age: currentAgeKey });
+    // Não reportar InitiateCheckout por aqui (2026-09-15): o Hotmart já manda
+    // esse evento nativamente pro mesmo pixel quando a compradora chega no
+    // checkout dele (mesma lógica documentada em grant-access-hotmart.ts pro
+    // evento de Compra) — com fbc/fbp reais do navegador dela, que o clique
+    // daqui nunca teve. Mandar os dois lados sem um event_id compartilhado
+    // faz o Meta contar o mesmo clique 2x ("Evento não deduplicado"),
+    // inflando artificialmente o número que a campanha usa pra otimizar.
+    trackEvent('InitiateCheckoutClick', { plan: selectedPlan, age: currentAgeKey });
     goToOffer(selectedPlan);
   }
 
